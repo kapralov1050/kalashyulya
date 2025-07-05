@@ -1,0 +1,52 @@
+{
+  "header": {
+    "logoName": "Yuliya Kalashnikova",
+    "navLessons": "Lesson Collection",
+    "login": "Log In",
+    "registration": "Sign Up"
+  },
+  "footer": {
+    "logoName": "Yuliya Kalashnikova",
+    "description": "Subscribe to see the world through the lightness of watercolor and be part of my creative journey. Welcome!",
+    "copyright": "Kalashyulya"
+  },
+  "playlists": {
+    "landscapes": {
+      "title": "Landscapes",
+      "description": "In this lesson collection, we will learn to paint landscapes"
+    },
+    "flowers": {
+      "title": "Flowers",
+      "description": "In this lesson collection, we will learn to paint flowers"
+    },
+    "portraits": {
+      "title": "Portraits",
+      "description": "In this lesson collection, we will learn to paint portraits"
+    },
+    "basics": {
+      "title": "Basics",
+      "description": "In this lesson collection, we will cover the fundamentals of drawing"
+    },
+    "color": {
+      "title": "Color",
+      "description": "In this lesson collection, we will learn to see color"
+    },
+    "composition": {
+      "title": "Composition",
+      "description": "In this lesson collection, we will learn to work with composition"
+    }
+  },
+  "mainpage": {
+    "heroTitleAqua": "Watercolor Lessons",
+    "heroTitleAutor": "by Yuliya Kalashnikova",
+    "heroDescription": "I paint with watercolors, capture life's moments, and share them with you!",
+    "heroMainButton": "Start Learning!",
+    "heroDetailsButton": "Details",
+    "featuresTitle": "Learn to Paint with Watercolors",
+    "featuresDescription": "Hello everyone! My name is Yuliya Kalashnikova, and I'm a watercolor artist. My blog is about an artist's journey, love for nature, hometown, and family, plein air painting, and watercolors. I'm happy to have you here!",
+    "emailTitle": "Follow me!",
+    "emailDescription": "New lessons are released every other Friday. Subscribe to receive updates",
+    "emailFieldText": "Your Email",
+    "emailSubscribe": "Subscribe"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "tailwindConfig": "./tailwind.config.js",
+  "plugins": ["prettier-plugin-tailwindcss", "prettier-plugin-classnames"],
+  "tailwindStylesheet": "./assets/css/main.css",
+  "singleQuote": true,
+  "semi": false,
+  "jsxSingleQuote": false,
+  "bracketSpacing": true,
+  "trailingComma": "all",
+  "printWidth": 80,
+  "tabWidth": 2,
+  "arrowParens": "avoid",
+  "endOfLine": "lf",
+  "vue/htmlWhitespaceSensitivity": "ignore",
+  "vue/maxAttributesPerLine": 1,
+  "htmlWhitespaceSensitivity": "ignore",
+  "vueIndentScriptAndStyle": true
+}

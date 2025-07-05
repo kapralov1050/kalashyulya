@@ -1,0 +1,28 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'Open Sans';
+}
+
+@utility container {
+  padding-inline: 0.75rem;
+  margin-inline: auto;
+
+  @variant sm {
+    padding-inline: 2rem;
+  }
+}
+
+@layer components {
+  .hero-image {
+    @apply rounded-2xl shadow-2xl;
+    transform: rotateX(5deg) rotateY(-10deg) rotateZ(2deg);
+  }
+
+  .hero-reflection {
+    @apply absolute inset-0 top-10 left-20 rounded-2xl bg-gradient-to-bl from-indigo-200 to-pink-200 dark:from-gray-700 dark:to-gray-700;
+    transform: scale(1.1) rotateX(5deg) rotateY(-10deg) rotateZ(2deg);
+  }
+}

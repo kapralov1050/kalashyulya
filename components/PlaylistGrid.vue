@@ -1,0 +1,18 @@
+<template>
+  <div
+    class="col-span-1 grid gap-2 sm:gap-4 md:col-span-2 lg:grid-cols-2
+      xl:col-span-3 xl:grid-cols-3"
+  >
+    <PlaylistGridItem
+      v-for="playlist in playlists"
+      :key="playlist.title"
+      :playlist="playlist"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+  const { playlists } = usePlaylistsStore()
+</script>
+
+<style scoped lang="scss"></style>
