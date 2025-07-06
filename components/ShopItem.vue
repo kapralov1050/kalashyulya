@@ -16,7 +16,11 @@
         <p class="mb-1 text-sm truncate">{{ product.description }}</p>
         <footer class="mt-10 flex justify-start align-center gap-x-4">
           <h3 class="text-xl">{{ product.price }}₽</h3>
-          <UButton to="/basket" color="secondary" size="sm">
+          <UButton
+            :color="isInBasket ? 'success' : 'secondary'"
+            size="sm"
+            @click="emit('buy', product)"
+          >
             {{ isInBasket ? 'В корзине' : 'Купить' }}
           </UButton>
           <UButton
@@ -24,7 +28,7 @@
             size="sm"
             icon="heroicons:shopping-cart"
             variant="ghost"
-            @click="$emit('addInBasket')"
+            @click="emit('addToBasket', product)"
           ></UButton>
         </footer>
       </section>
@@ -33,6 +37,8 @@
 </template>
 
 <script setup lang="ts">
+  import type { PurchaseParams } from '~/types'
+
   const props = defineProps<{
     product: {
       id: number
@@ -51,7 +57,10 @@
     return basketStore.userPurchase.some(el => el.item.id === props.product.id)
   })
 
-  defineEmits(['addInBasket'])
+  const emit = defineEmits<{
+    addToBasket: [product: PurchaseParams]
+    buy: [product: PurchaseParams]
+  }>()
 </script>
 
 <style scoped lang="scss"></style>

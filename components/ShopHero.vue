@@ -4,8 +4,8 @@
       lg:pb-25"
   >
     <AppSectionHeader
-      heading="Мой магазин"
-      subheading="Здесь вы можете купить оригиналы моих работ, постеры, стикеры и открытки"
+      :heading="$t('shop.heroTitle')"
+      :subheading="$t('shop.heroDescription')"
     />
     <div class="container mt-2">
       <form class="flex flex-col gap-y-2 sm:flex-row justify-center gap-x-2">
@@ -13,21 +13,21 @@
           id="shop"
           v-model="searchTitle"
           type="text"
-          placeholder="Введите название"
+          :placeholder="$t('shop.searchPlaceholder')"
           class="w-70% sm:w-96"
         />
         <AppButton class="w-auto mb-8 sm:mb-0" @click.prevent="handleSearch">
-          <span class="hidden sm:inline">Поиск</span>
+          <span class="hidden sm:inline">{{ $t('shop.searchButton') }}</span>
         </AppButton>
         <select
           name="filters"
           class="bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-md p-2"
         >
-          <option selected disabled>Фильтры</option>
-          <option value="pictures">Картины</option>
-          <option value="postcards">Открытки</option>
-          <option value="posters">Постеры</option>
-          <option value="stikers">Стикеры</option>
+          <option selected disabled>{{ $t('shop.filtersTitle') }}</option>
+          <option value="pictures">{{ $t('shop.filters.pictures') }}</option>
+          <option value="postcards">{{ $t('shop.filters.postcards') }}</option>
+          <option value="posters">{{ $t('shop.filters.posters') }}</option>
+          <option value="stikers">{{ $t('shop.filters.stickers') }}</option>
         </select>
       </form>
     </div>

@@ -49,5 +49,18 @@
     "emailDescription": "New lessons are released every other Friday. Subscribe to receive updates",
     "emailFieldText": "Your Email",
     "emailSubscribe": "Subscribe"
+  },
+  "shop": {
+    "heroTitle": "My Shop",
+    "heroDescription": "Here you can buy original artworks, posters, stickers, and postcards",
+    "searchPlaceholder": "Search by name",
+    "searchButton": "Search",
+    "filtersTitle": "Filters",
+    "filters": {
+      "pictures": "Paintings",
+      "postcards": "Postcards",
+      "posters": "Posters",
+      "stickers": "Stickers"
+    }
   }
 }

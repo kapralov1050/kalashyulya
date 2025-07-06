@@ -49,5 +49,18 @@
     "emailDescription": "Новые уроки выходят каждую вторую пятницу месяца. Подпишись, чтобы получать новые уроки!",
     "emailFieldText": "Ваш Email",
     "emailSubscribe": "Подписаться"
+  },
+  "shop": {
+    "heroTitle": "Мой магазин",
+    "heroDescription": "Здесь вы можете купить мои картины, постеры, стикеры и открытки",
+    "searchPlaceholder": "Введите название",
+    "searchButton": "Поиск",
+    "filtersTitle": "Фильтры",
+    "filters": {
+      "pictures": "Картины",
+      "postcards": "Открытки",
+      "posters": "Постеры",
+      "stickers": "Стикеры"
+    }
   }
 }

@@ -5,7 +5,8 @@
         v-for="item in searchedProducts"
         :key="item.id"
         :product="item"
-        @add-in-basket="addToBasket(item)"
+        @buy="buyNow"
+        @add-to-basket="addToBasket"
       />
     </section>
   </div>
@@ -16,20 +17,24 @@
 
   const basketStore = useBasketStore()
   const shopStore = useShopStore()
+  const router = useRouter()
   const { searchedProducts, products } = storeToRefs(shopStore)
 
   const { addShopItemToBasket } = useBasketStore()
 
-  const addToBasket = (item: PurchaseParams) => {
-    const purchase = {
-      price: item.price,
-      title: item.title,
-      image: item.image,
-      id: item.id,
-      category: item.category,
-      stock: item.stock,
-    }
-    addShopItemToBasket(purchase)
+  const addToBasket = async (product: PurchaseParams) => {
+    await new Promise(resolve => {
+      setTimeout(resolve, 300)
+    })
+    addShopItemToBasket(product)
+  }
+
+  const buyNow = async (product: PurchaseParams) => {
+    addShopItemToBasket(product)
+    await new Promise(resolve => {
+      setTimeout(resolve, 500)
+    })
+    router.push('/basket')
   }
 
   onMounted(() => {
