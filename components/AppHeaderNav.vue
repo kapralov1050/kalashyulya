@@ -1,9 +1,19 @@
 <template>
   <nav class="hidden grow sm:block">
     <ul class="flex items-center gap-x-8">
-      <li class="mr-auto">
+      <li>
         <AppHeaderNavLink to="/playlists">
           {{ $t('header.navLessons') }}
+        </AppHeaderNavLink>
+      </li>
+      <li class="mr-auto">
+        <AppHeaderNavLink to="/shop">
+          {{ $t('header.shop') }}
+        </AppHeaderNavLink>
+      </li>
+      <li>
+        <AppHeaderNavLink to="/basket">
+          <Icon name="heroicons:shopping-cart" size="2rem" />
         </AppHeaderNavLink>
       </li>
       <li>

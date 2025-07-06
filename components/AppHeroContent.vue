@@ -17,10 +17,10 @@
       {{ $t('mainpage.heroDescription') }}
     </p>
     <div class="mt-6 flex gap-x-2 sm:mt-8">
-      <AppButton lg to="/playlists">
+      <AppButton icon="heroicons:paper-airplane" lg to="/playlists">
         {{ $t('mainpage.heroMainButton') }}
       </AppButton>
-      <AppButton lg secondary to="#features">
+      <AppButton icon="heroicons:paper-airplane" lg secondary to="#features">
         {{ $t('mainpage.heroDetailsButton') }}
       </AppButton>
     </div>

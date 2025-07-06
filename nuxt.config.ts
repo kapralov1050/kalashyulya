@@ -11,6 +11,7 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
     '@nuxtjs/google-fonts',
     '@pinia/nuxt',
+    '@nuxt/image',
   ],
   vite: {
     plugins: [tailwindcss()],

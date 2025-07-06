@@ -7,7 +7,7 @@
         :placeholder="$t('mainpage.emailFieldText')"
         class="w-60 sm:w-96"
       />
-      <AppButton>
+      <AppButton icon="heroicons:paper-airplane">
         <span class="hidden sm:inline">
           {{ $t('mainpage.emailSubscribe') }}
         </span>

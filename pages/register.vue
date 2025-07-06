@@ -1,11 +1,21 @@
 <template>
   <form class="flex flex-col gap-y-4 sm:gap-y-6">
-    <AppFormField id="email" type="text">Email</AppFormField>
-    <AppFormField id="password" type="text">Password</AppFormField>
-    <AppFormField id="passwordConfirmation" type="text">
+    <AppFormField id="email" v-model="email" placeholder="Введите Email">
+      Email
+    </AppFormField>
+    <AppFormField id="password" v-model="password" placeholder="Введите пароль">
+      Password
+    </AppFormField>
+    <AppFormField
+      id="password"
+      v-model="passwordConfirm"
+      placeholder="Подтвердите пароль"
+    >
       Password Confirmation
     </AppFormField>
-    <AppButton class="mt-2 sm:mt-1">Sign Up</AppButton>
+    <AppButton icon="heroicons:paper-airplane" class="mt-2 sm:mt-1">
+      Sign Up
+    </AppButton>
   </form>
   <p class="mt-6 text-center text-sm text-gray-600 sm:mt-8 dark:text-gray-300">
     Already have an account?
@@ -23,6 +33,10 @@
   definePageMeta({
     layout: 'auth',
   })
+
+  const email = ref('')
+  const password = ref('')
+  const passwordConfirm = ref('')
 </script>
 
 <style scoped lang="scss"></style>
