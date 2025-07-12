@@ -36,10 +36,10 @@
 
 <script setup lang="ts">
   const searchTitle = ref('')
-  const { searchProducts } = useShopStore()
+  const shopStore = useShopStore()
 
   const handleSearch = () => {
-    searchProducts(searchTitle.value)
+    shopStore.searchedResults = shopStore.searchProducts(searchTitle.value)
   }
 </script>
 

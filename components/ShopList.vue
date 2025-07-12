@@ -2,9 +2,9 @@
   <div class="container flex justify-center">
     <section class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
       <ShopItem
-        v-for="item in searchedProducts"
+        v-for="item in products"
         :key="item.id"
-        :product="item"
+        :product="item.items"
         @buy="buyNow"
         @add-to-basket="addToBasket"
       />
@@ -13,12 +13,9 @@
 </template>
 
 <script setup lang="ts">
-  import type { PurchaseParams } from '../types'
-
-  const basketStore = useBasketStore()
   const shopStore = useShopStore()
   const router = useRouter()
-  const { searchedProducts, products } = storeToRefs(shopStore)
+  const { searchedResults, products } = storeToRefs(shopStore)
 
   const { addShopItemToBasket } = useBasketStore()
 
@@ -36,11 +33,6 @@
     })
     router.push('/basket')
   }
-
-  onMounted(() => {
-    searchedProducts.value = products.value
-    basketStore.loadPurchase()
-  })
 </script>
 
 <style scoped lang="scss"></style>
