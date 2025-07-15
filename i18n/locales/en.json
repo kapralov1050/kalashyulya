@@ -57,9 +57,9 @@
     "searchButton": "Search",
     "filtersTitle": "Filters",
     "filters": {
-      "pictures": "Paintings",
+      "pictures": "Pictures",
+      "sketches": "Sketches",
       "postcards": "Postcards",
-      "posters": "Posters",
       "stickers": "Stickers"
     }
   }

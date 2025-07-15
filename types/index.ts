@@ -1,4 +1,6 @@
 export interface Product {
+  category: string
+  categoryId: number
   id: number
   title: string
   description: string

@@ -37,18 +37,10 @@
 </template>
 
 <script setup lang="ts">
-  import type { PurchaseParams } from '~/types'
+  import type { Product } from '~/types'
 
   const props = defineProps<{
-    product: {
-      id: number
-      title: string
-      description: string
-      price: number
-      category: string
-      image: string
-      stock: number
-    }
+    product: Product
   }>()
 
   const basketStore = useBasketStore()

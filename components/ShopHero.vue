@@ -20,16 +20,24 @@
           <span class="hidden sm:inline">{{ $t('shop.searchButton') }}</span>
         </AppButton>
         <select
+          v-model="shopStore.categoryFilter"
           name="filters"
           class="bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-md p-2"
         >
-          <option selected disabled>{{ $t('shop.filtersTitle') }}</option>
-          <option value="pictures">{{ $t('shop.filters.pictures') }}</option>
-          <option value="postcards">{{ $t('shop.filters.postcards') }}</option>
-          <option value="posters">{{ $t('shop.filters.posters') }}</option>
+          <option selected value="">{{ $t('shop.filtersTitle') }}</option>
+          <option value="watercolor">{{ $t('shop.filters.pictures') }}</option>
+          <option value="sketches">{{ $t('shop.filters.sketches') }}</option>
+          <option value="posters">{{ $t('shop.filters.postcards') }}</option>
           <option value="stikers">{{ $t('shop.filters.stickers') }}</option>
         </select>
       </form>
+      <AppButton
+        v-if="shopStore.searchedProducts"
+        class="bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-md p-2"
+        @click="resetSearch"
+      >
+        <span class="hidden sm:inline">Смотреть все товары</span>
+      </AppButton>
     </div>
   </section>
 </template>
@@ -39,7 +47,11 @@
   const shopStore = useShopStore()
 
   const handleSearch = () => {
-    shopStore.searchedResults = shopStore.searchProducts(searchTitle.value)
+    shopStore.searchedProducts = shopStore.findProduct(searchTitle.value)
+  }
+
+  const resetSearch = () => {
+    shopStore.searchedProducts = null
   }
 </script>
 

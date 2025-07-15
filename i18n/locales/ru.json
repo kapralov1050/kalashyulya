@@ -58,8 +58,8 @@
     "filtersTitle": "Фильтры",
     "filters": {
       "pictures": "Картины",
+      "sketches": "Наброски",
       "postcards": "Открытки",
-      "posters": "Постеры",
       "stickers": "Стикеры"
     }
   }

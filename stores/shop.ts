@@ -1,43 +1,44 @@
 import type { Product, ShopData } from '~/types'
-import { useDatabaseList } from 'vuefire'
 import { ref as dbRef } from 'firebase/database'
 
 export const useShopStore = defineStore('shop', () => {
   const db = useDatabase()
-  const products = useDatabaseObject<ShopData>(dbRef(db, 'shop'))
+  const shopData = useDatabaseObject<ShopData>(dbRef(db, 'shop'))
 
-  const searchedResults = ref<
-    | { item: Product; categoryName: string; categoryId: number }
-    | null
-    | undefined
-  >()
+  const searchedProducts = ref<Product[] | null>(null)
+  const categoryFilter = ref('')
 
-  const searchProducts = (
-    title: string,
-  ):
-    | { item: Product; categoryName: string; categoryId: number }
-    | null
-    | undefined => {
-    if (!products.value) return null
+  const allProducts = computed<Product[] | []>(() => {
+    if (!shopData.value) return []
 
-    for (const category of products.value) {
-      const foundItem = category.items.find(item => {
-        return item.title.toLowerCase().includes(title.toLowerCase())
-      })
-
-      if (foundItem) {
-        return {
-          item: foundItem,
-          categoryName: category.name,
+    return shopData.value
+      .flatMap(category =>
+        category.items.map(item => ({
+          ...item,
+          category: category.category,
           categoryId: category.id,
-        }
-      }
-    }
+        })),
+      )
+      .filter(item => {
+        if (!categoryFilter.value) return true
+
+        return item.category === categoryFilter.value
+      })
+  })
+
+  const findProduct = (searchQry: string) => {
+    if (!allProducts) return []
+
+    return allProducts.value.filter(prod =>
+      prod.title.toLowerCase().includes(searchQry.toLowerCase()),
+    )
   }
 
   return {
-    searchedResults,
-    products,
-    searchProducts,
+    findProduct,
+    searchedProducts,
+    shopData,
+    allProducts,
+    categoryFilter,
   }
 })
