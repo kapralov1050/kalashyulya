@@ -39,19 +39,14 @@
 <script setup lang="ts">
   import type { Product } from '~/types'
 
-  const props = defineProps<{
+  defineProps<{
     product: Product
+    isInBasket: boolean
   }>()
 
-  const basketStore = useBasketStore()
-
-  const isInBasket = computed(() => {
-    return basketStore.userPurchase.some(el => el.item.id === props.product.id)
-  })
-
   const emit = defineEmits<{
-    addToBasket: [product: PurchaseParams]
-    buy: [product: PurchaseParams]
+    addToBasket: [product: Product]
+    buy: [product: Product]
   }>()
 </script>
 

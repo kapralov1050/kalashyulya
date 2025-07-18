@@ -1,49 +1,53 @@
 import type { Purchase, PurchaseParams } from '~/types'
 
 export const useBasketStore = defineStore('basket', () => {
-  const userPurchase = ref<Purchase[]>([])
+  const shoppingCart = ref<Purchase[]>([])
+
+  const totalPurchaseAmount = computed(() => {
+    return (
+      shoppingCart.value.reduce((acc, purc) => (acc += purc.item.price), 0) ||
+      null
+    )
+  })
 
   function loadPurchase() {
     const basketContent = localStorage.getItem('basket')
-    if (basketContent) userPurchase.value = JSON.parse(basketContent)
+    if (basketContent) shoppingCart.value = JSON.parse(basketContent)
   }
 
-  function addShopItemToBasket(item: PurchaseParams): void {
-    const index = userPurchase.value.findIndex(pos => item.id === pos.item.id)
-
-    if (index !== -1) {
-      userPurchase.value[index].amount = 1
-    } else {
-      userPurchase.value.push({
-        amount: 1,
-        item,
-      })
+  function addShopItemToBasket(userPurchase: Purchase): void {
+    const index = shoppingCart.value.findIndex(
+      (prod: Purchase) => userPurchase.item.id === prod.item.id,
+    )
+    if (index === -1) {
+      shoppingCart.value.push(userPurchase)
     }
-
-    localStorage.setItem('basket', JSON.stringify(userPurchase.value))
+    localStorage.setItem('basket', JSON.stringify(shoppingCart.value))
   }
 
   function changeShopItemQty(changeVal: number, item: PurchaseParams) {
-    const desiredIndex = userPurchase.value.findIndex(
-      pos => item.id === pos.item.id,
+    const desiredIndex = shoppingCart.value.findIndex(
+      (prod: Purchase) => item.id === prod.item.id,
     )
-    const currentItem = userPurchase.value[desiredIndex]
+    const currentItem = shoppingCart.value[desiredIndex]
     const newAmount = currentItem.amount + changeVal
     if (newAmount <= 0) {
-      userPurchase.value = userPurchase.value.filter((_, index) => {
-        return index !== desiredIndex
-      })
+      shoppingCart.value = shoppingCart.value.filter(
+        (_: unknown, index: number) => {
+          return index !== desiredIndex
+        },
+      )
     } else if (newAmount <= item.stock) {
       currentItem.amount = newAmount
     }
-
-    localStorage.setItem('basket', JSON.stringify(userPurchase.value))
+    localStorage.setItem('basket', JSON.stringify(shoppingCart.value))
   }
 
   return {
-    userPurchase,
+    shoppingCart,
     addShopItemToBasket,
     changeShopItemQty,
     loadPurchase,
+    totalPurchaseAmount,
   }
 })

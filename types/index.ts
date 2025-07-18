@@ -18,3 +18,13 @@ export interface ProductCategory {
 }
 
 export type ShopData = ProductCategory[]
+
+export interface Purchase {
+  amount: number
+  item: PurchaseParams
+}
+
+export type PurchaseParams = Omit<
+  Product,
+  'description' | 'categoryId' | 'tags'
+>

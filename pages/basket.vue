@@ -1,5 +1,5 @@
 <template>
-  <section
+  <article
     class="container flex flex-col gap-y-2 pt-24 pb-3 sm:pt-16 sm:pb-18 lg:pt-28
       lg:pb-25"
   >
@@ -12,9 +12,9 @@
         sm:mt-4"
     >
       <div
-        v-for="el in basketStore.userPurchase"
+        v-for="el in basketStore.shoppingCart"
         :key="el.item.id"
-        class="w-200 flex flex-row justify-center gap-x-5"
+        class="min-w-200 flex flex-row justify-center gap-x-5"
       >
         <NuxtImg
           :src="el.item.image"
@@ -57,14 +57,28 @@
           {{ el.item.price }}₽
         </h3>
       </div>
+      <section class="w-200 flex justify-end gap-x-10">
+        <AppButton
+          class="w-auto mb-8 sm:mb-0"
+          @click="isModalOpen = !isModalOpen"
+        >
+          Оформить заказ
+        </AppButton>
+        <AppModal v-if="isModalOpen" @close="isModalOpen = false">
+          <template #header>Оформление заказа</template>
+          <template #default><OrderForm></OrderForm></template>
+        </AppModal>
+        <p>Сумма покупки {{ basketStore.totalPurchaseAmount }}₽</p>
+      </section>
     </section>
-  </section>
+  </article>
 </template>
 
 <script setup lang="ts">
   import type { PurchaseParams } from '~/types'
 
   const basketStore = useBasketStore()
+  const isModalOpen = ref(false)
 
   const decreaseAmount = (purchaseItem: PurchaseParams) => {
     basketStore.changeShopItemQty(-1, purchaseItem)
