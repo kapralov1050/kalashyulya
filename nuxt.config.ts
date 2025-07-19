@@ -4,6 +4,11 @@ export default defineNuxtConfig({
   routeRules: {
     '/shop/**': { ssr: false },
   },
+  runtimeConfig: {
+    public: {
+      cloudFunctionUrl: process.env.NUXT_PUBLIC_CLOUD_FUNCTION_URL,
+    },
+  },
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],

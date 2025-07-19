@@ -1,25 +1,34 @@
 <template>
   <div class="flex flex-col gap-y-1">
-    <AppLabel v-if="$slots.default" :for="id">
-      <slot />
+    <AppLabel v-if="label" :for="id">
+      {{ label }}
     </AppLabel>
-    <UInput
-      v-model="searchValue"
-      color="info"
-      highlight
+    <UTextarea
+      v-if="type === 'textarea'"
+      :id="id"
+      v-model="modelValue"
       :placeholder="placeholder"
       size="lg"
-      type="text"
-      class="w-100%"
+      class="w-full"
+    />
+
+    <UInput
+      v-else
+      :id="id"
+      v-model="modelValue"
+      :type="type"
+      :placeholder="placeholder"
+      size="lg"
+      class="w-full"
     >
-      <template v-if="searchValue?.length" #trailing>
+      <template v-if="modelValue?.length" #trailing>
         <UButton
           color="neutral"
           variant="link"
           size="sm"
           icon="i-lucide-circle-x"
           aria-label="Clear input"
-          @click="searchValue = ''"
+          @click="modelValue = ''"
         />
       </template>
     </UInput>
@@ -29,8 +38,24 @@
 <script setup lang="ts">
   defineOptions({ inheritAttrs: false })
 
-  defineProps<{ id: string; placeholder: string }>()
-  const searchValue = defineModel<string>({ required: true })
-</script>
+  defineProps({
+    id: {
+      type: String,
+      required: true,
+    },
+    type: {
+      type: String,
+      default: 'text',
+    },
+    placeholder: {
+      type: String,
+      default: '',
+    },
+    label: {
+      type: String,
+      default: '',
+    },
+  })
 
-<style scoped lang="scss"></style>
+  const modelValue = defineModel<string>({ required: true })
+</script>
