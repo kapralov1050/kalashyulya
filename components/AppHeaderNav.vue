@@ -1,39 +1,41 @@
 <template>
-  <nav class="hidden grow sm:block">
+  <nav class="hidden grow md:block">
     <ul class="flex items-center gap-x-8">
       <li>
-        <AppHeaderNavLink to="/playlists">
+        <UButton color="neutral" variant="link" to="/playlists">
           {{ $t('header.navLessons') }}
-        </AppHeaderNavLink>
+        </UButton>
       </li>
       <li class="mr-auto">
-        <AppHeaderNavLink to="/shop">
+        <UButton color="neutral" variant="link" to="/shop">
           {{ $t('header.shop') }}
-        </AppHeaderNavLink>
+        </UButton>
       </li>
       <li>
-        <AppHeaderNavLink to="/basket">
+        <UButton color="neutral" variant="link" to="/basket">
           <Icon name="heroicons:shopping-cart" size="2rem" />
-        </AppHeaderNavLink>
+        </UButton>
       </li>
       <li>
-        <AppHeaderNavLink to="/login">
+        <UButton color="neutral" variant="link" to="/login">
           {{ $t('header.login') }}
-        </AppHeaderNavLink>
+        </UButton>
       </li>
       <li>
-        <AppButton to="/register">
+        <UButton to="/register" size="xl" color="neutral" variant="outline">
           {{ $t('header.registration') }}
-        </AppButton>
+        </UButton>
       </li>
       <li>
-        <AppHeaderNavLink
+        <UButton
           v-for="locale in availableLocales"
           :key="locale.code"
+          color="neutral"
+          variant="link"
           :to="switchLocalePath(locale.code)"
         >
           {{ locale.name }}
-        </AppHeaderNavLink>
+        </UButton>
       </li>
     </ul>
   </nav>

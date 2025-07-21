@@ -1,35 +1,48 @@
 <template>
-  <div class="flex sm:hidden">
-    <nav
-      id="nav"
-      class="peer absolute inset-x-0 top-full hidden border-b border-gray-200
-        bg-white target:block dark:border-0 dark:bg-gray-900"
-    >
-      <ul class="flex flex-col gap-y-2 px-3 pb-3">
-        <li>
-          <AppHeaderMobileNavLink to="/playlists">
-            Library
-          </AppHeaderMobileNavLink>
-        </li>
-        <li>
-          <AppHeaderMobileNavLink to="/login">Log In</AppHeaderMobileNavLink>
-        </li>
-        <li>
-          <AppButton lg to="/register" class="inline-block w-full text-center">
-            Sign Up
-          </AppButton>
-        </li>
-      </ul>
-    </nav>
-    <AppHeaderMobileNavButton
-      to="#nav"
-      icon="heroicons:bars-3-solid"
-      class="peer-target:hidden peer-target:[&+a]:block"
-    />
-    <AppHeaderMobileNavButton to="#" icon="heroicons:x-mark" class="hidden" />
-  </div>
+  <UDropdownMenu
+    arrow
+    :items="items"
+    :ui="{
+      content: 'w-100',
+    }"
+    class="md:hidden"
+  >
+    <UButton icon="i-lucide-menu" color="neutral" variant="ghost" />
+  </UDropdownMenu>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+  import type { DropdownMenuItem } from '@nuxt/ui'
+
+  const items = ref<DropdownMenuItem[]>([
+    [
+      {
+        label: 'Главная',
+        icon: 'i-lucide-user',
+        to: '/',
+      },
+      {
+        label: 'Магазин',
+        icon: 'heroicons:shopping-bag',
+        to: '/shop',
+      },
+      {
+        label: 'Уроки',
+        icon: 'heroicons:paint-brush',
+        to: '/playlists',
+      },
+    ],
+    [
+      {
+        label: 'Войти',
+        icon: 'heroicons:arrow-left-on-rectangle',
+      },
+      {
+        label: 'Регистрация',
+        icon: 'heroicons:user-plus',
+      },
+    ],
+  ])
+</script>
 
 <style scoped lang="scss"></style>

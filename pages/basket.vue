@@ -58,15 +58,19 @@
         </h3>
       </div>
       <section class="w-200 flex justify-end gap-x-10">
-        <AppButton
+        <UButton
           class="w-auto mb-8 sm:mb-0"
+          size="xl"
+          variant="outline"
           @click="isModalOpen = !isModalOpen"
         >
           Оформить заказ
-        </AppButton>
+        </UButton>
         <AppModal v-if="isModalOpen" @close="isModalOpen = false">
           <template #header>Оформление заказа</template>
-          <template #default><OrderForm></OrderForm></template>
+          <template #default>
+            <OrderForm @close-modal="isModalOpen = false"></OrderForm>
+          </template>
         </AppModal>
         <p>Сумма покупки {{ basketStore.totalPurchaseAmount }}₽</p>
       </section>

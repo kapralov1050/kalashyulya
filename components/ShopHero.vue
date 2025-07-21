@@ -16,9 +16,13 @@
           :placeholder="$t('shop.searchPlaceholder')"
           class="w-70% sm:w-96"
         />
-        <AppButton class="w-auto mb-8 sm:mb-0" @click.prevent="handleSearch">
+        <UButton
+          color="secondary"
+          class="w-auto mb-8 sm:mb-0"
+          @click.prevent="handleSearch"
+        >
           <span class="hidden sm:inline">{{ $t('shop.searchButton') }}</span>
-        </AppButton>
+        </UButton>
         <select
           v-model="shopStore.categoryFilter"
           name="filters"
@@ -31,13 +35,14 @@
           <option value="stikers">{{ $t('shop.filters.stickers') }}</option>
         </select>
       </form>
-      <AppButton
+      <UButton
+        color="neutral"
+        variant="outline"
         v-if="shopStore.searchedProducts"
-        class="bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-md p-2"
         @click="resetSearch"
       >
         <span class="hidden sm:inline">Смотреть все товары</span>
-      </AppButton>
+      </UButton>
     </div>
   </section>
 </template>

@@ -1,26 +1,22 @@
 import type { Order } from '~/types'
 
 export const useShop = () => {
-  const sendOrder = async (orderData: Order) => {
-    try {
-      const config = useRuntimeConfig()
-      const functionUrl = config.public.cloudFunctionUrl
-      const response = await $fetch(functionUrl, {
-        method: 'POST',
-        body: orderData,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
+  const sendOrderInfoTelegram = async (orderData: Order) => {
+    return await $fetch('/api/sendOrderTelegram', {
+      method: 'POST',
+      body: orderData,
+    })
+  }
 
-      return { success: true, data: response }
-    } catch (error) {
-      console.error('Ошибка отправки заказа:', error)
-      return { success: false, error }
-    }
+  const sendOrderInfoEmail = async (orderData: Order) => {
+    return await $fetch('/api/sendOrderEmail', {
+      method: 'POST',
+      body: orderData,
+    })
   }
 
   return {
-    sendOrder,
+    sendOrderInfoTelegram,
+    sendOrderInfoEmail,
   }
 }

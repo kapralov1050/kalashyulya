@@ -17,12 +17,22 @@
       {{ $t('mainpage.heroDescription') }}
     </p>
     <div class="mt-6 flex gap-x-2 sm:mt-8">
-      <AppButton icon="heroicons:paper-airplane" lg to="/playlists">
+      <UButton
+        icon="heroicons:paper-airplane"
+        to="/playlists"
+        size="xl"
+        variant="outline"
+      >
         {{ $t('mainpage.heroMainButton') }}
-      </AppButton>
-      <AppButton icon="heroicons:paper-airplane" lg secondary to="#features">
+      </UButton>
+      <UButton
+        icon="heroicons:paper-airplane"
+        to="#features"
+        size="xl"
+        variant="outline"
+      >
         {{ $t('mainpage.heroDetailsButton') }}
-      </AppButton>
+      </UButton>
     </div>
   </div>
 </template>

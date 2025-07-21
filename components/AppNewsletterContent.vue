@@ -2,22 +2,27 @@
   <div class="container">
     <form class="flex justify-center gap-x-2">
       <AppFormField
-        id="email"
-        type="email"
-        :placeholder="$t('mainpage.emailFieldText')"
-        class="w-60 sm:w-96"
+        id="name"
+        v-model="email"
+        type="text"
+        placeholder="Введите ваше имя"
+        label="Имя"
+        class="w-70% sm:w-96"
       />
-      <AppButton icon="heroicons:paper-airplane">
+
+      <UButton icon="heroicons:paper-airplane">
         <span class="hidden sm:inline">
           {{ $t('mainpage.emailSubscribe') }}
         </span>
-      </AppButton>
+      </UButton>
     </form>
   </div>
 </template>
 
 <script setup lang="ts">
   import AppFormField from './AppFormField.vue'
+
+  const email = ref('')
 </script>
 
 <style scoped lang="scss"></style>

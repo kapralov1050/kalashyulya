@@ -6,7 +6,9 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      cloudFunctionUrl: process.env.NUXT_PUBLIC_CLOUD_FUNCTION_URL,
+      cloudFunctionTelegramUrl:
+        process.env.NUXT_PUBLIC_CLOUD_FUNCTION_TELEGRAM_URL,
+      cloudFunctionEmailUrl: process.env.NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_URL,
     },
   },
   compatibilityDate: '2025-05-15',

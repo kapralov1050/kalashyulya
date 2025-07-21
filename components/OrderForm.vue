@@ -46,16 +46,28 @@
         class="w-70% sm:w-96"
       />
 
-      <AppButton @click.prevent="submitOrder">Отправить</AppButton>
+      <UButton
+        loading-auto
+        size="xl"
+        class="self-center"
+        variant="outline"
+        @click.prevent="submitOrder"
+      >
+        {{ isSending ? 'Отправка...' : 'Отправить' }}
+      </UButton>
     </form>
   </article>
 </template>
 
 <script setup lang="ts">
+  import { showToast } from '~/helpers/showToast'
   import type { Order } from '~/types'
 
+  const isSending = ref(false)
+
+  const emit = defineEmits(['closeModal'])
   const basketStore = useBasketStore()
-  const { sendOrder } = useShop()
+  const { sendOrderInfoTelegram, sendOrderInfoEmail } = useShop()
 
   const formData = reactive({
     name: '',
@@ -83,8 +95,18 @@
 
     console.log('Отправка заказа:', orderInfo)
 
-    const { success, data } = await sendOrder(orderInfo)
+    isSending.value = true
 
-    console.log(success, data)
+    await sendOrderInfoTelegram(orderInfo)
+    await sendOrderInfoEmail(orderInfo)
+
+    showToast(
+      'Заказ успешно оформлен',
+      'В ближайшее время я с вами свяжусь',
+      'heroicons:check-circle',
+    )
+
+    isSending.value = false
+    emit('closeModal')
   }
 </script>
