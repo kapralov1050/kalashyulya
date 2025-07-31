@@ -1,6 +1,6 @@
 <template>
   <ul class="flex flex-col gap-y-1">
-    <LessonListItem
+    <PlaylistLessonListItem
       v-for="lesson in lessons"
       :key="lesson.number"
       :lesson="lesson"

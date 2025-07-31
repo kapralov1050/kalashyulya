@@ -15,6 +15,4 @@
   </section>
 </template>
 
-<script setup lang="ts">
-  import AppSectionHeader from '~/components/AppSectionHeader.vue'
-</script>
+<script setup lang="ts"></script>

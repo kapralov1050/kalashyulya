@@ -20,8 +20,6 @@
 </template>
 
 <script setup lang="ts">
-  import AppFormField from './AppFormField.vue'
-
   const email = ref('')
 </script>
 
