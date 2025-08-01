@@ -1,23 +1,18 @@
 export interface Product {
-  category: string
-  categoryId: number
-  id: number
   title: string
   description: string
-  price: number
+  categoryId: string
+  id: number
   image: string
+  price: number
   stock: number
   tags: string[]
 }
 
-export interface ProductCategory {
-  id: number
-  name: string
-  category: string
-  items: Product[]
+export interface ShopData {
+  categories: Record<string, string | number>
+  products: Record<string, Product>
 }
-
-export type ShopData = ProductCategory[]
 
 export interface Purchase {
   amount: number

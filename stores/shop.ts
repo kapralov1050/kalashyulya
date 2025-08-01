@@ -1,9 +1,9 @@
 import type { Product, ShopData } from '~/types'
-import { ref as dbRef } from 'firebase/database'
+
+import { useFirebase } from '~/composables/firebase/useFirebase'
 
 export const useShopStore = defineStore('shop', () => {
-  const db = useDatabase()
-  const shopData = useDatabaseObject<ShopData>(dbRef(db, 'shop'))
+  const { shopData } = useFirebase()
 
   const searchedProducts = ref<Product[] | null>(null)
   const categoryFilter = ref('')
@@ -11,19 +11,13 @@ export const useShopStore = defineStore('shop', () => {
   const allProducts = computed<Product[] | []>(() => {
     if (!shopData.value) return []
 
-    return shopData.value
-      .flatMap(category =>
-        category.items.map(item => ({
-          ...item,
-          category: category.category,
-          categoryId: category.id,
-        })),
-      )
-      .filter(item => {
-        if (!categoryFilter.value) return true
+    const products = Object.values(shopData.value.products)
 
-        return item.category === categoryFilter.value
-      })
+    if (!categoryFilter.value) {
+      return products
+    }
+
+    return products.filter(prod => prod.categoryId === categoryFilter.value)
   })
 
   const findProduct = (searchQry: string) => {
