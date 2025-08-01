@@ -1,14 +1,14 @@
 import tailwindcss from '@tailwindcss/vite'
+import { buildVuefire } from './config/nuxt/buildVuefire'
 
 export default defineNuxtConfig({
-  routeRules: {
-    '/shop/**': { ssr: false },
-  },
+  ssr: false,
   runtimeConfig: {
     public: {
       cloudFunctionTelegramUrl:
         process.env.NUXT_PUBLIC_CLOUD_FUNCTION_TELEGRAM_URL,
       cloudFunctionEmailUrl: process.env.NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_URL,
+      adminUid: process.env.NUXT_PUBLIC_ADMIN_UID,
     },
   },
   compatibilityDate: '2025-05-15',
@@ -26,22 +26,7 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
   ],
 
-  vuefire: {
-    config: {
-      apiKey: 'AIzaSyCd6RtL-I9Az59wKV_aWbhOk7PKX03Rt-c',
-      authDomain: 'kalashyulya-lessons.firebaseapp.com',
-      databaseURL:
-        'https://kalashyulya-lessons-default-rtdb.europe-west1.firebasedatabase.app',
-      projectId: 'kalashyulya-lessons',
-      storageBucket: 'kalashyulya-lessons.firebasestorage.app',
-      messagingSenderId: '30642592130',
-      appId: '1:30642592130:web:4fc2962c7af0e90c26179b',
-      measurementId: 'G-8RTY5DXRHG',
-    },
-    services: {
-      database: true,
-    },
-  },
+  vuefire: buildVuefire(),
   vite: {
     plugins: [tailwindcss()],
   },

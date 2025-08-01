@@ -2,6 +2,11 @@
   <nav class="hidden grow md:block">
     <ul class="flex items-center gap-x-8">
       <li>
+        <UButton color="neutral" variant="link" to="/about">
+          {{ $t('header.about') }}
+        </UButton>
+      </li>
+      <li>
         <UButton color="neutral" variant="link" to="/playlists">
           {{ $t('header.navLessons') }}
         </UButton>
@@ -16,7 +21,7 @@
           <Icon name="heroicons:shopping-cart" size="2rem" />
         </UButton>
       </li>
-      <li>
+      <!-- <li>
         <UButton color="neutral" variant="link" to="/login">
           {{ $t('header.login') }}
         </UButton>
@@ -25,7 +30,7 @@
         <UButton to="/register" size="xl" color="neutral" variant="outline">
           {{ $t('header.registration') }}
         </UButton>
-      </li>
+      </li> -->
       <li>
         <UButton
           v-for="locale in availableLocales"

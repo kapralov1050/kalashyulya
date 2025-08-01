@@ -29,10 +29,10 @@
           class="bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-md p-2"
         >
           <option selected value="">{{ $t('shop.filtersTitle') }}</option>
-          <option value="watercolor">{{ $t('shop.filters.pictures') }}</option>
-          <option value="sketches">{{ $t('shop.filters.sketches') }}</option>
-          <option value="posters">{{ $t('shop.filters.postcards') }}</option>
-          <option value="stikers">{{ $t('shop.filters.stickers') }}</option>
+          <option value="category1">{{ $t('shop.filters.pictures') }}</option>
+          <option value="category2">{{ $t('shop.filters.sketches') }}</option>
+          <option value="category3">{{ $t('shop.filters.postcards') }}</option>
+          <option value="category4">{{ $t('shop.filters.stickers') }}</option>
         </select>
       </form>
       <UButton

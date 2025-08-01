@@ -8,7 +8,7 @@
       <img :src="product.image" class="aspect-square object-cover" />
       <section class="mt-auto">
         <header class="mt-2">
-          <p class="mt-2 mb-1 text-xs">{{ product.category }}</p>
+          <p class="mt-2 mb-1 text-xs">{{ product.categoryId }}</p>
           <h2 class="mb-2 text-2xl">
             {{ product.title }}
           </h2>

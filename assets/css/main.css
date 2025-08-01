@@ -15,3 +15,34 @@
     padding-inline: 2rem;
   }
 }
+
+:root {
+  --index: calc(1vw + 1vh);
+  --transition: transform 0.55s cubic-bezier(0.075, 0.5, 0, 1);
+  --gap: 1rem;
+  --logo-color: rgb(61, 61, 61);
+}
+
+@font-face {
+  font-family: raleway_f;
+  src: url(/fonts/raleway-black.woff2);
+}
+
+@font-face {
+  font-family: raleway_f;
+  src: url(/fonts/raleway-regular.woff2);
+  font-weight: 900;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: railway_f, sans-serif;
+  line-height: 1.55;
+}
+
+li {
+  list-style-type: none;
+}
