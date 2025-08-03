@@ -1,44 +1,47 @@
 <template>
   <article class="container">
-    <DashboardNewProductForm />
-    <div>
-      <div
-        v-for="product in shopStore.allProducts"
-        :key="product.id"
-        class="grid grid-cols-4"
+    <h1>Панель администратора</h1>
+    <select v-model="selectedModal">
+      <option
+        v-for="option in Object.keys(dashboardModals)"
+        :key="option"
+        :value="option"
       >
-        <h1>{{ product.title }}</h1>
-        <p>{{ product.stock }}</p>
-        <p>{{ product.price }}</p>
-        <button class="pointer" @click="removeProduct(product.id)">
-          Удалить
-        </button>
-      </div>
-    </div>
+        {{ option }}
+      </option>
+    </select>
+    <component :is="dashboardModals[selectedModal]" />
+
     <button @click="quitFromAdminPanel">Выйти</button>
   </article>
 </template>
 
 <script setup lang="ts">
+  import type { Component } from 'vue'
   import { useFirebase } from '~/composables/firebase/useFirebase'
-  import { removeDataByPath } from '~/helpers/firebase/manageDatabase'
-
-  const shopStore = useShopStore()
-  const { logOut } = useFirebase()
-  const router = useRouter()
+  import type { DashBoardOption } from '~/types'
 
   definePageMeta({
     middleware: 'auth',
   })
 
+  const selectedModal = ref<DashBoardOption>('NewProductForm')
+
+  const dashboardModals: Record<DashBoardOption, Component> = {
+    NewProductForm: defineAsyncComponent(
+      () => import('@/components/dashboard/NewProductForm.vue'),
+    ),
+    ProductsList: defineAsyncComponent(
+      () => import('@/components/dashboard/ProductsList.vue'),
+    ),
+  }
+
+  const { logOut } = useFirebase()
+  const router = useRouter()
+
   const quitFromAdminPanel = () => {
     logOut()
     router.push('/')
-  }
-
-  const removeProduct = (productid: number) => {
-    console.log(`shop/products/product_${productid}`)
-    removeDataByPath(`shop/products/product_${productid}`)
   }
 </script>
 

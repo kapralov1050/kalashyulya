@@ -1,7 +1,7 @@
 <template>
   <div
-    class="border-t border-indigo-800 pt-6 text-center text-sm text-indigo-200
-      sm:pt-8 dark:border-gray-800 dark:text-gray-400"
+    class="border-t border-neutral-100 pt-6 text-center text-sm text-neutral-100
+      sm:pt-8 dark:border-neutral-800 dark:text-neutral-400"
   >
     {{ $t('footer.copyright') }}© 2025
   </div>

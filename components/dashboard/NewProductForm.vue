@@ -7,10 +7,10 @@
       class="bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-md p-2"
     >
       <option selected value="">{{ $t('shop.filtersTitle') }}</option>
-      <option value="category_1">{{ $t('shop.filters.pictures') }}</option>
-      <option value="category_2">{{ $t('shop.filters.sketches') }}</option>
-      <option value="category_3">{{ $t('shop.filters.postcards') }}</option>
-      <option value="category_4">{{ $t('shop.filters.stickers') }}</option>
+      <option value="1">{{ $t('shop.filters.pictures') }}</option>
+      <option value="2">{{ $t('shop.filters.sketches') }}</option>
+      <option value="3">{{ $t('shop.filters.postcards') }}</option>
+      <option value="4">{{ $t('shop.filters.stickers') }}</option>
     </select>
 
     <AppFormField
@@ -66,7 +66,7 @@
         size="xl"
         class="self-center"
         variant="outline"
-        @click.prevent="addToShop"
+        @click.prevent="createProduct"
       >
         Отправить
       </UButton>
@@ -90,17 +90,24 @@
     title: '',
   })
 
-  const addToShop = () => {
-    addNewProduct({
-      categoryId: getCategoryId(formData.category),
+  const createProduct = async () => {
+    const newProduct = {
+      categoryId: formData.category,
       description: formData.description,
       image: formData.imageUrl,
-      price: +formData.price,
-      stock: +formData.stock,
+      price: Number(formData.price),
+      stock: Number(formData.stock),
       tags: formData.tags,
       title: formData.title,
-    })
-    showToast('success', 'Товар успешно добавлен', 'heroicons:check-circle')
+    }
+
+    await addNewProduct(newProduct, 'shop/products/')
+
+    showToast(
+      'success',
+      'Product created successfully',
+      'heroicons:check-circle',
+    )
   }
 </script>
 

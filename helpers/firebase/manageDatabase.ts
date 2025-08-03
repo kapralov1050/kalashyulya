@@ -39,27 +39,28 @@ export const removeDataByPath = async (path: string): Promise<void> => {
   }
 }
 
-export const updateDataByPath = async <T>(
-  data: T,
+export const updateDataByPath = async (
+  updates: object,
   path: string,
 ): Promise<void> => {
   try {
-    const itemsRef = dbRef(useDatabase(), path)
-    const snapshot = await get(itemsRef)
-    const items = snapshot.val() || []
-
-    // Находим максимальный id
-    const maxId = Object.keys(items)
-      .map(prod => +prod.split('_')[1])
-      .reduce((a, b) => Math.max(a, b), 0)
-    // Добавляем новый товар
-    const newItemWithId = { ...data, id: maxId + 1 }
-    const updates: Record<string, T> = {}
-    updates[`${path}/product_${maxId + 1}`] = newItemWithId
-
-    update(dbRef(useDatabase()), updates)
+    const updatesRef = dbRef(useDatabase(), path)
+    update(updatesRef, updates)
   } catch (error) {
     console.log('error while updating data:', error)
+    throw error
+  }
+}
+
+export const getSnapshotByPath = async (
+  path: string,
+): Promise<DataSnapshot> => {
+  try {
+    const itemsRef = dbRef(useDatabase(), path)
+    const snapshot = await get(itemsRef)
+    return snapshot.val() || []
+  } catch (error) {
+    console.log('error while getting snapshot:', error)
     throw error
   }
 }

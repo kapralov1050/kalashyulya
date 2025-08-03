@@ -1,34 +1,28 @@
-import type { Product, ShopData } from '~/types'
+import type { LessonsTags, Product, ShopData } from '~/types'
 import { ref as dbRef } from 'firebase/database'
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
 import type { User } from 'firebase/auth'
-import { updateDataByPath } from '~/helpers/firebase/manageDatabase'
+import {
+  getSnapshotByPath,
+  updateDataByPath,
+} from '~/helpers/firebase/manageDatabase'
 
 export const useFirebase = () => {
   const db = useDatabase()
   const shopData = useDatabaseObject<ShopData>(dbRef(db, 'shop'))
+  const lessonsTagsData = useDatabaseObject<LessonsTags>(
+    dbRef(db, 'lessonsTags'),
+  )
   const auth = getAuth()
 
-  async function addNewProduct(product: Omit<Product, 'id'>) {
+  async function addNewProduct(product: Omit<Product, 'id'>, path: string) {
     try {
-      const id = await updateDataByPath(product, `shop/products/`)
-      console.log(id)
-    } catch (error) {
-      console.log(error)
-    }
-  }
+      const snapshot = await getSnapshotByPath(path)
+      const maxId =
+        Math.max(...Object.keys(snapshot).map(prod => +prod.split('_')[1])) + 1
+      const newItemWithId: Product = { ...product, id: maxId }
 
-  async function login(
-    email: string,
-    password: string,
-  ): Promise<User | undefined> {
-    try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password,
-      )
-      return userCredential.user
+      await updateDataByPath(newItemWithId, `${path}product_${maxId}`)
     } catch (error) {
       console.log(error)
     }
@@ -43,23 +37,9 @@ export const useFirebase = () => {
     }
   }
 
-  const isAdmin = () => {
-    const user = auth.currentUser
-    const {
-      public: { adminUid },
-    } = useRuntimeConfig()
-
-    if (!user) {
-      return false
-    }
-
-    return adminUid === user.uid
-  }
-
   return {
     shopData,
-    login,
-    isAdmin,
+    lessonsTagsData,
     logOut,
     addNewProduct,
   }

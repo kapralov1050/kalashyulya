@@ -1,15 +1,22 @@
-import { useFirebase } from '~/composables/firebase/useFirebase'
+import { getSnapshotByPath } from '~/helpers/firebase/manageDatabase'
 
-export default defineNuxtRouteMiddleware((to, from) => {
-  const { isAdmin } = useFirebase()
+export default defineNuxtRouteMiddleware(async to => {
+  const authStore = useAuthStore()
 
-  const admin = isAdmin()
-
-  if (to.path.startsWith('/admin') && !admin) {
-    return navigateTo('/admin/login')
+  if (!authStore.currentUser?.uid) {
+    return navigateTo('/login')
   }
 
-  if (to.path === '/admin/login' && admin) {
-    return navigateTo('/admin/dashboard')
+  if (to.path === '/login' || !to.path.startsWith('/admin')) {
+    return
+  }
+
+  const snapshot = await getSnapshotByPath(
+    `users/${authStore.currentUser.uid}/role`,
+  )
+  const role = snapshot.toString()
+
+  if (role !== 'admin') {
+    return navigateTo('/login')
   }
 })

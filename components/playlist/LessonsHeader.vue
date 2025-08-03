@@ -9,7 +9,7 @@
         target="_blank"
         class="hover:text-indigo-600"
       >
-        <icon :name="link.icon" class="size-6 sm:size-8 dark:text-white" />
+        <UIcon :name="link.icon" class="size-6 sm:size-8 dark:text-white" />
       </NuxtLink>
     </div>
   </div>

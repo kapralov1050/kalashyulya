@@ -21,4 +21,19 @@
 
 <script setup lang="ts"></script>
 
-<style scoped lang="scss"></style>
+<style scoped>
+  .gallery__content {
+    columns: 300px;
+    column-gap: var(--gap);
+    padding: calc(var(--gap) / 1.25);
+  }
+
+  .item {
+    margin-bottom: var(--gap);
+  }
+
+  .item img {
+    width: 100%;
+    display: block;
+  }
+</style>

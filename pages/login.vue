@@ -1,6 +1,5 @@
 <template>
   <form class="flex flex-col gap-y-4 sm:gap-y-6">
-    <h1 class="text-center">Администратор</h1>
     <AppFormField id="email" v-model="email" placeholder="Введите Email">
       Email
     </AppFormField>
@@ -18,7 +17,8 @@
 </template>
 
 <script setup lang="ts">
-  import { useFirebase } from '~/composables/firebase/useFirebase'
+  import { set } from 'firebase/database'
+  import { isAdmin, loginUser } from '~/helpers/firebase/authService'
   import { showToast } from '~/helpers/showToast'
 
   definePageMeta({
@@ -28,21 +28,23 @@
   const email = ref('')
   const password = ref('')
 
-  const { login } = useFirebase()
   const router = useRouter()
 
   const logInAdminPanel = async () => {
-    const admin = await login(email.value, password.value)
+    const { user, error } = await loginUser(email.value, password.value)
 
-    if (admin) {
-      router.push('/admin/dashboard')
-    } else {
-      router.push('/')
+    if (user) {
       showToast(
-        'Ошибка доступа',
-        'Доступ запрещен',
-        'heroicons:exclamation-triangle',
+        'Успешно!',
+        'User logged in successfully',
+        'heroicons:exclamation-circle',
       )
+      await setTimeout(() => {}, 1500)
+      router.push('/lessons')
+    }
+
+    if (error) {
+      showToast('Ошибка', error, 'heroicons:exclamation-circle')
     }
   }
 </script>

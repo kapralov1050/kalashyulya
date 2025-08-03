@@ -4,8 +4,8 @@
       {{ $t('footer.logoName') }}
     </AppLogo>
     <p
-      class="mt-2 text-sm text-indigo-200 sm:mt-4 sm:text-base
-        dark:text-gray-400"
+      class="mt-2 text-sm text-neutral-100 sm:mt-4 sm:text-base
+        dark:text-neutral-400"
     >
       {{ $t('footer.description') }}
     </p>

@@ -4,7 +4,7 @@
   </NuxtLink>
   <button v-else :class="classes">
     <slot />
-    <icon name="heroicons:paper-airplane" class="size-5 sm:hidden" />
+    <UIcon name="heroicons:paper-airplane" class="size-5 sm:hidden" />
   </button>
 </template>
 

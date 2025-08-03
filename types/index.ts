@@ -46,3 +46,7 @@ export interface Order {
   }
   totalPrice: number
 }
+
+export type LessonsTags = Record<string, string>
+
+export type DashBoardOption = 'NewProductForm' | 'ProductsList'

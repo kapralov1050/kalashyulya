@@ -7,8 +7,8 @@
       {{ $t('mainpage.heroTitleAqua') }}
       <br />
       <span
-        class="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text
-          text-transparent dark:from-purple-300 dark:to-indigo-300"
+        class="bg-gradient-to-r from-secondary-600 to-primary-600 bg-clip-text
+          text-transparent dark:from-primary-300 dark:to-secondary-300"
       >
         {{ $t('mainpage.heroTitleAutor') }}
       </span>

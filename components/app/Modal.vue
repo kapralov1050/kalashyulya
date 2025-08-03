@@ -7,7 +7,7 @@
       <header class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-bold"><slot name="header" /></h3>
         <button class="text-gray-500 hover:text-gray-700" @click="closeModal">
-          <icon name="heroicons:x-mark-16-solid" />
+          <UIcon name="heroicons:x-mark-16-solid" />
         </button>
       </header>
       <slot class="mb-4" />

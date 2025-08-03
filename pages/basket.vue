@@ -23,7 +23,6 @@
           height="100"
         />
         <div>
-          <p class="text-gray-800 dark:text-gray-200">{{ el.item.category }}</p>
           <h1 class="text-2xl text-gray-900 dark:text-white">
             {{ el.item.title }}
           </h1>
