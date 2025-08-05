@@ -1,39 +1,36 @@
 <template>
-  <article class="gallery">
-    <div class="gallery__content">
-      <div class="item"><img src="/gallery/2.jpg" alt="alt" /></div>
-      <div class="item"><img src="/gallery/3.jpg" alt="alt" /></div>
-      <div class="item"><img src="/gallery/4.jpg" alt="alt" /></div>
-      <div class="item"><img src="/gallery/5.jpg" alt="alt" /></div>
-      <div class="item"><img src="/gallery/6.jpg" alt="alt" /></div>
-      <div class="item"><img src="/gallery/7.jpg" alt="alt" /></div>
-      <div class="item"><img src="/gallery/8.jpg" alt="alt" /></div>
-      <div class="item"><img src="/gallery/9.jpg" alt="alt" /></div>
-      <div class="item"><img src="/gallery/10.jpg" alt="alt" /></div>
-      <div class="item"><img src="/gallery/11.jpg" alt="alt" /></div>
-      <div class="item"><img src="/gallery/12.jpg" alt="alt" /></div>
-      <div class="item"><img src="/gallery/13.jpg" alt="alt" /></div>
-      <div class="item"><img src="/gallery/14.jpg" alt="alt" /></div>
-      <div class="item"><img src="/gallery/15.jpg" alt="alt" /></div>
-    </div>
-  </article>
+  <section class="w-full">
+    <UCarousel
+      v-slot="{ item }"
+      auto-scroll
+      :items="items"
+      :ui="{ item: 'basis-1/3' }"
+    >
+      <NuxtImg
+        :src="item"
+        width="500"
+        height="300"
+        class="object-cover rounded-xl"
+      />
+    </UCarousel>
+  </section>
 </template>
 
-<script setup lang="ts"></script>
-
-<style scoped>
-  .gallery__content {
-    columns: 300px;
-    column-gap: var(--gap);
-    padding: calc(var(--gap) / 1.25);
-  }
-
-  .item {
-    margin-bottom: var(--gap);
-  }
-
-  .item img {
-    width: 100%;
-    display: block;
-  }
-</style>
+<script setup lang="ts">
+  const items = [
+    'gallery/2.jpg',
+    'gallery/3.jpg',
+    'gallery/4.jpg',
+    'gallery/5.jpg',
+    'gallery/6.jpg',
+    'gallery/7.jpg',
+    'gallery/8.jpg',
+    'gallery/9.jpg',
+    'gallery/10.jpg',
+    'gallery/11.jpg',
+    'gallery/12.jpg',
+    'gallery/13.jpg',
+    'gallery/14.jpg',
+    'gallery/15.jpg',
+  ]
+</script>

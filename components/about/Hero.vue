@@ -1,6 +1,6 @@
 <template>
   <section class="container mt-20 mb-20">
-    <div class="flex gap-x-15">
+    <div class="flex flex-col gap-y-10 sm:flex-row sm:gap-x-15 overflow-auto">
       <div>
         <h2 class="text-3xl mb-10">Обо мне</h2>
         <p>
@@ -28,7 +28,7 @@
       <img
         src="/about-hero.png"
         alt="Юлия Калашникова"
-        class="h-100 w-auto object-cover rounded-lg"
+        class="h-auto w-full sm:w-1/2 object-cover rounded-lg"
       />
     </div>
   </section>

@@ -5,7 +5,7 @@
     >
       <section class="flex w-full flex-col items-center gap-y-4 p-3 sm:gap-y-6">
         <AppLogo
-          icon-classes="size-14 text-indigo-600 sm:size-16 dark:text-white"
+          icon-classes="size-14 text-primary-600 sm:size-16 dark:text-white"
         />
         <div
           class="w-full rounded-md border border-gray-200 bg-white p-4 shadow-sm

@@ -1,34 +1,53 @@
 <template>
-  <form class="flex flex-col gap-y-4 sm:gap-y-6">
-    <AppFormField id="name" v-model="name" placeholder="Введите ваше Имя">
-      Name
-    </AppFormField>
-    <AppFormField id="email" v-model="email" placeholder="Введите Email">
-      Email
-    </AppFormField>
-    <AppFormField id="password" v-model="password" placeholder="Введите пароль">
-      Password
-    </AppFormField>
-    <AppFormField
-      id="password"
-      v-model="passwordConfirm"
-      placeholder="Подтвердите пароль"
-    >
-      Password Confirmation
-    </AppFormField>
-    <AppButton
+  <UForm
+    :schema="registerSchema"
+    :state="userData"
+    class="space-y-3 sm:space-y-5"
+    @submit="onSubmit"
+  >
+    <UFormField label="Имя" name="name">
+      <UInput
+        v-model="userData.name"
+        size="xl"
+        type="text"
+        placeholder="Введите ваше имя"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField label="Email" name="email">
+      <UInput
+        v-model="userData.email"
+        size="xl"
+        type="password"
+        placeholder="Введите Email"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField label="Password" name="password">
+      <UInput
+        v-model="userData.password"
+        size="xl"
+        type="password"
+        placeholder="Введите пароль"
+        class="w-full"
+      />
+    </UFormField>
+    <UButton
+      type="submit"
+      size="xl"
       icon="heroicons:paper-airplane"
-      class="mt-2 sm:mt-1"
-      @click.prevent="register"
+      class="mt-2 sm:mt-1 w-full flex justify-center"
     >
-      Sign Up
-    </AppButton>
-  </form>
+      Log in
+    </UButton>
+  </UForm>
   <p class="mt-6 text-center text-sm text-gray-600 sm:mt-8 dark:text-gray-300">
     Already have an account?
     <NuxtLink
-      class="font-medium text-indigo-600 hover:text-indigo-700
-        dark:text-indigo-400 dark:hover:text-indigo-300"
+      class="cursor-pointer font-medium text-primary-600 hover:text-primary-700
+        dark:text-primary-400 dark:hover:text-primary-300"
     >
       Log in
     </NuxtLink>
@@ -38,21 +57,25 @@
 <script setup lang="ts">
   import { createUser } from '~/helpers/firebase/authService'
   import { showToast } from '~/helpers/showToast'
+  import { registerSchema } from '~/helpers/valibot'
+  import type { registerSchemaType } from '~/helpers/valibot'
+  import type { FormSubmitEvent } from '@nuxt/ui'
 
   definePageMeta({
     layout: 'auth',
   })
 
-  const name = ref('')
-  const email = ref('')
-  const password = ref('')
-  const passwordConfirm = ref('')
+  const userData = reactive({
+    name: '',
+    email: '',
+    password: '',
+  })
 
-  const register = async () => {
+  const onSubmit = async (event: FormSubmitEvent<registerSchemaType>) => {
     const { user, error } = await createUser(
-      name.value,
-      email.value,
-      password.value,
+      userData.name,
+      userData.email,
+      userData.password,
     )
 
     if (user) {
@@ -68,9 +91,9 @@
       showToast('Ошибка', error, 'heroicons:exclamation-circle')
     }
 
-    email.value = ''
-    password.value = ''
-    passwordConfirm.value = ''
+    userData.name = ''
+    userData.email = ''
+    userData.password = ''
   }
 </script>
 

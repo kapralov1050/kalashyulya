@@ -1,67 +1,79 @@
 <template>
   <article class="container">
-    <form class="flex flex-col gap-y-4">
-      <AppFormField
-        id="name"
-        v-model="formData.name"
-        type="text"
-        placeholder="Введите ваше имя"
-        label="Имя"
-        class="w-70% sm:w-96"
-      />
+    <UForm
+      :schema="orderSchema"
+      :state="formData"
+      class="flex flex-col gap-y-4"
+      @submit="submitOrder"
+    >
+      <UFormField name="name" label="Имя">
+        <UInput
+          v-model="formData.name"
+          size="xl"
+          type="text"
+          placeholder="Введите ваше Имя"
+          class="w-full"
+        />
+      </UFormField>
+      <UFormField name="phone" label="Телефон">
+        <UInput
+          v-model="formData.phone"
+          size="xl"
+          type="text"
+          placeholder="Введите ваш номер телефона"
+          class="w-full"
+        />
+      </UFormField>
 
-      <AppFormField
-        id="phone"
-        v-model="formData.phone"
-        type="tel"
-        placeholder="Введите ваш телефон"
-        label="Телефон"
-        class="w-70% sm:w-96"
-      />
+      <UFormField name="email" label="Email">
+        <UInput
+          v-model="formData.email"
+          size="xl"
+          type="email"
+          placeholder="Введите ваш Email"
+          class="w-full"
+        />
+      </UFormField>
 
-      <AppFormField
-        id="email"
-        v-model="formData.email"
-        type="email"
-        placeholder="Введите ваш email (необязательно)"
-        label="Email"
-        class="w-70% sm:w-96"
-      />
+      <UFormField name="address" label="Адрес">
+        <UInput
+          v-model="formData.address"
+          size="xl"
+          type="text"
+          placeholder="Введите ваш адрес"
+          class="w-full"
+        />
+      </UFormField>
 
-      <AppFormField
-        id="address"
-        v-model="formData.address"
-        type="text"
-        placeholder="Введите адрес доставки"
-        label="Адрес"
-        class="w-70% sm:w-96"
-      />
-
-      <AppFormField
-        id="comment"
-        v-model="formData.comment"
-        type="textarea"
-        placeholder="Комментарий к заказу"
-        label="Комментарий"
-        class="w-70% sm:w-96"
-      />
+      <UFormField name="comment" label="Комментарий">
+        <UInput
+          v-model="formData.comment"
+          size="xl"
+          type="text"
+          placeholder="Введите ваш комментарий"
+          class="w-full"
+        />
+      </UFormField>
 
       <UButton
         loading-auto
+        type="submit"
         size="xl"
         class="self-center"
         variant="outline"
-        @click.prevent="submitOrder"
       >
         {{ isSending ? 'Отправка...' : 'Отправить' }}
       </UButton>
-    </form>
+    </UForm>
   </article>
 </template>
 
 <script setup lang="ts">
   import { showToast } from '~/helpers/showToast'
+  import { orderSchema } from '~/helpers/valibot'
+  import type { orderSchemaType } from '~/helpers/valibot'
   import type { Order } from '~/types'
+  import type { FormSubmitEvent } from '@nuxt/ui'
 
   const isSending = ref(false)
 
@@ -77,7 +89,7 @@
     comment: '',
   })
 
-  const submitOrder = async () => {
+  const submitOrder = async (event: FormSubmitEvent<orderSchemaType>) => {
     const orderInfo: Order = {
       customer: {
         name: formData.name,

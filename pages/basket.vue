@@ -1,79 +1,104 @@
 <template>
   <article
-    class="container flex flex-col gap-y-2 pt-24 pb-3 sm:pt-16 sm:pb-18 lg:pt-28
+    class="w-full flex justify-center pt-24 pb-3 sm:pt-16 sm:pb-18 lg:pt-28
       lg:pb-25"
   >
-    <AppSectionHeader
-      heading="Корзина покупок"
-      subheading="Все ваши покупки находятся здесь"
-    />
-    <section
-      class="flex flex-col justify-center items-center gap-y-3 :gap-y-6 mt-2
-        sm:mt-4"
+    <div
+      class="w-300 flex flex-col w-2/3 gap-y-2 rounded-4xl bg-primary-0
+        shadow-2xl shadow-primary-500/50 p-5"
     >
-      <div
-        v-for="el in basketStore.shoppingCart"
-        :key="el.item.id"
-        class="min-w-200 flex flex-row justify-center gap-x-5"
+      <AppSectionHeader
+        heading="Корзина покупок"
+        subheading="Все ваши покупки находятся здесь"
+      />
+      <section
+        class="flex flex-col justify-center items-center gap-y-3 :gap-y-6 mt-2
+          sm:mt-4"
       >
-        <NuxtImg
-          :src="el.item.image"
-          :alt="el.item.title"
-          width="100"
-          height="100"
-        />
-        <div>
-          <h1 class="text-2xl text-gray-900 dark:text-white">
-            {{ el.item.title }}
-          </h1>
-          <p>В наличии {{ el.item.stock }}шт.</p>
-        </div>
-        <div class="ml-auto flex justify-center items-center">
-          <UButton
-            color="neutral"
-            variant="link"
-            size="sm"
-            icon="heroicons:minus-16-solid"
-            aria-label="Clear input"
-            @click="decreaseAmount(el.item)"
-          />
-          <h2 class="text-2xl text-gray-800 dark:text-gray-200">
-            {{ el.amount }}
-          </h2>
-          <UButton
-            color="neutral"
-            variant="link"
-            size="sm"
-            icon="heroicons:plus-16-solid"
-            aria-label="Clear input"
-            @click="increaseAmount(el.item)"
-          />
-        </div>
-        <h3
-          class="flex items-center ml-2 text-2xl text-gray-800
-            dark:text-gray-200"
+        <div
+          v-for="el in basketStore.shoppingCart"
+          :key="el.item.id"
+          class="min-w-200 flex flex-row justify-center gap-x-5 py-4 border-b-1
+            border-neutral-200 dark:border-neutral-700"
         >
-          {{ el.item.price }}₽
-        </h3>
-      </div>
-      <section class="w-200 flex justify-end gap-x-10">
-        <UButton
-          class="w-auto mb-8 sm:mb-0"
-          size="xl"
-          variant="outline"
-          @click="isModalOpen = !isModalOpen"
-        >
-          Оформить заказ
-        </UButton>
-        <AppModal v-if="isModalOpen" @close="isModalOpen = false">
-          <template #header>Оформление заказа</template>
-          <template #default>
-            <OrderForm @close-modal="isModalOpen = false"></OrderForm>
-          </template>
-        </AppModal>
-        <p>Сумма покупки {{ basketStore.totalPurchaseAmount }}₽</p>
+          <NuxtImg
+            :src="el.item.image"
+            :alt="el.item.title"
+            fit="cover"
+            width="200"
+            class="rounded-lg"
+          />
+          <div>
+            <h1 class="text-md text-gray-900 dark:text-white">
+              {{ el.item.title }}
+            </h1>
+            <p class="text-xs">В наличии {{ el.item.stock }}шт.</p>
+            <UButton
+              color="neutral"
+              variant="link"
+              size="xs"
+              class="text-start p-0 text-primary underline"
+            >
+              убрать
+            </UButton>
+          </div>
+          <div class="ml-auto flex flex-col gap-y-3">
+            <div
+              class="flex justify-center items-center bg-neutral-100 rounded-xl"
+            >
+              <UButton
+                color="neutral"
+                variant="link"
+                size="sm"
+                icon="heroicons:minus-16-solid"
+                aria-label="Clear input"
+                @click="decreaseAmount(el.item)"
+              />
+              <h2 class="text-sm text-gray-800 dark:text-gray-200">
+                {{ el.amount }}
+              </h2>
+              <UButton
+                color="neutral"
+                variant="link"
+                size="sm"
+                icon="heroicons:plus-16-solid"
+                aria-label="Clear input"
+                @click="increaseAmount(el.item)"
+              />
+            </div>
+            <h3
+              class="flex items-center ml-2 text-sm text-gray-800
+                dark:text-gray-200"
+            >
+              ₽{{ el.item.price }}
+            </h3>
+          </div>
+        </div>
+        <section class="w-200 flex gap-x-5">
+          <p class="mr-auto">Всего</p>
+          <h3>Количество: {{ basketStore.totalPurchaceQty }} шт.</h3>
+          <h3 class="font-extrabold">₽{{ basketStore.totalPurchaseAmount }}</h3>
+        </section>
+        <section class="w-200 flex justify-end gap-x-10 mt-4 sm:mt-6">
+          <UButton
+            class="w-full flex justify-center mb-8 sm:mb-0 p-2 sm:p-4
+              rounded-4xl text-neutral-900 border border-neutral-600"
+            color="info"
+            size="xl"
+            variant="link"
+            @click="isModalOpen = !isModalOpen"
+          >
+            Оформить заказ
+          </UButton>
+          <AppModal v-if="isModalOpen" @close="isModalOpen = false">
+            <template #header>Оформление заказа</template>
+            <template #default>
+              <OrderForm @close-modal="isModalOpen = false"></OrderForm>
+            </template>
+          </AppModal>
+        </section>
       </section>
-    </section>
+    </div>
   </article>
 </template>
 

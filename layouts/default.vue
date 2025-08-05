@@ -1,11 +1,9 @@
 <template>
-  <UApp>
-    <div class="flex min-h-screen flex-col dark:bg-gray-800">
+  <div class="flex min-h-screen flex-col dark:bg-gray-800">
+    <UApp>
       <AppHeader />
-      <main>
-        <slot />
-      </main>
+      <slot />
       <AppFooter />
-    </div>
-  </UApp>
+    </UApp>
+  </div>
 </template>

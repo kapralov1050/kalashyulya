@@ -7,6 +7,10 @@ export const useBasketStore = defineStore('basket', () => {
     return shoppingCart.value.reduce((acc, purc) => (acc += purc.item.price), 0)
   })
 
+  const totalPurchaceQty = computed(() => {
+    return shoppingCart.value.length
+  })
+
   const shortPurchaseInfo = computed<ShortPurchaseInfo[]>(() => {
     return shoppingCart.value.map(purc => {
       const shortInfo = {
@@ -58,6 +62,7 @@ export const useBasketStore = defineStore('basket', () => {
     changeShopItemQty,
     loadPurchase,
     totalPurchaseAmount,
+    totalPurchaceQty,
     shortPurchaseInfo,
   }
 })

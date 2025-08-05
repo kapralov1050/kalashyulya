@@ -1,13 +1,12 @@
 <template>
-  <ShopHero />
-  <Suspense>
+  <div>
+    <ShopHero />
     <ShopList
       v-if="shopStore.searchedProducts"
       :list="shopStore.searchedProducts"
     />
     <ShopList v-else :list="shopStore.allProducts" />
-    <template #fallback>Загрузка... формы</template>
-  </Suspense>
+  </div>
 </template>
 
 <script setup lang="ts">

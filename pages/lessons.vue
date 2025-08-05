@@ -1,7 +1,9 @@
 <template>
-  <AppHero />
-  <AppFeatures />
-  <AppNewsletter />
+  <div>
+    <AppHero />
+    <AppFeatures />
+    <!-- <AppNewsletter /> -->
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -10,4 +12,4 @@
   })
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped></style>

@@ -1,20 +1,29 @@
 <template>
-  <UDropdownMenu
-    arrow
-    :items="items"
-    :ui="{
-      content: 'w-100',
+  <USlideover
+    title="Меню"
+    :close="{
+      color: 'primary',
+      variant: 'link',
+      class: 'rounded-full',
     }"
-    class="md:hidden"
+    class="block lg:hidden"
   >
-    <UButton icon="i-lucide-menu" color="neutral" variant="ghost" />
-  </UDropdownMenu>
+    <UButton icon="heroicons:bars-3-20-solid" color="neutral" variant="link" />
+
+    <template #content>
+      <UNavigationMenu
+        orientation="vertical"
+        :items="items"
+        class="w-full justify-center"
+      />
+    </template>
+  </USlideover>
 </template>
 
 <script setup lang="ts">
-  import type { DropdownMenuItem } from '@nuxt/ui'
+  import type { NavigationMenuItem } from '@nuxt/ui'
 
-  const items = ref<DropdownMenuItem[]>([
+  const items = ref<NavigationMenuItem[]>([
     [
       {
         label: 'Главная',
@@ -29,17 +38,19 @@
       {
         label: 'Уроки',
         icon: 'heroicons:paint-brush',
-        to: '/playlists',
+        to: '/lessons',
       },
     ],
     [
       {
         label: 'Войти',
         icon: 'heroicons:arrow-left-on-rectangle',
+        to: '/login',
       },
       {
         label: 'Регистрация',
         icon: 'heroicons:user-plus',
+        to: '/register',
       },
     ],
   ])

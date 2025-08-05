@@ -1,5 +1,5 @@
 <template>
-  <nav class="hidden grow md:block">
+  <nav class="hidden grow lg:block">
     <ul class="flex items-center gap-x-8">
       <li>
         <UButton color="neutral" variant="link" to="/">
