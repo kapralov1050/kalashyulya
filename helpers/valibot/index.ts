@@ -19,6 +19,11 @@ export const orderSchema = v.object({
   comment: v.pipe(v.string(), v.minLength(1, 'Введите имя')),
 })
 
+export const productSchema = v.object({
+  title: v.pipe(v.string(), v.minLength(1, 'Введите название')),
+})
+
 export type loginSchemaType = v.InferOutput<typeof loginSchema>
 export type registerSchemaType = v.InferOutput<typeof registerSchema>
 export type orderSchemaType = v.InferOutput<typeof orderSchema>
+export type productSchemaType = v.InferOutput<typeof productSchema>

@@ -7,38 +7,49 @@
       :heading="$t('shop.heroTitle')"
       :subheading="$t('shop.heroDescription')"
     />
-    <div class="container mt-2">
-      <form class="flex flex-col gap-y-2 sm:flex-row justify-center gap-x-2">
-        <AppFormField
-          id="shop"
-          v-model="searchTitle"
-          type="text"
-          :placeholder="$t('shop.searchPlaceholder')"
-          class="w-70% sm:w-96"
-        />
-        <UButton
-          color="secondary"
-          class="w-auto mb-8 sm:mb-0"
-          @click.prevent="handleSearch"
-        >
+    <div
+      class="container flex flex-col gap-y-2 sm:flex-row justify-center gap-x-2
+        mt-2"
+    >
+      <UForm
+        :schema="productSchema"
+        :state="searchState"
+        class="flex gap-x-5"
+        @submit="submitSearch"
+      >
+        <UFormField>
+          <UInput
+            id="search"
+            v-model="searchState.title"
+            type="search"
+            placeholder="Название товара"
+            class="w-70% sm:w-96"
+          />
+        </UFormField>
+
+        <UFormField>
+          <select
+            v-model="shopStore.categoryFilter"
+            name="filters"
+            class="bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-md p-2"
+          >
+            <option selected value="">{{ $t('shop.filtersTitle') }}</option>
+            <option value="1">{{ $t('shop.filters.pictures') }}</option>
+            <option value="2">{{ $t('shop.filters.sketches') }}</option>
+            <option value="3">
+              {{ $t('shop.filters.postcards') }}
+            </option>
+            <option value="4">{{ $t('shop.filters.stickers') }}</option>
+          </select>
+        </UFormField>
+        <UButton type="submit" color="primary" class="w-auto mb-8 sm:mb-0">
           <span class="hidden sm:inline">{{ $t('shop.searchButton') }}</span>
         </UButton>
-        <select
-          v-model="shopStore.categoryFilter"
-          name="filters"
-          class="bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-md p-2"
-        >
-          <option selected value="">{{ $t('shop.filtersTitle') }}</option>
-          <option value="category1">{{ $t('shop.filters.pictures') }}</option>
-          <option value="category2">{{ $t('shop.filters.sketches') }}</option>
-          <option value="category3">{{ $t('shop.filters.postcards') }}</option>
-          <option value="category4">{{ $t('shop.filters.stickers') }}</option>
-        </select>
-      </form>
+      </UForm>
       <UButton
-        color="neutral"
-        variant="outline"
         v-if="shopStore.searchedProducts"
+        color="secondary"
+        variant="outline"
         @click="resetSearch"
       >
         <span class="hidden sm:inline">Смотреть все товары</span>
@@ -48,11 +59,18 @@
 </template>
 
 <script setup lang="ts">
-  const searchTitle = ref('')
+  import type { FormSubmitEvent } from '@nuxt/ui'
+  import { productSchema } from '~/helpers/valibot'
+  import type { productSchemaType } from '~/helpers/valibot'
+
   const shopStore = useShopStore()
 
-  const handleSearch = () => {
-    shopStore.searchedProducts = shopStore.findProduct(searchTitle.value)
+  const searchState = reactive({
+    title: '',
+  })
+
+  const submitSearch = (event: FormSubmitEvent<productSchemaType>) => {
+    shopStore.searchedProducts = shopStore.findProduct(searchState.title)
   }
 
   const resetSearch = () => {

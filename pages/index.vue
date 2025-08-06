@@ -2,7 +2,7 @@
   <div id="wrapper">
     <div id="content">
       <AboutHeader />
-      <main class="pt-30 pb-30 min-h-[100vh]">
+      <main class="pt-30 pb-15 min-h-[100vh]">
         <AppHeader id="header" />
         <AboutHero class="mb-30" />
         <AboutTimeline class="mb-30" />
