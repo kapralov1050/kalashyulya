@@ -21,14 +21,23 @@
     layout: false,
   })
 
+  gsap.registerPlugin(ScrollTrigger, ScrollSmoother)
+
+  let smoother
   const handleScroll = () => {
     document.body.style.cssText += `--scrollTop: ${window.scrollY}px`
   }
 
   onMounted(() => {
-    gsap.registerPlugin(ScrollTrigger, ScrollSmoother)
-
     window.addEventListener('scroll', handleScroll)
+
+    smoother = ScrollSmoother.create({
+      wrapper: '#wrapper',
+      content: '#content',
+      smooth: 1.2,
+      effects: true,
+      normalizeScroll: true,
+    })
 
     gsap.from('#header', {
       opacity: 0,
@@ -40,15 +49,12 @@
         toggleActions: 'restart none none reverse',
       },
     })
-
-    ScrollSmoother.create({
-      wrapper: '#wrapper',
-      content: '#content',
-    })
   })
 
   onUnmounted(() => {
     window.removeEventListener('scroll', handleScroll)
     document.body.style.cssText = '--scrollTop: 0px'
+    smoother.kill()
+    ScrollTrigger.getAll().forEach(st => st.kill())
   })
 </script>
