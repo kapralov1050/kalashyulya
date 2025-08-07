@@ -10,7 +10,7 @@
         :src="item"
         width="500"
         height="300"
-        class="object-cover rounded-xl"
+        class="rounded-2xl border-5 border-info-400"
       />
     </UCarousel>
   </section>

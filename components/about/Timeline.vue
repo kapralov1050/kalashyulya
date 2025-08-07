@@ -31,7 +31,7 @@
           :src="item.Image"
           width="170"
           height="170"
-          class="object-contain rounded-2xl border-5 border-info-400 shadow-2xl"
+          class="rounded-2xl border-5 border-info-400 shadow-2xl"
         />
         <div class="flex flex-col items-center gap-y-2">
           <h3 class="font-bold text-lg">
