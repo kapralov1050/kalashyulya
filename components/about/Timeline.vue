@@ -114,7 +114,7 @@
       // Вычисляем длину для strokeDashoffset
       const drawLength = pathLength * scrollPercentage
       // Применяем изменения
-      path.style.strokeDashoffset = -drawLength - 500
+      path.style.strokeDashoffset = -drawLength - 1000
     }, 18)
 
     window.addEventListener('scroll', scrollHandler)
