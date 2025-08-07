@@ -26,7 +26,7 @@
         </p>
       </div>
       <img
-        src="/about-hero.png"
+        src="/editor.jpg"
         alt="Юлия Калашникова"
         class="h-auto w-full sm:w-1/2 object-cover rounded-lg"
       />
