@@ -1,10 +1,9 @@
 <template>
   <article
-    class="w-full flex justify-center pt-24 pb-3 sm:pt-16 sm:pb-18 lg:pt-28
-      lg:pb-25"
+    class="flex justify-center pt-24 pb-3 sm:pt-16 sm:pb-18 lg:pt-28 lg:pb-25"
   >
     <div
-      class="w-300 flex flex-col w-2/3 gap-y-2 rounded-4xl bg-primary-0
+      class="flex flex-col items-center w-2/3 gap-y-2 rounded-4xl bg-primary-0
         shadow-2xl shadow-primary-500/50 p-5"
     >
       <AppSectionHeader
@@ -12,14 +11,14 @@
         subheading="Все ваши покупки находятся здесь"
       />
       <section
-        class="flex flex-col justify-center items-center gap-y-3 :gap-y-6 mt-2
-          sm:mt-4"
+        class="lg:w-150 xl:w-200 flex flex-col justify-center items-center
+          gap-y-3 :gap-y-6 mt-2 sm:mt-4"
       >
         <div
           v-for="el in basketStore.shoppingCart"
           :key="el.item.id"
-          class="min-w-200 flex flex-row justify-center gap-x-5 py-4 border-b-1
-            border-neutral-200 dark:border-neutral-700"
+          class="w-full flex flex-col md:flex-row justify-start items-center
+            gap-x-5 py-4 border-b-1 border-neutral-200 dark:border-neutral-700"
         >
           <NuxtImg
             :src="el.item.image"
@@ -28,58 +27,63 @@
             width="200"
             class="rounded-lg"
           />
-          <div>
-            <h1 class="text-md text-gray-900 dark:text-white">
-              {{ el.item.title }}
-            </h1>
-            <p class="text-xs">В наличии {{ el.item.stock }}шт.</p>
-            <UButton
-              color="neutral"
-              variant="link"
-              size="xs"
-              class="text-start p-0 text-primary underline"
-            >
-              убрать
-            </UButton>
-          </div>
-          <div class="ml-auto flex flex-col gap-y-3">
-            <div
-              class="flex justify-center items-center bg-neutral-100 rounded-xl"
-            >
+          <section class="w-full flex">
+            <div>
+              <h1 class="text-md text-gray-900 dark:text-white">
+                {{ el.item.title }}
+              </h1>
+              <p class="text-xs">В наличии {{ el.item.stock }}шт.</p>
               <UButton
                 color="neutral"
                 variant="link"
-                size="sm"
-                icon="heroicons:minus-16-solid"
-                aria-label="Clear input"
-                @click="decreaseAmount(el.item)"
-              />
-              <h2 class="text-sm text-gray-800 dark:text-gray-200">
-                {{ el.amount }}
-              </h2>
-              <UButton
-                color="neutral"
-                variant="link"
-                size="sm"
-                icon="heroicons:plus-16-solid"
-                aria-label="Clear input"
-                @click="increaseAmount(el.item)"
-              />
+                size="xs"
+                class="text-start p-0 text-primary underline"
+              >
+                убрать
+              </UButton>
             </div>
-            <h3
-              class="flex items-center ml-2 text-sm text-gray-800
-                dark:text-gray-200"
-            >
-              ₽{{ el.item.price }}
-            </h3>
-          </div>
+            <div class="ml-auto flex flex-col gap-y-3">
+              <div
+                class="flex justify-center items-center bg-neutral-100
+                  rounded-xl"
+              >
+                <UButton
+                  color="neutral"
+                  variant="link"
+                  size="sm"
+                  icon="heroicons:minus-16-solid"
+                  aria-label="Clear input"
+                  @click="decreaseAmount(el.item)"
+                />
+                <h2 class="text-sm text-gray-800 dark:text-gray-200">
+                  {{ el.amount }}
+                </h2>
+                <UButton
+                  color="neutral"
+                  variant="link"
+                  size="sm"
+                  icon="heroicons:plus-16-solid"
+                  aria-label="Clear input"
+                  @click="increaseAmount(el.item)"
+                />
+              </div>
+              <h3
+                class="flex items-center ml-2 text-sm text-gray-800
+                  dark:text-gray-200"
+              >
+                ₽{{ el.item.price }}
+              </h3>
+            </div>
+          </section>
         </div>
-        <section class="w-200 flex gap-x-5">
-          <p class="mr-auto">Всего</p>
+        <div class="w-2/3 flex flex-col gap-y-5 sm:flex-row sm:gap-x-5">
+          <p class="mr-auto font-bold">Итого:</p>
           <h3>Количество: {{ basketStore.totalPurchaceQty }} шт.</h3>
-          <h3 class="font-extrabold">₽{{ basketStore.totalPurchaseAmount }}</h3>
-        </section>
-        <section class="w-200 flex justify-end gap-x-10 mt-4 sm:mt-6">
+          <h3 class="w-fit font-extrabold">
+            ₽{{ basketStore.totalPurchaseAmount }}
+          </h3>
+        </div>
+        <div class="w-full flex justify-end gap-x-10 mt-4 sm:mt-6">
           <UButton
             class="w-full flex justify-center mb-8 sm:mb-0 p-2 sm:p-4
               rounded-4xl text-neutral-900 border border-neutral-600"
@@ -96,7 +100,7 @@
               <OrderForm @close-modal="isModalOpen = false"></OrderForm>
             </template>
           </AppModal>
-        </section>
+        </div>
       </section>
     </div>
   </article>
