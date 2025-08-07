@@ -84,11 +84,3 @@ export const loginUser = async (email: string, password: string) => {
     return { user: null, error: errorMessage }
   }
 }
-
-export const isAdmin = (email: string | null) => {
-  const {
-    public: { adminUid },
-  } = useRuntimeConfig()
-
-  return email === adminUid
-}

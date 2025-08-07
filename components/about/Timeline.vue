@@ -31,6 +31,7 @@
           :src="item.Image"
           width="170"
           height="170"
+          fit="cover"
           class="rounded-2xl border-5 border-info-400 shadow-2xl"
         />
         <div class="flex flex-col items-center gap-y-2">
