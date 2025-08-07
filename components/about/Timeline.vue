@@ -29,9 +29,8 @@
       >
         <NuxtImg
           :src="item.Image"
-          sizes="170px"
-          fit="cover"
-          class="rounded-2xl border-5 border-info-400 shadow-2xl"
+          class="size-42 object-cover rounded-2xl border-5 border-info-400
+            shadow-2xl"
         />
         <div class="flex flex-col items-center gap-y-2">
           <h3 class="font-bold text-lg">
