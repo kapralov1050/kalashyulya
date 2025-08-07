@@ -29,8 +29,7 @@
       >
         <NuxtImg
           :src="item.Image"
-          width="170"
-          height="170"
+          sizes="170px"
           fit="cover"
           class="rounded-2xl border-5 border-info-400 shadow-2xl"
         />

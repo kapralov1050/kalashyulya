@@ -14,7 +14,7 @@ export default defineEventHandler(async event => {
 
     return { success: true, data: response }
   } catch (error) {
-    console.error('Ошибка отправки заказа:', error)
+    console.log('Ошибка отправки заказа:', error)
     return { success: false, error }
   }
 })
