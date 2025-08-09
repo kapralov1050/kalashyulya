@@ -21,7 +21,7 @@ export const setupScrollAnimation = (element: string) => {
     const drawLength = pathLength * scrollPercentage
 
     if (!path) return
-    path.style.strokeDashoffset = String(-drawLength - 2000)
+    path.style.strokeDashoffset = String(-drawLength - 1400)
   }, 18)
 
   window.addEventListener('scroll', scrollHandler)
