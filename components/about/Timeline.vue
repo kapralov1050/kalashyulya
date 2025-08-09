@@ -6,8 +6,8 @@
       viewBox="0 0 1042 2596"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      class="absolute top-10 left-1/2 transform -translate-x-1/2 hidden lg:block
-        z-[-1] will-change-[stroke-dashoffset]"
+      class="absolute top-10 left-1/2 transform -translate-x-1/2 z-[-1]
+        will-change-[stroke-dashoffset]"
     >
       <path
         id="scrollPath"
@@ -17,10 +17,7 @@
       />
     </svg>
 
-    <div
-      class="container flex flex-col gap-y-10 lg:gap-y-30 lg:flex-col
-        items-center"
-    >
+    <div class="container flex flex-col gap-y-27 lg:gap-y-30 items-center">
       <div
         v-for="item in timelineText"
         :key="item.id"

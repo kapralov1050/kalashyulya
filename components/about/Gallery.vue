@@ -4,7 +4,7 @@
       v-slot="{ item }"
       auto-scroll
       :items="items"
-      :ui="{ item: 'basis-1/3' }"
+      :ui="{ item: 'basis-1/1 sm:basis-1/2 lg:basis-1/3' }"
     >
       <NuxtImg
         :src="item"

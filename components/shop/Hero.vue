@@ -14,36 +14,44 @@
       <UForm
         :schema="productSchema"
         :state="searchState"
-        class="flex gap-x-5"
+        class="flex flex-col gap-y-5 items-center md:flex-row md:gap-x-5"
         @submit="submitSearch"
       >
-        <UFormField>
-          <UInput
-            id="search"
-            v-model="searchState.title"
-            type="search"
-            placeholder="Название товара"
-            class="w-70% sm:w-96"
-          />
-        </UFormField>
+        <div class="flex flex-row gap-x-5">
+          <UFormField>
+            <UInput
+              id="search"
+              v-model="searchState.title"
+              type="search"
+              placeholder="Название товара"
+              class="w-70% sm:w-96"
+            />
+          </UFormField>
 
-        <UFormField>
-          <select
-            v-model="shopStore.categoryFilter"
-            name="filters"
-            class="bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-md p-2"
-          >
-            <option selected value="">{{ $t('shop.filtersTitle') }}</option>
-            <option value="1">{{ $t('shop.filters.pictures') }}</option>
-            <option value="2">{{ $t('shop.filters.sketches') }}</option>
-            <option value="3">
-              {{ $t('shop.filters.postcards') }}
-            </option>
-            <option value="4">{{ $t('shop.filters.stickers') }}</option>
-          </select>
-        </UFormField>
-        <UButton type="submit" color="primary" class="w-auto mb-8 sm:mb-0">
-          <span class="hidden sm:inline">{{ $t('shop.searchButton') }}</span>
+          <UFormField>
+            <select
+              v-model="shopStore.categoryFilter"
+              name="filters"
+              class="w-70% md:w-auto bg-gray-100 text-gray-900 hover:bg-gray-200
+                rounded-md p-2"
+            >
+              <option selected value="">{{ $t('shop.filtersTitle') }}</option>
+              <option value="1">{{ $t('shop.filters.pictures') }}</option>
+              <option value="2">{{ $t('shop.filters.sketches') }}</option>
+              <option value="3">
+                {{ $t('shop.filters.postcards') }}
+              </option>
+              <option value="4">{{ $t('shop.filters.stickers') }}</option>
+            </select>
+          </UFormField>
+        </div>
+        <UButton
+          type="submit"
+          color="neutral"
+          size="lg"
+          class="w-1/3 flex justify-center text-neutral-800 mb-8 sm:mb-0"
+        >
+          {{ $t('shop.searchButton') }}
         </UButton>
       </UForm>
       <UButton

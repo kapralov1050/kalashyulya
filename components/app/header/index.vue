@@ -1,7 +1,8 @@
 <template>
   <header
-    class="sticky top-0 inset-x-0 z-10 border-b border-neutral-200 py-2
-      sm:border-0 sm:py-4 dark:border-b dark:border-neutral-500"
+    class="sticky top-0 inset-x-0 z-10 bg-white border-b border-neutral-200 py-2
+      sm:border-0 sm:py-4 dark:bg-neutral-900 dark:border-b
+      dark:border-neutral-700"
   >
     <div class="container flex items-center justify-between gap-x-10">
       <AppLogo
