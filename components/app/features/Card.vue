@@ -3,7 +3,7 @@
     <article
       class="h-full rounded-md border border-gray-200 bg-white p-4
         hover:border-primary-600 sm:rounded-xl sm:p-6 dark:border-black
-        dark:bg-gray-800 dark:hover:border-primary-400"
+        dark:bg-neutral-800 dark:hover:border-primary-400"
     >
       <header class="flex flex-col gap-y-3">
         <icon
