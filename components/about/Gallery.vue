@@ -8,7 +8,7 @@
     >
       <NuxtImg
         :src="item"
-        class="w-150 h-100 rounded-2xl border-5 border-info-400"
+        class="w-150 h-100 object-cover rounded-2xl border-5 border-info-400"
       />
     </UCarousel>
   </section>

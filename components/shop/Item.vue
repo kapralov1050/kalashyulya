@@ -2,8 +2,9 @@
   <NuxtLink>
     <article
       class="flex h-full flex-col dark:text-white text-gray-700 rounded-md
-        border border-gray-200 p-4 hover:border-indigo-600 sm:rounded-xl sm:p-6
-        dark:border-black dark:bg-gray-700 dark:hover:border-indigo-400"
+        border border-gray-200 p-4 hover:border-priimary-600 sm:rounded-xl
+        sm:p-6 dark:border-black dark:bg-neutral-800
+        dark:hover:border-primary-400"
     >
       <img :src="product.image" class="aspect-square object-cover" />
       <section class="mt-auto">

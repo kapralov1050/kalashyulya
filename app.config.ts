@@ -9,6 +9,7 @@ export default defineAppConfig({
       danger: 'red',
       error: 'fuchsia',
       neutral: 'neutral',
+      shadow: 'stone',
     },
   },
 })

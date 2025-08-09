@@ -1,9 +1,11 @@
 <template>
-  <div class="flex min-h-screen flex-col dark:bg-gray-800">
-    <UApp>
+  <UApp>
+    <div class="flex min-h-screen flex-col dark:bg-neutral-900">
       <AppHeader />
       <slot />
       <AppFooter />
-    </UApp>
-  </div>
+    </div>
+  </UApp>
 </template>
+
+<script setup lang="ts"></script>

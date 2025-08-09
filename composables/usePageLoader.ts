@@ -1,5 +1,5 @@
 export const usePageLoader = () => {
-  const isLoading = ref(false)
+  const isLoading = shallowRef(false)
 
   const startLoader = () => {
     isLoading.value = true

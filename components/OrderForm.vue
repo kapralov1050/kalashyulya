@@ -75,7 +75,7 @@
   import type { Order } from '~/types'
   import type { FormSubmitEvent } from '@nuxt/ui'
 
-  const isSending = ref(false)
+  const isSending = shallowRef(false)
 
   const emit = defineEmits(['closeModal'])
   const basketStore = useBasketStore()

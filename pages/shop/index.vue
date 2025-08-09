@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="mb-20">
     <ShopHero />
     <ShopList
       v-if="shopStore.searchedProducts"

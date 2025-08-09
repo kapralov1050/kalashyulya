@@ -24,28 +24,32 @@
       <div
         v-for="item in timelineText"
         :key="item.id"
-        ref="timelineItems"
-        class="timelineItem flex flex-col items-center lg:w-1/3 gap-y-4"
+        class="flex flex-col items-center lg:w-1/3 gap-y-4"
       >
         <NuxtImg
           :src="item.Image"
           class="size-42 object-cover rounded-2xl border-5 border-info-400
-            shadow-2xl"
+            shadow-md dark:shadow-none"
         />
-        <div class="flex flex-col items-center gap-y-2">
+        <div
+          class="flex flex-col items-center p-2 rounded-xl gap-y-2
+            dark:bg-neutral-900 bg-white"
+        >
           <h3 class="font-bold text-lg">
             {{ item.year }}
           </h3>
-          <p class="text-sm dark:text-white bg-white">{{ item.text }}</p>
+          <p class="text-sm">{{ item.text }}</p>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<script setup>
-  import { NuxtImg } from '#components'
-  import { throttle } from 'lodash-es'
+<script setup lang="ts">
+  import {
+    cleanupScrollAnimation,
+    setupScrollAnimation,
+  } from '~/helpers/scrollAnimation'
 
   const timelineText = [
     {
@@ -92,49 +96,8 @@
     },
   ]
 
-  const timelineItems = ref([])
-
-  let scrollHandler = null
-  let path = null
-
-  const setupScrollAnimation = () => {
-    path = document.querySelector('#scrollPath')
-    if (!path) return
-
-    const pathLength = path.getTotalLength()
-    path.style.strokeDasharray = pathLength
-    path.style.strokeDashoffset = pathLength
-
-    scrollHandler = throttle(() => {
-      // Вычисляем прогресс прокрутки (от 0 до 1)
-      const scrollPercentage =
-        (document.documentElement.scrollTop * 2 + document.body.scrollTop) /
-        (document.documentElement.scrollHeight -
-          document.documentElement.clientHeight)
-      // Вычисляем длину для strokeDashoffset
-      const drawLength = pathLength * scrollPercentage
-      // Применяем изменения
-      path.style.strokeDashoffset = -drawLength - 1000
-    }, 18)
-
-    window.addEventListener('scroll', scrollHandler)
-  }
-
-  const cleanupScrollAnimation = () => {
-    if (scrollHandler) {
-      window.removeEventListener('scroll', scrollHandler)
-      scrollHandler = null
-    }
-    if (path) {
-      path.style.willChange = 'auto'
-      path.style.strokeDasharray = ''
-      path.style.strokeDashoffset = ''
-      path = null
-    }
-  }
-
   onMounted(() => {
-    setupScrollAnimation()
+    setupScrollAnimation('#scrollPath')
   })
 
   onBeforeUnmount(() => {

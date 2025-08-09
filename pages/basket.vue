@@ -1,38 +1,41 @@
 <template>
   <article
-    class="flex justify-center pt-24 pb-3 sm:pt-16 sm:pb-18 lg:pt-28 lg:pb-25"
+    class="flex justify-center pt-24 pb-20 sm:pt-16 sm:pb-18 lg:pt-28 lg:pb-25"
   >
     <div
-      class="flex flex-col items-center w-2/3 gap-y-2 rounded-4xl bg-primary-0
-        shadow-2xl shadow-primary-500/50 p-5"
+      class="flex flex-col items-center w-[90%] sm:w-2/3 gap-y-2 rounded-4xl
+        bg-primary-0 shadow-2xl shadow-primary-500/50 dark:bg-neutral-800
+        sm:p-5"
     >
       <AppSectionHeader
         heading="Корзина покупок"
         subheading="Все ваши покупки находятся здесь"
       />
       <section
-        class="lg:w-150 xl:w-200 flex flex-col justify-center items-center
+        class="w-3/4 lg:w-150 xl:w-200 flex flex-col justify-center items-center
           gap-y-3 :gap-y-6 mt-2 sm:mt-4"
       >
         <div
           v-for="el in basketStore.shoppingCart"
           :key="el.item.id"
-          class="w-full flex flex-col md:flex-row justify-start items-center
-            gap-x-5 py-4 border-b-1 border-neutral-200 dark:border-neutral-700"
+          class="w-full flex flex-col gap-y-5 md:flex-row justify-start
+            items-center gap-x-5 py-4 border-b-1 border-neutral-800
+            dark:border-neutral-300"
         >
           <NuxtImg
             :src="el.item.image"
             :alt="el.item.title"
             fit="cover"
-            width="200"
-            class="rounded-lg"
+            class="rounded-lg w-3/4 sm:w-50"
           />
           <section class="w-full flex">
             <div>
-              <h1 class="text-md text-gray-900 dark:text-white">
+              <h1 class="text-lg font-bold text-gray-900 dark:text-white">
                 {{ el.item.title }}
               </h1>
-              <p class="text-xs">В наличии {{ el.item.stock }}шт.</p>
+              <p class="text-xs dark:text-neutral-200">
+                В наличии {{ el.item.stock }}шт.
+              </p>
               <UButton
                 color="neutral"
                 variant="link"
@@ -55,7 +58,7 @@
                   aria-label="Clear input"
                   @click="decreaseAmount(el.item)"
                 />
-                <h2 class="text-sm text-gray-800 dark:text-gray-200">
+                <h2 class="text-sm text-neutral-200 dark:text-gray-800">
                   {{ el.amount }}
                 </h2>
                 <UButton
@@ -76,8 +79,11 @@
             </div>
           </section>
         </div>
-        <div class="w-2/3 flex flex-col gap-y-5 sm:flex-row sm:gap-x-5">
-          <p class="mr-auto font-bold">Итого:</p>
+        <div
+          class="w-full flex flex-col justify-start gap-y-5 sm:flex-row
+            sm:gap-x-5 sm:px-5 dark:text-neutral-200"
+        >
+          <p class="mr-auto font-bold text-neutral-200">Итого:</p>
           <h3>Количество: {{ basketStore.totalPurchaceQty }} шт.</h3>
           <h3 class="w-fit font-extrabold">
             ₽{{ basketStore.totalPurchaseAmount }}
@@ -86,7 +92,9 @@
         <div class="w-full flex justify-end gap-x-10 mt-4 sm:mt-6">
           <UButton
             class="w-full flex justify-center mb-8 sm:mb-0 p-2 sm:p-4
-              rounded-4xl text-neutral-900 border border-neutral-600"
+              rounded-4xl text-neutral-900 border border-neutral-600
+              dark:text-neutral-200 dark:hover:bg-neutral-700
+              dark:hover:text-neutral-400 dark:hover:border-primary-600"
             color="info"
             size="xl"
             variant="link"
@@ -110,7 +118,7 @@
   import type { PurchaseParams } from '~/types'
 
   const basketStore = useBasketStore()
-  const isModalOpen = ref(false)
+  const isModalOpen = shallowRef(false)
 
   const decreaseAmount = (purchaseItem: PurchaseParams) => {
     basketStore.changeShopItemQty(-1, purchaseItem)
