@@ -49,7 +49,7 @@
           type="submit"
           color="neutral"
           size="lg"
-          class="w-1/3 flex justify-center text-neutral-800 mb-8 sm:mb-0"
+          class="w-1/3 flex justify-center dark:text-neutral-800 mb-8 sm:mb-0"
         >
           {{ $t('shop.searchButton') }}
         </UButton>

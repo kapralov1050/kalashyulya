@@ -1,9 +1,9 @@
 <template>
   <div class="container relative">
     <svg
-      width="1042"
+      width="1080"
       height="2596"
-      viewBox="0 0 1042 2596"
+      viewBox="15 0 1050 2596"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       class="absolute top-10 left-1/2 transform -translate-x-1/2 z-[-1]
@@ -17,7 +17,7 @@
       />
     </svg>
 
-    <div class="container flex flex-col gap-y-27 lg:gap-y-30 items-center">
+    <div class="container flex flex-col gap-y-25 items-center">
       <div
         v-for="item in timelineText"
         :key="item.id"

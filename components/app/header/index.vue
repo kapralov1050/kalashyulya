@@ -11,6 +11,7 @@
       >
         {{ $t('header.logoName') }}
       </AppLogo>
+      <AppHeaderThemeSwitch class="ml-auto" />
       <AppHeaderNav />
       <AppHeaderMobileNav />
     </div>
