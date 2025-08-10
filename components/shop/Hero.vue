@@ -45,23 +45,27 @@
             </select>
           </UFormField>
         </div>
-        <UButton
-          type="submit"
-          color="neutral"
-          size="lg"
-          class="w-1/3 flex justify-center dark:text-neutral-800 mb-8 sm:mb-0"
-        >
-          {{ $t('shop.searchButton') }}
-        </UButton>
+        <div class="w-full flex justify-center gap-x-10">
+          <UButton
+            type="submit"
+            color="neutral"
+            size="lg"
+            class="w-1/3 flex justify-center dark:text-neutral-800 mb-8 sm:mb-0"
+          >
+            {{ $t('shop.searchButton') }}
+          </UButton>
+          <UButton
+            v-if="shopStore.searchedProducts"
+            color="secondary"
+            variant="outline"
+            size="lg"
+            class="w-1/3 flex justify-center dark:text-neutral-800 mb-8 sm:mb-0"
+            @click="resetSearch"
+          >
+            Очистить
+          </UButton>
+        </div>
       </UForm>
-      <UButton
-        v-if="shopStore.searchedProducts"
-        color="secondary"
-        variant="outline"
-        @click="resetSearch"
-      >
-        <span class="hidden sm:inline">Смотреть все товары</span>
-      </UButton>
     </div>
   </section>
 </template>
@@ -83,6 +87,7 @@
 
   const resetSearch = () => {
     shopStore.searchedProducts = null
+    searchState.title = ''
   }
 </script>
 

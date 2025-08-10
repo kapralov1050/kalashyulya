@@ -1,59 +1,112 @@
 <template>
-  <USlideover
-    title="Меню"
-    :close="{
-      color: 'primary',
-      variant: 'link',
-      class: 'rounded-full',
-    }"
-    class="block lg:hidden"
-  >
-    <UButton icon="heroicons:bars-3-20-solid" color="neutral" variant="link" />
-
-    <template #content>
-      <UNavigationMenu
-        orientation="vertical"
-        :items="items"
-        class="w-full justify-center"
-      />
-    </template>
-  </USlideover>
+  <div class="justify-end flex lg:hidden">
+    <UButton
+      class="z-20 text-3xl"
+      variant="link"
+      color="neutral"
+      :icon="isOpen ? 'heroicons:x-mark-16-solid' : 'heroicons:bars-3-16-solid'"
+      @click="handleClick"
+    />
+    <div
+      class="header bg-primary dark:bg-neutral-800 absolute z-13 left-0 w-[100%]
+        min-h-[35vh] rounded-2xl"
+    />
+    <div class="menu absolute top-4 left-4 z-14">
+      <ul>
+        <li>
+          <UButton
+            class="text-2xl text-neutral-200 hover:text-white"
+            color="neutral"
+            variant="link"
+            to="/"
+          >
+            {{ $t('header.about') }}
+          </UButton>
+        </li>
+        <li>
+          <UButton
+            class="text-2xl text-neutral-200 hover:text-white"
+            color="neutral"
+            variant="link"
+            to="/lessons"
+          >
+            {{ $t('header.navLessons') }}
+          </UButton>
+        </li>
+        <li>
+          <UButton
+            class="text-2xl text-neutral-200 hover:text-white"
+            color="neutral"
+            variant="link"
+            to="/shop"
+          >
+            {{ $t('header.shop') }}
+          </UButton>
+        </li>
+        <li>
+          <UButton
+            v-for="locale in availableLocales"
+            :key="locale.code"
+            class="text-2xl text-neutral-200 hover:text-white ml-2 mt-10"
+            variant="outline"
+            :to="switchLocalePath(locale.code)"
+          >
+            {{ locale.name }}
+          </UButton>
+        </li>
+      </ul>
+    </div>
+  </div>
 </template>
 
-<script setup lang="ts">
-  import type { NavigationMenuItem } from '@nuxt/ui'
+<script setup>
+  import gsap from 'gsap'
 
-  const items = ref<NavigationMenuItem[]>([
-    [
+  const { locale, locales } = useI18n()
+  const switchLocalePath = useSwitchLocalePath()
+
+  const availableLocales = computed(() => {
+    return locales.value.filter(i => i.code !== locale.value)
+  })
+
+  let tl
+  const isOpen = shallowRef(false)
+  const handleClick = () => {
+    isOpen.value = !isOpen.value
+
+    if (isOpen.value) {
+      tl.play()
+    } else {
+      tl.reverse()
+    }
+  }
+
+  onMounted(() => {
+    tl = gsap.timeline({ paused: true, reversed: true })
+
+    tl.fromTo(
+      '.header',
       {
-        label: 'Главная',
-        icon: 'i-lucide-user',
-        to: '/',
+        opacity: 0,
+        rotation: 90,
+        y: -50,
+        transformOrigin: '100% 0%',
       },
       {
-        label: 'Магазин',
-        icon: 'heroicons:shopping-bag',
-        to: '/shop',
+        opacity: 1,
+        rotation: 0,
+        y: -50,
+        transformOrigin: '100% 0%',
+        ease: 'power3.out',
       },
+    ).fromTo(
+      '.menu',
       {
-        label: 'Уроки',
-        icon: 'heroicons:paint-brush',
-        to: '/lessons',
+        x: -300,
       },
-    ],
-    [
-      {
-        label: 'Войти',
-        icon: 'heroicons:arrow-left-on-rectangle',
-        to: '/login',
-      },
-      {
-        label: 'Регистрация',
-        icon: 'heroicons:user-plus',
-        to: '/register',
-      },
-    ],
-  ])
+      { x: 0, ease: 'power3.out', duration: 0.2 },
+    )
+  })
 </script>
 
-<style scoped lang="scss"></style>
+<style></style>

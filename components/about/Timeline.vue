@@ -21,7 +21,7 @@
       <div
         v-for="item in timelineText"
         :key="item.id"
-        class="flex flex-col items-center lg:w-1/3 gap-y-4"
+        class="timelineItem flex flex-col items-center lg:w-1/3 gap-y-4"
       >
         <NuxtImg
           :src="item.Image"
@@ -47,6 +47,8 @@
     cleanupScrollAnimation,
     setupScrollAnimation,
   } from '~/helpers/scrollAnimation'
+
+  import gsap from 'gsap'
 
   const timelineText = [
     {
@@ -95,6 +97,21 @@
 
   onMounted(() => {
     setupScrollAnimation('#scrollPath')
+
+    const items: Element[] = gsap.utils.toArray('.timelineItem')
+
+    items.forEach(item => {
+      gsap.from(item, {
+        x: 100,
+        opacity: 0,
+        scrollTrigger: {
+          trigger: item,
+          start: 'top bottom',
+          end: '+=600',
+          scrub: true,
+        },
+      })
+    })
   })
 
   onBeforeUnmount(() => {
