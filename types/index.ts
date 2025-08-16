@@ -50,3 +50,10 @@ export interface Order {
 export type LessonsTags = Record<string, string>
 
 export type DashBoardOption = 'NewProductForm' | 'ProductsList'
+
+export interface TimelineItem {
+  id: number
+  year: string
+  text: string
+  Image: string
+}

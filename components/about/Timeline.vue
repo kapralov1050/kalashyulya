@@ -16,102 +16,27 @@
         stroke-width="5"
       />
     </svg>
-
     <div class="container flex flex-col gap-y-25 items-center">
-      <div
-        v-for="item in timelineText"
-        :key="item.id"
-        class="timelineItem flex flex-col items-center lg:w-1/3 gap-y-4"
-      >
-        <NuxtImg
-          :src="item.Image"
-          class="size-42 object-cover rounded-2xl border-5 border-info-400
-            shadow-md dark:shadow-none"
-        />
-        <div
-          class="flex flex-col items-center p-2 rounded-xl gap-y-2
-            dark:bg-neutral-900 bg-white"
-        >
-          <h3 class="font-bold text-lg">
-            {{ item.year }}
-          </h3>
-          <p class="text-sm">{{ item.text }}</p>
-        </div>
-      </div>
+      <TimelineItem v-for="item in timelineText" :key="item.id" :item="item" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+  import { onMounted, onBeforeUnmount } from 'vue'
   import {
-    cleanupScrollAnimation,
     setupScrollAnimation,
+    cleanupScrollAnimation,
   } from '~/helpers/scrollAnimation'
+  import { timelineText } from '~/data/timeline'
+  import TimelineItem from './TimelineItem.vue'
+  import { useTimelineAnimation } from '~/composables/useTimelineAnimation'
 
-  import gsap from 'gsap'
-
-  const timelineText = [
-    {
-      id: 1,
-      year: '1999',
-      text: 'Я родилась в маленьком городке Южа Ивановской области. С самого детства меня тянуло к рисованию.',
-      Image: 'timeline/1.webp',
-    },
-    {
-      id: 2,
-      year: '2013',
-      text: 'В 14 лет состоялась моя первая персональная выставка — это было в художественной школе в Юже. Очень волнительно!',
-      Image: 'timeline/2.webp',
-    },
-    {
-      id: 3,
-      year: '2014-2018',
-      text: 'Я поступила в Палехское художественное училище. Училась на художника-мастера, осваивала лаковую миниатюру и иконопись. За эти годы случилось много важного: В 2017 году сделала выставку своих акварелей и набросков в училище — назвала её «Радость творчества». В том же году неожиданно выиграла гран-при на конкурсе в Суриковском институте в Москве. После окончания училища какое-то время работала в мастерской, писала лаковые миниатюры.',
-      Image: 'timeline/3.webp',
-    },
-    {
-      id: 4,
-      year: '2019',
-      text: 'Решила круто изменить жизнь — переехала в Петербург! Стала ходить на вечерние курсы при Академии Художеств, брала мастер-классы у разных художников-акварелистов.',
-      Image: 'timeline/4.webp',
-    },
-    {
-      id: 5,
-      year: '2018-2024',
-      text: 'Выставки стали частью моей жизни: Провела несколько персональных выставок — в Юже, Шуе и Петербурге. Участвовала в куче коллективных выставок по всей России — больше 25!',
-      Image: 'timeline/5.webp',
-    },
-    {
-      id: 6,
-      year: '2022-2024',
-      text: 'Начала преподавать: Сначала просто мастер-классы по акварели. Потом стала вести занятия в онлайн-школах. Полюбила выезжать с учениками на пленэры по Петербургу. Из ярких событий: В 2024 году мои работы попали в Третьяковку — участвовала в выставке «Искусство труда». В том же году мои акварели отправились в Новосибирск на выставку «Вокруг света».',
-      Image: 'timeline/6.webp',
-    },
-    {
-      id: 7,
-      year: '2025',
-      text: 'Этот год начался круто: Заняла первое место на фестивале акварели в Ижевске. Провела необычный эксперимент — арт-йога тур на Алтае. Набрала группу «нерисующих» студентов — учимся видеть мир через творчество. Кажется, самое интересное ещё впереди!',
-      Image: 'timeline/7.webp',
-    },
-  ]
+  const { animate } = useTimelineAnimation()
 
   onMounted(() => {
     setupScrollAnimation('#scrollPath')
-
-    const items: Element[] = gsap.utils.toArray('.timelineItem')
-
-    items.forEach(item => {
-      gsap.from(item, {
-        x: 100,
-        opacity: 0,
-        scrollTrigger: {
-          trigger: item,
-          start: 'top bottom',
-          end: '+=600',
-          scrub: true,
-        },
-      })
-    })
+    animate()
   })
 
   onBeforeUnmount(() => {
