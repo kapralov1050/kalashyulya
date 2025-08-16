@@ -19,7 +19,7 @@
           v-for="el in basketStore.shoppingCart"
           :key="el.item.id"
           class="w-full flex flex-col gap-y-5 md:flex-row justify-start
-            items-center gap-x-5 py-4 border-b-1 border-neutral-800
+            items-center gap-x-5 py-4 border-b-1 border-neutral-400
             dark:border-neutral-300"
         >
           <NuxtImg
@@ -58,7 +58,7 @@
                   aria-label="Clear input"
                   @click="decreaseAmount(el.item)"
                 />
-                <h2 class="text-sm text-neutral-200 dark:text-gray-800">
+                <h2 class="text-sm dark:text-neutral-600">
                   {{ el.amount }}
                 </h2>
                 <UButton
@@ -83,7 +83,7 @@
           class="w-full flex flex-col justify-start gap-y-5 sm:flex-row
             sm:gap-x-5 sm:px-5 dark:text-neutral-200"
         >
-          <p class="mr-auto font-bold text-neutral-200">Итого:</p>
+          <p class="mr-auto font-bold dark:text-neutral-200">Итого:</p>
           <h3>Количество: {{ basketStore.totalPurchaceQty }} шт.</h3>
           <h3 class="w-fit font-extrabold">
             ₽{{ basketStore.totalPurchaseAmount }}

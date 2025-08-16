@@ -45,12 +45,12 @@
             </select>
           </UFormField>
         </div>
-        <div class="w-full flex justify-center gap-x-10">
+        <div class="w-full flex justify-center gap-x-3">
           <UButton
             type="submit"
             color="neutral"
             size="lg"
-            class="w-1/3 flex justify-center dark:text-neutral-800 mb-8 sm:mb-0"
+            class="flex justify-center dark:text-neutral-800 mb-8 sm:mb-0"
           >
             {{ $t('shop.searchButton') }}
           </UButton>
@@ -59,7 +59,7 @@
             color="secondary"
             variant="outline"
             size="lg"
-            class="w-1/3 flex justify-center dark:text-neutral-800 mb-8 sm:mb-0"
+            class="flex justify-center dark:text-neutral-800 mb-8 sm:mb-0"
             @click="resetSearch"
           >
             Очистить
