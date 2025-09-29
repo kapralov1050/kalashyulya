@@ -6,7 +6,10 @@
         sm:p-6 dark:border-black dark:bg-neutral-800
         dark:hover:border-primary-400"
     >
-      <img :src="product.image" class="aspect-square object-cover" />
+      <img
+        :src="product.image || '/default-shop-image.png'"
+        class="aspect-square object-cover"
+      />
       <section class="mt-auto">
         <header class="mt-2">
           <div class="flex gap-x-2 mb-3">
