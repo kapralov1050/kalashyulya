@@ -12,20 +12,8 @@ export const viteConfig: NuxtConfig['vite'] = {
       },
     },
     chunkSizeWarningLimit: 1000,
-    modulePreload: false,
   },
   optimizeDeps: {
     include: ['vue', 'vue-router', 'pinia', 'gsap'],
-    // Можно оставить exclude для firebase или убрать - VueFire разберется
-    exclude: ['firebase'],
-  },
-  define: {
-    __VUE_OPTIONS_API__: false,
-    __VUE_PROD_DEVTOOLS__: false,
-  },
-  server: {
-    fs: {
-      strict: false,
-    },
   },
 }

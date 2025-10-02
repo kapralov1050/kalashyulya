@@ -8,7 +8,10 @@ import { viteConfig } from './config/nuxt/vite'
 import { appConfig } from './config/nuxt/app'
 
 export default defineNuxtConfig({
-  ssr: false,
+  ssr: true,
+  nitro: {
+    preset: 'static',
+  },
   runtimeConfig: runtimeConfig,
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
