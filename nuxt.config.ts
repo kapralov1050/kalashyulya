@@ -13,7 +13,10 @@ export default defineNuxtConfig({
     preset: 'static',
   },
   routeRules: {
-    '/**': { prerender: false },
+    '/shop': { prerender: false },
+    '/playlists': { prerender: false },
+    '/en/shop': { prerender: false },
+    '/en/playlists': { prerender: false },
   },
   runtimeConfig: runtimeConfig,
   compatibilityDate: '2025-05-15',
