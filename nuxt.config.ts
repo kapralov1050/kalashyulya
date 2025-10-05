@@ -9,9 +9,6 @@ import { appConfig } from './config/nuxt/app'
 
 export default defineNuxtConfig({
   ssr: true,
-  nitro: {
-    preset: 'static',
-  },
   routeRules: {
     '/shop': { prerender: false },
     '/playlists': { prerender: false },
