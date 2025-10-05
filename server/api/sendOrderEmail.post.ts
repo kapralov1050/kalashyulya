@@ -1,4 +1,15 @@
 export default defineEventHandler(async event => {
+  setResponseHeaders(event, {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  })
+
+  // Обработка preflight запроса
+  if (event.node.req.method === 'OPTIONS') {
+    return { success: true }
+  }
+
   const orderData = await readBody(event)
 
   try {
