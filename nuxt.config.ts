@@ -9,6 +9,9 @@ import { appConfig } from './config/nuxt/app'
 
 export default defineNuxtConfig({
   ssr: false,
+  nitro: {
+    preset: 'static',
+  },
   runtimeConfig: runtimeConfig,
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
