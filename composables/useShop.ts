@@ -7,13 +7,14 @@ interface ApiResponse {
 }
 
 export const useShop = () => {
+  const config = useRuntimeConfig()
   const sendOrderInfoTelegram = async (
     orderData: Order,
   ): Promise<ApiResponse> => {
     try {
-      console.log('Sending order to Telegram:', orderData)
+      const functionUrl = config.public.cloudFunctionTelegramUrl
 
-      const response = await $fetch('/api/sendOrderTelegram', {
+      const response = await $fetch(functionUrl, {
         method: 'POST',
         body: orderData,
         headers: {
@@ -52,9 +53,9 @@ export const useShop = () => {
 
   const sendOrderInfoEmail = async (orderData: Order): Promise<ApiResponse> => {
     try {
-      console.log('Sending order to Email:', orderData)
+      const functionUrl = config.public.cloudFunctionEmailUrl
 
-      const response = await $fetch('/api/sendOrderEmail', {
+      const response = await $fetch(functionUrl, {
         method: 'POST',
         body: orderData,
         headers: {
