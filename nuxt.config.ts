@@ -8,13 +8,7 @@ import { viteConfig } from './config/nuxt/vite'
 import { appConfig } from './config/nuxt/app'
 
 export default defineNuxtConfig({
-  ssr: true,
-  routeRules: {
-    '/shop': { prerender: false },
-    '/playlists': { prerender: false },
-    '/en/shop': { prerender: false },
-    '/en/playlists': { prerender: false },
-  },
+  ssr: false,
   runtimeConfig: runtimeConfig,
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
