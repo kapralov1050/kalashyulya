@@ -70,4 +70,3 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: .output/public/
           server-dir: /www/kalashyulya.ru/ # уточни путь в ISP Manager
-          dangerous-clean-slate: true # очистит старые файлы
