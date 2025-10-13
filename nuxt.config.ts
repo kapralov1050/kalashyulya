@@ -12,6 +12,7 @@ export default defineNuxtConfig({
   nitro: {
     preset: 'static',
   },
+  test: true,
   runtimeConfig: runtimeConfig,
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
