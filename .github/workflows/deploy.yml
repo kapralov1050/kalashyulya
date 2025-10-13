@@ -62,20 +62,12 @@ jobs:
       - name: Build application
         run: npm run build
 
-      - name: Deploy to hosting
-        run: |
-          echo "🚀 Deploying to production hosting..."
-          echo "Build completed successfully!"
-          echo "📁 Build artifacts are in .output/public/"
-          echo "💡 Configure your hosting to serve files from .output/public/"
-
-          # Здесь добавьте команды для деплоя на ваш хостинг
-          # Например, для FTP/SFTP деплоя:
-          # - name: Deploy via FTP
-          #   uses: SamKirkland/FTP-Deploy-Action@4.3.4
-          #   with:
-          #     server: ${{ secrets.FTP_SERVER }}
-          #     username: ${{ secrets.FTP_USERNAME }}
-          #     password: ${{ secrets.FTP_PASSWORD }}
-          #     local-dir: .output/public/
-          #     server-dir: /www/kalashyulya.ru/
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: .output/public/
+          server-dir: /www/kalashyulya.ru/ # уточни путь в ISP Manager
+          dangerous-clean-slate: true # очистит старые файлы
