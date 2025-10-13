@@ -21,7 +21,7 @@ export const vueFireConfig: NuxtConfig['vuefire'] = {
     performance: false,
     analytics: false,
     remoteConfig: false,
-    appCheck: false
+    appCheck: false,
   },
   // Оптимизация производительности
   // Отключаем ненужные функции для уменьшения размера бандла
@@ -32,6 +32,6 @@ export const vueFireConfig: NuxtConfig['vuefire'] = {
     pubsub: undefined,
     storage: undefined,
     functions: undefined,
-    hosting: undefined
-  }
+    hosting: undefined,
+  },
 }
