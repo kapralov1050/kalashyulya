@@ -23,7 +23,7 @@
             class="rounded-full bg-indigo-50 px-2 py-1 text-xs font-medium
               text-indigo-600 dark:bg-indigo-600 dark:text-indigo-50"
           >
-            {{ tag.name }}
+            {{ tag.title }}
           </li>
         </ul>
       </footer>

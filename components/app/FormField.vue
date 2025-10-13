@@ -38,23 +38,15 @@
 <script setup lang="ts">
   defineOptions({ inheritAttrs: false })
 
-  defineProps({
-    id: {
-      type: String,
-      required: true,
-    },
-    type: {
-      type: String,
-      default: 'text',
-    },
-    placeholder: {
-      type: String,
-      default: '',
-    },
-    label: {
-      type: String,
-      default: '',
-    },
+  interface Props {
+    id?: string
+    type?: string
+    placeholder?: string
+    label?: string
+  }
+
+  withDefaults(defineProps<Props>(), {
+    type: 'text',
   })
 
   const modelValue = defineModel<string>({ required: true })

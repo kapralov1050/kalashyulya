@@ -14,8 +14,8 @@
 
 <script setup lang="ts">
   const { type = 'section' } = defineProps<{
-    heading: string
-    subheading: string
+    heading?: string
+    subheading?: string
     type?: 'page' | 'section'
   }>()
 
