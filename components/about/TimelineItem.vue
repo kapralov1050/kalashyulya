@@ -1,5 +1,5 @@
 <template>
-  <div class="timelineItem flex flex-col items-center lg:w-1/3 gap-y-4">
+  <div class="flex flex-col items-center lg:w-1/3 gap-y-4">
     <NuxtImg
       :src="item.Image"
       class="size-42 object-cover rounded-2xl border-5 border-info-400 shadow-md
