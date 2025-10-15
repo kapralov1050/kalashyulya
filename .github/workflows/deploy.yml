@@ -60,7 +60,7 @@ jobs:
         run: npm i
 
       - name: Build application
-        run: npm run build
+        run: npm run generate
 
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
