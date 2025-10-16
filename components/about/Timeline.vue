@@ -17,7 +17,7 @@
       />
     </svg>
     <div class="container flex flex-col gap-y-25 items-center">
-      <TimelineItem v-for="item in timelineTxt" :key="item.id" :item="item" />
+      <TimelineItem v-for="item in timelineText" :key="item.id" :item="item" />
     </div>
   </div>
 </template>
