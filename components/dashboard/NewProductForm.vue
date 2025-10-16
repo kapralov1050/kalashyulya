@@ -58,7 +58,12 @@
       class="w-70% sm:w-96"
     />
 
-    <UInputTags v-model="formData.tags" />
+    <UFormField label="Тег">
+      <UInputTags
+        v-model="formData.tags"
+        placeholder="введи тег и нажми Enter..."
+      />
+    </UFormField>
 
     <div class="flex justify-around">
       <UButton
