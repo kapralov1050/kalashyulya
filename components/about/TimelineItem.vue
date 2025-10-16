@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col items-center lg:w-1/3 gap-y-4">
-    <NuxtImg
+    <img
       :src="item.Image"
       class="size-42 object-cover rounded-2xl border-5 border-info-400 shadow-md
         dark:shadow-none"
