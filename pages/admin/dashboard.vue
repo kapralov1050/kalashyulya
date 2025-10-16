@@ -55,10 +55,10 @@
 
             <!-- Logout Button -->
             <button
-              @click="quitFromAdminPanel"
               class="flex items-center justify-center gap-2 px-4 py-2.5
                 text-red-600 border border-red-300 rounded-lg hover:bg-red-50
                 hover:border-red-400 transition-colors duration-200 font-medium"
+              @click="quitFromAdminPanel"
             >
               <svg
                 class="w-4 h-4"

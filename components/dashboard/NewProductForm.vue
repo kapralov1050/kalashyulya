@@ -95,7 +95,7 @@
     title: '',
   })
 
-  const createProduct = async () => {
+  async function createProduct() {
     const newProduct = {
       categoryId: formData.category,
       description: formData.description,
@@ -106,13 +106,17 @@
       title: formData.title,
     }
 
-    await addNewProduct(newProduct, 'shop/products/')
+    try {
+      await addNewProduct(newProduct, 'shop/products/')
 
-    showToast(
-      'success',
-      'Product created successfully',
-      'heroicons:check-circle',
-    )
+      showToast(
+        'success',
+        'Product created successfully',
+        'heroicons:check-circle',
+      )
+    } catch {
+      showToast('error', 'Product upload error', 'heroicons:exclamation-circle')
+    }
   }
 </script>
 
