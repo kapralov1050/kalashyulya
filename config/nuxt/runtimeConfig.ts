@@ -5,5 +5,8 @@ export const runtimeConfig: NuxtConfig['runtimeConfig'] = {
     cloudFunctionTelegramUrl:
       process.env.NUXT_PUBLIC_CLOUD_FUNCTION_TELEGRAM_URL,
     cloudFunctionEmailUrl: process.env.NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_URL,
+    cloudFunctionPresignedUrl:
+      process.env.NUXT_PUBLIC_CLOUD_FUNCTION_PRESIGNED_URL,
+    bucketName: process.env.NUXT_PUBLIC_BUCKET_NAME,
   },
 }

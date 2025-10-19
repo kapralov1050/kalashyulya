@@ -8,6 +8,7 @@ export const setupScrollAnimation = (element: string) => {
   path = document.querySelector(element)
   if (!path) return
 
+  path.style.willChange = 'auto'
   const pathLength = path.getTotalLength()
   path.style.strokeDasharray = String(pathLength)
   path.style.strokeDashoffset = String(pathLength)

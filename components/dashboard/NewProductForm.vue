@@ -49,21 +49,14 @@
       class="w-70% sm:w-96"
     />
 
-    <AppFormField
-      id="imageUrl"
-      v-model="formData.imageUrl"
-      type="email"
-      placeholder="Ссылка на изображение"
-      label="Изображение"
-      class="w-70% sm:w-96"
-    />
-
     <UFormField label="Тег">
       <UInputTags
         v-model="formData.tags"
         placeholder="введи тег и нажми Enter..."
       />
     </UFormField>
+
+    <UFileUpload v-model="fileInput" class="w-96 min-h-48" />
 
     <div class="flex justify-around">
       <UButton
@@ -84,6 +77,7 @@
   import { showToast } from '~/helpers/showToast'
 
   const { addNewProduct } = useFirebase()
+  const { uploadToBucket } = useYandexDatabase()
 
   const formData = reactive({
     category: '',
@@ -95,20 +89,31 @@
     title: '',
   })
 
+  const fileInput = ref<File>()
+
   async function createProduct() {
-    const newProduct = {
-      categoryId: formData.category,
-      description: formData.description,
-      image: formData.imageUrl,
-      price: Number(formData.price),
-      stock: Number(formData.stock),
-      tags: formData.tags,
-      title: formData.title,
-    }
-
     try {
-      await addNewProduct(newProduct, 'shop/products/')
+      let imageUrl = ''
 
+      if (fileInput.value) {
+        const response = await uploadToBucket(fileInput.value)
+        if (response) {
+          imageUrl = response
+          console.log(imageUrl)
+        }
+      }
+
+      const newProduct = {
+        categoryId: formData.category,
+        description: formData.description,
+        image: imageUrl,
+        price: Number(formData.price),
+        stock: Number(formData.stock),
+        tags: formData.tags,
+        title: formData.title,
+      }
+
+      await addNewProduct(newProduct, 'shop/products/')
       showToast(
         'success',
         'Product created successfully',
