@@ -1,6 +1,7 @@
 <template>
   <div id="wrapper">
-    <div id="content">
+    <AppPreloaderSpinner v-if="isLoading" />
+    <div v-else id="content">
       <AboutHeader />
       <main class="pt-30 pb-15 min-h-[100vh]">
         <AppHeader id="header" />
@@ -21,6 +22,8 @@
     layout: false,
   })
 
+  const isLoading = ref(false)
+
   gsap.registerPlugin(ScrollTrigger, ScrollSmoother)
 
   let smoother
@@ -29,6 +32,7 @@
   }
 
   onMounted(() => {
+    isLoading.value = true
     window.addEventListener('scroll', handleScroll)
 
     smoother = ScrollSmoother.create({
@@ -49,6 +53,8 @@
         toggleActions: 'restart none none reverse',
       },
     })
+
+    setTimeout(() => (isLoading.value = false), 2000)
   })
 
   onUnmounted(() => {
