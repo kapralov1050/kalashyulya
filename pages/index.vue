@@ -1,7 +1,7 @@
 <template>
+  <AppPreloaderSpinner v-if="isLoading" />
   <div id="wrapper">
-    <AppPreloaderSpinner v-if="isLoading" />
-    <div v-else id="content">
+    <div id="content">
       <AboutHeader />
       <main class="pt-30 pb-15 min-h-[100vh]">
         <AppHeader id="header" />
