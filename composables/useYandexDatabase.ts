@@ -55,7 +55,7 @@ export function useYandexDatabase() {
       const fileData = await compressToWebP(file)
 
       const response = await $fetch<UploadResponse>(
-        `${config.public.cloudFunctionPresignedUrl}`,
+        `${config.public.cloudFunctionUploadProduct}`,
         {
           method: 'POST',
           body: JSON.stringify({
