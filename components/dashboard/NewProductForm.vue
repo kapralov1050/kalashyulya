@@ -77,7 +77,7 @@
   import { showToast } from '~/helpers/showToast'
 
   const { addNewProduct } = useFirebase()
-  const { uploadToBucket } = useYandexDatabase()
+  const { uploadToMountedBucket } = useYandexDatabase()
 
   const formData = reactive({
     category: '',
@@ -96,9 +96,9 @@
       let imageUrl = ''
 
       if (fileInput.value) {
-        const response = await uploadToBucket(fileInput.value)
+        const response = await uploadToMountedBucket(fileInput.value)
         if (response) {
-          imageUrl = response
+          imageUrl = response.path
           console.log(imageUrl)
         }
       }
