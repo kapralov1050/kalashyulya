@@ -3,17 +3,17 @@
     <ul class="flex items-center gap-x-8">
       <li>
         <UButton color="neutral" variant="link" to="/">
-          {{ $t('header.about') }}
+          {{ printLocale('header_about') }}
         </UButton>
       </li>
       <li>
         <UButton color="neutral" variant="link" to="/lessons">
-          {{ $t('header.navLessons') }}
+          {{ printLocale('header_navLessons') }}
         </UButton>
       </li>
       <li class="mr-auto">
         <UButton color="neutral" variant="link" to="/shop">
-          {{ $t('header.shop') }}
+          {{ printLocale('header_shop') }}
         </UButton>
       </li>
       <li>
@@ -36,7 +36,7 @@
           {{ $t('header.registration') }}
         </UButton>
       </li> -->
-      <li>
+      <!-- <li>
         <UButton
           v-for="locale in availableLocales"
           :key="locale.code"
@@ -46,18 +46,20 @@
         >
           {{ locale.name }}
         </UButton>
-      </li>
+      </li> -->
     </ul>
   </nav>
 </template>
 
 <script setup lang="ts">
-  const { locale, locales } = useI18n()
-  const switchLocalePath = useSwitchLocalePath()
+  // const { locale, locales } = useI18n()
+  // const switchLocalePath = useSwitchLocalePath()
 
-  const availableLocales = computed(() => {
-    return locales.value.filter(i => i.code !== locale.value)
-  })
+  // const availableLocales = computed(() => {
+  //   return locales.value.filter(i => i.code !== locale.value)
+  // })
+
+  const { printLocale } = useLocales()
 </script>
 
 <style scoped lang="scss"></style>

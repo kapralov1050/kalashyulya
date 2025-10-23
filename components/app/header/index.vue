@@ -9,7 +9,7 @@
         class="text-xl sm:text-2xl"
         icon-classes="size-8 sm:size-12 dark:text-white text-primary"
       >
-        {{ $t('header.logoName') }}
+        {{ printLocale('header_logoName') }}
       </AppLogo>
       <AppHeaderThemeSwitch class="ml-auto" />
       <AppHeaderNav />
@@ -18,6 +18,8 @@
   </header>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+  const { printLocale } = useLocales()
+</script>
 
 <style scoped lang="scss"></style>

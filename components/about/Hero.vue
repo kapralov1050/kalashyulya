@@ -2,28 +2,8 @@
   <section class="container mt-20 mb-20">
     <div class="flex flex-col gap-y-10 sm:flex-row sm:gap-x-15 overflow-auto">
       <div>
-        <h2 class="text-3xl mb-10">Обо мне</h2>
-        <p>
-          Художник-акварелист. Основная техника - акварель, жанр - пейзаж, сюжет
-          - сельские и городские мотивы с архитектурой. Мне нравится рисовать на
-          пленэре, делать наброски и быстрые этюды.
-          <br />
-          <br />
-
-          Я работала в палехских мастерских «Духанин» и «Возрождение», в
-          багетной мастерской, на росписях(сусальное золото), преподавала в
-          художественной мастерской и также занималась росписью по дереву.
-          <br />
-
-          Участвую в рисовальных марафонах, конкурсах. Посещала Вечерние
-          Рисовальные Классы при Академии художеств, мастер-классы акварелистов.
-          <br />
-          <br />
-
-          В данный момент проживаю в Санкт-Петербурге, занимаюсь акварельной
-          живописью, графикой, веду блог, пишу на заказ, провожу мастер-классы и
-          преподаю в школе «Художник онлайн».
-        </p>
+        <h2 class="text-3xl mb-10">{{ printLocale('about_hero_title') }}</h2>
+        <p class="whitespace-pre-line">{{ printLocale('about_hero_text') }}</p>
       </div>
       <img
         src="/about-hero.webp"
@@ -34,6 +14,12 @@
   </section>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+  const { printLocale } = useLocales()
+</script>
 
-<style scoped></style>
+<style scoped>
+  .whitespace-pre-line {
+    white-space: pre-line;
+  }
+</style>

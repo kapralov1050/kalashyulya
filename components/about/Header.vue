@@ -7,8 +7,10 @@
   >
     <section class="layers">
       <div ref="container" class="layer__header">
-        <h3 class="layers__caption">художник-акварелист</h3>
-        <h1 class="layers__title">Юлия Калашникова</h1>
+        <h3 class="layers__caption">
+          {{ printLocale('about_header_subtitle') }}
+        </h3>
+        <h1 class="layers__title">{{ printLocale('about_header_title') }}</h1>
       </div>
       <div class="layer layers__base"></div>
       <div class="layer layers__middle"></div>
@@ -20,6 +22,8 @@
 <script setup>
   import { gsap } from 'gsap'
   import { SplitText } from 'gsap/SplitText'
+
+  const { printLocale } = useLocales()
 
   const container = ref(null)
 
