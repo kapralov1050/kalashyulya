@@ -22,20 +22,31 @@
         </UButton>
       </li>
       <li>
-        <UButton color="neutral" variant="link" to="/admin/dashboard">
+        <UButton
+          v-if="currentUser && currentUser.uid"
+          color="neutral"
+          variant="link"
+          :to="`/profile/${currentUser.uid}`"
+        >
           <UIcon name="heroicons:user" size="2rem" />
         </UButton>
       </li>
-      <!-- <li>
-        <UButton color="neutral" variant="link" to="/login">
+      <li>
+        <UButton v-if="!currentUser" color="neutral" variant="link" to="/login">
           {{ $t('header.login') }}
         </UButton>
       </li>
       <li>
-        <UButton to="/register" size="xl" color="neutral" variant="outline">
+        <UButton
+          v-if="!currentUser"
+          to="/register"
+          size="xl"
+          color="neutral"
+          variant="outline"
+        >
           {{ $t('header.registration') }}
         </UButton>
-      </li> -->
+      </li>
       <!-- <li>
         <UButton
           v-for="locale in availableLocales"
@@ -52,14 +63,15 @@
 </template>
 
 <script setup lang="ts">
-  // const { locale, locales } = useI18n()
-  // const switchLocalePath = useSwitchLocalePath()
+  const { locale, locales } = useI18n()
+  const switchLocalePath = useSwitchLocalePath()
 
-  // const availableLocales = computed(() => {
-  //   return locales.value.filter(i => i.code !== locale.value)
-  // })
+  const availableLocales = computed(() => {
+    return locales.value.filter(i => i.code !== locale.value)
+  })
 
   const { printLocale } = useLocales()
+  const { currentUser } = storeToRefs(useAuthStore())
 </script>
 
 <style scoped lang="scss"></style>

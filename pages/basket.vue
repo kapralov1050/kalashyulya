@@ -98,9 +98,9 @@
             size="xl"
             variant="link"
             :disabled="!totalPurchaceQty"
-            @click="isModalOpen = !isModalOpen"
+            @click="handleOrder"
           >
-            Оформить заказ
+            {{ purchaseButtonText }}
           </UButton>
           <AppModal v-if="isModalOpen" @close="isModalOpen = false">
             <template #header>Оформление заказа</template>
@@ -115,18 +115,50 @@
 </template>
 
 <script setup lang="ts">
-  import type { PurchaseParams } from '~/types'
-  const { deleteShopItemFromBasket, loadPurchase, changeShopItemQty } =
-    useBasketStore()
+  import type { Order, PurchaseParams } from '~/types'
+  const {
+    deleteShopItemFromBasket,
+    loadPurchase,
+    changeShopItemQty,
+    shortPurchaseInfo,
+  } = useBasketStore()
   const { totalPurchaceQty, totalPurchaseAmount, shoppingCart } =
     storeToRefs(useBasketStore())
   const isModalOpen = shallowRef(false)
+  const { currentUser } = storeToRefs(useAuthStore())
+  const { userProfileData } = storeToRefs(useProfileStore())
+
+  const { createOrder } = useShop()
+
+  const purchaseButtonText = computed(() => {
+    return currentUser ? 'Заказать' : 'Оформить заказ'
+  })
 
   const decreaseAmount = (purchaseItem: PurchaseParams) => {
     changeShopItemQty(-1, purchaseItem)
   }
   const increaseAmount = (purchaseItem: PurchaseParams) => {
     changeShopItemQty(1, purchaseItem)
+  }
+
+  function handleOrder() {
+    if (currentUser.value && currentUser.value.uid && userProfileData.value) {
+      const orderInfo: Order = {
+        customer: {
+          name: userProfileData.value.name,
+          email: userProfileData.value.email,
+        },
+        purchase: {
+          order: shortPurchaseInfo,
+          createdAt: new Date().toISOString(),
+        },
+        totalPrice: totalPurchaseAmount.value,
+      }
+
+      createOrder(currentUser.value.uid, orderInfo)
+    } else {
+      isModalOpen.value = true
+    }
   }
 
   onMounted(() => {

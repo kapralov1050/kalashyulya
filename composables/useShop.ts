@@ -1,4 +1,13 @@
+import type { DatabaseReference } from 'firebase/database'
+import {
+  getDataByPath,
+  getSnapshotByPath,
+  pushDataByPath,
+  setDataByPath,
+  updateDataByPath,
+} from '~/helpers/firebase/manageDatabase'
 import type { Order } from '~/types'
+import { ref as dbRef, push } from 'firebase/database'
 
 interface ApiResponse {
   success: boolean
@@ -8,6 +17,43 @@ interface ApiResponse {
 
 export const useShop = () => {
   const config = useRuntimeConfig()
+
+  const createOrder = async (userId: string, newOrder: Order) => {
+    try {
+      pushDataByPath(newOrder, `orders`)
+
+      const productsNames = newOrder.purchase.order.reduce(
+        (acc, item) => (acc += ` ${item.title},`),
+        '',
+      )
+      addOrderToUser(userId, productsNames)
+    } catch (error) {
+      return { order: null, error }
+    }
+  }
+
+  const addOrderToUser = async (userId: string, orderId: string) => {
+    try {
+      const snapshot = await getSnapshotByPath(`users/${userId}/orders`)
+      const currentOrders = snapshot ? Object.values(snapshot) : []
+
+      // Добавляем новый заказ
+      const updatedOrders = [...currentOrders, orderId]
+
+      // Обновляем массив заказов
+      await updateDataByPath(
+        {
+          orders: updatedOrders,
+        },
+        `users/${userId}`,
+      )
+
+      return { success: true, error: null }
+    } catch (error) {
+      return { success: false, error }
+    }
+  }
+
   const sendOrderInfoTelegram = async (
     orderData: Order,
   ): Promise<ApiResponse> => {
@@ -92,5 +138,7 @@ export const useShop = () => {
   return {
     sendOrderInfoTelegram,
     sendOrderInfoEmail,
+    addOrderToUser,
+    createOrder,
   }
 }

@@ -32,10 +32,10 @@ export interface ShortPurchaseInfo {
 
 export interface CustomerInfo {
   name: string
-  phone: string
+  phone?: string
   email: string
-  address: string
-  comment: string
+  address?: string
+  comment?: string
 }
 
 export interface Order {

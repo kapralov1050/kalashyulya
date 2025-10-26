@@ -1,7 +1,6 @@
 import type { LessonsTags, Product, ShopData } from '~/types'
 import { ref as dbRef } from 'firebase/database'
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
-import type { User } from 'firebase/auth'
+import { getAuth } from 'firebase/auth'
 import {
   getSnapshotByPath,
   updateDataByPath,

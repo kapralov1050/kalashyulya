@@ -64,3 +64,15 @@ export const getSnapshotByPath = async (
     throw error
   }
 }
+
+export const pushDataByPath = async <T>(data: T, path: string) => {
+  try {
+    const dataRef = dbRef(useDatabase(), path)
+    const newRef = push(dataRef)
+
+    await set(newRef, data)
+  } catch (error) {
+    console.error(`Error pushing data to ${path}:`, error)
+    return { id: null, error }
+  }
+}
