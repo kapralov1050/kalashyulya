@@ -1,18 +1,72 @@
 <template>
-  <section class="flex flex-col justify-center">
-    <NuxtLink to="https://t.me/kalashyulyaa">
-      <div class="flex items-center gap-x-2 mb-3">
-        <img src="/links/telegram.svg" alt="Telegram" class="w-12" />
-        <p class="text-white text-xl lg:text-2xl">Telegram: kalashyulya</p>
-      </div>
-    </NuxtLink>
-    <NuxtLink to="https://vk.com/kalashyulya">
-      <div class="flex items-center gap-x-2">
-        <img src="/links/vk.svg" alt="Telegram" class="w-12" />
-        <p class="text-white text-xl lg:text-2xl">VK: kalashyulya</p>
-      </div>
-    </NuxtLink>
-  </section>
+  <div class="flex flex-col space-y-4">
+    <h3
+      class="text-sm font-semibold text-neutral-800 dark:text-white uppercase
+        tracking-wide"
+    >
+      Следите за новостями
+    </h3>
+
+    <div class="flex flex-col space-y-3">
+      <!-- Telegram -->
+      <a
+        href="https://t.me/kalashyulyaa"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="group flex items-center space-x-3 p-3 rounded-lg
+          hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors
+          duration-200"
+      >
+        <div class="flex-shrink-0">
+          <img
+            src="/links/telegram.svg"
+            alt="Telegram"
+            class="w-6 h-6 group-hover:scale-110 transition-transform
+              duration-200"
+          />
+        </div>
+        <div class="flex flex-col">
+          <span
+            class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+          >
+            Telegram
+          </span>
+          <span class="text-xs text-neutral-500 dark:text-neutral-400">
+            @kalashyulya
+          </span>
+        </div>
+      </a>
+
+      <!-- VK -->
+      <a
+        href="https://vk.com/kalashyulya"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="group flex items-center space-x-3 p-3 rounded-lg
+          hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors
+          duration-200"
+      >
+        <div class="flex-shrink-0">
+          <img
+            src="/links/vk.svg"
+            alt="VKontakte"
+            class="w-6 h-6 group-hover:scale-110 transition-transform
+              duration-200"
+          />
+        </div>
+        <div class="flex flex-col">
+          <span
+            class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+          >
+            VKontakte
+          </span>
+          <span class="text-xs text-neutral-500 dark:text-neutral-400">
+            @kalashyulya
+          </span>
+        </div>
+      </a>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts"></script>

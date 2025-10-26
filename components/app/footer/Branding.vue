@@ -1,14 +1,31 @@
 <template>
-  <div class="mr-auto flex flex-col items-start lg:max-w-80">
-    <AppLogo class="text-2xl text-white" icon-classes="size-12">
-      {{ $t('footer.logoName') }}
-    </AppLogo>
+  <div class="flex flex-col space-y-4">
+    <!-- Logo -->
+    <div class="flex items-center space-x-3">
+      <AppLogo
+        class="text-2xl font-bold text-neutral-800 dark:text-white"
+        icon-classes="size-10 text-primary-600 dark:text-primary-400"
+      >
+        {{ $t('footer.logoName') }}
+      </AppLogo>
+    </div>
+
+    <!-- Description -->
     <p
-      class="mt-2 text-sm text-neutral-100 sm:mt-4 sm:text-base
-        dark:text-neutral-400"
+      class="text-neutral-600 dark:text-neutral-300 text-sm leading-relaxed
+        max-w-md"
     >
       {{ $t('footer.description') }}
     </p>
+
+    <!-- Additional info -->
+    <div
+      class="flex flex-col space-y-2 text-xs text-neutral-500
+        dark:text-neutral-400"
+    >
+      <p>Акварельные уроки и художественные работы</p>
+      <p>Watercolor lessons & artistic works</p>
+    </div>
   </div>
 </template>
 

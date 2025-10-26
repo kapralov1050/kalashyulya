@@ -1,13 +1,28 @@
 <template>
   <footer
-    class="mt-auto bg-primary-600 pt-8 pb-8 px-10 sm:px-30 sm:pt-6 sm:pb-5
-      dark:bg-neutral-800"
+    class="mt-auto bg-gradient-to-br from-neutral-50 to-neutral-100
+      dark:from-neutral-900 dark:to-neutral-800 border-t border-neutral-200
+      dark:border-neutral-700"
   >
-    <div class="flex flex-col gap-10 lg:flex-row lg:gap-8 lg:px-10 pb-5">
-      <AppFooterBranding />
-      <AppFooterLinks />
+    <div class="container mx-auto px-6 py-12">
+      <!-- Main footer content -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+        <!-- Branding section -->
+        <div class="lg:col-span-2">
+          <AppFooterBranding />
+        </div>
+
+        <!-- Links section -->
+        <div class="flex justify-center md:justify-end">
+          <AppFooterLinks />
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="border-t border-neutral-200 dark:border-neutral-700 pt-6">
+        <AppFooterCopyright />
+      </div>
     </div>
-    <AppFooterCopyright />
   </footer>
 </template>
 
