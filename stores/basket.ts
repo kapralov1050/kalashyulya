@@ -38,6 +38,13 @@ export const useBasketStore = defineStore('basket', () => {
     localStorage.setItem('basket', JSON.stringify(shoppingCart.value))
   }
 
+  function deleteShopItemFromBasket(item: PurchaseParams) {
+    shoppingCart.value = shoppingCart.value.filter(
+      (prod: Purchase) => prod.item.id !== item.id,
+    )
+    localStorage.setItem('basket', JSON.stringify(shoppingCart.value))
+  }
+
   function changeShopItemQty(changeVal: number, item: PurchaseParams) {
     const desiredIndex = shoppingCart.value.findIndex(
       (prod: Purchase) => item.id === prod.item.id,
@@ -58,6 +65,7 @@ export const useBasketStore = defineStore('basket', () => {
 
   return {
     shoppingCart,
+    deleteShopItemFromBasket,
     addShopItemToBasket,
     changeShopItemQty,
     loadPurchase,

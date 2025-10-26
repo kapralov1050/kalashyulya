@@ -16,7 +16,7 @@
           gap-y-3 :gap-y-6 mt-2 sm:mt-4"
       >
         <div
-          v-for="el in basketStore.shoppingCart"
+          v-for="el in shoppingCart"
           :key="el.item.id"
           class="w-full flex flex-col gap-y-5 md:flex-row justify-start
             items-center gap-x-5 py-4 border-b-1 border-neutral-400
@@ -41,6 +41,7 @@
                 variant="link"
                 size="xs"
                 class="text-start p-0 text-primary underline"
+                @click="deleteShopItemFromBasket(el.item)"
               >
                 убрать
               </UButton>
@@ -84,10 +85,8 @@
             sm:gap-x-5 sm:px-5 dark:text-neutral-200"
         >
           <p class="mr-auto font-bold dark:text-neutral-200">Итого:</p>
-          <h3>Количество: {{ basketStore.totalPurchaceQty }} шт.</h3>
-          <h3 class="w-fit font-extrabold">
-            ₽{{ basketStore.totalPurchaseAmount }}
-          </h3>
+          <h3>Количество: {{ totalPurchaceQty }} шт.</h3>
+          <h3 class="w-fit font-extrabold">₽{{ totalPurchaseAmount }}</h3>
         </div>
         <div class="w-full flex justify-end gap-x-10 mt-4 sm:mt-6">
           <UButton
@@ -98,6 +97,7 @@
             color="info"
             size="xl"
             variant="link"
+            :disabled="!totalPurchaceQty"
             @click="isModalOpen = !isModalOpen"
           >
             Оформить заказ
@@ -116,19 +116,21 @@
 
 <script setup lang="ts">
   import type { PurchaseParams } from '~/types'
-
-  const basketStore = useBasketStore()
+  const { deleteShopItemFromBasket, loadPurchase, changeShopItemQty } =
+    useBasketStore()
+  const { totalPurchaceQty, totalPurchaseAmount, shoppingCart } =
+    storeToRefs(useBasketStore())
   const isModalOpen = shallowRef(false)
 
   const decreaseAmount = (purchaseItem: PurchaseParams) => {
-    basketStore.changeShopItemQty(-1, purchaseItem)
+    changeShopItemQty(-1, purchaseItem)
   }
   const increaseAmount = (purchaseItem: PurchaseParams) => {
-    basketStore.changeShopItemQty(1, purchaseItem)
+    changeShopItemQty(1, purchaseItem)
   }
 
   onMounted(() => {
-    basketStore.loadPurchase()
+    loadPurchase()
   })
 </script>
 
