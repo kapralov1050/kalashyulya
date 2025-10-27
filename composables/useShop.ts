@@ -15,30 +15,50 @@ interface ApiResponse {
   error?: any
 }
 
+export interface newOrderInUserProfile {
+  title: string
+  price: number
+  status:
+    | 'новый заказ'
+    | 'в работе'
+    | 'ожидает отправки'
+    | 'отправлен'
+    | 'закрыт'
+    | 'отменен'
+}
+
 export const useShop = () => {
   const config = useRuntimeConfig()
 
   const createOrder = async (userId: string, newOrder: Order) => {
     try {
-      pushDataByPath(newOrder, `orders`)
+      await pushDataByPath(newOrder, `orders`)
 
-      const productsNames = newOrder.purchase.order.reduce(
-        (acc, item) => (acc += ` ${item.title},`),
-        '',
-      )
-      addOrderToUser(userId, productsNames)
+      const newOrderToProfile: newOrderInUserProfile[] =
+        newOrder.purchase.order.map(item => {
+          return {
+            title: item.title,
+            price: item.price,
+            status: 'новый заказ',
+          }
+        })
+
+      addOrderToUser(userId, newOrderToProfile)
     } catch (error) {
       return { order: null, error }
     }
   }
 
-  const addOrderToUser = async (userId: string, orderId: string) => {
+  const addOrderToUser = async (
+    userId: string,
+    newOrder: newOrderInUserProfile[],
+  ) => {
     try {
       const snapshot = await getSnapshotByPath(`users/${userId}/orders`)
       const currentOrders = snapshot ? Object.values(snapshot) : []
 
       // Добавляем новый заказ
-      const updatedOrders = [...currentOrders, orderId]
+      const updatedOrders = [...currentOrders, ...newOrder]
 
       // Обновляем массив заказов
       await updateDataByPath(

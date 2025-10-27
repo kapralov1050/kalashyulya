@@ -102,31 +102,29 @@
             <div v-else class="space-y-4">
               <div
                 v-for="order in userProfileData.orders"
-                :key="order.id"
+                :key="order.title"
                 class="border border-gray-200 rounded-lg p-4 hover:shadow-md
                   transition-shadow"
               >
                 <div class="flex justify-between items-start">
                   <div>
-                    <p class="font-medium text-gray-900">
-                      Заказ #{{ order.id }}
-                    </p>
-                    <p class="text-sm text-gray-500">{{ order.date }}</p>
+                    <p class="font-medium text-gray-900">{{ order.title }}</p>
+                    <p class="text-sm text-gray-500">{{ order.price }}₽</p>
                   </div>
                   <span
                     :class="[
                       'px-2 py-1 text-xs font-medium rounded-full',
-                      order.status === 'completed'
+                      order.status === 'закрыт'
                         ? 'bg-green-100 text-green-800'
-                        : order.status === 'processing'
+                        : order.status === 'в работе'
                           ? 'bg-yellow-100 text-yellow-800'
                           : 'bg-gray-100 text-gray-800',
                     ]"
                   >
                     {{
-                      order.status === 'completed'
+                      order.status === 'закрыт'
                         ? 'Завершен'
-                        : order.status === 'processing'
+                        : order.status === 'в работе'
                           ? 'В обработке'
                           : 'Новый'
                     }}
@@ -162,7 +160,7 @@
                   name="i-heroicons-chat-bubble-left-right"
                   class="h-5 w-5 mr-2"
                 />
-                Служба поддержки
+                Если появились вопросы
               </UButton>
             </div>
           </div>

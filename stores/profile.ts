@@ -5,7 +5,7 @@ export interface UserProfileData {
   name: string
   email: string
   role: string
-  orders?: string[]
+  orders?: newOrderInUserProfile[]
 }
 
 export const useProfileStore = defineStore('profile', () => {
