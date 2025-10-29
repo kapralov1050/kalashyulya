@@ -6,7 +6,7 @@
     <!-- Copyright -->
     <div class="text-center sm:text-left">
       <p class="text-sm text-neutral-500 dark:text-neutral-400">
-        © 2025 {{ $t('footer.copyright') }}. Все права защищены.
+        © 2025 {{ printLocale('footer_copyright') }}
       </p>
     </div>
 
@@ -16,12 +16,14 @@
         sm:space-x-4 text-center sm:text-right"
     >
       <p class="text-xs text-neutral-400 dark:text-neutral-500">
-        Сделано с ❤️ для художников
+        {{ printLocale('footer_sideDesc') }}
       </p>
     </div>
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+  const { printLocale } = useLocales()
+</script>
 
 <style scoped lang="scss"></style>

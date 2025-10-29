@@ -5,7 +5,7 @@
     class="space-y-3 sm:space-y-5"
     @submit="onSubmit"
   >
-    <UFormField label="Email" name="email">
+    <UFormField label="Электронная почта" name="email">
       <UInput
         v-model="userData.email"
         size="xl"
@@ -15,7 +15,7 @@
       />
     </UFormField>
 
-    <UFormField label="Password" name="password">
+    <UFormField label="Пароль" name="password">
       <UInput
         v-model="userData.password"
         size="xl"
@@ -30,7 +30,7 @@
       icon="heroicons:paper-airplane"
       class="mt-2 sm:mt-1 w-full flex justify-center"
     >
-      Log in
+      Войти
     </UButton>
   </UForm>
 </template>

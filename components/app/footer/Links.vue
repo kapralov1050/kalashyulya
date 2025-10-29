@@ -4,7 +4,7 @@
       class="text-sm font-semibold text-neutral-800 dark:text-white uppercase
         tracking-wide"
     >
-      Следите за новостями
+      {{ printLocale('footer_links_title') }}
     </h3>
 
     <div class="flex flex-col space-y-3">
@@ -29,10 +29,10 @@
           <span
             class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
           >
-            Telegram
+            {{ printLocale('footer_telegram_title') }}
           </span>
           <span class="text-xs text-neutral-500 dark:text-neutral-400">
-            @kalashyulya
+            {{ printLocale('footer_linkname') }}
           </span>
         </div>
       </a>
@@ -58,10 +58,10 @@
           <span
             class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
           >
-            VKontakte
+            {{ printLocale('footer_vk_title') }}
           </span>
           <span class="text-xs text-neutral-500 dark:text-neutral-400">
-            @kalashyulya
+            {{ printLocale('footer_linkname') }}
           </span>
         </div>
       </a>
@@ -69,6 +69,8 @@
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+  const { printLocale } = useLocales()
+</script>
 
 <style scoped lang="scss"></style>

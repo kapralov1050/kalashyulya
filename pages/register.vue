@@ -15,7 +15,7 @@
       />
     </UFormField>
 
-    <UFormField label="Email" name="email">
+    <UFormField label="Электронная почта" name="email">
       <UInput
         v-model="userData.email"
         size="xl"
@@ -25,7 +25,7 @@
       />
     </UFormField>
 
-    <UFormField label="Password" name="password">
+    <UFormField label="Пароль" name="password">
       <UInput
         v-model="userData.password"
         size="xl"
@@ -40,16 +40,16 @@
       icon="heroicons:paper-airplane"
       class="mt-2 sm:mt-1 w-full flex justify-center"
     >
-      Log in
+      Зарегистрироваться
     </UButton>
   </UForm>
   <p class="mt-6 text-center text-sm text-gray-600 sm:mt-8 dark:text-gray-300">
-    Already have an account?
+    Уже есть аккаунт?
     <NuxtLink
       class="cursor-pointer font-medium text-primary-600 hover:text-primary-700
         dark:text-primary-400 dark:hover:text-primary-300"
     >
-      Log in
+      Войти
     </NuxtLink>
   </p>
 </template>

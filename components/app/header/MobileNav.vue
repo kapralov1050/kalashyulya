@@ -20,7 +20,7 @@
             variant="link"
             to="/"
           >
-            {{ $t('header.about') }}
+            {{ printLocale('header_about') }}
           </UButton>
         </li>
         <li>
@@ -30,7 +30,7 @@
             variant="link"
             to="/lessons"
           >
-            {{ $t('header.navLessons') }}
+            {{ printLocale('header_navLessons') }}
           </UButton>
         </li>
         <li>
@@ -40,10 +40,10 @@
             variant="link"
             to="/shop"
           >
-            {{ $t('header.shop') }}
+            {{ printLocale('header_shop') }}
           </UButton>
         </li>
-        <li>
+        <!-- <li>
           <UButton
             v-for="locale in availableLocales"
             :key="locale.code"
@@ -53,7 +53,7 @@
           >
             {{ locale.name }}
           </UButton>
-        </li>
+        </li> -->
       </ul>
     </div>
   </div>
@@ -62,12 +62,14 @@
 <script setup>
   import gsap from 'gsap'
 
-  const { locale, locales } = useI18n()
-  const switchLocalePath = useSwitchLocalePath()
+  const { printLocale } = useLocales()
 
-  const availableLocales = computed(() => {
-    return locales.value.filter(i => i.code !== locale.value)
-  })
+  // const { locale, locales } = useI18n()
+  // const switchLocalePath = useSwitchLocalePath()
+
+  // const availableLocales = computed(() => {
+  //   return locales.value.filter(i => i.code !== locale.value)
+  // })
 
   let tl
   const isOpen = shallowRef(false)

@@ -6,7 +6,7 @@
         class="text-2xl font-bold text-neutral-800 dark:text-white"
         icon-classes="size-10 text-primary-600 dark:text-primary-400"
       >
-        {{ $t('footer.logoName') }}
+        {{ printLocale('footer_logoName') }}
       </AppLogo>
     </div>
 
@@ -15,7 +15,7 @@
       class="text-neutral-600 dark:text-neutral-300 text-sm leading-relaxed
         max-w-md"
     >
-      {{ $t('footer.description') }}
+      {{ printLocale('footer_description') }}
     </p>
 
     <!-- Additional info -->
@@ -23,12 +23,14 @@
       class="flex flex-col space-y-2 text-xs text-neutral-500
         dark:text-neutral-400"
     >
-      <p>Акварельные уроки и художественные работы</p>
-      <p>Watercolor lessons & artistic works</p>
+      <p>{{ printLocale('footer_subdesc_1') }}</p>
+      <p>{{ printLocale('footer_subdesc_2') }}</p>
     </div>
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+  const { printLocale } = useLocales()
+</script>
 
 <style scoped lang="scss"></style>

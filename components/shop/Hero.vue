@@ -4,8 +4,8 @@
       lg:pb-25"
   >
     <AppSectionHeader
-      :heading="$t('shop.heroTitle')"
-      :subheading="$t('shop.heroDescription')"
+      :heading="printLocale('shop_heroTitle')"
+      :subheading="printLocale('shop_heroDescription')"
     />
     <div
       class="container flex flex-col gap-y-2 sm:flex-row justify-center gap-x-2
@@ -35,13 +35,21 @@
               class="w-70% md:w-auto bg-gray-100 text-gray-900 hover:bg-gray-200
                 rounded-md p-2"
             >
-              <option selected value="">{{ $t('shop.filtersTitle') }}</option>
-              <option value="1">{{ $t('shop.filters.pictures') }}</option>
-              <option value="2">{{ $t('shop.filters.sketches') }}</option>
-              <option value="3">
-                {{ $t('shop.filters.postcards') }}
+              <option selected value="">
+                {{ printLocale('shop_filtersTitle') }}
               </option>
-              <option value="4">{{ $t('shop.filters.stickers') }}</option>
+              <option value="1">
+                {{ printLocale('shop_filters_pictures') }}
+              </option>
+              <option value="2">
+                {{ printLocale('shop_filters_sketches') }}
+              </option>
+              <option value="3">
+                {{ printLocale('shop_filters_postcards') }}
+              </option>
+              <option value="4">
+                {{ printLocale('shop_filters_stickers') }}
+              </option>
             </select>
           </UFormField>
         </div>
@@ -52,7 +60,7 @@
             size="lg"
             class="flex justify-center dark:text-neutral-800 mb-8 sm:mb-0"
           >
-            {{ $t('shop.searchButton') }}
+            {{ printLocale('shop_searchButton') }}
           </UButton>
           <UButton
             v-if="shopStore.searchedProducts"
@@ -72,10 +80,11 @@
 
 <script setup lang="ts">
   import type { FormSubmitEvent } from '@nuxt/ui'
-  import { productSchema } from '~/helpers/valibot'
   import type { productSchemaType } from '~/helpers/valibot'
+  import { productSchema } from '~/helpers/valibot'
 
   const shopStore = useShopStore()
+  const { printLocale } = useLocales()
 
   const searchState = reactive({
     title: '',

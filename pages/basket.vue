@@ -8,8 +8,8 @@
         sm:p-5"
     >
       <AppSectionHeader
-        heading="Корзина покупок"
-        subheading="Все ваши покупки находятся здесь"
+        :heading="printLocale('basket_title')"
+        :subheading="printLocale('basket_subtitle')"
       />
       <section
         class="w-3/4 lg:w-150 xl:w-200 flex flex-col justify-center items-center
@@ -127,6 +127,7 @@
   const isModalOpen = shallowRef(false)
   const { currentUser } = storeToRefs(useAuthStore())
   const { userProfileData } = storeToRefs(useProfileStore())
+  const { printLocale } = useLocales()
 
   const { createOrder } = useShop()
 
