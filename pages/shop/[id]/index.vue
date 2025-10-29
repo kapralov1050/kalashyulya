@@ -32,7 +32,9 @@
         </p>
 
         <div class="flex items-center mb-6">
-          <span class="text-gray-500 text-sm">(24 просмотра)</span>
+          <span class="text-gray-500 text-sm">
+            ({{ pluralizeViews(views) }})
+          </span>
         </div>
 
         <div class="prose max-w-none text-gray-600 mb-6">
@@ -50,10 +52,14 @@
             class="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 px-6
               rounded-md font-medium transition flex items-center justify-center
               gap-2"
-            @click="buyNow(selectedProduct)"
+            :color="isInBasket ? 'success' : 'secondary'"
+            :disabled="isInBasket"
+            :loading="isLoading"
+            @click="addToBasket(selectedProduct)"
           >
-            <i data-feather="shopping-bag" class="w-4 h-4"></i>
-            <span>Купить</span>
+            <span>
+              {{ isInBasket ? 'В корзине' : 'Добавить в корзину' }}
+            </span>
           </UButton>
 
           <div class="mt-4 text-center">
@@ -73,21 +79,32 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted } from 'vue'
-  import { useShopStore } from '~/stores/shop'
-  import type { Product } from '~/types'
   import VueMagnifier from '@websitebeaver/vue-magnifier'
   import '@websitebeaver/vue-magnifier/styles.css'
+  import { onMounted, ref } from 'vue'
+  import { useProductViews } from '~/composables/useProductViews'
+  import { useShopStore } from '~/stores/shop'
+  import type { Product } from '~/types'
 
   const shopStore = useShopStore()
   const { allProducts } = storeToRefs(shopStore)
   const selectedProduct = ref<Product | null>(null)
   const { addShopItemToBasket } = useBasketStore()
-  const router = useRouter()
+  const { shoppingCart } = storeToRefs(useBasketStore())
+  const { params } = useRoute()
+  const productId = String(params.id)
+  const { trackView, getViews } = useProductViews(productId)
+  const views = ref(0)
+  const [isLoading, setLoading] = useToggle(false)
+
+  const isInBasket = computed(() => {
+    return shoppingCart.value.some(el => el.item.id.toString() == productId)
+  })
 
   const addToBasket = async (product: Product) => {
+    setLoading(true)
     await new Promise(resolve => {
-      setTimeout(resolve, 300)
+      setTimeout(resolve, 1000)
     })
 
     const { description, categoryId, tags, ...purchaseParams } = product
@@ -97,27 +114,24 @@
       item: purchaseParams,
     }
     addShopItemToBasket(purchase)
-  }
 
-  const buyNow = async (product: Product) => {
-    addToBasket(product)
-    await new Promise(resolve => {
-      setTimeout(resolve, 500)
-    })
-    router.push('/basket')
+    setLoading(false)
   }
 
   onMounted(async () => {
-    const { params } = useRoute()
-    const productId = Number(params.id)
+    const productIdNum = Number(params.id)
 
     if (allProducts.value) {
-      const product = allProducts.value.find(item => item.id === productId)
+      const product = allProducts.value.find(item => item.id === productIdNum)
 
       if (product) {
         selectedProduct.value = product
       }
     }
+    trackView()
+    views.value = getViews().value
+
+    console.log(views.value)
   })
 </script>
 
