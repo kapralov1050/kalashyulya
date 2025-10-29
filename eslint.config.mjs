@@ -2,12 +2,14 @@
 import withNuxt from './.nuxt/eslint.config.mjs'
 import vuePlugin from 'eslint-plugin-vue'
 import prettier from 'eslint-config-prettier'
+import unusedImports from 'eslint-plugin-unused-imports'
 
 export default withNuxt([
   {
     ignores: ['.nuxt/**', 'dist/**', '.output/**', '*.min.js', 'coverage/**'],
     plugins: {
       vue: vuePlugin,
+      'unused-imports': unusedImports
     },
     rules: {
       'vue/multi-word-component-names': 'off',
@@ -18,6 +20,7 @@ export default withNuxt([
       'vue/no-multiple-template-root': 'off',
       'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
       'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
+      'unused-imports/no-unused-imports': 'error',
       'vue/max-attributes-per-line': [
         'error',
         {

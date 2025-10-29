@@ -1,13 +1,9 @@
-import type { DatabaseReference } from 'firebase/database'
 import {
-  getDataByPath,
   getSnapshotByPath,
   pushDataByPath,
-  setDataByPath,
   updateDataByPath,
 } from '~/helpers/firebase/manageDatabase'
 import type { Order } from '~/types'
-import { ref as dbRef, push } from 'firebase/database'
 
 interface ApiResponse {
   success: boolean
@@ -88,7 +84,6 @@ export const useShop = () => {
         },
       })
 
-      console.log('Telegram response:', response)
       return { success: true, data: response }
     } catch (error: any) {
       console.error('Ошибка отправки в Telegram:', error)
