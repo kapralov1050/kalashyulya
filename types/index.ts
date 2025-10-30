@@ -34,17 +34,64 @@ export interface CustomerInfo {
   name: string
   phone?: string
   email: string
-  address?: string
-  comment?: string
+  delivery?: {
+    city: string
+    recipient: string
+    street: string
+    house: string
+    apartment: string
+  }
 }
 
 export interface Order {
-  customer: CustomerInfo
+  customer: Omit<CustomerInfo, 'delivery'> & {
+    delivery: {
+      city: string
+      recipient: string
+      street: string
+      house: string
+      apartment: string
+    }
+  }
   purchase: {
     order: ShortPurchaseInfo[]
     createdAt: string
   }
+
   totalPrice: number
+}
+
+export interface DaDataSuggestion {
+  value: string
+  unrestricted_value: string
+  data: {
+    postal_code?: string
+    city?: string
+    street?: string
+    house?: string
+  }
+}
+
+export interface DaDataSuggestion {
+  value: string
+  unrestricted_value: string
+  data: {
+    postal_code?: string
+    city?: string
+    street?: string
+    house?: string
+  }
+}
+
+export interface DaDataSuggestion {
+  value: string
+  unrestricted_value: string
+  data: {
+    postal_code?: string
+    city?: string
+    street?: string
+    house?: string
+  }
 }
 
 export type LessonsTags = Record<string, string>

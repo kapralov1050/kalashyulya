@@ -8,5 +8,7 @@ export const runtimeConfig: NuxtConfig['runtimeConfig'] = {
     cloudFunctionUploadProduct:
       process.env.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_PRODUCT_URL,
     bucketName: process.env.NUXT_PUBLIC_BUCKET_NAME,
+    dadataApiKey: process.env.NUXT_PUBLIC_DADATA_API_KEY,
+    dadataSecretKey: process.env.NUXT_PUBLIC_DADATA_SECRET_KEY,
   },
 }
