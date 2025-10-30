@@ -7,7 +7,6 @@
       @submit="submitOrder"
     >
       <div class="space-y-4">
-        <h3 class="text-xl font-bold">Покупатель</h3>
         <UFormField name="name" label="Ваше имя">
           <UInput
             v-model="formData.name"
@@ -116,6 +115,7 @@
         size="xl"
         class="self-center"
         variant="outline"
+        @click="submitOrder"
       >
         {{ isSending ? 'Отправка...' : 'Отправить' }}
       </UButton>
@@ -126,7 +126,7 @@
 <script setup lang="ts">
   import { showToast } from '~/helpers/showToast'
   import { orderSchema } from '~/helpers/valibot'
-  import type { Order, DaDataSuggestion } from '~/types'
+  import type { DaDataSuggestion, Order } from '~/types'
 
   const {
     suggestions,
@@ -144,6 +144,8 @@
     formData.house = house || ''
     suggestions.value = []
     addressQuery.value = suggestion.value
+    formData.apartment = suggestion.data.house || ''
+    formData.apartment = suggestion.data.flat || ''
   }
 
   const emit = defineEmits(['closeModal'])

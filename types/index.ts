@@ -69,28 +69,7 @@ export interface DaDataSuggestion {
     city?: string
     street?: string
     house?: string
-  }
-}
-
-export interface DaDataSuggestion {
-  value: string
-  unrestricted_value: string
-  data: {
-    postal_code?: string
-    city?: string
-    street?: string
-    house?: string
-  }
-}
-
-export interface DaDataSuggestion {
-  value: string
-  unrestricted_value: string
-  data: {
-    postal_code?: string
-    city?: string
-    street?: string
-    house?: string
+    flat?: string
   }
 }
 
