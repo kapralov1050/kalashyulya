@@ -1,42 +1,45 @@
-import type { DebouncedFuncLeading } from 'lodash'
-import { throttle } from 'lodash-es'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-let scrollHandler: DebouncedFuncLeading<() => void> | null = null
-let path: SVGPathElement | null = null
+gsap.registerPlugin(ScrollTrigger)
 
 export const setupScrollAnimation = (element: string) => {
-  path = document.querySelector(element)
+  const path = document.querySelector(element) as SVGPathElement | null
+
   if (!path) return
 
-  path.style.willChange = 'auto'
-  const pathLength = path.getTotalLength()
-  path.style.strokeDasharray = String(pathLength)
-  path.style.strokeDashoffset = String(pathLength)
+  gsap.set(path, { transformOrigin: '50% 50%' })
+  gsap.set(path, {
+    strokeDasharray: path.getTotalLength(),
+    strokeDashoffset: path.getTotalLength(),
+  })
 
-  scrollHandler = throttle(() => {
-    const scrollPercentage =
-      (document.documentElement.scrollTop * 2 + document.body.scrollTop) /
-      (document.documentElement.scrollHeight -
-        document.documentElement.clientHeight)
+  const animation = gsap.to(path, {
+    strokeDashoffset: 0,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: path,
+      start: 'top center',
+      end: 'bottom bottom',
+      scrub: 1.1,
+    },
+  })
 
-    const drawLength = pathLength * scrollPercentage
-
-    if (!path) return
-    path.style.strokeDashoffset = String(-drawLength - 1400)
-  }, 18)
-
-  window.addEventListener('scroll', scrollHandler)
+  return {
+    cleanup: () => {
+      animation?.scrollTrigger?.kill()
+      animation?.kill()
+    },
+  }
 }
 
-export const cleanupScrollAnimation = () => {
-  if (scrollHandler) {
-    window.removeEventListener('scroll', scrollHandler)
-    scrollHandler = null
-  }
-  if (path) {
-    path.style.willChange = 'auto'
-    path.style.strokeDasharray = ''
-    path.style.strokeDashoffset = ''
-    path = null
-  }
+export const cleanupScrollAnimation = (element: string) => {
+  const path = document.querySelector(element) as SVGPathElement | null
+  if (!path) return
+
+  ScrollTrigger.getAll().forEach(st => {
+    if (st.trigger === path) {
+      st.kill()
+    }
+  })
 }

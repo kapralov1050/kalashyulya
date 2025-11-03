@@ -23,14 +23,14 @@
 </template>
 
 <script setup lang="ts">
-  import { onMounted, onBeforeUnmount } from 'vue'
-  import {
-    setupScrollAnimation,
-    cleanupScrollAnimation,
-  } from '~/helpers/scrollAnimation'
-  import { timelineText } from '~/data/timeline'
-  import TimelineItem from './TimelineItem.vue'
+  import { onMounted } from 'vue'
   import { useTimelineAnimation } from '~/composables/useTimelineAnimation'
+  import { timelineText } from '~/data/timeline'
+  import {
+    cleanupScrollAnimation,
+    setupScrollAnimation,
+  } from '~/helpers/scrollAnimation'
+  import TimelineItem from './TimelineItem.vue'
 
   const { animate } = useTimelineAnimation()
 
@@ -40,6 +40,6 @@
   })
 
   onBeforeUnmount(() => {
-    cleanupScrollAnimation()
+    cleanupScrollAnimation('#scrollPath')
   })
 </script>
