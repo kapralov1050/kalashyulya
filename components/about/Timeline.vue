@@ -40,6 +40,6 @@
   })
 
   onBeforeUnmount(() => {
-    cleanupScrollAnimation()
+    cleanupScrollAnimation('#scrollPath')
   })
 </script>
