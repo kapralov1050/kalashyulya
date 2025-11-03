@@ -7,7 +7,7 @@
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       class="absolute top-10 left-1/2 transform -translate-x-1/2 z-[-1]
-        will-change-[stroke-dashoffset] hidden lg:block"
+        will-change-[stroke-dashoffset] scale-x-50 lg:scale-x-100 lg:block"
     >
       <path
         id="scrollPath"
@@ -23,14 +23,14 @@
 </template>
 
 <script setup lang="ts">
-  import { onMounted, onBeforeUnmount } from 'vue'
-  import {
-    setupScrollAnimation,
-    cleanupScrollAnimation,
-  } from '~/helpers/scrollAnimation'
-  import { timelineText } from '~/data/timeline'
-  import TimelineItem from './TimelineItem.vue'
+  import { onBeforeUnmount, onMounted } from 'vue'
   import { useTimelineAnimation } from '~/composables/useTimelineAnimation'
+  import { timelineText } from '~/data/timeline'
+  import {
+    cleanupScrollAnimation,
+    setupScrollAnimation,
+  } from '~/helpers/scrollAnimation'
+  import TimelineItem from './TimelineItem.vue'
 
   const { animate } = useTimelineAnimation()
 
