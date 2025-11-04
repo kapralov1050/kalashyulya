@@ -34,6 +34,8 @@ export interface CustomerInfo {
   name: string
   phone?: string
   email: string
+  userMessenger?: string[]
+  userNickname?: string
   delivery?: {
     city: string
     recipient: string

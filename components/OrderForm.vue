@@ -34,6 +34,27 @@
             class="w-full"
           />
         </UFormField>
+        <UFormField name="способ связи" label="Как с вами связаться?">
+          <UCheckboxGroup
+            v-model="messengerType"
+            orientation="horizontal"
+            variant="list"
+            :items="items"
+          />
+        </UFormField>
+        <UFormField
+          v-if="['Вконтакте', 'Телеграм'].includes(messengerType[0])"
+          name="nickname"
+          label="ваш ник в vk или telegram"
+        >
+          <UInput
+            v-model="formData.nickname"
+            size="xl"
+            type="text"
+            placeholder="Введите ваш номер телефона"
+            class="w-full"
+          />
+        </UFormField>
       </div>
 
       <div class="space-y-4">
@@ -115,6 +136,8 @@
         size="xl"
         class="self-center"
         variant="outline"
+        color="neutral"
+        :disabled="!isFormValid"
         @click="submitOrder"
       >
         {{ isSending ? 'Отправка...' : 'Отправить' }}
@@ -124,18 +147,35 @@
 </template>
 
 <script setup lang="ts">
+  import type { CheckboxGroupItem } from '@nuxt/ui'
+  import { computed } from 'vue'
   import { showToast } from '~/helpers/showToast'
   import { orderSchema } from '~/helpers/valibot'
   import type { DaDataSuggestion, Order } from '~/types'
 
-  const {
-    suggestions,
-    isLoading: isAddressLoading,
-    error: addressError,
-    fetchAddresses,
-  } = useDaDataAddress()
+  const emit = defineEmits(['closeModal'])
+
+  const { suggestions, fetchAddresses } = useDaDataAddress()
+  const basketStore = useBasketStore()
+  const { sendOrderInfoTelegram, sendOrderInfoEmail } = useShop()
+
   const addressQuery = ref('')
   const isSending = shallowRef(false)
+  const items = ref<CheckboxGroupItem[]>(['Вконтакте', 'Телеграм', 'Звонок'])
+  const messengerType = ref(['Вконтакте'])
+
+  const formData = reactive({
+    name: '',
+    phone: '',
+    email: '',
+    city: '',
+    recipient: '',
+    street: '',
+    house: '',
+    apartment: '',
+    messenger: messengerType.value,
+    nickname: '',
+  })
 
   const selectAddress = (suggestion: DaDataSuggestion) => {
     const { city, street, house } = suggestion.data
@@ -148,19 +188,17 @@
     formData.apartment = suggestion.data.flat || ''
   }
 
-  const emit = defineEmits(['closeModal'])
-  const basketStore = useBasketStore()
-  const { sendOrderInfoTelegram, sendOrderInfoEmail } = useShop()
-
-  const formData = reactive({
-    name: '',
-    phone: '',
-    email: '',
-    city: '',
-    recipient: '',
-    street: '',
-    house: '',
-    apartment: '',
+  const isFormValid = computed(() => {
+    return (
+      formData.name.trim() &&
+      formData.phone.trim() &&
+      formData.email.trim() &&
+      formData.city.trim() &&
+      formData.recipient.trim() &&
+      formData.street.trim() &&
+      formData.house.trim() &&
+      formData.apartment.trim()
+    )
   })
 
   const submitOrder = async () => {
@@ -169,6 +207,8 @@
         name: formData.name,
         phone: formData.phone,
         email: formData.email,
+        userMessenger: formData.messenger,
+        userNickname: formData.nickname,
         delivery: {
           city: formData.city,
           recipient: formData.recipient,
@@ -184,18 +224,24 @@
       totalPrice: basketStore.totalPurchaseAmount,
     }
 
-    console.log('Отправка заказа:', orderInfo)
-
     isSending.value = true
 
-    await sendOrderInfoTelegram(orderInfo)
-    await sendOrderInfoEmail(orderInfo)
+    const telegramResponse = await sendOrderInfoTelegram(orderInfo)
+    const emailResponse = await sendOrderInfoEmail(orderInfo)
 
-    showToast(
-      'Заказ успешно оформлен',
-      'В ближайшее время я с вами свяжусь',
-      'heroicons:check-circle',
-    )
+    if (telegramResponse.success || emailResponse.success) {
+      showToast(
+        'Заказ успешно оформлен',
+        'В ближайшее время я с вами свяжусь',
+        'heroicons:check-circle',
+      )
+    } else if (!telegramResponse.success && !emailResponse.success) {
+      showToast(
+        'Ошибка оформления заказа',
+        'Повторите позже',
+        'heroicons:exclamation-circle',
+      )
+    }
 
     isSending.value = false
     emit('closeModal')

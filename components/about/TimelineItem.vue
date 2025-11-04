@@ -7,10 +7,10 @@
     />
     <div
       class="flex flex-col items-center p-2 rounded-xl gap-y-2
-        dark:bg-neutral-900 bg-white"
+        dark:bg-neutral-900"
     >
       <h3 class="font-bold text-lg">{{ item.year }}</h3>
-      <p class="text-sm">{{ item.text }}</p>
+      <p class="text-sm font-bold">{{ item.text }}</p>
     </div>
   </div>
 </template>

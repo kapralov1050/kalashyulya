@@ -55,6 +55,7 @@
         </div>
         <div class="w-full flex justify-center gap-x-3">
           <UButton
+            :disabled="!searchState.title"
             type="submit"
             color="neutral"
             size="lg"

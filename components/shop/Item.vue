@@ -16,7 +16,10 @@
           <div
             v-for="tag in product.tags"
             :key="tag"
-            class="p-1 w-fit text-xs border-2 border-primary-700 rounded-md"
+            class="px-2 py-1 text-xs font-medium border border-primary-500
+              rounded-full bg-primary-50 dark:bg-primary-900/20
+              hover:bg-primary-100 dark:hover:bg-primary-900/30
+              transition-colors duration-200"
           >
             {{ tag }}
           </div>

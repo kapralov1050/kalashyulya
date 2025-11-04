@@ -8,6 +8,7 @@
         sm:p-5"
     >
       <AppSectionHeader
+        v-if="shoppingCart.length"
         :heading="printLocale('basket_title')"
         :subheading="printLocale('basket_subtitle')"
       />
@@ -15,72 +16,92 @@
         class="w-3/4 lg:w-150 xl:w-200 flex flex-col justify-center items-center
           gap-y-3 :gap-y-6 mt-2 sm:mt-4"
       >
-        <div
-          v-for="el in shoppingCart"
-          :key="el.item.id"
-          class="w-full flex flex-col gap-y-5 md:flex-row justify-start
-            items-center gap-x-5 py-4 border-b-1 border-neutral-400
-            dark:border-neutral-300"
-        >
-          <NuxtImg
-            :src="el.item.image"
-            :alt="el.item.title"
-            fit="cover"
-            class="rounded-lg w-3/4 sm:w-50"
-          />
-          <section class="w-full flex">
-            <div>
-              <h1 class="text-lg font-bold text-gray-900 dark:text-white">
-                {{ el.item.title }}
-              </h1>
-              <p class="text-xs dark:text-neutral-200">
-                В наличии {{ el.item.stock }}шт.
-              </p>
-              <UButton
-                color="neutral"
-                variant="link"
-                size="xs"
-                class="text-start p-0 text-primary underline"
-                @click="deleteShopItemFromBasket(el.item)"
-              >
-                убрать
-              </UButton>
-            </div>
-            <div class="ml-auto flex flex-col gap-y-3">
-              <div
-                class="flex justify-center items-center bg-neutral-100
-                  rounded-xl"
-              >
+        <template v-if="shoppingCart.length">
+          <div
+            v-for="el in shoppingCart"
+            :key="el.item.id"
+            class="w-full flex flex-col gap-y-5 md:flex-row justify-start
+              items-center gap-x-5 py-4 border-b-1 border-neutral-400
+              dark:border-neutral-300"
+          >
+            <NuxtImg
+              :src="el.item.image"
+              :alt="el.item.title"
+              fit="cover"
+              class="rounded-lg w-3/4 sm:w-50"
+            />
+            <section class="w-full flex">
+              <div>
+                <h1 class="text-lg font-bold text-gray-900 dark:text-white">
+                  {{ el.item.title }}
+                </h1>
+                <p class="text-xs dark:text-neutral-200">
+                  В наличии {{ el.item.stock }}шт.
+                </p>
                 <UButton
                   color="neutral"
                   variant="link"
-                  size="sm"
-                  icon="heroicons:minus-16-solid"
-                  aria-label="Clear input"
-                  @click="decreaseAmount(el.item)"
-                />
-                <h2 class="text-sm dark:text-neutral-600">
-                  {{ el.amount }}
-                </h2>
-                <UButton
-                  color="neutral"
-                  variant="link"
-                  size="sm"
-                  icon="heroicons:plus-16-solid"
-                  aria-label="Clear input"
-                  @click="increaseAmount(el.item)"
-                />
+                  size="xs"
+                  class="text-start p-0 text-primary underline"
+                  @click="deleteShopItemFromBasket(el.item)"
+                >
+                  убрать
+                </UButton>
               </div>
-              <h3
-                class="flex items-center ml-2 text-sm text-gray-800
-                  dark:text-gray-200"
-              >
-                ₽{{ el.item.price }}
-              </h3>
-            </div>
-          </section>
+              <div class="ml-auto flex flex-col gap-y-3">
+                <div
+                  class="flex justify-center items-center bg-neutral-100
+                    rounded-xl"
+                >
+                  <UButton
+                    color="neutral"
+                    variant="link"
+                    size="sm"
+                    icon="heroicons:minus-16-solid"
+                    aria-label="Clear input"
+                    @click="decreaseAmount(el.item)"
+                  />
+                  <h2 class="text-sm dark:text-neutral-600">
+                    {{ el.amount }}
+                  </h2>
+                  <UButton
+                    color="neutral"
+                    variant="link"
+                    size="sm"
+                    icon="heroicons:plus-16-solid"
+                    aria-label="Clear input"
+                    @click="increaseAmount(el.item)"
+                  />
+                </div>
+                <h3
+                  class="flex items-center ml-2 text-sm text-gray-800
+                    dark:text-gray-200"
+                >
+                  ₽{{ el.item.price }}
+                </h3>
+              </div>
+            </section>
+          </div>
+        </template>
+        <div
+          v-else
+          class="w-full max-w-64 flex flex-col items-center gap-y-4 text-center"
+        >
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+            Корзина пуста
+          </h2>
+          <p class="text-gray-600 dark:text-gray-300 text-sm">
+            Добавьте товары из магазина
+          </p>
+          <UButton
+            to="/shop"
+            color="primary"
+            variant="solid"
+            label="Перейти в магазин"
+          />
         </div>
         <div
+          v-if="shoppingCart.length"
           class="w-full flex flex-col justify-start gap-y-5 sm:flex-row
             sm:gap-x-5 sm:px-5 dark:text-neutral-200"
         >
@@ -90,6 +111,7 @@
         </div>
         <div class="w-full flex justify-end gap-x-10 mt-4 sm:mt-6">
           <UButton
+            v-if="shoppingCart.length"
             class="w-full flex justify-center mb-8 sm:mb-0 p-2 sm:p-4
               rounded-4xl text-neutral-900 border border-neutral-600
               dark:text-neutral-200 dark:hover:bg-neutral-700
@@ -98,16 +120,21 @@
             size="xl"
             variant="link"
             :disabled="!totalPurchaceQty"
-            @click="handleOrder"
+            @click="isModalOpen = true"
           >
             {{ purchaseButtonText }}
           </UButton>
-          <AppModal v-if="isModalOpen" @close="isModalOpen = false">
-            <template #header>Оформление заказа</template>
-            <template #default>
+
+          <UModal
+            v-model:open="isModalOpen"
+            title="Оформление заказа"
+            description="Для оформления заказа мне потребуются ваши данные"
+            close-icon="heroicons:x-mark-16-solid"
+          >
+            <template #body>
               <OrderForm @close-modal="isModalOpen = false"></OrderForm>
             </template>
-          </AppModal>
+          </UModal>
         </div>
       </section>
     </div>
@@ -115,21 +142,14 @@
 </template>
 
 <script setup lang="ts">
-  import type { Order, PurchaseParams } from '~/types'
-  const {
-    deleteShopItemFromBasket,
-    loadPurchase,
-    changeShopItemQty,
-    shortPurchaseInfo,
-  } = useBasketStore()
+  import type { PurchaseParams } from '~/types'
+  const { deleteShopItemFromBasket, loadPurchase, changeShopItemQty } =
+    useBasketStore()
   const { totalPurchaceQty, totalPurchaseAmount, shoppingCart } =
     storeToRefs(useBasketStore())
   const isModalOpen = shallowRef(false)
   const { currentUser } = storeToRefs(useAuthStore())
-  const { userProfileData } = storeToRefs(useProfileStore())
   const { printLocale } = useLocales()
-
-  const { createOrder } = useShop()
 
   const purchaseButtonText = computed(() => {
     return currentUser ? 'Заказать' : 'Оформить заказ'
@@ -142,25 +162,25 @@
     changeShopItemQty(1, purchaseItem)
   }
 
-  function handleOrder() {
-    if (currentUser.value && currentUser.value.uid && userProfileData.value) {
-      const orderInfo: Order = {
-        customer: {
-          name: userProfileData.value.name,
-          email: userProfileData.value.email,
-        },
-        purchase: {
-          order: shortPurchaseInfo,
-          createdAt: new Date().toISOString(),
-        },
-        totalPrice: totalPurchaseAmount.value,
-      }
+  // function handleOrder() {
+  //   if (currentUser.value && currentUser.value.uid && userProfileData.value) {
+  //     const orderInfo: Order = {
+  //       customer: {
+  //         name: userProfileData.value.name,
+  //         email: userProfileData.value.email,
+  //       },
+  //       purchase: {
+  //         order: shortPurchaseInfo,
+  //         createdAt: new Date().toISOString(),
+  //       },
+  //       totalPrice: totalPurchaseAmount.value,
+  //     }
 
-      createOrder(currentUser.value.uid, orderInfo)
-    } else {
-      isModalOpen.value = true
-    }
-  }
+  //     createOrder(currentUser.value.uid, orderInfo)
+  //   } else {
+  //     isModalOpen.value = true
+  //   }
+  // }
 
   onMounted(() => {
     loadPurchase()
