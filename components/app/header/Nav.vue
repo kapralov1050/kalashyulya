@@ -7,10 +7,15 @@
         </UButton>
       </li>
       <li>
+        <UButton color="neutral" variant="link" to="/calendar">
+          Календари 2026
+        </UButton>
+      </li>
+      <!-- <li>
         <UButton color="neutral" variant="link" to="/lessons">
           {{ printLocale('header_navLessons') }}
         </UButton>
-      </li>
+      </li> -->
       <li class="mr-auto">
         <UButton color="neutral" variant="link" to="/shop">
           {{ printLocale('header_shop') }}

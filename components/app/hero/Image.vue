@@ -8,7 +8,7 @@
     class="relative scale-90 lg:w-2/3 lg:scale-105 perspective-distant"
   >
     <img
-      src="/editor.jpg"
+      :src="imageSrc"
       alt="Editor UI"
       class="rounded-2xl shadow-2xl"
       :style="cardStyle"
@@ -17,6 +17,8 @@
 </template>
 
 <script setup lang="ts">
+  defineProps<{ imageSrc: string }>()
+
   const container = ref<HTMLElement | null>(null)
 
   const { roll, tilt } = useParallax(container)

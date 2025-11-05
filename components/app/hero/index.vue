@@ -3,8 +3,7 @@
     <div
       class="container flex flex-col items-center gap-8 sm:gap-x-12 lg:flex-row"
     >
-      <AppHeroContent />
-      <AppHeroImage />
+      <slot />
     </div>
   </section>
 </template>

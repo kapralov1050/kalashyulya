@@ -1,4 +1,4 @@
-import type { Product, ShopData } from '~/types'
+import type { Product } from '~/types'
 
 import { useFirebase } from '~/composables/firebase/useFirebase'
 
