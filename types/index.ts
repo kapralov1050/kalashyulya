@@ -77,7 +77,7 @@ export interface DaDataSuggestion {
 
 export type LessonsTags = Record<string, string>
 
-export type DashBoardOption = 'NewProductForm' | 'ProductsList'
+export type DashBoardOption = 'NewProductForm' | 'ProductsList' | 'LocalesForm'
 
 export interface TimelineItem {
   id: number
