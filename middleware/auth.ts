@@ -3,20 +3,27 @@ import { getSnapshotByPath } from '~/helpers/firebase/manageDatabase'
 export default defineNuxtRouteMiddleware(async to => {
   const authStore = useAuthStore()
 
-  if (!authStore.currentUser?.uid) {
-    return navigateTo('/login')
-  }
+  await authStore.waitForAuthInit()
 
-  if (to.path === '/login' || !to.path.startsWith('/admin')) {
+  const user = authStore.currentUser
+  const isLoginPage = to.path === '/login'
+  const isAdminRoute = to.path.startsWith('/admin')
+
+  if (!user?.uid) {
+    if (!isLoginPage) {
+      return navigateTo('/login')
+    }
     return
   }
 
-  const snapshot = await getSnapshotByPath(
-    `users/${authStore.currentUser.uid}/role`,
-  )
-  const role = snapshot.toString()
+  if (isAdminRoute) {
+    const snapshot = await getSnapshotByPath(`users/${user.uid}/role`)
+    const role = snapshot.toString()
 
-  if (role !== 'admin') {
-    return navigateTo('/login')
+    if (role !== 'admin') {
+      return navigateTo('/login')
+    }
   }
+
+  return
 })

@@ -36,11 +36,11 @@
 </template>
 
 <script setup lang="ts">
+  import type { FormSubmitEvent } from '@nuxt/ui'
   import { loginUser } from '~/helpers/firebase/authService'
   import { showToast } from '~/helpers/showToast'
-  import type { FormSubmitEvent } from '@nuxt/ui'
-  import { loginSchema } from '~/helpers/valibot'
   import type { loginSchemaType } from '~/helpers/valibot'
+  import { loginSchema } from '~/helpers/valibot'
 
   definePageMeta({
     layout: 'auth',
@@ -52,11 +52,13 @@
   })
 
   const router = useRouter()
+  const { setUser } = useAuthStore()
 
   const onSubmit = async (event: FormSubmitEvent<loginSchemaType>) => {
     const { user, error } = await loginUser(userData.email, userData.password)
 
     if (user) {
+      setUser(user)
       showToast(
         'Успешно!',
         'User logged in successfully',

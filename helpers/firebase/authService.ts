@@ -2,10 +2,8 @@ import { FirebaseError } from 'firebase/app'
 import {
   createUserWithEmailAndPassword,
   getAuth,
-  onAuthStateChanged,
   signInWithEmailAndPassword,
 } from 'firebase/auth'
-import { get, remove } from 'firebase/database'
 import { updateDataByPath } from './manageDatabase'
 
 export const createUser = async (
