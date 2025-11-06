@@ -91,11 +91,17 @@
   import { removeDataByPath } from '~/helpers/firebase/manageDatabase'
 
   const shopStore = useShopStore()
+  const { deleteFile } = useYandexDatabase()
 
-  const removeProduct = (productid: number) => {
+  const removeProduct = async (productid: number) => {
     if (confirm('Вы уверены, что хотите удалить этот товар?')) {
-      console.log(`shop/products/product_${productid}`)
-      removeDataByPath(`shop/products/product_${productid}`)
+      await removeDataByPath(`shop/products/product_${productid}`)
+
+      const fileToDelete = shopStore.getProductFileName(productid)
+
+      if (fileToDelete) {
+        await deleteFile(fileToDelete)
+      }
     }
   }
 </script>

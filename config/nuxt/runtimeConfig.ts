@@ -7,6 +7,8 @@ export const runtimeConfig: NuxtConfig['runtimeConfig'] = {
     cloudFunctionEmailUrl: process.env.NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_URL,
     cloudFunctionUploadProduct:
       process.env.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_PRODUCT_URL,
+    cloudFunctionDeleteProductImage:
+      process.env.NUXT_PUBLIC_CLOUD_FUNCTION_DELETE_PRODUCT_FILE,
     cloudFunctionUploadLocales:
       process.env.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_LOCALES,
     bucketName: process.env.NUXT_PUBLIC_BUCKET_NAME,

@@ -5,6 +5,7 @@ const config = useRuntimeConfig()
 export interface UploadResponse {
   message: string
   path: string
+  fileName: string
 }
 
 export function useYandexDatabase() {
@@ -72,7 +73,21 @@ export function useYandexDatabase() {
     }
   }
 
+  async function deleteFile(fileName: string) {
+    try {
+      await $fetch(`${config.public.cloudFunctionDeleteProductImage}`, {
+        method: 'POST',
+        body: {
+          fileName: fileName,
+        },
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   return {
     uploadToMountedBucket,
+    deleteFile,
   }
 }

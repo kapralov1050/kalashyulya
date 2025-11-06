@@ -94,12 +94,13 @@
   async function createProduct() {
     try {
       let imageUrl = ''
+      let fileName = ''
 
       if (fileInput.value) {
         const response = await uploadToMountedBucket(fileInput.value)
         if (response) {
           imageUrl = response.path
-          console.log(imageUrl)
+          fileName = response.fileName
         }
       }
 
@@ -107,6 +108,7 @@
         categoryId: formData.category,
         description: formData.description,
         image: imageUrl,
+        file: fileName,
         price: Number(formData.price),
         stock: Number(formData.stock),
         tags: formData.tags,
@@ -119,8 +121,8 @@
         'Product created successfully',
         'heroicons:check-circle',
       )
-    } catch {
-      showToast('error', 'Product upload error', 'heroicons:exclamation-circle')
+    } catch (error) {
+      showToast('error', error as string, 'heroicons:exclamation-circle')
     }
   }
 </script>

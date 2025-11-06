@@ -28,8 +28,19 @@ export const useShopStore = defineStore('shop', () => {
     )
   }
 
+  const getProductFileName = (productId: number) => {
+    if (!shopData.value) return null
+
+    const product = Object.values(shopData.value.products).find(
+      prod => prod.id === productId,
+    )
+
+    return product?.file || null
+  }
+
   return {
     findProduct,
+    getProductFileName,
     searchedProducts,
     shopData,
     allProducts,
