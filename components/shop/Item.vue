@@ -28,9 +28,8 @@
           {{ product.title }}
         </h2>
       </header>
-      <p class="mb-1 text-sm truncate">{{ product.description }}</p>
 
-      <footer class="mt-10 flex justify-start align-center gap-x-4">
+      <footer class="mt-5 flex justify-start align-center gap-x-4">
         <h3 class="text-xl">{{ product.price }}₽</h3>
         <UButton
           :color="isInBasket ? 'success' : 'secondary'"
