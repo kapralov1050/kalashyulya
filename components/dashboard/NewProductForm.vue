@@ -32,6 +32,42 @@
     />
 
     <AppFormField
+      id="description"
+      v-model="formData.size"
+      type="textarea"
+      placeholder="Введите размер"
+      label="Размер"
+      class="w-70% sm:w-96"
+    />
+
+    <AppFormField
+      id="description"
+      v-model="formData.material"
+      type="textarea"
+      placeholder="Введите материалы"
+      label="Материалы"
+      class="w-70% sm:w-96"
+    />
+
+    <AppFormField
+      id="description"
+      v-model="formData.tecnic"
+      type="textarea"
+      placeholder="Введите технику"
+      label="Техника"
+      class="w-70% sm:w-96"
+    />
+
+    <AppFormField
+      id="description"
+      v-model="formData.year"
+      type="textarea"
+      placeholder="Введите год"
+      label="Год"
+      class="w-70% sm:w-96"
+    />
+
+    <AppFormField
       id="price"
       v-model="formData.price"
       type="text"
@@ -82,6 +118,10 @@
   const formData = reactive({
     category: '',
     description: '',
+    size: '',
+    material: '',
+    tecnic: '',
+    year: '',
     price: '',
     stock: '',
     imageUrl: '',
@@ -107,6 +147,10 @@
       const newProduct = {
         categoryId: formData.category,
         description: formData.description,
+        size: formData.size,
+        material: formData.material,
+        tecnic: formData.tecnic,
+        year: formData.year,
         image: imageUrl,
         file: fileName,
         price: Number(formData.price),

@@ -27,18 +27,32 @@
           {{ selectedProduct.title }}
         </h1>
         <p class="text-gray-500 mb-4">
-          Оригинальная работа
+          {{ subtitleProduct }}
           <span class="text-indigo-600">Юлии Калашниковой</span>
         </p>
 
         <div class="flex items-center mb-6">
-          <span class="text-gray-500 text-sm">
-            ({{ pluralizeViews(views) }})
-          </span>
+          <span class="text-gray-500 text-sm">({{ pluralizeViews(5) }})</span>
         </div>
 
         <div class="prose max-w-none text-gray-600 mb-6">
           {{ selectedProduct.description }}
+        </div>
+
+        <div
+          class="text-sm <p>Размер: 40x50 см</p> <p>Материал: бумага BAOHONG</p>
+            <p>Техника: Акварель</p>"
+        >
+          <UAccordion type="multiple" :items="items">
+            <template #content>
+              <div class="pb-5">
+                <p>Размер: {{ selectedProduct.size }} см.</p>
+                <p>Материал: {{ selectedProduct.material }}</p>
+                <p>Техника: {{ selectedProduct.tecnic }}</p>
+                <p>Год: {{ selectedProduct.year }}</p>
+              </div>
+            </template>
+          </UAccordion>
         </div>
 
         <div class="mt-auto">
@@ -61,17 +75,6 @@
               {{ isInBasket ? 'В корзине' : 'Добавить в корзину' }}
             </span>
           </UButton>
-
-          <div class="mt-4 text-center">
-            <a
-              href="#"
-              class="text-indigo-600 hover:text-indigo-800 text-sm font-medium
-                inline-flex items-center gap-1"
-            >
-              <i data-feather="rotate-ccw" class="w-4 h-4"></i>
-              <span>Дополнительная информация</span>
-            </a>
-          </div>
         </div>
       </div>
     </div>
@@ -79,6 +82,7 @@
 </template>
 
 <script setup lang="ts">
+  import type { AccordionItem } from '@nuxt/ui'
   import VueMagnifier from '@websitebeaver/vue-magnifier'
   import '@websitebeaver/vue-magnifier/styles.css'
   import { onMounted, ref } from 'vue'
@@ -94,11 +98,36 @@
   const { params } = useRoute()
   const productId = String(params.id)
   const { trackView, getViews } = useProductViews(productId)
-  const views = ref(0)
   const [isLoading, setLoading] = useToggle(false)
+
+  const views = ref(0)
+
+  const items: AccordionItem[] = [
+    {
+      label: 'Дополнительная информация',
+      icon: 'heroicons:information-circle',
+    },
+  ]
 
   const isInBasket = computed(() => {
     return shoppingCart.value.some(el => el.item.id.toString() == productId)
+  })
+
+  const subtitleProduct = computed(() => {
+    switch (selectedProduct.value?.categoryId) {
+      case '1':
+        return 'Оригинальная работа'
+      case '2':
+        return 'Оригинальный работа'
+      case '3':
+        return 'Авторская открытка'
+      case '4':
+        return 'Авторский стикерпак'
+      case '5':
+        return 'Авторские календари'
+      default:
+        return ''
+    }
   })
 
   const addToBasket = async (product: Product) => {

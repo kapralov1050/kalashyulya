@@ -1,6 +1,10 @@
 export interface Product {
   title: string
   description: string
+  size: string
+  material: string
+  tecnic: string
+  year: string
   categoryId: string
   id: number
   image: string
