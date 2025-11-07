@@ -88,20 +88,35 @@
 </template>
 
 <script setup lang="ts">
-  import { removeDataByPath } from '~/helpers/firebase/manageDatabase'
+  import {
+    getDataByPath,
+    removeDataByPath,
+  } from '~/helpers/firebase/manageDatabase'
+  import type { Product } from '~/types'
 
   const shopStore = useShopStore()
   const { deleteFile } = useYandexDatabase()
 
   const removeProduct = async (productid: number) => {
     if (confirm('Вы уверены, что хотите удалить этот товар?')) {
-      await removeDataByPath(`shop/products/product_${productid}`)
+      const allProducts = await getDataByPath<Record<string, Product>>(
+        'shop/products',
+        {},
+      )
+      if (allProducts && Object.keys(allProducts).length === 1) {
+        alert(
+          'Нельзя удалить последний товар. Добавь другой, и затем удали ненужный',
+        )
+        return
+      }
 
       const fileToDelete = shopStore.getProductFileName(productid)
 
       if (fileToDelete) {
         await deleteFile(fileToDelete)
       }
+
+      await removeDataByPath(`shop/products/product_${productid}`)
     }
   }
 </script>

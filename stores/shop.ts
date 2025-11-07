@@ -9,7 +9,7 @@ export const useShopStore = defineStore('shop', () => {
   const categoryFilter = ref('')
 
   const allProducts = computed<Product[] | []>(() => {
-    if (!shopData.value) return []
+    if (!shopData.value?.products) return []
 
     const products = Object.values(shopData.value.products)
 
@@ -29,11 +29,13 @@ export const useShopStore = defineStore('shop', () => {
   }
 
   const getProductFileName = (productId: number) => {
-    if (!shopData.value) return null
+    if (!shopData.value?.products) return null
 
     const product = Object.values(shopData.value.products).find(
       prod => prod.id === productId,
     )
+
+    console.log(product)
 
     return product?.file || null
   }
