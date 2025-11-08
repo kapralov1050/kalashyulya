@@ -6,11 +6,12 @@
       name="filters"
       class="bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-md p-2"
     >
-      <option selected value="">{{ $t('shop.filtersTitle') }}</option>
-      <option value="1">{{ $t('shop.filters.pictures') }}</option>
-      <option value="2">{{ $t('shop.filters.sketches') }}</option>
-      <option value="3">{{ $t('shop.filters.postcards') }}</option>
-      <option value="4">{{ $t('shop.filters.stickers') }}</option>
+      <option selected value="">{{ printLocale('shop_filtersTitle') }}</option>
+      <option value="1">{{ printLocale('shop_filters_pictures') }}</option>
+      <option value="2">{{ printLocale('shop_filters_sketches') }}</option>
+      <option value="3">{{ printLocale('shop_filters_postcards') }}</option>
+      <option value="4">{{ printLocale('shop_filters_stickers') }}</option>
+      <option value="5">{{ printLocale('shop_filters_calendar') }}</option>
     </select>
 
     <AppFormField
@@ -81,7 +82,7 @@
       v-model="formData.stock"
       type="text"
       placeholder="Введите количество товара"
-      label="Количество товара товара"
+      label="Количество товара"
       class="w-70% sm:w-96"
     />
 
@@ -114,6 +115,7 @@
 
   const { addNewProduct } = useFirebase()
   const { uploadToMountedBucket } = useYandexDatabase()
+  const { printLocale } = useLocales()
 
   const formData = reactive({
     category: '',

@@ -9,7 +9,6 @@
         >
           <VueMagnifier
             :src="selectedProduct.image"
-            class="w-full h-auto object-cover"
             :alt="selectedProduct.title"
             :mg-width="200"
             :mg-height="200"
@@ -32,7 +31,9 @@
         </p>
 
         <div class="flex items-center mb-6">
-          <span class="text-gray-500 text-sm">({{ pluralizeViews(5) }})</span>
+          <span class="text-gray-500 text-sm">
+            ({{ pluralizeViews(views) }})
+          </span>
         </div>
 
         <div class="text-gray-600 mb-6 break-normal">
@@ -144,18 +145,30 @@
     setLoading(false)
   }
 
-  onMounted(async () => {
+  watch(allProducts, newProducts => {
+    if (newProducts && newProducts.length > 0) {
+      findAndSetProduct()
+    }
+  })
+
+  const findAndSetProduct = () => {
     const productIdNum = Number(params.id)
 
-    if (allProducts.value) {
+    if (allProducts.value && allProducts.value.length > 0) {
       const product = allProducts.value.find(item => item.id === productIdNum)
 
       if (product) {
         selectedProduct.value = product
+        trackView()
+        views.value = getViews().value
       }
     }
-    trackView()
-    views.value = getViews().value
+  }
+
+  onMounted(() => {
+    if (allProducts.value && allProducts.value.length > 0) {
+      findAndSetProduct()
+    }
   })
 </script>
 
