@@ -8,6 +8,7 @@
         :is-in-basket="checkStatus(item)"
         @buy="buyNow"
         @add-to-basket="addToBasket"
+        @filter-by-tag="handleTagCLick"
       />
     </section>
   </div>
@@ -21,6 +22,9 @@
 
   const basketStore = useBasketStore()
   const { addShopItemToBasket } = useBasketStore()
+
+  const { filterProductsByTag } = useShopStore()
+  const { searchedProducts } = storeToRefs(useShopStore())
 
   const checkStatus = (prod: Product) => {
     return basketStore.shoppingCart.some(el => el.item.id === prod.id)
@@ -46,6 +50,10 @@
       setTimeout(resolve, 500)
     })
     router.push('/basket')
+  }
+
+  function handleTagCLick(tag: string) {
+    searchedProducts.value = filterProductsByTag(tag)
   }
 </script>
 

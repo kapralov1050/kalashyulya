@@ -28,6 +28,12 @@ export const useShopStore = defineStore('shop', () => {
     )
   }
 
+  function filterProductsByTag(tag: string) {
+    if (!allProducts) return []
+
+    return allProducts.value.filter(prod => prod.tags.includes(tag))
+  }
+
   const getProductFileName = (productId: number) => {
     if (!shopData.value?.products) return null
 
@@ -43,6 +49,7 @@ export const useShopStore = defineStore('shop', () => {
   return {
     findProduct,
     getProductFileName,
+    filterProductsByTag,
     searchedProducts,
     shopData,
     allProducts,

@@ -7,59 +7,30 @@
       :heading="printLocale('shop_heroTitle')"
       :subheading="printLocale('shop_heroDescription')"
     />
-    <div
-      class="container flex flex-col gap-y-2 sm:flex-row justify-center gap-x-2
-        mt-2"
-    >
+    <div class="container flex flex-col items-center gap-y-5 mt-2">
       <UForm
         :schema="productSchema"
         :state="searchState"
-        class="flex flex-col gap-y-5 items-center md:flex-row md:gap-x-5"
+        class="w-full flex flex-col items-center gap-y-5"
         @submit="submitSearch"
       >
-        <div class="flex flex-row gap-x-5">
-          <UFormField>
+        <div class="flex justify-center gap-x-3 w-full">
+          <UFormField class="w-full max-w-2xl">
             <UInput
               id="search"
               v-model="searchState.title"
               type="search"
               placeholder="Название товара"
-              class="w-70% sm:w-96"
+              class="w-full"
             />
           </UFormField>
 
-          <UFormField>
-            <select
-              v-model="shopStore.categoryFilter"
-              name="filters"
-              class="w-70% md:w-auto bg-gray-100 text-gray-900 hover:bg-gray-200
-                rounded-md p-2"
-            >
-              <option selected value="">
-                {{ printLocale('shop_filtersTitle') }}
-              </option>
-              <option value="1">
-                {{ printLocale('shop_filters_pictures') }}
-              </option>
-              <option value="2">
-                {{ printLocale('shop_filters_sketches') }}
-              </option>
-              <option value="3">
-                {{ printLocale('shop_filters_postcards') }}
-              </option>
-              <option value="4">
-                {{ printLocale('shop_filters_stickers') }}
-              </option>
-            </select>
-          </UFormField>
-        </div>
-        <div class="w-full flex justify-center gap-x-3">
           <UButton
             :disabled="!searchState.title"
             type="submit"
             color="neutral"
             size="lg"
-            class="flex justify-center dark:text-neutral-800 mb-8 sm:mb-0"
+            class="dark:text-neutral-800"
           >
             {{ printLocale('shop_searchButton') }}
           </UButton>
@@ -68,10 +39,26 @@
             color="secondary"
             variant="outline"
             size="lg"
-            class="flex justify-center dark:text-neutral-800 mb-8 sm:mb-0"
+            class="dark:text-neutral-800"
             @click="resetSearch"
           >
             Очистить
+          </UButton>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-2 w-full">
+          <UButton
+            v-for="(cat, index) in [{ value: '', label: 'Все' }, ...categories]"
+            :key="index"
+            :color="
+              shopStore.categoryFilter === cat.value ? 'primary' : 'neutral'
+            "
+            variant="soft"
+            size="md"
+            class="transition-all hover:scale-105"
+            @click="shopStore.categoryFilter = cat.value"
+          >
+            {{ cat.label }}
           </UButton>
         </div>
       </UForm>
@@ -86,6 +73,13 @@
 
   const shopStore = useShopStore()
   const { printLocale } = useLocales()
+
+  const categories = [
+    { value: '1', label: printLocale('shop_filters_pictures') },
+    { value: '2', label: printLocale('shop_filters_sketches') },
+    { value: '3', label: printLocale('shop_filters_postcards') },
+    { value: '4', label: printLocale('shop_filters_stickers') },
+  ]
 
   const searchState = reactive({
     title: '',
