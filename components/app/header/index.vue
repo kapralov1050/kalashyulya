@@ -8,9 +8,7 @@
       <AppLogo
         class="text-xl sm:text-2xl"
         icon-classes="size-8 sm:size-12 dark:text-white text-primary"
-      >
-        {{ printLocale('header_logoName') }}
-      </AppLogo>
+      />
       <AppHeaderThemeSwitch class="ml-auto" />
       <AppHeaderNav />
       <AppHeaderMobileNav />

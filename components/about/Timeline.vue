@@ -7,7 +7,7 @@
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       class="absolute top-10 left-1/2 transform -translate-x-1/2 z-[-1]
-        will-change-[stroke-dashoffset] scale-y-105 translate-y-15
+        will-change-[stroke-dashoffset] scale-y-105 translate-y-20
         sm:translate-y-0 sm:scale-y-100 scale-x-35 lg:scale-x-100"
     >
       <path
@@ -26,7 +26,7 @@
 <script setup lang="ts">
   import { onBeforeUnmount, onMounted } from 'vue'
   import { useTimelineAnimation } from '~/composables/useTimelineAnimation'
-  import { timelineText } from '~/data/timeline'
+  import { timelineBlock } from '~/data/timeline'
   import {
     cleanupScrollAnimation,
     setupScrollAnimation,
@@ -34,6 +34,7 @@
   import TimelineItem from './TimelineItem.vue'
 
   const { animate } = useTimelineAnimation()
+  const { timelineText } = timelineBlock()
 
   onMounted(() => {
     setupScrollAnimation('#scrollPath')

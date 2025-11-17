@@ -3,11 +3,7 @@
     to="/"
     class="flex items-center gap-x-1 font-black sm:gap-x-2 dark:text-white"
   >
-    <icon
-      name="heroicons:paint-brush"
-      color="primary"
-      :class="`-rotate-6 ${iconClasses}`"
-    />
+    <img src="/logo.png" class="h-20 w-auto dark:invert" />
     <span v-if="$slots.default">
       <slot />
     </span>

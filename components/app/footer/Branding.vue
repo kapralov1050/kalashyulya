@@ -5,9 +5,7 @@
       <AppLogo
         class="text-2xl font-bold text-neutral-800 dark:text-white"
         icon-classes="size-10 text-primary-600 dark:text-primary-400"
-      >
-        {{ printLocale('footer_logoName') }}
-      </AppLogo>
+      />
     </div>
 
     <!-- Description -->
