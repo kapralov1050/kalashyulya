@@ -6,9 +6,9 @@
   >
     <div class="container mx-auto px-6 py-12">
       <!-- Main footer content -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-8">
         <!-- Branding section -->
-        <div class="lg:col-span-2">
+        <div class="hidden lg:block lg:col-span-2">
           <AppFooterBranding />
         </div>
 

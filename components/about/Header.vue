@@ -33,10 +33,11 @@
     const split = new SplitText(container.value, { type: 'lines' })
 
     gsap.from(split.lines, {
-      duration: 1,
+      duration: 2,
       y: 100,
       autoAlpha: 0,
       stagger: 0.05,
+      delay: 2,
     })
   })
 </script>
@@ -68,7 +69,7 @@
   .layer__header {
     z-index: 1;
     transform: translate3d(0, calc(var(--scrollTop) / 2), 0);
-    transition: var(--transition);
+    transition: var(--transition-header-title);
     will-change: transform;
     font-weight: 900;
     color: #37778f;

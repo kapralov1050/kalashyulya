@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col space-y-4">
+  <div class="flex flex-col space-y-4 items-center">
     <h3
       class="text-sm font-semibold text-neutral-800 dark:text-white uppercase
         tracking-wide"
@@ -7,7 +7,7 @@
       {{ printLocale('footer_links_title') }}
     </h3>
 
-    <div class="flex flex-col space-y-3">
+    <div class="flex flex-row lg:flex-col space-y-3">
       <!-- Telegram -->
       <a
         href="https://t.me/kalashyulyaa"

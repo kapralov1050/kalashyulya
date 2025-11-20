@@ -26,7 +26,7 @@
           <UIcon name="heroicons:shopping-cart" size="2rem" />
         </UButton>
       </li>
-      <li>
+      <!-- <li>
         <UButton
           v-if="currentUser && currentUser.uid"
           color="neutral"
@@ -51,7 +51,7 @@
         >
           {{ $t('header.registration') }}
         </UButton>
-      </li>
+      </li> -->
       <!-- <li>
         <UButton
           v-for="locale in availableLocales"

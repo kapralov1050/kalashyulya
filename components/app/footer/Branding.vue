@@ -3,7 +3,8 @@
     <!-- Logo -->
     <div class="flex items-center space-x-3">
       <AppLogo
-        class="text-2xl font-bold text-neutral-800 dark:text-white"
+        class="text-2xl hidden sm:block font-bold text-neutral-800
+          dark:text-white"
         icon-classes="size-10 text-primary-600 dark:text-primary-400"
       />
     </div>

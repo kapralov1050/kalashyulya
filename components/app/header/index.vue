@@ -16,8 +16,6 @@
   </header>
 </template>
 
-<script setup lang="ts">
-  const { printLocale } = useLocales()
-</script>
+<script setup lang="ts"></script>
 
 <style scoped lang="scss"></style>

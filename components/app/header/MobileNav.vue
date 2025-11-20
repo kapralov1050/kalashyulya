@@ -8,14 +8,15 @@
       @click="handleClick"
     />
     <div
-      class="header bg-primary dark:bg-neutral-800 absolute z-13 left-0 w-[100%]
+      class="header bg-gradient-to-br from-neutral-50 to-neutral-100
+        dark:from-neutral-900 dark:to-neutral-800 absolute z-13 left-0 w-[100%]
         min-h-[35vh] rounded-2xl"
     />
     <div class="menu absolute top-4 left-4 z-14">
-      <ul>
+      <ul class="text-neutral-600 dark:text-neutral-150">
         <li>
           <UButton
-            class="text-2xl text-neutral-200 hover:text-white"
+            class="text-2xl hover:text-white"
             color="neutral"
             variant="link"
             to="/"
@@ -25,17 +26,17 @@
         </li>
         <li>
           <UButton
-            class="text-2xl text-neutral-200 hover:text-white"
+            class="text-2xl hover:text-white"
             color="neutral"
             variant="link"
             to="/lessons"
           >
-            {{ printLocale('header_navLessons') }}
+            {{ printLocale('header_calendar') }}
           </UButton>
         </li>
         <li>
           <UButton
-            class="text-2xl text-neutral-200 hover:text-white"
+            class="text-2xl hover:text-white"
             color="neutral"
             variant="link"
             to="/shop"
