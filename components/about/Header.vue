@@ -20,26 +20,23 @@
 </template>
 
 <script setup>
-  import { gsap } from 'gsap'
-  import { SplitText } from 'gsap/SplitText'
-
   const { printLocale } = useLocales()
 
   const container = ref(null)
 
-  onMounted(() => {
-    gsap.registerPlugin(SplitText)
+  // onMounted(() => {
+  //   gsap.registerPlugin(SplitText)
 
-    const split = new SplitText(container.value, { type: 'lines' })
+  //   const split = new SplitText(container.value, { type: 'lines' })
 
-    gsap.from(split.lines, {
-      duration: 2,
-      y: 100,
-      autoAlpha: 0,
-      stagger: 0.05,
-      delay: 2,
-    })
-  })
+  //   gsap.from(split.lines, {
+  //     duration: 2,
+  //     y: 100,
+  //     autoAlpha: 0,
+  //     stagger: 0.05,
+  //     delay: 2,
+  //   })
+  // })
 </script>
 
 <style scoped>

@@ -7,7 +7,7 @@
         :arrows="selectedProduct.image.length > 1"
         :items="selectedProduct.image"
         loop
-        class="max-w-3xl mx-auto"
+        class="no-swipe max-w-3xl mx-auto"
       >
         <VueMagnifier
           :src="item"
@@ -176,4 +176,12 @@
   })
 </script>
 
-<style scoped></style>
+<style scoped>
+  .no-swipe {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    touch-action: pan-y;
+  }
+</style>
