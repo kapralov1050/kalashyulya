@@ -1,10 +1,10 @@
-import type { LessonsTags, Product, ShopData } from '~/types'
-import { ref as dbRef } from 'firebase/database'
 import { getAuth } from 'firebase/auth'
+import { ref as dbRef } from 'firebase/database'
 import {
   getSnapshotByPath,
   updateDataByPath,
 } from '~/helpers/firebase/manageDatabase'
+import type { LessonsTags, Product, ShopData } from '~/types'
 
 export const useFirebase = () => {
   const db = useDatabase()
@@ -22,8 +22,10 @@ export const useFirebase = () => {
       const newItemWithId: Product = { ...product, id: maxId }
 
       await updateDataByPath(newItemWithId, `${path}product_${maxId}`)
+
+      return true
     } catch (error) {
-      console.log(error)
+      return error
     }
   }
 

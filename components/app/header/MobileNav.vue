@@ -12,7 +12,7 @@
         dark:from-neutral-900 dark:to-neutral-800 absolute z-13 left-0 w-[100%]
         min-h-[35vh] rounded-2xl"
     />
-    <div class="menu absolute top-4 left-4 z-14">
+    <div class="menu absolute top-4 left-4 z-14" @click="closeMenu">
       <ul class="text-neutral-600 dark:text-neutral-150">
         <li>
           <UButton
@@ -80,6 +80,13 @@
     if (isOpen.value) {
       tl.play()
     } else {
+      tl.reverse()
+    }
+  }
+
+  const closeMenu = () => {
+    if (isOpen.value) {
+      isOpen.value = false
       tl.reverse()
     }
   }

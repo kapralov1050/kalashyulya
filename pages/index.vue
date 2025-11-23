@@ -3,10 +3,23 @@
   <div id="wrapper">
     <div id="content">
       <AboutHeader />
-      <main class="pt-30 pb-15 min-h-[100vh]">
+      <main id="main" class="pt-30 pb-15 min-h-[100vh]">
         <AppHeader id="header" />
         <AboutHero class="mb-30" />
         <AboutTimeline class="mb-30" />
+        <div class="flex justify-end pb-20 pr-20">
+          <UButton
+            class="hover:transform hover:scale-140 transition-transform
+              duration-200"
+            icon="heroicons:arrow-up"
+            size="xl"
+            variant="link"
+            color="neutral"
+            to="#main"
+          >
+            Наверх
+          </UButton>
+        </div>
         <AboutGallery />
       </main>
     </div>
@@ -15,8 +28,8 @@
 
 <script setup>
   import { gsap } from 'gsap'
-  import { ScrollTrigger } from 'gsap/ScrollTrigger'
   import { ScrollSmoother } from 'gsap/ScrollSmoother'
+  import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
   definePageMeta({
     layout: false,

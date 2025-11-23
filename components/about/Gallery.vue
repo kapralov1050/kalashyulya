@@ -10,7 +10,7 @@
     >
       <div class="flex flex-col items-center">
         <img
-          :src="item.image"
+          :src="item.image[0]"
           class="w-150 h-100 object-cover rounded-2xl border-2 border-gray-200
             shadow-sm"
         />

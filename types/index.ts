@@ -7,8 +7,8 @@ export interface Product {
   year: string
   categoryId: string
   id: number
-  image: string
-  file: string
+  image: string[]
+  file: string[]
   price: number
   stock: number
   tags: string[]

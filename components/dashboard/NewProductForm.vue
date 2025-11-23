@@ -93,7 +93,7 @@
       />
     </UFormField>
 
-    <UFileUpload v-model="fileInput" class="w-96 min-h-48" />
+    <UFileUpload v-model="fileInput" class="w-96 min-h-48" multiple />
 
     <div class="flex justify-around">
       <UButton
@@ -131,19 +131,22 @@
     title: '',
   })
 
-  const fileInput = ref<File>()
+  const fileInput = ref<File[]>()
 
   async function createProduct() {
     try {
-      let imageUrl = ''
-      let fileName = ''
+      const imageUrl: string[] = []
+      const fileName: string[] = []
 
       if (fileInput.value) {
-        const response = await uploadToMountedBucket(fileInput.value)
-        if (response) {
-          imageUrl = response.path
-          fileName = response.fileName
-        }
+        const promises = fileInput.value.map(async file => {
+          const response = await uploadToMountedBucket(file)
+          if (response) {
+            imageUrl.push(response.path)
+            fileName.push(response.fileName)
+          }
+        })
+        await Promise.all(promises)
       }
 
       const newProduct = {
@@ -161,12 +164,15 @@
         title: formData.title,
       }
 
-      await addNewProduct(newProduct, 'shop/products/')
-      showToast(
-        'success',
-        'Product created successfully',
-        'heroicons:check-circle',
-      )
+      const success = await addNewProduct(newProduct, 'shop/products/')
+
+      if (success) {
+        showToast(
+          'success',
+          'Product created successfully',
+          'heroicons:check-circle',
+        )
+      }
     } catch (error) {
       showToast('error', error as string, 'heroicons:exclamation-circle')
     }

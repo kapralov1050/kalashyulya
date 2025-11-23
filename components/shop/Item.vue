@@ -6,7 +6,7 @@
   >
     <NuxtLink :to="`/shop/${product.id}`">
       <img
-        :src="product.image || '/default-shop-image.png'"
+        :src="product.image[0] || '/default-shop-image.png'"
         class="aspect-square object-cover"
       />
     </NuxtLink>
@@ -16,10 +16,11 @@
           <div
             v-for="tag in product.tags"
             :key="tag"
-            class="px-2 py-1 text-xs font-medium border border-primary-500
-              rounded-full bg-primary-50 dark:bg-primary-900/20
-              hover:bg-primary-100 dark:hover:bg-primary-900/30
-              transition-colors duration-200 cursor-pointer"
+            class="flex justify-center items-center px-2 py-1 text-xs
+              font-medium border border-primary-500 rounded-full bg-primary-50
+              dark:bg-primary-900/20 hover:bg-primary-100
+              dark:hover:bg-primary-900/30 transition-colors duration-200
+              cursor-pointer"
             @click="emit('filterByTag', tag)"
           >
             {{ tag }}
