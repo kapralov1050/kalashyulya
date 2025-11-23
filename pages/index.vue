@@ -7,9 +7,9 @@
         <AppHeader id="header" />
         <AboutHero class="mb-30" />
         <AboutTimeline class="mb-30" />
-        <div class="flex justify-end pb-20 pr-20">
+        <div class="flex justify-center sm:justify-end pr-0 sm:pr-20 pb-20">
           <UButton
-            class="hover:transform hover:scale-140 transition-transform
+            class="hover:transform hover:scale-120 transition-transform
               duration-200"
             icon="heroicons:arrow-up"
             size="xl"
