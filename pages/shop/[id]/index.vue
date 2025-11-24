@@ -7,7 +7,9 @@
         :arrows="selectedProduct.image.length > 1"
         :items="selectedProduct.image"
         loop
-        class="no-swipe max-w-3xl mx-auto"
+        touch="false"
+        class="max-w-3xl mx-auto"
+        :watch-drag="false"
       >
         <VueMagnifier
           :src="item"
@@ -174,14 +176,19 @@
       findAndSetProduct()
     }
   })
+
+  onMounted(() => {
+    const el = document.querySelector('.carousel-wrapper')
+    if (el) {
+      el.addEventListener(
+        'touchmove',
+        e => {
+          e.preventDefault()
+        },
+        { passive: false },
+      )
+    }
+  })
 </script>
 
-<style scoped>
-  .no-swipe {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    touch-action: pan-y;
-  }
-</style>
+<style scoped></style>

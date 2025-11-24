@@ -17,7 +17,7 @@
             color="neutral"
             to="#main"
           >
-            Наверх
+            {{ printLocale('about_arrow_up') }}
           </UButton>
         </div>
         <AboutGallery />
@@ -34,6 +34,8 @@
   definePageMeta({
     layout: false,
   })
+
+  const { printLocale } = useLocales()
 
   const isLoading = ref(false)
 
