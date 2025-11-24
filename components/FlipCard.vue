@@ -1,5 +1,5 @@
 <template>
-  <div class="w-150 h-100 perspective-1000">
+  <div class="w-150 h-100 p-5 perspective-1000">
     <div
       class="w-full h-full relative transition-transform duration-600
         transform-style-3d cursor-pointer"
@@ -18,8 +18,8 @@
       <!-- Обратная сторона -->
       <div
         class="absolute inset-0 backface-hidden rounded-xl p-5 flex flex-col
-          justify-center items-center dark:text-white rotate-y-180
-          overflow-hidden"
+          justify-center items-center dark:text-white border-2 border-gray-200
+          rotate-y-180 overflow-hidden"
       >
         <h3 class="text-xl font-bold mb-2 text-center">{{ title }}</h3>
         <p class="text-sm text-center leading-relaxed">{{ description }}</p>

@@ -3,11 +3,12 @@
   <div id="wrapper">
     <div id="content">
       <AboutHeader />
-      <main id="main" class="pt-30 pb-15 min-h-[100vh]">
+      <main id="main" class="pt-30 pb-10 min-h-[100vh]">
         <AppHeader id="header" />
         <AboutHero class="mb-30" />
         <AboutTimeline class="mb-30" />
-        <div class="flex justify-center sm:justify-end pr-0 sm:pr-20 pb-20">
+        <AboutGallery />
+        <div class="flex justify-center">
           <UButton
             class="hover:transform hover:scale-120 transition-transform
               duration-200"
@@ -20,7 +21,6 @@
             {{ printLocale('about_arrow_up') }}
           </UButton>
         </div>
-        <AboutGallery />
       </main>
     </div>
   </div>

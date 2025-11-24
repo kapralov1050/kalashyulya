@@ -23,13 +23,11 @@
       :items="shopStore.allProducts"
       :ui="{ item: 'basis-1/1 sm:basis-1/2 lg:basis-1/3' }"
     >
-      <div class="flex flex-col items-center">
-        <FlipCard
-          :title="item.title"
-          :description="item.description"
-          :image="item.image[0]"
-        />
-      </div>
+      <FlipCard
+        :title="item.title"
+        :description="item.description"
+        :image="item.image[0]"
+      />
     </UCarousel>
   </section>
 </template>
