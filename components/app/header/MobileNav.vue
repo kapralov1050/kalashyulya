@@ -13,20 +13,15 @@
         min-h-[35vh] rounded-2xl"
     />
     <div class="menu absolute top-4 left-4 z-14" @click="closeMenu">
-      <ul class="text-neutral-600 dark:text-neutral-150">
+      <ul class="text-neutral-600 dark:text-neutral-150 hover:text-neutral-400">
         <li>
-          <UButton
-            class="text-2xl hover:text-white"
-            color="neutral"
-            variant="link"
-            to="/"
-          >
+          <UButton class="text-2xl" color="neutral" variant="link" to="/">
             {{ printLocale('header_about') }}
           </UButton>
         </li>
         <li>
           <UButton
-            class="text-2xl hover:text-white"
+            class="text-2xl"
             color="neutral"
             variant="link"
             to="/lessons"
@@ -35,12 +30,7 @@
           </UButton>
         </li>
         <li>
-          <UButton
-            class="text-2xl hover:text-white"
-            color="neutral"
-            variant="link"
-            to="/shop"
-          >
+          <UButton class="text-2xl" color="neutral" variant="link" to="/shop">
             {{ printLocale('header_shop') }}
           </UButton>
         </li>

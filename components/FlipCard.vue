@@ -1,5 +1,5 @@
 <template>
-  <div class="w-150 h-100 p-5 perspective-1000">
+  <div class="w-[100%] h-100 p-5 perspective-1000">
     <div
       class="w-full h-full relative transition-transform duration-600
         transform-style-3d cursor-pointer"
