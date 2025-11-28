@@ -7,7 +7,7 @@
     <NuxtLink :to="`/shop/${product.id}`">
       <img
         :src="product.image[0] || '/default-shop-image.png'"
-        class="aspect-square object-cover"
+        class="aspect-[4/3] object-cover"
       />
     </NuxtLink>
     <section class="mt-auto">

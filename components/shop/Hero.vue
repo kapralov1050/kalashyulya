@@ -37,7 +37,6 @@
           <UButton
             v-if="shopStore.searchedProducts"
             color="secondary"
-            variant="outline"
             size="lg"
             class="dark:text-neutral-800"
             @click="resetSearch"

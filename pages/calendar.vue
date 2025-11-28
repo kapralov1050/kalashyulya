@@ -19,29 +19,69 @@
         ></path>
       </g>
     </svg>
-    <AppHeroImage image-src="/calendar-petersburg.png" class="mx-auto" />
     <div
-      class="flex flex-col items-start justify-start gap-y-3 pt-10 pb-15
-        w-[80vw] sm:w-[50vw]"
+      class="max-w-4xl max-h-200 mx-auto bg-white rounded-xl shadow-md
+        overflow-hidden mb-16"
     >
-      <p>
-        С 2021 года накануне одного из самых теплых и уютных праздников мы
-        создаем уникальный проект - не повторяющиеся из года в год календари с
-        акварельными иллюстрациями В каждом календаре собирается подборка
-        акварельных этюдов - цветов пейзажей или натюрмортов В некоторых случаях
-        они дополняются линейными набросками.
-      </p>
-      <p>
-        К будущему 2026 году мы подготовили целых 3 вида календарей!(такое
-        впервые!)
-      </p>
-      <p>
-        Данный проект может стать хорошим подарком для вас и ваших близких!
-        Ограниченный тираж сделает его оригинальным Качественная печать ярким А
-        сюжеты праздничным и близким дополнением в ваш прекрасный дом где вы
-        можете радоваться круглый год
-      </p>
+      <div class="p-8 flex gap-x-10">
+        <UAvatar src="/about-hero.webp" size="3xl" />
+        <div>
+          <div
+            class="uppercase tracking-wide text-sm text-primary font-semibold
+              mb-1"
+          >
+            О календарях
+          </div>
+          <p class="mt-2 text-gray-600">
+            С 2021 года мы перед каждыми праздниками создаем особенные
+            календари. Это не серийная продукция, а уникальный проект с
+            неповторяющимися акварельными иллюстрациями — нежными этюдами
+            цветов, пейзажей или натюрмортов, иногда дополненными легкими
+            набросками.
+          </p>
+          <p class="mt-2 text-gray-600">
+            К 2026 году мы впервые подготовили целых
+            <span class="font-semibold text-black">3 вида календарей</span>
+            ! Это красивый и душевный подарок с ограниченным тиражом для вас и
+            ваших близких. Качественная печать, яркие цвета и уютные сюжеты
+            будут круглый год создавать праздничное настроение в вашем доме.
+          </p>
+        </div>
+      </div>
     </div>
+
+    <!-- Products Grid -->
+    <section class="grid md:grid-cols-3 gap-8 mb-16">
+      <div
+        v-for="calendar in calendars"
+        :key="calendar.id"
+        class="min-h-[500px] bg-white rounded-lg shadow-md hover:shadow-lg
+          transition-shadow duration-300 flex flex-col"
+      >
+        <div class="h-64 bg-secondary flex items-center justify-center">
+          <img
+            :src="calendar.image[0]"
+            :alt="calendar.title"
+            class="h-full w-full object-cover"
+          />
+        </div>
+        <div class="p-6 flex flex-col flex-grow">
+          <!-- Добавлено flex-grow -->
+          <div class="flex-grow">
+            <!-- Обертка для контента с flex-grow -->
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">
+              {{ calendar.title }}
+            </h3>
+            <p class="text-gray-600 mb-4">
+              {{ calendar.description }}
+            </p>
+          </div>
+          <UButton class="w-20 mt-4 text-center" :to="`/shop/${calendar.id}`">
+            Купить!
+          </UButton>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -51,6 +91,12 @@
   import { onMounted, ref } from 'vue' // ДОБАВИЛ nextTick
 
   const svgElement = ref<SVGSVGElement>()
+  const shopStore = useShopStore()
+  const { allProducts } = storeToRefs(shopStore)
+
+  const calendars = computed(() => {
+    return allProducts.value.filter(product => product.categoryId === '5')
+  })
 
   onMounted(() => {
     scrollTo(0, 0)
