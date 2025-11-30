@@ -7,6 +7,7 @@
       :heading="printLocale('shop_heroTitle')"
       :subheading="printLocale('shop_heroDescription')"
     />
+
     <div class="container flex flex-col items-center gap-y-5 mt-2">
       <UForm
         :schema="productSchema"
@@ -44,6 +45,8 @@
             Очистить
           </UButton>
         </div>
+
+        <ShopCustomerInfo />
 
         <div class="flex flex-wrap justify-center gap-2 w-full">
           <UButton
@@ -93,5 +96,3 @@
     searchState.title = ''
   }
 </script>
-
-<style scoped lang="scss"></style>

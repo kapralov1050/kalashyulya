@@ -39,7 +39,7 @@ export interface CustomerInfo {
   name: string
   phone?: string
   email: string
-  userMessenger?: string[]
+  userMessenger?: string
   userNickname?: string
   delivery?: {
     city: string
@@ -66,6 +66,10 @@ export interface Order {
   }
 
   totalPrice: number
+}
+
+export interface OrderInBase extends Order {
+  id: number
 }
 
 export interface DaDataSuggestion {

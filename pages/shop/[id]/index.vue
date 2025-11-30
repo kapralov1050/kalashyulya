@@ -70,7 +70,7 @@
               class="title-font text-3xl font-bold text-gray-900
                 dark:text-neutral-100"
             >
-              ₽ {{ selectedProduct.price }}
+              {{ selectedProduct.price }} ₽
             </span>
             <span class="text-green-600 font-medium">В наличии</span>
           </div>

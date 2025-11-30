@@ -25,7 +25,7 @@
               dark:border-neutral-300"
           >
             <NuxtImg
-              :src="el.item.image"
+              :src="el.item.image[0]"
               :alt="el.item.title"
               fit="cover"
               class="rounded-lg w-3/4 sm:w-50"
@@ -120,19 +120,28 @@
             size="xl"
             variant="link"
             :disabled="!totalPurchaceQty"
-            @click="isModalOpen = true"
+            @click="isOrderModalOpen = true"
           >
             {{ purchaseButtonText }}
           </UButton>
 
           <UModal
-            v-model:open="isModalOpen"
+            v-model:open="isOrderModalOpen"
             title="Оформление заказа"
             description="Для оформления заказа мне потребуются ваши данные"
             close-icon="heroicons:x-mark-16-solid"
           >
             <template #body>
-              <OrderForm @close-modal="isModalOpen = false"></OrderForm>
+              <OrderForm
+                @close-modal="isOrderModalOpen = false"
+                @success-order="onSuccess"
+              />
+            </template>
+          </UModal>
+
+          <UModal v-model:open="isOrderSuccessModalOpen">
+            <template #content>
+              <ShopSuccessOrder />
             </template>
           </UModal>
         </div>
@@ -147,7 +156,8 @@
     useBasketStore()
   const { totalPurchaceQty, totalPurchaseAmount, shoppingCart } =
     storeToRefs(useBasketStore())
-  const isModalOpen = shallowRef(false)
+  const isOrderModalOpen = shallowRef(false)
+  const isOrderSuccessModalOpen = shallowRef(false)
   const { currentUser } = storeToRefs(useAuthStore())
   const { printLocale } = useLocales()
 
@@ -160,6 +170,11 @@
   }
   const increaseAmount = (purchaseItem: PurchaseParams) => {
     changeShopItemQty(1, purchaseItem)
+  }
+
+  function onSuccess() {
+    isOrderModalOpen.value = false
+    isOrderSuccessModalOpen.value = true
   }
 
   // function handleOrder() {

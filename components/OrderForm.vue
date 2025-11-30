@@ -57,7 +57,9 @@
         </UFormField>
       </div>
 
-      <div class="space-y-4">
+      <UCheckbox v-model="isDelivery" label="Запросить доставку" />
+
+      <div v-if="isDelivery" class="space-y-4">
         <h3 class="text-xl font-bold">Доставка</h3>
         <UFormField name="address" label="Адрес">
           <UInput
@@ -149,18 +151,24 @@
 <script setup lang="ts">
   import type { CheckboxGroupItem } from '@nuxt/ui'
   import { computed } from 'vue'
+  import { useFirebase } from '~/composables/firebase/useFirebase'
   import { showToast } from '~/helpers/showToast'
   import { orderSchema } from '~/helpers/valibot'
   import type { DaDataSuggestion, Order } from '~/types'
 
-  const emit = defineEmits(['closeModal'])
+  const emit = defineEmits<{
+    closeModal: []
+    successOrder: []
+  }>()
 
   const { suggestions, fetchAddresses } = useDaDataAddress()
   const basketStore = useBasketStore()
   const { sendOrderInfoTelegram, sendOrderInfoEmail } = useShop()
+  const { addNewOrder } = useFirebase()
 
   const addressQuery = ref('')
   const isSending = shallowRef(false)
+  const isDelivery = shallowRef(false)
   const items = ref<CheckboxGroupItem[]>(['Вконтакте', 'Телеграм', 'Звонок'])
   const messengerType = ref(['Вконтакте'])
 
@@ -189,61 +197,65 @@
   }
 
   const isFormValid = computed(() => {
-    return (
-      formData.name.trim() &&
-      formData.phone.trim() &&
-      formData.email.trim() &&
-      formData.city.trim() &&
-      formData.recipient.trim() &&
-      formData.street.trim() &&
-      formData.house.trim() &&
-      formData.apartment.trim()
-    )
-  })
+    const baseFields =
+      formData.name.trim() && formData.phone.trim() && formData.email.trim()
 
-  const submitOrder = async () => {
-    const orderInfo: Order = {
-      customer: {
-        name: formData.name,
-        phone: formData.phone,
-        email: formData.email,
-        userMessenger: formData.messenger,
-        userNickname: formData.nickname,
-        delivery: {
-          city: formData.city,
-          recipient: formData.recipient,
-          street: formData.street,
-          house: formData.house,
-          apartment: formData.apartment,
-        },
-      },
-      purchase: {
-        order: basketStore.shortPurchaseInfo,
-        createdAt: new Date().toISOString(),
-      },
-      totalPrice: basketStore.totalPurchaseAmount,
+    if (isDelivery.value) {
+      return (
+        baseFields &&
+        formData.city.trim() &&
+        formData.recipient.trim() &&
+        formData.street.trim() &&
+        formData.house.trim() &&
+        formData.apartment.trim()
+      )
     }
 
-    isSending.value = true
+    return baseFields
+  })
 
-    const telegramResponse = await sendOrderInfoTelegram(orderInfo)
-    const emailResponse = await sendOrderInfoEmail(orderInfo)
+  async function submitOrder() {
+    try {
+      const orderInfo: Order = {
+        customer: {
+          name: formData.name,
+          phone: formData.phone,
+          email: formData.email,
+          userMessenger: formData.messenger.join(','),
+          userNickname: formData.nickname,
+          delivery: {
+            city: formData.city,
+            recipient: formData.recipient,
+            street: formData.street,
+            house: formData.house,
+            apartment: formData.apartment,
+          },
+        },
+        purchase: {
+          order: basketStore.shortPurchaseInfo,
+          createdAt: new Date().toISOString(),
+        },
+        totalPrice: basketStore.totalPurchaseAmount,
+      }
 
-    if (telegramResponse.success || emailResponse.success) {
-      showToast(
-        'Заказ успешно оформлен',
-        'В ближайшее время я с вами свяжусь',
-        'heroicons:check-circle',
-      )
-    } else if (!telegramResponse.success && !emailResponse.success) {
+      isSending.value = true
+
+      const telegramResponse = await sendOrderInfoTelegram(orderInfo)
+      const emailResponse = await sendOrderInfoEmail(orderInfo)
+      addNewOrder(orderInfo, 'orders/')
+
+      if (telegramResponse.success || emailResponse.success) {
+        emit('successOrder')
+      }
+    } catch {
       showToast(
         'Ошибка оформления заказа',
         'Повторите позже',
         'heroicons:exclamation-circle',
       )
+      emit('closeModal')
+    } finally {
+      isSending.value = false
     }
-
-    isSending.value = false
-    emit('closeModal')
   }
 </script>
