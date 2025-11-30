@@ -6,7 +6,7 @@
         dark:shadow-none"
     />
     <div
-      class="flex flex-col items-center p-2 rounded-xl gap-y-2
+      class="flex flex-col items-center p-2 rounded-xl gap-y-2 bg-white
         dark:bg-neutral-900"
     >
       <h3 class="font-bold text-lg">{{ item.year }}</h3>
