@@ -70,6 +70,7 @@ export interface Order {
 
 export interface OrderInBase extends Order {
   id: number
+  status: string
 }
 
 export interface DaDataSuggestion {
@@ -86,7 +87,11 @@ export interface DaDataSuggestion {
 
 export type LessonsTags = Record<string, string>
 
-export type DashBoardOption = 'NewProductForm' | 'ProductsList' | 'LocalesForm'
+export type DashBoardOption =
+  | 'NewProductForm'
+  | 'ProductsList'
+  | 'LocalesForm'
+  | 'OrdersList'
 
 export interface TimelineItem {
   id: number

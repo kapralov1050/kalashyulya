@@ -160,6 +160,8 @@
   const isOrderSuccessModalOpen = shallowRef(false)
   const { currentUser } = storeToRefs(useAuthStore())
   const { printLocale } = useLocales()
+  const { clearBasket } = useBasketStore()
+  const router = useRouter()
 
   const purchaseButtonText = computed(() => {
     return currentUser ? 'Заказать' : 'Оформить заказ'
@@ -196,6 +198,20 @@
   //     isModalOpen.value = true
   //   }
   // }
+
+  watch(
+    isOrderSuccessModalOpen,
+    () => {
+      if (!isOrderSuccessModalOpen.value) {
+        isOrderSuccessModalOpen.value = false
+        clearBasket()
+        router.push('/')
+      }
+    },
+    {
+      immediate: false,
+    },
+  )
 
   onMounted(() => {
     loadPurchase()

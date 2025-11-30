@@ -43,7 +43,9 @@
           />
         </UFormField>
         <UFormField
-          v-if="['Вконтакте', 'Телеграм'].includes(messengerType[0])"
+          v-if="
+            ['Вконтакте', 'Телеграм'].some(item => messengerType.includes(item))
+          "
           name="nickname"
           label="ваш ник в vk или telegram"
         >
@@ -206,8 +208,7 @@
         formData.city.trim() &&
         formData.recipient.trim() &&
         formData.street.trim() &&
-        formData.house.trim() &&
-        formData.apartment.trim()
+        (formData.house.trim() || formData.apartment.trim())
       )
     }
 

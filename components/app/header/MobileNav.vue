@@ -1,5 +1,8 @@
 <template>
   <div class="justify-end flex lg:hidden">
+    <UButton color="neutral" variant="link" to="/basket">
+      <AppBasketWidget />
+    </UButton>
     <UButton
       class="z-20 text-3xl"
       variant="link"
@@ -24,7 +27,7 @@
             class="text-2xl"
             color="neutral"
             variant="link"
-            to="/lessons"
+            to="/calendar"
           >
             {{ printLocale('header_calendar') }}
           </UButton>

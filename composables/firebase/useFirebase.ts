@@ -1,5 +1,5 @@
 import { getAuth } from 'firebase/auth'
-import { ref as dbRef } from 'firebase/database'
+import { ref as dbRef, set } from 'firebase/database'
 import {
   getSnapshotByPath,
   updateDataByPath,
@@ -42,9 +42,18 @@ export const useFirebase = () => {
     const snapshot = await getSnapshotByPath(path)
     const maxId =
       Math.max(...Object.keys(snapshot).map(prod => +prod.split('_')[1])) + 1
-    const newItemWithId: OrderInBase = { ...order, id: maxId }
+    const newItemWithId: OrderInBase = {
+      ...order,
+      id: maxId,
+      status: 'Новый заказ',
+    }
 
     await updateDataByPath(newItemWithId, `${path}order_${maxId}`)
+  }
+
+  async function updateOrderStatus(orderId: number, status: string) {
+    const orderRef = dbRef(db, `orders/order_${orderId}/status`)
+    await set(orderRef, status)
   }
 
   async function logOut() {
@@ -64,5 +73,6 @@ export const useFirebase = () => {
     logOut,
     addNewProduct,
     addNewOrder,
+    updateOrderStatus,
   }
 }

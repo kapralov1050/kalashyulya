@@ -23,7 +23,7 @@
       </li>
       <li>
         <UButton color="neutral" variant="link" to="/basket">
-          <UIcon name="heroicons:shopping-cart" size="2rem" />
+          <AppBasketWidget />
         </UButton>
       </li>
       <!-- <li>

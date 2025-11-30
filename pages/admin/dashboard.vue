@@ -108,6 +108,9 @@
     LocalesForm: defineAsyncComponent(
       () => import('@/components/dashboard/LocalesForm.vue'),
     ),
+    OrdersList: defineAsyncComponent(
+      () => import('@/components/dashboard/OrdersList.vue'),
+    ),
   }
 
   const getModalDisplayName = (option: string) => {
@@ -115,6 +118,7 @@
       NewProductForm: 'Добавить товар',
       ProductsList: 'Список товаров',
       LocalesForm: 'Изменить локали',
+      OrdersList: 'Список заказов',
     }
     return names[option] || option
   }

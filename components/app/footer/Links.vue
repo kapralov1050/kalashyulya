@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col space-y-4 items-center">
+  <div class="w-full flex items-center">
     <h3
       class="text-sm font-semibold text-neutral-800 dark:text-white uppercase
         tracking-wide"
@@ -7,7 +7,7 @@
       {{ printLocale('footer_links_title') }}
     </h3>
 
-    <div class="flex flex-row lg:flex-col space-y-3">
+    <div class="ml-auto flex">
       <!-- Telegram -->
       <a
         href="https://t.me/kalashyulyaa"
@@ -22,7 +22,7 @@
             src="/links/telegram.svg"
             alt="Telegram"
             class="w-6 h-6 group-hover:scale-110 transition-transform
-              duration-200"
+              duration-200 invert dark:invert-0"
           />
         </div>
         <div class="flex flex-col">
@@ -51,7 +51,7 @@
             src="/links/vk.svg"
             alt="VKontakte"
             class="w-6 h-6 group-hover:scale-110 transition-transform
-              duration-200"
+              duration-200 invert dark:invert-0"
           />
         </div>
         <div class="flex flex-col">

@@ -63,12 +63,18 @@ export const useBasketStore = defineStore('basket', () => {
     localStorage.setItem('basket', JSON.stringify(shoppingCart.value))
   }
 
+  function clearBasket() {
+    shoppingCart.value = []
+    localStorage.removeItem('basket')
+  }
+
   return {
     shoppingCart,
     deleteShopItemFromBasket,
     addShopItemToBasket,
     changeShopItemQty,
     loadPurchase,
+    clearBasket,
     totalPurchaseAmount,
     totalPurchaceQty,
     shortPurchaseInfo,
