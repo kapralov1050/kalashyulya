@@ -1,10 +1,8 @@
 <template>
-  <div class="preloader-container">
+  <div class="preloader-container dark:bg-neutral-900 bg-white">
     <div class="spinner"></div>
   </div>
 </template>
-
-<script setup lang="ts"></script>
 
 <style scoped>
   .preloader-container {
@@ -12,7 +10,6 @@
     position: fixed;
     top: 0;
     left: 0;
-    background-color: #ffffff;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -24,7 +21,7 @@
   .spinner {
     width: calc(var(--index) * 8);
     height: calc(var(--index) * 8);
-    background-image: url(/preloader.webp);
+    background-image: var(--preloader);
     background-size: cover;
     animation: fade 2s ease;
   }

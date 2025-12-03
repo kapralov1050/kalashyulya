@@ -3,6 +3,7 @@
   --middle-layer: url(/middle-layer.webp);
   --front-layer: url(/front-layer.webp);
   --water-layer: url(/water.webp);
+  --preloader: url(/preloader.webp);
 }
 
 .dark {
@@ -10,6 +11,7 @@
   --middle-layer: url(/dark_middle-layer.webp);
   --front-layer: url(/dark_front-layer.webp);
   --water-layer: url(/dark_water.webp);
+  --preloader: url(/dark_preloader.webp);
 }
 
 @import 'tailwindcss';
@@ -36,6 +38,7 @@
   --transition-header-title: transform 0.65s cubic-bezier(0.1, 0.4, 0.75, 0.9);
   --gap: 1rem;
   --logo-color: rgb(61, 61, 61);
+  --background-color: rgb(255, 255, 255);
 }
 
 @font-face {
