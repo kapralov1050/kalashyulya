@@ -3,10 +3,14 @@
     class="relative after:content-[''] after:absolute after:z-[1000]
       after:w-full after:h-[calc(var(--index)*10)] after:bg-[url(/water.webp)]
       after:bg-cover after:bg-no-repeat after:bg-center
-      after:bottom-[calc(var(--index)*-3.4)]"
+      after:bottom-[calc(var(--index)*-4.2)]
+      dark:after:bg-[url(/dark_water.webp)]"
   >
     <section class="layers">
-      <div ref="container" class="layer__header">
+      <div
+        ref="container"
+        class="layer__header dark:text-neutral-700 text-neutral-500"
+      >
         <h3 class="layers__caption">
           {{ printLocale('about_header_subtitle') }}
         </h3>
@@ -69,8 +73,6 @@
     transition: var(--transition-header-title);
     will-change: transform;
     font-weight: 900;
-    color: #37778f;
-    text-shadow: 0 0 12px #d8e5e9;
   }
 
   .layers__caption {
@@ -86,18 +88,19 @@
 
   .layers__base {
     top: calc(var(--index) * -5);
-    background-image: url(/base-layer.webp);
+    transition: var(--transition);
+    background-image: var(--base-layer);
     transform: translate3d(0, calc(var(--scrollTop) / 1.5), 0);
     z-index: 0;
   }
 
   .layers__middle {
-    background-image: url(/middle-layer.webp);
+    background-image: var(--middle-layer);
     transform: translate3d(0, calc(var(--scrollTop) / 3.5), 0);
   }
 
   .layers__front {
-    background-image: url(/front-layer.webp);
+    background-image: var(--front-layer);
     transform: translate3d(0, calc(var(--scrollTop) / 5.5), 0);
   }
 </style>

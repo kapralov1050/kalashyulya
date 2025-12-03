@@ -5,10 +5,7 @@
       class="size-42 object-cover rounded-2xl border-5 border-info-400 shadow-md
         dark:shadow-none"
     />
-    <div
-      class="flex flex-col items-center p-2 rounded-xl gap-y-2 bg-white
-        dark:bg-neutral-900"
-    >
+    <div class="flex flex-col items-center p-2 rounded-xl gap-y-2">
       <h3 class="font-bold text-lg">{{ item.year }}</h3>
       <p class="text-sm font-bold">{{ item.text }}</p>
     </div>

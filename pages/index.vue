@@ -1,5 +1,5 @@
 <template>
-  <AppPreloaderSpinner v-if="isLoading" />
+  <AppPreloaderSpinner v-if="!imagesLoaded" />
   <div id="wrapper">
     <div id="content">
       <AboutHeader />
@@ -30,12 +30,14 @@
   import { gsap } from 'gsap'
   import { ScrollSmoother } from 'gsap/ScrollSmoother'
   import { ScrollTrigger } from 'gsap/ScrollTrigger'
+  import { awaitImage } from '~/helpers/useImages'
 
   definePageMeta({
     layout: false,
   })
 
   const { printLocale } = useLocales()
+  const { imagesLoaded, loadImages } = awaitImage()
 
   const isLoading = ref(false)
 
@@ -46,7 +48,7 @@
     document.body.style.cssText += `--scrollTop: ${window.scrollY}px`
   }
 
-  onMounted(() => {
+  onMounted(async () => {
     isLoading.value = true
     window.addEventListener('scroll', handleScroll)
 
@@ -69,7 +71,16 @@
       },
     })
 
-    setTimeout(() => (isLoading.value = false), 2000)
+    await loadImages([
+      '/base-layer.webp',
+      '/middle-layer.webp',
+      '/front-layer.webp',
+      '/water.webp',
+      '/dark_base-layer.webp',
+      '/dark_middle-layer.webp',
+      '/dark_front-layer.webp',
+      '/dark_water.webp',
+    ])
   })
 
   onUnmounted(() => {

@@ -1,3 +1,17 @@
+:root {
+  --base-layer: url(/base-layer.webp);
+  --middle-layer: url(/middle-layer.webp);
+  --front-layer: url(/front-layer.webp);
+  --water-layer: url(/water.webp);
+}
+
+.dark {
+  --base-layer: url(/dark_base-layer.webp);
+  --middle-layer: url(/dark_middle-layer.webp);
+  --front-layer: url(/dark_front-layer.webp);
+  --water-layer: url(/dark_water.webp);
+}
+
 @import 'tailwindcss';
 @import '@nuxt/ui';
 
@@ -18,7 +32,7 @@
 
 :root {
   --index: calc(1vw + 1vh);
-  --transition: transform 0.55s cubic-bezier(0.075, 0.5, 0, 1);
+  --transition: transform 0.55s cubic-bezier(0.2, 0.4, 0.8, 1);
   --transition-header-title: transform 0.65s cubic-bezier(0.1, 0.4, 0.75, 0.9);
   --gap: 1rem;
   --logo-color: rgb(61, 61, 61);
