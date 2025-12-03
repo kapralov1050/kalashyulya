@@ -23,7 +23,6 @@
     height: calc(var(--index) * 8);
     background-image: var(--preloader);
     background-size: cover;
-    animation: fade 2s ease;
   }
 
   .spinner::after {
@@ -33,33 +32,35 @@
     height: calc(var(--index) * 2);
     background-image: url(/brush.webp);
     background-size: cover;
-    animation: brush 2s ease;
+    animation: brush 3s ease infinite;
     will-change: transform;
   }
 
-  @keyframes fade {
-    0% {
-      opacity: 1;
-    }
-    75% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0;
-    }
-  }
-
   @keyframes brush {
-    0% {
-      transform: translateX(calc(var(--index) * 2));
-    }
-    75% {
-      transform: translateY(calc(var(--index) * 5))
-        translateX(calc(var(--index) * 3));
-    }
+    0%,
     100% {
-      transform: translateY(calc(var(--index) * 3))
-        translateX(calc(var(--index) * 2.5));
+      transform: translateX(calc(var(--index) * 2)) translateY(0) rotate(0deg);
+      opacity: 1;
+    }
+    30% {
+      transform: translateX(calc(var(--index) * 2.5))
+        translateY(calc(var(--index) * 1.5)) rotate(-10deg);
+      opacity: 1;
+    }
+    45% {
+      transform: translateX(calc(var(--index) * 1.5))
+        translateY(calc(var(--index) * 2.5)) rotate(5deg);
+      opacity: 0.9;
+    }
+    60% {
+      transform: translateX(calc(var(--index) * 3))
+        translateY(calc(var(--index) * 3)) rotate(-5deg);
+      opacity: 1;
+    }
+    85% {
+      transform: translateX(calc(var(--index) * 2.2))
+        translateY(calc(var(--index) * 1)) rotate(-8deg);
+      opacity: 0.9;
     }
   }
 </style>

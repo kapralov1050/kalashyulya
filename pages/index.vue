@@ -1,29 +1,34 @@
 <template>
-  <AppPreloaderSpinner v-if="!imagesLoaded" />
-  <div id="wrapper">
-    <div id="content">
-      <AboutHeader />
-      <main id="main" class="pt-30 pb-10 min-h-[100vh]">
-        <AppHeader id="header" />
-        <AboutHero class="mb-30" />
-        <AboutTimeline class="mb-30" />
-        <AboutGallery />
-        <div class="flex justify-center">
-          <UButton
-            class="hover:transform hover:scale-120 transition-transform
-              duration-200"
-            icon="heroicons:arrow-up"
-            size="xl"
-            variant="link"
-            color="neutral"
-            to="#main"
-          >
-            {{ printLocale('about_arrow_up') }}
-          </UButton>
-        </div>
-      </main>
+  <Transition name="fade">
+    <AppPreloaderSpinner v-if="!imagesLoaded" />
+  </Transition>
+
+  <Transition name="fade">
+    <div v-if="imagesLoaded" id="wrapper">
+      <div id="content">
+        <AboutHeader />
+        <main id="main" class="pt-30 pb-10 min-h-[100vh]">
+          <AppHeader id="header" />
+          <AboutHero class="mb-30" />
+          <AboutTimeline class="mb-30" />
+          <AboutGallery />
+          <div class="flex justify-center">
+            <UButton
+              class="hover:transform hover:scale-120 transition-transform
+                duration-200"
+              icon="heroicons:arrow-up"
+              size="xl"
+              variant="link"
+              color="neutral"
+              to="#main"
+            >
+              {{ printLocale('about_arrow_up') }}
+            </UButton>
+          </div>
+        </main>
+      </div>
     </div>
-  </div>
+  </Transition>
 </template>
 
 <script setup>
@@ -90,3 +95,20 @@
     ScrollTrigger.getAll().forEach(st => st.kill())
   })
 </script>
+
+<style scoped>
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.7s ease;
+  }
+
+  .fade-enter-from,
+  .fade-leave-to {
+    opacity: 0;
+  }
+
+  #wrapper {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+</style>
