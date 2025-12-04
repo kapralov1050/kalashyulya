@@ -1,13 +1,15 @@
 <template>
   <div class="container flex justify-center mb-5">
-    <section class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <section
+      class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 min-w-full"
+    >
       <template v-if="isLoading">
         <div
           v-for="n in 3"
           :key="`skeleton-${n}`"
-          class="h-[420px] w-[95vw] sm:w-[35vw] lg:w-[25vw] rounded-2xl border
-            border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700
-            dark:bg-neutral-900/60 animate-pulse"
+          class="h-[420px] w-full rounded-2xl border border-gray-200 bg-white
+            p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900/60
+            animate-pulse"
         >
           <div class="space-y-3">
             <USkeleton class="h-[200px] w-full rounded-xl" />

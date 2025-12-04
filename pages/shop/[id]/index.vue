@@ -1,8 +1,11 @@
 <template>
   <div v-if="selectedProduct" class="container mx-auto px-4 py-8">
-    <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8 items-start">
+    <div
+      class="grid grid-cols-1 xl:grid-cols-[2fr_1fr] min-w-full gap-4
+        items-start"
+    >
       <!-- Artwork Image (2/3 width on desktop) -->
-      <div class="relative max-w-3xl mx-auto">
+      <div class="relative w-full xl:w-[80%] mx-auto">
         <UCarousel
           v-slot="{ item }"
           :arrows="selectedProduct.image.length > 1"
@@ -16,12 +19,12 @@
             :key="item"
             :src="item"
             :alt="selectedProduct.title"
-            :mg-width="200"
-            :mg-height="200"
-            :zoom-factor="1"
+            :mg-width="magnifierSize"
+            :mg-height="magnifierSize"
+            :zoom-factor="zoom"
             :mg-show="selectedProduct.categoryId !== '5'"
-            class="max-h-[50vh] bg-white border border-neutral-200
-              dark:border-neutral-600 rounded-xl shadow-sm object-cover"
+            class="aspect-auto bg-white border border-neutral-200
+              dark:border-neutral-600 rounded-xl shadow-sm object-contain"
           />
         </UCarousel>
       </div>
@@ -123,6 +126,14 @@
 
   const isInBasket = computed(() => {
     return shoppingCart.value.some(el => el.item.id.toString() == productId)
+  })
+
+  const magnifierSize = computed(() => {
+    return window.innerWidth > 1024 ? 200 : 80
+  })
+
+  const zoom = computed(() => {
+    return window.innerWidth > 1024 ? 1.2 : 2
   })
 
   const subtitleProduct = computed(() => {
