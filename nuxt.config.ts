@@ -1,7 +1,6 @@
 import { vueFireConfig } from './config/nuxt/vueFire'
 import { googleFontsConfig } from './config/nuxt/googleFonts'
 import { iconConfig } from './config/nuxt/icon'
-import { i18nConfig } from './config/nuxt/i18n'
 import { runtimeConfig } from './config/nuxt/runtimeConfig'
 import { modulesConfig } from './config/nuxt/modules'
 import { viteConfig } from './config/nuxt/vite'
@@ -23,5 +22,4 @@ export default defineNuxtConfig({
   app: appConfig,
   googleFonts: googleFontsConfig,
   icon: iconConfig,
-  i18n: i18nConfig,
 })

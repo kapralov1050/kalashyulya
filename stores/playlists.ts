@@ -8,47 +8,47 @@ interface Playlist {
 }
 
 export const usePlaylistsStore = defineStore('playlists', () => {
-  const { t } = useI18n()
+  const { printLocale } = useLocales()
 
   const playlists = ref([
     {
-      title: t('playlists.landscapes.title'),
-      description: t('playlists.landscapes.description'),
+      title: printLocale('playlists_landscapes_title'),
+      description: printLocale('playlists_landscapes_description'),
       id: 1,
       tagIds: [1, 2, 3, 4],
       lessonIds: [3, 2, 3],
     },
     {
-      title: t('playlists.flowers.title'),
-      description: t('playlists.flowers.description'),
+      title: printLocale('playlists_flowers_title'),
+      description: printLocale('playlists_flowers_description'),
       id: 2,
       tagIds: [1, 2],
       lessonIds: [5, 2, 3],
     },
     {
-      title: t('playlists.portraits.title'),
-      description: t('playlists.portraits.description'),
+      title: printLocale('playlists_portraits_title'),
+      description: printLocale('playlists_portraits_description'),
       id: 3,
       tagIds: [1, 4],
       lessonIds: [1, 4, 3],
     },
     {
-      title: t('playlists.basics.title'),
-      description: t('playlists.basics.description'),
+      title: printLocale('playlists_basics_title'),
+      description: printLocale('playlists_basics_description'),
       id: 4,
       tagIds: [2, 3, 5],
       lessonIds: [1, 4, 3],
     },
     {
-      title: t('playlists.color.title'),
-      description: t('playlists.color.description'),
+      title: printLocale('playlists_color_title'),
+      description: printLocale('playlists_color_description'),
       id: 5,
       tagIds: [2],
       lessonIds: [1, 4, 3],
     },
     {
-      title: t('playlists.composition.title'),
-      description: t('playlists.composition.description'),
+      title: printLocale('playlists_composition_title'),
+      description: printLocale('playlists_composition_description'),
       id: 6,
       tagIds: [3],
       lessonIds: [1, 4, 3],

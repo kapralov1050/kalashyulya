@@ -42,6 +42,13 @@
   const { printLocale } = useLocales()
   const { imagesLoaded, loadImages } = awaitImage()
 
+  useSeo({
+    title: 'Обо мне',
+    description:
+      'Юлия Калашникова - художник-акварелист. Узнайте больше о моем творческом пути, работах и уроках акварельной живописи.',
+    image: '/logo.png',
+  })
+
   const isLoading = ref(false)
 
   gsap.registerPlugin(ScrollTrigger, ScrollSmoother)

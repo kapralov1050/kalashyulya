@@ -4,7 +4,6 @@ export const modulesConfig: NuxtConfig['modules'] = [
   '@nuxt/eslint',
   '@nuxt/icon',
   '@nuxt/ui',
-  '@nuxtjs/i18n',
   '@nuxtjs/google-fonts',
   '@pinia/nuxt',
   '@nuxt/image',

@@ -58,13 +58,6 @@
 
   const { printLocale } = useLocales()
 
-  // const { locale, locales } = useI18n()
-  // const switchLocalePath = useSwitchLocalePath()
-
-  // const availableLocales = computed(() => {
-  //   return locales.value.filter(i => i.code !== locale.value)
-  // })
-
   let tl
   const isOpen = shallowRef(false)
   const handleClick = () => {

@@ -186,6 +186,33 @@
         selectedProduct.value = product
         trackView()
         views.value = getViews().value
+
+        // SEO метаданные
+        const config = useRuntimeConfig()
+        const siteUrl = config.public.siteUrl || 'https://kalashyulya.ru'
+        const productImage = Array.isArray(product.image)
+          ? product.image[0]
+          : product.image
+
+        useSeo({
+          title: product.title,
+          description: product.description || `${product.title} - авторская работа Юлии Калашниковой`,
+          image: productImage,
+          type: 'website',
+        })
+
+        // Структурированные данные
+        const { generateProduct, addStructuredData } = useStructuredData()
+        const productData = generateProduct({
+          name: product.title,
+          description: product.description || '',
+          image: productImage,
+          price: product.price,
+          currency: 'RUB',
+          availability: 'https://schema.org/InStock',
+          url: `${siteUrl}/shop/${product.id}`,
+        })
+        addStructuredData(productData)
       }
     }
   }

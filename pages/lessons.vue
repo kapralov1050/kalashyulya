@@ -40,6 +40,13 @@
 <script setup lang="ts">
   const { printLocale } = useLocales()
 
+  useSeo({
+    title: 'Коллекция уроков',
+    description:
+      'Уроки акварельной живописи от Юлии Калашниковой. Изучайте технику акварели, пейзажи, портреты и многое другое.',
+    image: '/logo.png',
+  })
+
   onMounted(() => {
     scrollTo(0, 0)
   })

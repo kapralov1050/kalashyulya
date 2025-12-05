@@ -13,9 +13,18 @@
 </template>
 
 <script setup lang="ts">
+  const route = useRoute()
   const playlist = usePlaylistsStore().getPlaylistBySlug(
-    useRoute().params.playlistSlug,
+    route.params.playlistSlug,
   )
+
+  if (playlist) {
+    useSeo({
+      title: playlist.title,
+      description: playlist.description,
+      image: '/logo.png',
+    })
+  }
 </script>
 
 <style scoped lang="scss"></style>
