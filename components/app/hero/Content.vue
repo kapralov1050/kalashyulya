@@ -1,9 +1,8 @@
 <template>
   <div
-    class="flex flex-col items-center justify-center text-center lg:items-start
-      lg:text-left dark:text-white"
+    class="flex flex-col items-center justify-start text-center dark:text-white"
   >
-    <h1 class="text-3xl font-black tracking-tight sm:text-5xl">
+    <h1 class="text-3xl font-black tracking-tight">
       <slot name="subtitle" />
       <br />
       <span
@@ -16,7 +15,7 @@
     <p class="mt-2 text-gray-600 sm:mt-4 sm:text-lg dark:text-gray-200">
       <slot name="description" />
     </p>
-    <div class="mt-6 flex gap-x-2 sm:mt-8">
+    <div class="mt-3 flex gap-x-2">
       <slot name="buttons" />
     </div>
   </div>

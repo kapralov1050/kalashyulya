@@ -5,12 +5,12 @@
   </div> -->
   <div
     ref="container"
-    class="relative scale-90 lg:w-2/3 lg:scale-105 perspective-distant"
+    class="relative aspect-[16/9] h-auto scale-90 lg:w-2/3 lg:scale-105
+      perspective-distant"
   >
     <img
       :src="imageSrc"
-      alt="Editor UI"
-      class="rounded-2xl shadow-2xl"
+      class="rounded-2xl shadow-2xl w-full h-full object-cover"
       :style="cardStyle"
     />
   </div>

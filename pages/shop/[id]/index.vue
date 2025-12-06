@@ -23,8 +23,8 @@
             :mg-height="magnifierSize"
             :zoom-factor="zoom"
             :mg-show="selectedProduct.categoryId !== '5'"
-            :mg-touch-offset-x="-15"
-            :mg-touch-offset-y="-15"
+            :mg-touch-offset-x="-30"
+            :mg-touch-offset-y="-30"
             class="aspect-auto bg-white border border-neutral-200
               dark:border-neutral-600 rounded-xl shadow-sm object-contain"
           />

@@ -1,5 +1,5 @@
 <template>
-  <div class="container flex flex-col items-center justify-center">
+  <div class="container flex flex-col items-center justify-center p-20">
     <svg
       id="svg"
       ref="svgElement"
@@ -7,7 +7,7 @@
       width="1000"
       height="500"
       viewBox="0, 0, 400,123.76681614349775"
-      class="w-3/4 md:w-1/2 lg:w-1/3 h-auto z-2"
+      class="w-3/4 md:w-1/2 h-auto z-2"
     >
       <g>
         <path
@@ -20,29 +20,22 @@
         ></path>
       </g>
     </svg>
-    <div
-      class="max-w-4xl dark:border-neutral-700 dark:bg-neutral-800/60 max-h-200
-        mx-auto bg-white rounded-xl shadow-md overflow-hidden mb-16"
-    >
-      <div class="p-8 flex gap-x-10">
-        <UAvatar src="/about-hero.webp" size="3xl" />
-        <div>
-          <div
-            class="uppercase tracking-wide text-sm text-primary font-semibold
-              mb-1"
-          >
-            О календарях
-          </div>
-          <p class="mt-2 text-gray-600 dark:text-neutral-300">
+    <div class="flex flex-col">
+      <div
+        class="dark:border-neutral-700 dark:bg-neutral-800/60 max-h-200 mx-auto
+          bg-white rounded-xl shadow-md overflow-hidden mb-16"
+      >
+        <div class="p-8 flex flex-col gap-y-3">
+          <p class="mt-2 text-neutral-500 dark:text-neutral-300">
             С 2021 года мы перед каждыми праздниками создаем особенные
             календари. Это не серийная продукция, а уникальный проект с
             неповторяющимися акварельными иллюстрациями — нежными этюдами
             цветов, пейзажей или натюрмортов, иногда дополненными легкими
             набросками.
           </p>
-          <p class="mt-2 text-gray-600 dark:text-neutral-300">
+          <p class="mt-2 text-neutral-600 dark:text-neutral-300">
             К 2026 году мы впервые подготовили целых
-            <span class="font-semibold text-black dark:text-white">
+            <span class="font-semibold text-lg text-black dark:text-white">
               3 вида календарей
             </span>
             ! Это красивый и душевный подарок с ограниченным тиражом для вас и
@@ -51,59 +44,42 @@
           </p>
         </div>
       </div>
-    </div>
 
-    <!-- Products Grid -->
-    <section class="grid md:grid-cols-3 gap-8 mb-16">
-      <div
-        v-for="calendar in calendars"
-        :key="calendar.id"
-        class="min-h-[500px] bg-white dark:border-neutral-700
-          dark:bg-neutral-800/60 dark:hover:border-primary-400/60 rounded-lg
-          shadow-md hover:shadow-lg transition-shadow duration-300 flex
-          flex-col"
+      <!-- Products Grid -->
+      <section
+        class="grid md:grid-cols-2 md:grid-rows-2 items-start justify-center"
       >
-        <div class="h-64 bg-secondary flex items-center justify-center">
-          <img
-            :src="calendar.image[0]"
-            :alt="calendar.title"
-            class="h-full w-full object-cover"
-          />
-        </div>
-        <div class="p-6 flex flex-col flex-grow">
-          <!-- Добавлено flex-grow -->
-          <div class="flex-grow">
-            <!-- Обертка для контента с flex-grow -->
-            <h3
-              class="text-xl font-semibold text-gray-800 dark:text-white mb-2"
-            >
+        <div
+          v-for="calendar in calendars"
+          :key="calendar.id"
+          class="flex flex-col items-center gap-y-10"
+        >
+          <AppHeroImage :image-src="calendar.image[0]" />
+          <AppHeroContent>
+            <template #title>
               {{ calendar.title }}
-            </h3>
-            <p class="text-gray-600 dark:text-neutral-300 mb-4">
-              {{ calendar.description }}
-            </p>
-          </div>
-          <UButton
-            class="w-20 mt-4 text-center"
-            size="xl"
-            color="primary"
-            variant="outline"
-            :to="`/shop/${calendar.id}`"
-          >
-            Купить!
-          </UButton>
+            </template>
+            <template #buttons>
+              <UButton
+                icon="heroicons:shopping-cart"
+                size="xl"
+                variant="outline"
+                :to="`/shop/${calendar.id}`"
+              >
+                купить!
+              </UButton>
+            </template>
+          </AppHeroContent>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
   import { gsap } from 'gsap'
   import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin'
-  import { onMounted, ref } from 'vue' // ДОБАВИЛ nextTick
-
-  const svgElement = ref<SVGSVGElement>()
+  import { onMounted } from 'vue'
   const shopStore = useShopStore()
   const { allProducts } = storeToRefs(shopStore)
 
@@ -124,8 +100,7 @@
       { drawSVG: '0%' },
       {
         drawSVG: '100%',
-        duration: 8,
-        delay: 1,
+        duration: 5,
         ease: 'power2.inOut',
       },
     )
