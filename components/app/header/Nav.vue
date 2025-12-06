@@ -8,7 +8,7 @@
       </li>
       <li>
         <UButton color="neutral" variant="link" to="/calendar">
-          Календари 2026
+          {{ printLocale('header_calendar') }}
         </UButton>
       </li>
       <!-- <li>

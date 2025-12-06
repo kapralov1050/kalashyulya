@@ -1,11 +1,7 @@
 <template>
   <div class="mb-20">
     <ShopHero />
-    <ShopList
-      v-if="shopStore.searchedProducts"
-      :list="shopStore.searchedProducts"
-    />
-    <ShopList v-else :list="shopStore.allProducts" />
+    <ShopList />
   </div>
 </template>
 

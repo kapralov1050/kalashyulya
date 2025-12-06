@@ -25,6 +25,7 @@
           </UButton>
         </div>
       </main>
+      <AppFooter />
     </div>
   </div>
 </template>

@@ -23,6 +23,8 @@
             :mg-height="magnifierSize"
             :zoom-factor="zoom"
             :mg-show="selectedProduct.categoryId !== '5'"
+            :mg-touch-offset-x="-15"
+            :mg-touch-offset-y="-15"
             class="aspect-auto bg-white border border-neutral-200
               dark:border-neutral-600 rounded-xl shadow-sm object-contain"
           />
@@ -196,7 +198,9 @@
 
         useSeo({
           title: product.title,
-          description: product.description || `${product.title} - авторская работа Юлии Калашниковой`,
+          description:
+            product.description ||
+            `${product.title} - авторская работа Юлии Калашниковой`,
           image: productImage,
           type: 'website',
         })
