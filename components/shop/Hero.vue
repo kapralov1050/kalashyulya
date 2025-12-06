@@ -7,6 +7,18 @@
       :heading="printLocale('shop_heroTitle')"
       :subheading="printLocale('shop_heroDescription')"
     />
+    <UButton
+      class="self-center"
+      variant="link"
+      color="neutral"
+      :ui="{
+        leadingIcon: 'text-primary-500',
+      }"
+      icon="heroicons:information-circle-16-solid"
+      @click="isCustomerInfoOpen = true"
+    >
+      Важная информация
+    </UButton>
 
     <div class="container flex flex-col items-center gap-y-5 mt-2">
       <UForm
@@ -45,40 +57,52 @@
             Очистить
           </UButton>
         </div>
-
-        <ShopCustomerInfo />
-
-        <div class="flex flex-wrap items-center justify-center gap-2 w-full">
-          <div class="flex flex-wrap justify-center gap-2">
-            <UButton
-              v-for="(cat, index) in [
-                { value: '', label: 'Все' },
-                ...categories,
-              ]"
-              :key="index"
-              :color="
-                shopStore.categoryFilter === cat.value ? 'primary' : 'neutral'
-              "
-              variant="soft"
-              size="md"
-              class="transition-all hover:scale-105"
-              @click="handleCategoryChange(cat.value)"
-            >
-              {{ cat.label }}
-            </UButton>
-          </div>
-
-          <div class="ml-auto flex items-center gap-2">
-            <UIcon name="i-heroicons-arrows-up-down" class="w-4 h-4" />
-            <USelectMenu
-              v-model="selectedSortLabel"
-              :search-input="false"
-              :options="sortOptionsWithLabels"
-              size="md"
-            />
-          </div>
-        </div>
       </UForm>
+
+      <div class="flex flex-wrap items-center justify-center gap-2 w-full">
+        <div class="flex flex-wrap justify-center gap-2">
+          <UButton
+            v-for="(cat, index) in [{ value: '', label: 'Все' }, ...categories]"
+            :key="index"
+            :color="
+              shopStore.categoryFilter === cat.value ? 'primary' : 'neutral'
+            "
+            variant="soft"
+            size="md"
+            class="transition-all hover:scale-105"
+            @click="handleCategoryChange(cat.value)"
+          >
+            {{ cat.label }}
+          </UButton>
+        </div>
+
+        <div class="ml-auto flex items-center gap-2">
+          <UIcon name="i-heroicons-arrows-up-down" class="w-4 h-4" />
+          <USelectMenu
+            v-model="selectedSortLabel"
+            :search-input="false"
+            :items="sortOptionsWithLabels"
+            size="lg"
+            class="w-48"
+          />
+        </div>
+
+        <UModal
+          v-model:open="isCustomerInfoOpen"
+          scrollable
+          title="Важная информация"
+          :close="{
+            color: 'neutral',
+            variant: 'outline',
+            class: 'rounded-full',
+          }"
+          :ui="{ content: 'w-full max-w-3xl' }"
+        >
+          <template #body>
+            <ShopCustomerInfo />
+          </template>
+        </UModal>
+      </div>
     </div>
   </section>
 </template>
@@ -90,6 +114,7 @@
 
   const shopStore = useShopStore()
   const { printLocale } = useLocales()
+  const isCustomerInfoOpen = ref(false)
 
   const categories = [
     { value: '1', label: printLocale('shop_filters_pictures') },
@@ -104,8 +129,8 @@
     'По умолчанию',
     'По названию (А-Я)',
     'По названию (Я-А)',
-    'По цене (по возрастанию)',
-    'По цене (по убыванию)',
+    'По возрастанию цены',
+    'По убыванию цены',
   ])
 
   // Маппинг читаемых названий на значения
@@ -113,8 +138,8 @@
     'По умолчанию': 'default',
     'По названию (А-Я)': 'title-asc',
     'По названию (Я-А)': 'title-desc',
-    'По цене (по возрастанию)': 'price-asc',
-    'По цене (по убыванию)': 'price-desc',
+    'По возрастанию цены': 'price-asc',
+    'По убыванию цены': 'price-desc',
   }
 
   // Обратный маппинг значений на читаемые названия
@@ -122,8 +147,8 @@
     default: 'По умолчанию',
     'title-asc': 'По названию (А-Я)',
     'title-desc': 'По названию (Я-А)',
-    'price-asc': 'По цене (по возрастанию)',
-    'price-desc': 'По цене (по убыванию)',
+    'price-asc': 'По возрастанию цены',
+    'price-desc': 'По убыванию цены',
   }
 
   // Локальная переменная для отображения (читаемое название)

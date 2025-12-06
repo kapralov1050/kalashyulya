@@ -6,8 +6,6 @@
 </template>
 
 <script setup lang="ts">
-  const shopStore = useShopStore()
-
   useSeo({
     title: 'Магазин',
     description:
