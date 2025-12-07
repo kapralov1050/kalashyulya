@@ -55,7 +55,7 @@
               class="bg-white rounded-xl shadow-md overflow-hidden"
             >
               <!-- Заголовок месяца -->
-              <div class="bg-gray-100 px-6 py-4 border-b">
+              <div class="px-6 py-4 border-b">
                 <h3 class="text-xl font-semibold text-gray-800">
                   {{ getMonthName(monthData.month) }}
                 </h3>
@@ -68,7 +68,7 @@
               <div class="divide-y">
                 <div
                   v-for="dayData in monthData.days"
-                  :key="`${yearData.year}-${monthData.month}-${dayData.day}`"
+                  :key="dayData.date"
                   class="px-6 py-4 hover:bg-gray-50 transition-colors"
                 >
                   <div class="flex items-center justify-between mb-4">
@@ -229,66 +229,80 @@
 
     const result = []
 
-    // Проходим по годам
-    Object.entries(statsStore.stats).forEach(([year, yearData]) => {
-      const yearStats = {
-        year,
-        months: [],
+    // Проходим по датам (новый формат: "2025-12-07")
+    Object.entries(statsStore.stats).forEach(([dateString, events]) => {
+      // Парсим дату из строки "2025-12-07"
+      const [year, month, day] = dateString.split('-')
+
+      // Находим или создаем год
+      let yearData = result.find(y => y.year === year)
+      if (!yearData) {
+        yearData = {
+          year,
+          months: [],
+        }
+        result.push(yearData)
       }
 
-      // Проходим по месяцам
-      Object.entries(yearData).forEach(([month, monthData]) => {
-        const monthStats = {
+      // Находим или создаем месяц
+      let monthData = yearData.months.find(m => m.month === month)
+      if (!monthData) {
+        monthData = {
           month,
           monthName: getMonthName(month),
           days: [],
           totalEvents: 0,
         }
+        yearData.months.push(monthData)
+      }
 
-        // Проходим по дням
-        Object.entries(monthData).forEach(([day, dayData]) => {
-          const dayStats = {
-            day,
-            date: `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`,
-            events: [],
-            totalEvents: 0,
-            pageViews: 0,
-            buttonClicks: 0,
-          }
+      // Создаем день
+      const dayStats = {
+        day,
+        date: dateString,
+        events: [],
+        totalEvents: 0,
+        pageViews: 0,
+        buttonClicks: 0,
+      }
 
-          // Проходим по событиям дня
-          Object.entries(dayData).forEach(([eventName, eventData]) => {
-            const event = {
-              name: eventName,
-              counter: eventData.counter,
-              last_updated: eventData.last_updated,
-              type: eventData.type,
-            }
+      // Обрабатываем события дня (новый формат: "type_name": [timestamp, counter])
+      Object.entries(events).forEach(([eventKey, eventData]) => {
+        // Парсим тип и имя из ключа "page_view_calendar"
+        const [type, ...nameParts] = eventKey.split('_')
+        const name = nameParts.join('_')
 
-            dayStats.events.push(event)
-            dayStats.totalEvents += eventData.counter
+        // Преобразуем timestamp в миллисекунды
+        const timestamp = eventData[0] * 1000
 
-            if (eventData.type === 'page_view') {
-              dayStats.pageViews += eventData.counter
-            } else if (eventData.type === 'button_click') {
-              dayStats.buttonClicks += eventData.counter
-            }
-          })
+        const event = {
+          name,
+          counter: eventData[1],
+          last_updated: new Date(timestamp).toISOString(),
+          type: type === 'page' ? 'page_view' : 'button_click',
+        }
 
-          monthStats.days.push(dayStats)
-          monthStats.totalEvents += dayStats.totalEvents
-        })
+        dayStats.events.push(event)
+        dayStats.totalEvents += eventData[1]
 
-        // Сортируем дни по убыванию
-        monthStats.days.sort((a, b) => b.day - a.day)
-
-        yearStats.months.push(monthStats)
+        if (type === 'page') {
+          dayStats.pageViews += eventData[1]
+        } else {
+          dayStats.buttonClicks += eventData[1]
+        }
       })
 
-      // Сортируем месяцы по убыванию
-      yearStats.months.sort((a, b) => b.month - a.month)
+      monthData.days.push(dayStats)
+      monthData.totalEvents += dayStats.totalEvents
+    })
 
-      result.push(yearStats)
+    // Сортируем дни по убыванию даты
+    result.forEach(yearData => {
+      yearData.months.forEach(monthData => {
+        monthData.days.sort((a, b) => new Date(b.date) - new Date(a.date))
+      })
+      // Сортируем месяцы по убыванию
+      yearData.months.sort((a, b) => b.month - a.month)
     })
 
     // Сортируем годы по убыванию
@@ -346,7 +360,9 @@
       telegramButton: 'Переходы в Телеграм',
     }
 
-    return nameMap[name] || name.charAt(0).toUpperCase() + name.slice(1)
+    const eventName = name.split('_')[1]
+
+    return nameMap[eventName] || name.charAt(0).toUpperCase() + name.slice(1)
   }
 
   // Функция загрузки данных

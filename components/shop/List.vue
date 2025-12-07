@@ -128,7 +128,6 @@
   }
 
   function handleTagCLick(tag: string) {
-    metrics.trackButtonClick('теги')
     searchedProducts.value = shopStore.filterProductsByTag(tag)
 
     if (route.query.page) {
