@@ -16,6 +16,7 @@
         class="group flex items-center space-x-3 p-3 rounded-lg
           hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors
           duration-200"
+        @click="metrics.trackButtonClick('telegramButton')"
       >
         <div class="flex-shrink-0">
           <img
@@ -45,6 +46,7 @@
         class="group flex items-center space-x-3 p-3 rounded-lg
           hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors
           duration-200"
+        @click="metrics.trackButtonClick('vkButton')"
       >
         <div class="flex-shrink-0">
           <img

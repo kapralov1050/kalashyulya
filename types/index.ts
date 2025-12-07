@@ -92,6 +92,7 @@ export type DashBoardOption =
   | 'ProductsList'
   | 'LocalesForm'
   | 'OrdersList'
+  | 'StatsDashboard'
 
 export interface TimelineItem {
   id: number

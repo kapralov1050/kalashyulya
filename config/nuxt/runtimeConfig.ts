@@ -15,5 +15,6 @@ export const runtimeConfig: NuxtConfig['runtimeConfig'] = {
     bucketName: process.env.NUXT_PUBLIC_BUCKET_NAME,
     dadataApiKey: process.env.NUXT_PUBLIC_DADATA_API_KEY,
     dadataSecretKey: process.env.NUXT_PUBLIC_DADATA_SECRET_KEY,
+    statsUpload: process.env.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_STATS,
   },
 }

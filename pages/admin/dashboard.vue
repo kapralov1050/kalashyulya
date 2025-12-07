@@ -111,6 +111,9 @@
     OrdersList: defineAsyncComponent(
       () => import('@/components/dashboard/OrdersList.vue'),
     ),
+    StatsDashboard: defineAsyncComponent(
+      () => import('@/components/dashboard/StatsDashboard.vue'),
+    ),
   }
 
   const getModalDisplayName = (option: string) => {
@@ -119,6 +122,7 @@
       ProductsList: 'Список товаров',
       LocalesForm: 'Изменить локали',
       OrdersList: 'Список заказов',
+      StatsDashboard: 'Статистика',
     }
     return names[option] || option
   }

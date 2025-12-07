@@ -120,7 +120,7 @@
             size="xl"
             variant="link"
             :disabled="!totalPurchaceQty"
-            @click="isOrderModalOpen = true"
+            @click="startOrder"
           >
             {{ purchaseButtonText }}
           </UButton>
@@ -179,25 +179,10 @@
     isOrderSuccessModalOpen.value = true
   }
 
-  // function handleOrder() {
-  //   if (currentUser.value && currentUser.value.uid && userProfileData.value) {
-  //     const orderInfo: Order = {
-  //       customer: {
-  //         name: userProfileData.value.name,
-  //         email: userProfileData.value.email,
-  //       },
-  //       purchase: {
-  //         order: shortPurchaseInfo,
-  //         createdAt: new Date().toISOString(),
-  //       },
-  //       totalPrice: totalPurchaseAmount.value,
-  //     }
-
-  //     createOrder(currentUser.value.uid, orderInfo)
-  //   } else {
-  //     isModalOpen.value = true
-  //   }
-  // }
+  function startOrder() {
+    metrics.trackButtonClick('startOrderButton')
+    isOrderModalOpen.value = true
+  }
 
   watch(
     isOrderSuccessModalOpen,

@@ -5,16 +5,17 @@
       dark:border-neutral-700 dark:bg-neutral-800/60
       dark:hover:border-primary-400/60 sm:p-6"
   >
-    <NuxtLink
-      :to="`/shop/${product.id}`"
+    <UButton
+      variant="link"
       class="block overflow-hidden rounded-xl"
+      @click="openProductPage"
     >
       <img
         :src="product.image[0] || '/default-shop-image.png'"
         class="aspect-[4/3] w-full rounded-xl object-cover transition-all
           duration-300 group-hover:scale-[1.03]"
       />
-    </NuxtLink>
+    </UButton>
 
     <section class="mt-auto">
       <header class="mt-3">
@@ -72,7 +73,7 @@
 <script setup lang="ts">
   import type { Product } from '~/types'
 
-  defineProps<{
+  const props = defineProps<{
     product: Product
     isInBasket: boolean
   }>()
@@ -82,6 +83,13 @@
     buy: [product: Product]
     filterByTag: [tag: string]
   }>()
+
+  const router = useRouter()
+
+  function openProductPage() {
+    metrics.trackButtonClick('productExtendedButton')
+    router.push({ path: `/shop/${props.product.id}` })
+  }
 </script>
 
 <style scoped></style>

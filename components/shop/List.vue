@@ -128,8 +128,9 @@
   }
 
   function handleTagCLick(tag: string) {
+    metrics.trackButtonClick('теги')
     searchedProducts.value = shopStore.filterProductsByTag(tag)
-    // Сбрасываем page в URL при фильтрации по тегу
+
     if (route.query.page) {
       router.push({ query: { ...route.query, page: undefined } })
     }

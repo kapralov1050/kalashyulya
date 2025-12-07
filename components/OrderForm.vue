@@ -239,6 +239,8 @@
         totalPrice: basketStore.totalPurchaseAmount,
       }
 
+      metrics.trackButtonClick('completeOrderButton')
+
       isSending.value = true
 
       const telegramResponse = await sendOrderInfoTelegram(orderInfo)

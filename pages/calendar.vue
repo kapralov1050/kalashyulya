@@ -106,4 +106,8 @@
       },
     )
   }
+
+  onMounted(async () => {
+    metrics.trackPageView('calendar')
+  })
 </script>
