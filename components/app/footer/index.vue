@@ -4,7 +4,7 @@
       dark:from-neutral-900 dark:to-neutral-800 border-t border-neutral-200
       dark:border-neutral-700"
   >
-    <div class="container mx-auto px-6 py-12">
+    <div class="container mx-auto px-6 py-5">
       <AppFooterLinks />
     </div>
   </footer>

@@ -51,8 +51,9 @@
               v-model:page="currentPage"
               :total="totalItems"
               :items-per-page="shopStore.itemsPerPage"
-              class="[&>button:first-child]:rounded-s-md
-                [&>button:last-child]:rounded-e-md"
+              color="neutral"
+              active-color="neutral"
+              :show-controls="false"
               @update:page="handlePageChange"
             />
           </div>

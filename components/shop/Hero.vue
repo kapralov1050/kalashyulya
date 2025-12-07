@@ -1,7 +1,6 @@
 <template>
   <section
-    class="container flex flex-col gap-y-2 pt-24 pb-3 sm:pt-16 sm:pb-18 lg:pt-28
-      lg:pb-25"
+    class="container flex flex-col gap-y-2 pt-10 pb-3 sm:pt-16 sm:pb-5 lg:pt-15"
   >
     <AppSectionHeader
       :heading="printLocale('shop_heroTitle')"
@@ -76,13 +75,13 @@
           </UButton>
         </div>
 
-        <div class="ml-auto flex items-center gap-2">
+        <div class="flex items-center justify-center gap-2">
           <UIcon name="i-heroicons-arrows-up-down" class="w-4 h-4" />
           <USelectMenu
             v-model="selectedSortLabel"
             :search-input="false"
             :items="sortOptionsWithLabels"
-            size="lg"
+            size="md"
             class="w-48"
           />
         </div>

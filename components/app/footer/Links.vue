@@ -1,13 +1,13 @@
 <template>
-  <div class="w-full flex items-center">
+  <div class="w-full flex flex-col items-center justify-center sm:flex-row">
     <h3
-      class="text-sm font-semibold text-neutral-800 dark:text-white uppercase
-        tracking-wide"
+      class="text-sm text-center font-semibold text-neutral-800 dark:text-white
+        uppercase tracking-wide"
     >
       {{ printLocale('footer_links_title') }}
     </h3>
 
-    <div class="ml-auto flex">
+    <div class="ml-0 sm:ml-auto flex">
       <!-- Telegram -->
       <a
         href="https://t.me/kalashyulyaa"

@@ -1,5 +1,5 @@
 <template>
-  <div class="container flex flex-col items-center justify-center p-20">
+  <div class="container flex flex-col items-center justify-center mb-20">
     <svg
       id="svg"
       ref="svgElement"
@@ -7,7 +7,7 @@
       width="1000"
       height="500"
       viewBox="0, 0, 400,123.76681614349775"
-      class="w-3/4 md:w-1/2 h-auto z-2"
+      class="w-full md:w-1/2 h-auto z-2"
     >
       <g>
         <path
@@ -47,12 +47,13 @@
 
       <!-- Products Grid -->
       <section
-        class="grid md:grid-cols-2 md:grid-rows-2 items-start justify-center"
+        class="grid md:grid-cols-2 md:grid-rows-2 items-start justify-center
+          gap-10"
       >
         <div
           v-for="calendar in calendars"
           :key="calendar.id"
-          class="flex flex-col items-center gap-y-10"
+          class="flex flex-col items-center gap-10"
         >
           <AppHeroImage :image-src="calendar.image[0]" />
           <AppHeroContent>

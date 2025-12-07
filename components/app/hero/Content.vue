@@ -2,7 +2,7 @@
   <div
     class="flex flex-col items-center justify-start text-center dark:text-white"
   >
-    <h1 class="text-3xl font-black tracking-tight">
+    <h1 class="flex items-start text-3xl font-black tracking-tight">
       <slot name="subtitle" />
       <br />
       <span

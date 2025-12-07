@@ -5,12 +5,12 @@
   </div> -->
   <div
     ref="container"
-    class="relative aspect-[16/9] h-auto scale-90 lg:w-2/3 lg:scale-105
+    class="relative w-full aspect-[16/9] h-auto scale-90 lg:w-2/3 lg:scale-105
       perspective-distant"
   >
     <img
       :src="imageSrc"
-      class="rounded-2xl shadow-2xl w-full h-full object-cover"
+      class="rounded-2xl shadow-2xl h-full object-cover"
       :style="cardStyle"
     />
   </div>
@@ -24,7 +24,7 @@
   const { roll, tilt } = useParallax(container)
 
   const cardStyle = computed(() => ({
-    transform: `rotateX(${roll.value * 10}deg) rotateY(${tilt.value * 10}deg)`,
+    transform: `rotateX(${roll.value * 20}deg) rotateY(${tilt.value * 20}deg)`,
     transition: 'transform 0.1s ease-out',
   }))
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div class="mb-20">
+  <div class="mb-20 flex flex-col gap-y-10">
     <ShopHero />
     <ShopList />
   </div>

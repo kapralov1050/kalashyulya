@@ -6,7 +6,7 @@
   <div id="wrapper">
     <div id="content">
       <AboutHeader />
-      <main id="main" class="pt-30 pb-10 min-h-[100vh]">
+      <main class="pt-30 pb-10 min-h-[100vh]">
         <AppHeader id="header" />
         <AboutHero class="mb-30" />
         <AboutTimeline class="mb-30" />
@@ -19,7 +19,7 @@
             size="xl"
             variant="link"
             color="neutral"
-            to="#main"
+            to="#header"
           >
             {{ printLocale('about_arrow_up') }}
           </UButton>
