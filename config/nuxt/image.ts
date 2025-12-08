@@ -1,16 +1,10 @@
 import type { NuxtConfig } from 'nuxt/config'
 
 export const imageConfig: NuxtConfig['image'] = {
-  provider: 'ipx',
+  provider: 'static',
   quality: 80,
-  format: ['webp', 'avif'],
-  // Оптимизация для SEO
+  formats: ['webp', 'avif', 'png', 'jpg'],
   dangerouslyAllowSVG: true,
-  // Оптимизация для ленивой загрузки
-  lazy: true,
-  // Оптимизация для предварительной загрузки
-  preload: true,
-  // Адаптивные размеры для генерации srcset
   screens: {
     xs: 320,
     sm: 640,
@@ -20,23 +14,6 @@ export const imageConfig: NuxtConfig['image'] = {
     '2xl': 1536,
     '3xl': 1920,
   },
-  // Включение плагина для оптимизации изображений
-  nuxtImage: {
-    // Оптимизация для художественного контента
-    format: ['webp', 'avif'],
-    quality: 80,
-    // Адаптивные размеры
-    sizes: {
-      xs: '320px',
-      sm: '640px',
-      md: '768px',
-      lg: '1024px',
-      xl: '1280px',
-      '2xl': '1536px',
-      '3xl': '1920px',
-    },
-  },
-  // Предустановки для часто используемых размеров
   presets: {
     avatar: {
       modifiers: {
@@ -50,6 +27,8 @@ export const imageConfig: NuxtConfig['image'] = {
       modifiers: {
         format: 'webp',
         width: 320,
+        height: 180,
+        fit: 'cover',
         quality: 80,
       },
     },
@@ -57,6 +36,8 @@ export const imageConfig: NuxtConfig['image'] = {
       modifiers: {
         format: 'webp',
         width: 640,
+        height: 360,
+        fit: 'cover',
         quality: 80,
       },
     },
@@ -64,7 +45,16 @@ export const imageConfig: NuxtConfig['image'] = {
       modifiers: {
         format: 'webp',
         width: 1280,
+        height: 720,
+        fit: 'cover',
         quality: 80,
+      },
+    },
+    retina: {
+      modifiers: {
+        width: 1920,
+        height: 1080,
+        quality: 75,
       },
     },
   },
