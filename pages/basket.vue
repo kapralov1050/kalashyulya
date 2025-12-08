@@ -24,7 +24,7 @@
               items-center gap-x-5 py-4 border-b-1 border-neutral-400
               dark:border-neutral-300"
           >
-            <NuxtImg
+            <img
               :src="el.item.image[0]"
               :alt="el.item.title"
               fit="cover"

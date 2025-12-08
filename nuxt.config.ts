@@ -5,7 +5,6 @@ import { modulesConfig } from './config/nuxt/modules'
 import { runtimeConfig } from './config/nuxt/runtimeConfig'
 import { viteConfig } from './config/nuxt/vite'
 import { vueFireConfig } from './config/nuxt/vueFire'
-import { imageConfig } from './config/nuxt/image'
 
 export default defineNuxtConfig({
   ssr: false,
@@ -23,7 +22,6 @@ export default defineNuxtConfig({
   app: appConfig,
   googleFonts: googleFontsConfig,
   icon: iconConfig,
-  image: imageConfig,
   features: {
     inlineStyles: false,
   },

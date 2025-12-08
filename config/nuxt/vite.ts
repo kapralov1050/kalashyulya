@@ -1,8 +1,34 @@
-import type { NuxtConfig } from 'nuxt/config'
 import tailwindcss from '@tailwindcss/vite'
+import type { NuxtConfig } from 'nuxt/config'
+import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
 
 export const viteConfig: NuxtConfig['vite'] = {
-  plugins: [tailwindcss()],
+  plugins: [
+    tailwindcss(),
+    ViteImageOptimizer({
+      jpeg: {
+        quality: 80,
+      },
+      jpg: {
+        quality: 80,
+      },
+      png: {
+        quality: 80,
+      },
+      webp: {
+        quality: 80,
+        lossless: false,
+        effort: 4,
+      },
+      avif: {
+        quality: 70,
+        lossless: false,
+        effort: 9,
+      },
+      cache: true,
+      cacheLocation: './node_modules/.cache/image-optimizer',
+    }),
+  ],
   build: {
     minify: 'terser',
     terserOptions: {

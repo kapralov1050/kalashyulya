@@ -3,7 +3,7 @@
     to="/"
     class="flex items-center gap-x-1 font-black sm:gap-x-2 dark:text-white"
   >
-    <NuxtImg src="/logo2.png" class="h-18 w-auto dark:invert" />
+    <img src="/logo2.png" class="h-18 w-auto dark:invert" />
     <span v-if="$slots.default">
       <slot />
     </span>
