@@ -66,7 +66,7 @@
     smoother = ScrollSmoother.create({
       wrapper: '#wrapper',
       content: '#content',
-      smooth: 1.2,
+      smooth: 1.4,
       effects: true,
       normalizeScroll: true,
     })
