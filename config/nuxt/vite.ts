@@ -10,6 +10,9 @@ export const viteConfig: NuxtConfig['vite'] = {
         drop_console: true,
         drop_debugger: true,
       },
+      format: {
+        comments: false
+      }
     },
     chunkSizeWarningLimit: 1000,
   },
