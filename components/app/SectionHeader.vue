@@ -13,10 +13,10 @@
 </template>
 
 <script setup lang="ts">
-  const { type = 'section' } = defineProps<{
-    heading?: string
-    subheading?: string
-    type?: 'page' | 'section'
+  const { heading = '', subheading = '', type = 'section' } = defineProps<{
+    heading: string
+    subheading: string
+    type: 'page' | 'section'
   }>()
 
   const headingClasses = [

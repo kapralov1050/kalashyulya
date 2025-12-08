@@ -11,8 +11,6 @@
   "tabWidth": 2,
   "arrowParens": "avoid",
   "endOfLine": "lf",
-  "vue/htmlWhitespaceSensitivity": "ignore",
-  "vue/maxAttributesPerLine": 1,
   "htmlWhitespaceSensitivity": "ignore",
   "vueIndentScriptAndStyle": true
 }

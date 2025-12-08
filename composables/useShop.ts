@@ -86,7 +86,7 @@ export const useShop = () => {
 
       return { success: true, data: response }
     } catch (error: any) {
-      console.error('Ошибка отправки в Telegram:', error)
+      // Ошибка отправки в Telegram
 
       // Подробная обработка разных типов ошибок
       let errorMessage = 'Неизвестная ошибка'
@@ -124,7 +124,7 @@ export const useShop = () => {
         },
       })
 
-      console.log('Email response:', response)
+      // Email response logged
       return { success: true, data: response }
     } catch (error: any) {
       console.error('Ошибка отправки Email:', error)

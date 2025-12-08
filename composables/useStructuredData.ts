@@ -59,8 +59,7 @@ export function useStructuredData() {
         '@type': 'Offer',
         price: data.price,
         priceCurrency: data.currency || 'RUB',
-        availability:
-          data.availability || 'https://schema.org/InStock',
+        availability: data.availability || 'https://schema.org/InStock',
         url: data.url,
       },
     }
@@ -91,9 +90,7 @@ export function useStructuredData() {
         '@type': 'ListItem',
         position: index + 1,
         name: item.name,
-        item: item.url.startsWith('http')
-          ? item.url
-          : `${siteUrl}${item.url}`,
+        item: item.url.startsWith('http') ? item.url : `${siteUrl}${item.url}`,
       })),
     }
   }
@@ -129,4 +126,3 @@ export function useStructuredData() {
     addStructuredData,
   }
 }
-

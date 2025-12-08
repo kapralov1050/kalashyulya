@@ -1,5 +1,3 @@
-import { defineStore } from 'pinia'
-
 export type LocaleOptions = {
   breakLn?: boolean
   capitalize?: boolean

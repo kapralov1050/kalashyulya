@@ -1,5 +1,3 @@
-import { getSnapshotByPath } from '~/helpers/firebase/manageDatabase'
-
 export default defineNuxtRouteMiddleware(to => {
   const authStore = useAuthStore()
   const user = authStore.currentUser

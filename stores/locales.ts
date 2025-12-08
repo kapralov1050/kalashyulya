@@ -32,7 +32,7 @@ export const useLocalesStore = defineStore('locales', () => {
 
   async function deleteLocale(key: string) {
     if (!locales.value) return
-    
+
     const { [key]: _, ...updatedLocales } = locales.value
     await updateLocales(updatedLocales)
   }

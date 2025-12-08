@@ -39,14 +39,17 @@
   defineOptions({ inheritAttrs: false })
 
   interface Props {
-    id?: string
-    type?: string
-    placeholder?: string
-    label?: string
+    id: string
+    type: string
+    placeholder: string
+    label: string
   }
 
   withDefaults(defineProps<Props>(), {
+    id: '',
     type: 'text',
+    placeholder: '',
+    label: '',
   })
 
   const modelValue = defineModel<string>({ required: true })
