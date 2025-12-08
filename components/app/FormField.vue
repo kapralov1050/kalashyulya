@@ -42,7 +42,7 @@
     id: string
     type: string
     placeholder: string
-    label: string
+    label?: string
   }
 
   withDefaults(defineProps<Props>(), {

@@ -13,26 +13,22 @@
 </template>
 
 <script setup lang="ts">
-  const {
-    heading = '',
-    subheading = '',
-    type = 'section',
-  } = defineProps<{
+  const props = defineProps<{
     heading: string
     subheading: string
-    type: 'page' | 'section'
+    type?: 'page' | 'section'
   }>()
 
   const headingClasses = [
     'text-center dark:text-white',
-    type === 'page'
+    props.type === 'page'
       ? 'text-4xl font-black sm:text-5xl'
       : 'text-2xl font-bold sm:text-4xl',
   ]
 
   const subheadingClasses = [
     'text-center sm:text-lg dark:text-gray-300',
-    type === 'page'
+    props.type === 'page'
       ? ' mt-2 text-gray-600 sm:mt-3'
       : 'mt-1 text-gray-600 sm:mt-2',
   ]

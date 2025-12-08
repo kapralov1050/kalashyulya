@@ -110,10 +110,12 @@
         return
       }
 
-      const fileToDelete = shopStore.getProductFileName(productid)
+      const filesToDelete = shopStore.getProductFileName(productid)
 
-      if (fileToDelete) {
-        await deleteFile(fileToDelete)
+      if (filesToDelete) {
+        for (const file in filesToDelete) {
+          await deleteFile(file)
+        }
       }
 
       await removeDataByPath(`shop/products/product_${productid}`)
