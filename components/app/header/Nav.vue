@@ -7,7 +7,12 @@
         </UButton>
       </li>
       <li>
-        <UButton color="neutral" variant="link" to="/calendar">
+        <UButton
+          color="neutral"
+          variant="link"
+          to="/calendar"
+          :prefetch="false"
+        >
           {{ printLocale('header_calendar') }}
         </UButton>
       </li>
@@ -17,7 +22,7 @@
         </UButton>
       </li> -->
       <li class="mr-auto">
-        <UButton color="neutral" variant="link" to="/shop">
+        <UButton color="neutral" variant="link" to="/shop" :prefetch="false">
           {{ printLocale('header_shop') }}
         </UButton>
       </li>

@@ -15,6 +15,15 @@ export const viteConfig: NuxtConfig['vite'] = {
       },
     },
     chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['vue', 'vue-router', 'pinia'],
+          gsap: ['gsap'],
+          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+        },
+      },
+    },
   },
   optimizeDeps: {
     include: ['vue', 'vue-router', 'pinia', 'gsap'],

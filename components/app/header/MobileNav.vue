@@ -28,12 +28,19 @@
             color="neutral"
             variant="link"
             to="/calendar"
+            :prefetch="false"
           >
             {{ printLocale('header_calendar') }}
           </UButton>
         </li>
         <li>
-          <UButton class="text-2xl" color="neutral" variant="link" to="/shop">
+          <UButton
+            class="text-2xl"
+            color="neutral"
+            variant="link"
+            to="/shop"
+            :prefetch="false"
+          >
             {{ printLocale('header_shop') }}
           </UButton>
         </li>

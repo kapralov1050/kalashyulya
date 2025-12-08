@@ -24,4 +24,11 @@ export default defineNuxtConfig({
   googleFonts: googleFontsConfig,
   icon: iconConfig,
   image: imageConfig,
+  features: {
+    inlineStyles: false,
+  },
+  routeRules: {
+    '/profile/**': { ssr: false },
+    '/admin/dashboard': { ssr: false },
+  },
 })
