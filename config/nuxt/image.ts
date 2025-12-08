@@ -1,10 +1,11 @@
 import type { NuxtConfig } from 'nuxt/config'
 
 export const imageConfig: NuxtConfig['image'] = {
-  provider: 'static',
+  provider: 'ipx',
   quality: 80,
   formats: ['webp', 'avif', 'png', 'jpg'],
   dangerouslyAllowSVG: true,
+
   screens: {
     xs: 320,
     sm: 640,
@@ -14,6 +15,7 @@ export const imageConfig: NuxtConfig['image'] = {
     '2xl': 1536,
     '3xl': 1920,
   },
+
   presets: {
     avatar: {
       modifiers: {
@@ -52,6 +54,7 @@ export const imageConfig: NuxtConfig['image'] = {
     },
     retina: {
       modifiers: {
+        format: 'webp',
         width: 1920,
         height: 1080,
         quality: 75,
