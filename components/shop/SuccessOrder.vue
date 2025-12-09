@@ -34,11 +34,11 @@
       />
     </svg>
 
-    <h1 class="mt-6 text-xl font-bold text-gray-900">
+    <h1 class="mt-6 text-xl font-bold text-neutral-900 dark:text-neutral-200">
       Спасибо! Ваш заказ успешно оформлен
     </h1>
 
-    <p class="mt-2 text-base text-gray-600 max-w-xs">
+    <p class="mt-2 text-base text-neutral-600 dark:text-neutral-400 max-w-xs">
       В ближайшее время я свяжусь с вами способом, который вы указали в заявке
     </p>
   </div>

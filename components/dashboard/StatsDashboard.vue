@@ -72,9 +72,6 @@
                   class="px-6 py-4 hover:bg-gray-50 transition-colors"
                 >
                   <div class="flex items-center justify-between mb-4">
-                    <h4 class="text-lg font-medium text-gray-900">
-                      {{ dayData.day }} {{ getMonthName(monthData.month) }}
-                    </h4>
                     <span class="text-sm text-gray-500">
                       {{ formatDate(dayData.date) }}
                     </span>

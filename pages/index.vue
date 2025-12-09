@@ -1,6 +1,6 @@
 <template>
   <Transition name="fade">
-    <AppPreloaderSpinner v-if="!imagesLoaded" />
+    <AppPreloaderSpinner v-if="isLoading" />
   </Transition>
 
   <div id="wrapper">
@@ -41,7 +41,7 @@
   })
 
   const { printLocale } = useLocales()
-  const { imagesLoaded, loadImages } = awaitImage()
+  const { loadImages } = awaitImage()
 
   useSeo({
     title: 'Обо мне',
@@ -92,6 +92,8 @@
       '/dark_front-layer.webp',
       '/dark_water.webp',
     ])
+
+    isLoading.value = false
   })
 
   onUnmounted(() => {
@@ -108,7 +110,6 @@
     transition: opacity 0.7s ease;
   }
 
-  .fade-enter-from,
   .fade-leave-to {
     opacity: 0;
   }

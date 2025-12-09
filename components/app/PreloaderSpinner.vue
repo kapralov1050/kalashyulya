@@ -36,6 +36,10 @@
     will-change: transform;
   }
 
+  .dark .spinner::after {
+    filter: invert(1);
+  }
+
   @keyframes brush {
     0%,
     100% {

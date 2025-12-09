@@ -71,6 +71,7 @@
 </template>
 
 <script setup lang="ts">
+  import { useRoute } from 'vue-router'
   import type { Product } from '~/types'
 
   const props = defineProps<{
@@ -82,13 +83,21 @@
     addToBasket: [product: Product]
     buy: [product: Product]
     filterByTag: [tag: string]
+    openModal: [product: Product]
   }>()
 
   const router = useRouter()
+  const route = useRoute()
 
   function openProductPage() {
     metrics.trackButtonClick('productExtendedButton')
-    router.push({ path: `/shop/${props.product.id}` })
+    router.push({
+      query: {
+        ...route.query,
+        productModal: props.product.id,
+      },
+      hash: route.hash,
+    })
   }
 </script>
 

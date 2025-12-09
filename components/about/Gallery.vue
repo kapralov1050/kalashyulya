@@ -25,6 +25,7 @@
     >
       <div class="flex flex-col items-center">
         <FlipCard
+          v-if="item.image"
           :title="item.title"
           :description="item.description"
           :image="item.image[0]"

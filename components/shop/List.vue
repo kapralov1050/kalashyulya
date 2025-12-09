@@ -59,16 +59,32 @@
           </div>
         </div>
       </template>
+
+      <UModal
+        v-if="selectedProduct && selectedProduct.id"
+        v-model:open="isProductModalOpen"
+        :ui="{
+          content: 'min-w-[70vw] h-auto p-10 shadow-4xl',
+          overlay: 'bg-black/50 backdrop-blur-sm',
+        }"
+      >
+        <template #content>
+          <ShopItemExtended :product="selectedProduct" />
+        </template>
+      </UModal>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
+  import { useRoute } from 'vue-router'
   import { useFirebase } from '~/composables/firebase/useFirebase'
   import type { Product } from '~/types'
 
   const route = useRoute()
   const router = useRouter()
+  const isProductModalOpen = ref(false)
+  const selectedProductId = ref<string | null>(null)
 
   const basketStore = useBasketStore()
   const { addShopItemToBasket } = useBasketStore()
@@ -98,6 +114,13 @@
     return (
       error.value.message ||
       'Не удалось загрузить товары из магазина. Пожалуйста, попробуйте позже.'
+    )
+  })
+
+  const selectedProduct = computed(() => {
+    if (!selectedProductId.value) return null
+    return shopStore.allProducts.find(
+      p => p.id.toString() === selectedProductId.value,
     )
   })
 
@@ -155,13 +178,31 @@
       })
   }
 
+  watch(
+    () => route.query.productModal,
+    newVal => {
+      isProductModalOpen.value = !!newVal
+      selectedProductId.value = newVal?.toString() || null
+    },
+  )
+
+  watch(isProductModalOpen, isOpen => {
+    if (!isOpen && route.query.productModal) {
+      router.replace({ query: { ...route.query, productModal: undefined } })
+    }
+  })
+
   onMounted(() => {
-    // Инициализируем страницу из URL, если есть
     if (route.query.page) {
       const page = Number(route.query.page)
       if (!isNaN(page) && page > 0) {
         shopStore.setPage(page)
       }
+    }
+
+    if (route.query.productModal) {
+      isProductModalOpen.value = true
+      selectedProductId.value = route.query.productModal?.toString() || null
     }
   })
 

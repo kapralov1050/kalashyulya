@@ -18,7 +18,6 @@
         dark:border-neutral-700"
     >
       <div class="flex items-center gap-3 mb-6">
-        <div class="w-3 h-8 bg-amber-500 rounded-full"></div>
         <h3 class="text-xl font-bold text-neutral-900 dark:text-neutral-100">
           Картины
         </h3>

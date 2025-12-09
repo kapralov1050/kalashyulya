@@ -1,6 +1,4 @@
 export function awaitImage() {
-  const imagesLoaded = ref(false)
-
   async function loadImages(imageUrls: string[]) {
     const promises = imageUrls.map(url => {
       return new Promise((resolve, reject) => {
@@ -11,16 +9,14 @@ export function awaitImage() {
       })
     })
 
-    const minDelay = 2000
+    const minDelay = 1500
 
     const delayPromise = new Promise(resolve => setTimeout(resolve, minDelay))
 
     await Promise.all([...promises, delayPromise])
-    imagesLoaded.value = true
   }
 
   return {
-    imagesLoaded,
     loadImages,
   }
 }

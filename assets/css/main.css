@@ -20,7 +20,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: 'Open Sans';
+  --font-sans: 'Montserrat';
 }
 
 @utility container {
@@ -41,23 +41,12 @@
   --background-color: rgb(255, 255, 255);
 }
 
-@font-face {
-  font-family: raleway_f;
-  src: url(/fonts/raleway-black.woff2);
-}
-
-@font-face {
-  font-family: raleway_f;
-  src: url(/fonts/raleway-regular.woff2);
-  font-weight: 900;
-}
-
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  font-family: railway_f, sans-serif;
+  font-family: Montserrat, sans-serif;
   line-height: 1.55;
 }
 
