@@ -9,11 +9,10 @@
       <main class="pt-30 pb-10 min-h-[100vh]">
         <AppHeader id="header" />
         <AboutHero class="mb-30" />
-        <AboutTimeline class="mb-30" />
-        <AboutGallery />
-        <div class="flex justify-center">
+        <AboutTimeline class="mb-10" />
+        <div class="flex justify-center mb-20">
           <UButton
-            class="hover:transform hover:scale-120 transition-transform
+            class="hover:transform hover:scale-110 transition-transform
               duration-200"
             icon="heroicons:arrow-up"
             size="xl"
@@ -24,6 +23,7 @@
             {{ printLocale('about_arrow_up') }}
           </UButton>
         </div>
+        <AboutGallery />
       </main>
       <AppFooter />
     </div>

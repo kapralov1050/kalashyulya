@@ -64,7 +64,7 @@
         v-if="selectedProduct && selectedProduct.id"
         v-model:open="isProductModalOpen"
         :ui="{
-          content: 'min-w-[70vw] h-auto p-10 shadow-4xl',
+          content: 'min-w-[80vw] max-h-[90vh] h-auto p-10 shadow-4xl',
           overlay: 'bg-black/50 backdrop-blur-sm',
         }"
       >
@@ -228,3 +228,14 @@
     },
   )
 </script>
+
+<style scoped>
+  .scrollbar-hidden {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+</style>

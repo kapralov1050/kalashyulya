@@ -230,6 +230,97 @@
       </div>
     </section>
 
+    <!-- Оплата и доставка -->
+    <section
+      class="bg-gradient-to-br from-white to-neutral-50 dark:from-neutral-900
+        dark:to-neutral-800 rounded-2xl p-8 shadow-sm border border-neutral-200
+        dark:border-neutral-700"
+    >
+      <div class="flex items-center gap-3 mb-6">
+        <UIcon
+          name="i-heroicons-credit-card"
+          class="w-6 h-6 text-neutral-700 dark:text-neutral-300"
+        />
+        <h3 class="text-xl font-bold text-neutral-900 dark:text-neutral-100">
+          Оплата и доставка
+        </h3>
+      </div>
+
+      <div class="space-y-6">
+        <!-- Оплата -->
+        <div class="space-y-4">
+          <h4
+            class="font-semibold text-lg text-neutral-800 dark:text-neutral-200"
+          >
+            Способы оплаты
+          </h4>
+          <p class="text-neutral-700 dark:text-neutral-300 leading-relaxed">
+            Ваш заказ можно будет оплатить переводом по номеру карты (Сбербанк)
+            после оформления и обсуждения заказа.
+          </p>
+
+          <ul class="space-y-3">
+            <li class="flex items-start gap-3">
+              <div
+                class="w-2 h-2 rounded-full bg-green-500 mt-2.5 flex-shrink-0"
+              ></div>
+              <span class="text-neutral-700 dark:text-neutral-300">
+                Также возможна оплата наличными при получении заказа лично в
+                Петербурге или в Ивановской области (по договоренности)
+              </span>
+            </li>
+            <li class="flex items-start gap-3">
+              <div
+                class="w-2 h-2 rounded-full bg-green-500 mt-2.5 flex-shrink-0"
+              ></div>
+              <span class="text-neutral-700 dark:text-neutral-300">
+                Платеж можно разделить на несколько частей и забронировать
+                работу за собой, оплатив часть
+              </span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Доставка -->
+        <div class="space-y-4">
+          <h4
+            class="font-semibold text-lg text-neutral-800 dark:text-neutral-200"
+          >
+            Доставка
+          </h4>
+
+          <ul class="space-y-3">
+            <li class="flex items-start gap-3">
+              <div
+                class="w-2 h-2 rounded-full bg-blue-500 mt-2.5 flex-shrink-0"
+              ></div>
+              <span class="text-neutral-700 dark:text-neutral-300">
+                Отправляю заказы в основном Почтой России (принты от 300 ₽,
+                оригиналы от 450 ₽ по России)
+              </span>
+            </li>
+            <li class="flex items-start gap-3">
+              <div
+                class="w-2 h-2 rounded-full bg-blue-500 mt-2.5 flex-shrink-0"
+              ></div>
+              <span class="text-neutral-700 dark:text-neutral-300">
+                По желанию возможна доставка через Озон, СДЭК или другие службы
+              </span>
+            </li>
+            <li class="flex items-start gap-3">
+              <div
+                class="w-2 h-2 rounded-full bg-blue-500 mt-2.5 flex-shrink-0"
+              ></div>
+              <span class="text-neutral-700 dark:text-neutral-300">
+                В Петербурге и Ивановской области можно получить заказ лично от
+                меня
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
     <!-- Призыв к действию -->
     <section class="text-center py-8">
       <p class="text-neutral-700 dark:text-neutral-300">

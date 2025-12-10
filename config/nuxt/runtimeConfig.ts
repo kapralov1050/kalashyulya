@@ -16,5 +16,7 @@ export const runtimeConfig: NuxtConfig['runtimeConfig'] = {
     dadataApiKey: process.env.NUXT_PUBLIC_DADATA_API_KEY,
     dadataSecretKey: process.env.NUXT_PUBLIC_DADATA_SECRET_KEY,
     statsUpload: process.env.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_STATS,
+    stats: process.env.NUXT_PUBLIC_STATS,
+    locales: process.env.NUXT_PUBLIC_LOCALES,
   },
 }

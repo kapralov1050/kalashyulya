@@ -1,14 +1,16 @@
 <template>
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+  <div
+    class="h-full overflow-y-auto scrollbar-hidden grid grid-cols-1
+      lg:grid-cols-2 gap-10 md:gap-20 p-5 md:p-10"
+  >
     <!-- Artwork Image (2/3 width on desktop) -->
-    <div class="relative w-full mx-auto">
+    <div class="flex justify-center items-center">
       <UCarousel
         v-slot="{ item }"
         :arrows="props.product.image.length > 1"
         :items="props.product.image"
         loop
         touch="false"
-        class=""
         :watch-drag="false"
       >
         <VueMagnifier
@@ -124,7 +126,7 @@
   })
 
   const magnifierSize = computed(() => {
-    return window.innerWidth > 1024 ? 200 : 80
+    return window.innerWidth > 1024 ? 200 : 100
   })
 
   const zoom = computed(() => {

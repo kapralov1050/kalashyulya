@@ -3,12 +3,9 @@ export const useLocalesStore = defineStore('locales', () => {
   const config = useRuntimeConfig()
 
   async function fetchLocales() {
-    const blob = await $fetch<Blob>(
-      'https://storage.yandexcloud.net/kalashyulya-locales/kalashyulya-shop-locales.json',
-      {
-        responseType: 'blob',
-      },
-    )
+    const blob = await $fetch<Blob>(`${config.public.locales}`, {
+      responseType: 'blob',
+    })
 
     const text = await blob.text()
     const data = JSON.parse(text)

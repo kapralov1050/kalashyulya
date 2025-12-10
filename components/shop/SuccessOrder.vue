@@ -19,7 +19,7 @@
     <!-- Минималистичная белая галочка -->
     <svg
       ref="icon"
-      class="absolute top-[35%] left-1/2 -translate-x-1/2 -translate-y-1/2
+      class="absolute top-[30%] left-1/2 -translate-x-1/2 -translate-y-1/2
         w-[80px] h-[80px] select-none"
       viewBox="0 0 52 52"
     >
