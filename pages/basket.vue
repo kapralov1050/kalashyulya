@@ -4,8 +4,7 @@
   >
     <div
       class="flex flex-col items-center w-[90%] sm:w-2/3 gap-y-2 rounded-4xl
-        bg-primary-0 shadow-2xl shadow-primary-500/50 dark:bg-neutral-800
-        sm:p-5"
+        bg-primary-0 shadow-2xl shadow-primary-500/50 dark:bg-neutral-800 p-5"
     >
       <AppSectionHeader
         v-if="shoppingCart.length"
@@ -112,10 +111,10 @@
         <div class="w-full flex justify-end gap-x-10 mt-4 sm:mt-6">
           <UButton
             v-if="shoppingCart.length"
-            class="w-full flex justify-center mb-8 sm:mb-0 p-2 sm:p-4
-              rounded-4xl text-neutral-900 border border-neutral-600
-              dark:text-neutral-200 dark:hover:bg-neutral-700
-              dark:hover:text-neutral-400 dark:hover:border-primary-600"
+            class="w-full flex justify-center p-2 sm:p-4 rounded-4xl
+              text-neutral-900 border border-neutral-600 dark:text-neutral-200
+              dark:hover:bg-neutral-700 dark:hover:text-neutral-400
+              dark:hover:border-primary-600"
             color="info"
             size="xl"
             variant="link"

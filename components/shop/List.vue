@@ -45,18 +45,17 @@
           @filter-by-tag="handleTagCLick"
         />
 
-        <div class="mt-8 flex justify-center col-span-full">
-          <div class="flex justify-center mt-8 col-span-full">
-            <UPagination
-              v-model:page="currentPage"
-              :total="totalItems"
-              :items-per-page="shopStore.itemsPerPage"
-              color="neutral"
-              active-color="neutral"
-              :show-controls="false"
-              @update:page="handlePageChange"
-            />
-          </div>
+        <div class="flex justify-center mt-8 col-span-full">
+          <UPagination
+            v-model:page="currentPage"
+            :total="totalItems"
+            :items-per-page="shopStore.itemsPerPage"
+            color="neutral"
+            active-color="neutral"
+            :sibling-count="1"
+            show-controls
+            @update:page="handlePageChange"
+          />
         </div>
       </template>
 
@@ -64,7 +63,7 @@
         v-if="selectedProduct && selectedProduct.id"
         v-model:open="isProductModalOpen"
         :ui="{
-          content: 'min-w-[80vw] max-h-[90vh] h-auto p-10 shadow-4xl',
+          content: 'min-w-[80vw] max-h-[70vh] h-auto shadow-4xl',
           overlay: 'bg-black/50 backdrop-blur-sm',
         }"
       >
@@ -165,7 +164,6 @@
 
     isUpdatingPage.value = true
 
-    // v-model:page уже обновил currentPage, но нужно обновить в store
     shopStore.setPage(page)
 
     // Обновляем URL
@@ -174,6 +172,7 @@
       .then(() => {
         // Прокручиваем вверх после обновления URL
         window.scrollTo({ top: 0, behavior: 'smooth' })
+        window.location.reload()
         isUpdatingPage.value = false
       })
   }
@@ -205,28 +204,6 @@
       selectedProductId.value = route.query.productModal?.toString() || null
     }
   })
-
-  // Отслеживаем изменения page в URL (например, при навигации назад/вперед)
-  watch(
-    () => route.query.page,
-    (newPage, oldPage) => {
-      // Пропускаем обновление, если мы сами обновляем страницу
-      if (isUpdatingPage.value) return
-
-      if (newPage) {
-        const page = Number(newPage)
-        if (!isNaN(page) && page > 0 && page !== currentPage.value) {
-          shopStore.setPage(page)
-          window.scrollTo({ top: 0, behavior: 'smooth' })
-        }
-      } else if (oldPage && !newPage) {
-        // Если page был удален из URL, сбрасываем на первую страницу
-        if (currentPage.value !== 1) {
-          shopStore.setPage(1)
-        }
-      }
-    },
-  )
 </script>
 
 <style scoped>
