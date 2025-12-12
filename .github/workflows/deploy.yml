@@ -87,6 +87,8 @@ jobs:
           echo "NUXT_PUBLIC_DADATA_API_KEY=${{ secrets.NUXT_PUBLIC_DADATA_API_KEY }}" >> .env
           echo "NUXT_PUBLIC_DADATA_SECRET_KEY=${{ secrets.NUXT_PUBLIC_DADATA_SECRET_KEY }}" >> .env
           echo "NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_STATS=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_STATS }}" >> .env
+          echo "NUXT_PUBLIC_STATS=${{ secrets.NUXT_PUBLIC_STATS }}" >> .env
+          echo "NUXT_PUBLIC_LOCALES=${{ secrets.NUXT_PUBLIC_LOCALES }}" >> .env
 
       - name: Build application
         run: npm run generate
