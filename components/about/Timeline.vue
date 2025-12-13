@@ -7,8 +7,8 @@
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       class="absolute top-10 left-1/2 transform -translate-x-1/2 z-[-1]
-        will-change-[stroke-dashoffset] scale-y-105 translate-y-10
-        sm:translate-y-10 sm:scale-y-100 scale-x-35 lg:scale-x-100"
+        will-change-[stroke-dashoffset] translate-y-10 sm:translate-y-10
+        scale-y-104 lg:scale-y-100 sm:hidden scale-x-35 lg:block lg:scale-x-100"
     >
       <path
         id="scrollPath"
@@ -17,6 +17,17 @@
         class="stroke-[#7FC4F8] stroke-2 sm:stroke-3 md:stroke-[5]
           lg:stroke-[7]"
       />
+      <g class="timeline-icon">
+        <circle cx="500" cy="0" r="10" fill="url(#timelineGrad)" />
+        <circle cx="500" cy="0" r="6" fill="white" />
+      </g>
+      <g class="particles" style="opacity: 0"></g>
+      <defs>
+        <linearGradient id="timelineGrad" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0" stop-color="#7FC4F8" />
+          <stop offset="1" stop-color="#4A90E2" />
+        </linearGradient>
+      </defs>
     </svg>
     <div class="container flex flex-col gap-y-25 items-center">
       <TimelineItem v-for="item in timelineText" :key="item.id" :item="item" />
