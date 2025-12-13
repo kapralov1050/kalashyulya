@@ -82,7 +82,7 @@
   }
 
   .layers__title {
-    font-size: calc(var(--index) * 3);
+    font-size: calc(var(--index) * 2.7);
     letter-spacing: calc(var(--index) / 20);
   }
 

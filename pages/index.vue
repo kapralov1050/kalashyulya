@@ -13,7 +13,7 @@
         <div class="flex justify-center mb-20">
           <UButton
             class="hover:transform hover:scale-110 transition-transform
-              duration-200"
+              duration-200 hidden sm:flex"
             icon="heroicons:arrow-up"
             size="xl"
             variant="link"

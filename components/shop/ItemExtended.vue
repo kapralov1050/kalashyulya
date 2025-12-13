@@ -1,7 +1,7 @@
 <template>
   <div
     class="h-full overflow-y-auto scrollbar-hidden grid grid-cols-1
-      lg:grid-cols-2 gap-10 md:gap-20 md:p-10"
+      lg:grid-cols-2 md:p-10"
   >
     <!-- Artwork Image (2/3 width on desktop) -->
     <div class="flex justify-center items-center">
@@ -23,11 +23,11 @@
           :mg-show="props.product.categoryId !== '5'"
           :mg-touch-offset-x="-35"
           :mg-touch-offset-y="-35"
-          class="aspect-auto object-contain"
+          class="aspect-auto object-contain max-h-[70vh]"
         />
       </UCarousel>
     </div>
-    <div class="flex flex-col bg-white dark:bg-neutral-800 p-6">
+    <div class="flex flex-col p-6">
       <h1
         class="title-font text-3xl font-bold text-neutral-900
           dark:text-neutral-100 mb-2"

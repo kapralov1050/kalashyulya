@@ -99,10 +99,6 @@
       hash: route.hash,
     })
   }
-
-  onMounted(() => {
-    console.log(props.product)
-  })
 </script>
 
 <style scoped></style>
