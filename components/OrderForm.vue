@@ -172,7 +172,7 @@
   const isSending = shallowRef(false)
   const isDelivery = shallowRef(false)
   const items = ref<CheckboxGroupItem[]>(['Вконтакте', 'Телеграм', 'Звонок'])
-  const messengerType = ref(['Вконтакте'])
+  const messengerType = ref([''])
 
   const formData = reactive({
     name: '',
@@ -183,7 +183,6 @@
     street: '',
     house: '',
     apartment: '',
-    messenger: messengerType.value,
     nickname: '',
   })
 
@@ -222,7 +221,7 @@
           name: formData.name,
           phone: formData.phone,
           email: formData.email,
-          userMessenger: formData.messenger.join(','),
+          userMessenger: messengerType.value.join(''),
           userNickname: formData.nickname,
           delivery: {
             city: formData.city,

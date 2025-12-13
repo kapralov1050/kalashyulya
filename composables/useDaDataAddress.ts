@@ -14,7 +14,6 @@ export function useDaDataAddress() {
 
   const fetchAddresses = debounce(async (query: string) => {
     if (typeof query !== 'string' || !query.trim()) {
-      console.log('test')
       suggestions.value = []
       return
     }
@@ -29,8 +28,6 @@ export function useDaDataAddress() {
     isLoading.value = true
     error.value = null
 
-    console.log('Starting DaData request with query:', query)
-    console.log('Using API key:', config.public.dadataApiKey)
     try {
       const response = await fetch(DADATA_API_URL, {
         method: 'POST',

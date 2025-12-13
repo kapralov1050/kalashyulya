@@ -94,7 +94,7 @@
     router.push({
       query: {
         ...route.query,
-        productModal: props.product.id,
+        id: props.product.id,
       },
       hash: route.hash,
     })

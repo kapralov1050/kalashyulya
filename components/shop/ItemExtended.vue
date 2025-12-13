@@ -1,5 +1,6 @@
 <template>
   <div
+    ref="contentRef"
     class="h-full overflow-y-auto scrollbar-hidden grid grid-cols-1
       lg:grid-cols-2 md:p-10"
   >
@@ -94,7 +95,7 @@
   import type { AccordionItem } from '@nuxt/ui'
   import VueMagnifier from '@websitebeaver/vue-magnifier'
   import '@websitebeaver/vue-magnifier/styles.css'
-  import { onMounted, ref } from 'vue'
+  import { nextTick, onMounted, ref } from 'vue'
   import { useProductViews } from '~/composables/useProductViews'
   import type { Product } from '~/types'
 
@@ -104,8 +105,9 @@
 
   const { addShopItemToBasket } = useBasketStore()
   const { shoppingCart } = storeToRefs(useBasketStore())
-  const { params } = useRoute()
-  const productId = String(params.id)
+  const route = useRoute()
+
+  const productId = String(route.query.id)
   const { trackView, getViews } = useProductViews(productId)
   const [isLoading, setLoading] = useToggle(false)
 
@@ -164,9 +166,38 @@
     setLoading(false)
   }
 
+  const contentRef = ref<HTMLElement | null>(null)
+
+  const animateScroll = () => {
+    const container = contentRef.value
+    if (!container) return
+
+    const start = Date.now()
+    const duration = 1500
+    const scrollDistance = 100
+
+    const step = () => {
+      const elapsed = Date.now() - start
+      const progress = elapsed / duration
+
+      if (progress < 1) {
+        const y = scrollDistance * Math.sin(progress * Math.PI)
+        container.scrollTop = y
+        requestAnimationFrame(step)
+      } else {
+        container.scrollTop = 0
+      }
+    }
+
+    requestAnimationFrame(step)
+  }
+
   onMounted(() => {
     trackView()
     views.value = getViews().value
+    nextTick(() => {
+      animateScroll()
+    })
 
     // SEO метаданные
     const config = useRuntimeConfig()

@@ -187,7 +187,7 @@
   }
 
   watch(
-    () => route.query.productModal,
+    () => route.query.id,
     newVal => {
       isProductModalOpen.value = !!newVal
       selectedProductId.value = newVal?.toString() || null
@@ -195,8 +195,8 @@
   )
 
   watch(isProductModalOpen, isOpen => {
-    if (!isOpen && route.query.productModal) {
-      router.replace({ query: { ...route.query, productModal: undefined } })
+    if (!isOpen && route.query.id) {
+      router.replace({ query: { ...route.query, id: undefined } })
     }
   })
 
@@ -208,9 +208,9 @@
       }
     }
 
-    if (route.query.productModal) {
+    if (route.query.id) {
       isProductModalOpen.value = true
-      selectedProductId.value = route.query.productModal?.toString() || null
+      selectedProductId.value = route.query.id?.toString() || null
     }
   })
 </script>

@@ -13,7 +13,7 @@ export const useProductViews = (productId: string) => {
   const viewsKey = `product-${productId}-viewed`
 
   const trackView = async () => {
-    if (sessionStorage.getItem(viewsKey)) return
+    if (sessionStorage.getItem(viewsKey) || !productId) return
 
     try {
       const updates = {} as Record<string, any>

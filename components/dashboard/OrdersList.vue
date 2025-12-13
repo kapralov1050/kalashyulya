@@ -187,7 +187,6 @@
   })
 
   function updateStatus(id: number, status: string) {
-    console.log(id, status)
     updateOrderStatus(id, status)
   }
 </script>
