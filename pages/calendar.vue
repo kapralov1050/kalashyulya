@@ -65,7 +65,7 @@
                 icon="heroicons:shopping-cart"
                 size="xl"
                 variant="outline"
-                :to="`/shop/${calendar.id}`"
+                @click="openProductPage(calendar.id)"
               >
                 купить!
               </UButton>
@@ -83,6 +83,8 @@
   import { onMounted } from 'vue'
   const shopStore = useShopStore()
   const { allProducts } = storeToRefs(shopStore)
+  const router = useRouter()
+  const route = useRoute()
 
   const calendars = computed(() => {
     return allProducts.value.filter(product => product.categoryId === '5')
@@ -105,6 +107,17 @@
         ease: 'power2.inOut',
       },
     )
+  }
+
+  function openProductPage(calendarId: number) {
+    metrics.trackButtonClick('productExtendedButton')
+    router.push({
+      path: '/shop',
+      query: {
+        ...route.query,
+        id: calendarId,
+      },
+    })
   }
 
   onMounted(async () => {

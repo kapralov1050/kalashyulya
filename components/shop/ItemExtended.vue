@@ -2,13 +2,13 @@
   <div
     ref="contentRef"
     class="h-full overflow-y-auto scrollbar-hidden grid grid-cols-1
-      lg:grid-cols-2 md:p-10"
+      lg:grid-cols-2 gap-5 md:p-10"
   >
     <!-- Artwork Image (2/3 width on desktop) -->
     <div class="flex justify-center items-center">
       <UCarousel
         v-slot="{ item }"
-        :arrows="props.product.image.length > 1"
+        :dots="props.product.image.length > 1"
         :items="props.product.image"
         loop
         touch="false"
@@ -24,7 +24,7 @@
           :mg-show="props.product.categoryId !== '5'"
           :mg-touch-offset-x="-35"
           :mg-touch-offset-y="-35"
-          class="aspect-auto object-contain max-h-[70vh]"
+          class="aspect-auto object-contain max-h-[50vh] p-5"
         />
       </UCarousel>
     </div>

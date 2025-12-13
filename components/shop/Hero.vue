@@ -46,15 +46,6 @@
           >
             {{ printLocale('shop_searchButton') }}
           </UButton>
-          <UButton
-            v-if="shopStore.searchedProducts"
-            color="secondary"
-            size="lg"
-            class="dark:text-neutral-800"
-            @click="resetSearch"
-          >
-            Очистить
-          </UButton>
         </div>
       </UForm>
 
@@ -102,6 +93,15 @@
           </template>
         </UModal>
       </div>
+      <UButton
+        v-if="shopStore.searchedProducts"
+        color="secondary"
+        size="lg"
+        class="dark:text-neutral-800"
+        @click="resetSearch"
+      >
+        {{ printLocale('shop_clear_filters') }}
+      </UButton>
     </div>
   </section>
 </template>
