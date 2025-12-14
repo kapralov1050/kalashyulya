@@ -53,27 +53,41 @@ export const appConfig: NuxtConfig['app'] = {
       { name: 'apple-mobile-web-app-title', content: siteName },
     ],
     link: [
-      {
-        rel: 'icon',
-        type: 'image/svg+xml',
-        href: '/PaintBrush.svg',
-      },
+      { rel: 'icon', type: 'image/x-icon', href: '/icon-rel.ico' },
+
+      // PNG для разных размеров
       {
         rel: 'icon',
         type: 'image/png',
         sizes: '32x32',
-        href: '/favicon-32x32.png',
+        href: '/icon-rel.png',
       },
       {
         rel: 'icon',
         type: 'image/png',
         sizes: '16x16',
-        href: '/favicon-16x16.png',
+        href: '/icon-rel.png',
       },
+
+      // Apple Touch Icon (обязательно PNG)
       {
         rel: 'apple-touch-icon',
         sizes: '180x180',
-        href: '/apple-touch-icon.png',
+        href: '/icon-rel.png',
+      },
+
+      // Для Android/современных браузеров
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '192x192',
+        href: '/icon-rel.png',
+      },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '512x512',
+        href: '/icon-rel.png',
       },
       {
         rel: 'manifest',
