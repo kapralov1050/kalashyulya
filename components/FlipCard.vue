@@ -22,7 +22,15 @@
           rotate-y-180 overflow-hidden"
       >
         <h3 class="text-xl font-bold mb-2 text-center">{{ title }}</h3>
-        <p class="text-sm text-center leading-relaxed">{{ description }}</p>
+
+        <div class="w-full overflow-hidden">
+          <p
+            class="text-sm text-center leading-relaxed line-clamp-4
+              hover:line-clamp-none transition-all duration-200"
+          >
+            {{ description }}
+          </p>
+        </div>
       </div>
     </div>
   </div>

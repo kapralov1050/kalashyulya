@@ -1,17 +1,37 @@
 :root {
-  --base-layer: url(/base-layer.webp);
-  --middle-layer: url(/middle-layer.webp);
-  --front-layer: url(/front-layer.webp);
-  --water-layer: url(/water.webp);
+  --base-layer: url(/base-layer_mobile.webp);
+  --middle-layer: url(/middle-layer_mobile.webp);
+  --front-layer: url(/front-layer_mobile.webp);
+  --water-layer: url(/water_mobile.webp);
   --preloader: url(/preloader.webp);
+  --main-color: rgb(126, 126, 126);
 }
 
 .dark {
-  --base-layer: url(/dark_base-layer.webp);
-  --middle-layer: url(/dark_middle-layer.webp);
-  --front-layer: url(/dark_front-layer.webp);
-  --water-layer: url(/dark_water.webp);
+  --base-layer: url(/dark_base-layer_mobile.webp);
+  --middle-layer: url(/dark_middle-layer_mobile.webp);
+  --front-layer: url(/dark_front-layer_mobile.webp);
+  --water-layer: url(/dark_water_mobile.webp);
   --preloader: url(/dark_preloader.webp);
+  --main-color: rgb(0, 0, 0);
+}
+
+@media (min-width: 768px) {
+  :root {
+    --base-layer: url(/base-layer.webp);
+    --middle-layer: url(/middle-layer.webp);
+    --front-layer: url(/front-layer.webp);
+    --water-layer: url(/water.webp);
+    --preloader: url(/preloader.webp);
+  }
+
+  .dark {
+    --base-layer: url(/dark_base-layer.webp);
+    --middle-layer: url(/dark_middle-layer.webp);
+    --front-layer: url(/dark_front-layer.webp);
+    --water-layer: url(/dark_water.webp);
+    --preloader: url(/dark_preloader.webp);
+  }
 }
 
 @import 'tailwindcss';

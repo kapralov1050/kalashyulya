@@ -160,7 +160,13 @@
   }
 
   function handleTagCLick(tag: string) {
-    searchedProducts.value = shopStore.filterProductsByTag(tag)
+    if (shopStore.selectedTags.includes(tag)) {
+      shopStore.removeTag(tag)
+    } else {
+      shopStore.addTag(tag)
+    }
+
+    searchedProducts.value = shopStore.filterProductsByTags()
 
     if (route.query.page) {
       router.push({ query: { ...route.query, page: undefined } })

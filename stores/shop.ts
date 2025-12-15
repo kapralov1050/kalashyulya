@@ -10,6 +10,7 @@ export const useShopStore = defineStore('shop', () => {
   const currentPage = ref(1)
   const itemsPerPage = ref(12)
   const sortBy = ref<string>('default')
+  const selectedTags = ref<string[]>([])
 
   // При изменении фильтра категории очищаем searchedProducts и сбрасываем страницу
   watch(categoryFilter, (newValue, oldValue) => {
@@ -47,6 +48,13 @@ export const useShopStore = defineStore('shop', () => {
     if (categoryFilter.value) {
       products = products.filter(
         prod => prod.categoryId === categoryFilter.value,
+      )
+    }
+
+    // Фильтрация по тегам
+    if (selectedTags.value.length > 0) {
+      products = products.filter(prod =>
+        selectedTags.value.every(tag => prod.tags?.includes(tag)),
       )
     }
 
@@ -100,10 +108,31 @@ export const useShopStore = defineStore('shop', () => {
     )
   }
 
+  function addTag(tag: string) {
+    if (!selectedTags.value.includes(tag)) {
+      selectedTags.value.push(tag)
+    }
+  }
+
+  function removeTag(tag: string) {
+    selectedTags.value = selectedTags.value.filter(t => t !== tag)
+  }
+
+  function clearTags() {
+    selectedTags.value = []
+  }
+
   function filterProductsByTag(tag: string) {
+    addTag(tag)
+    return filterProductsByTags()
+  }
+
+  function filterProductsByTags() {
     if (!allProducts.value) return []
 
-    const filtered = allProducts.value.filter(prod => prod.tags.includes(tag))
+    const filtered = allProducts.value.filter(prod =>
+      selectedTags.value.every(tag => prod.tags?.includes(tag)),
+    )
     searchedProducts.value = filtered
     currentPage.value = 1
 
@@ -132,6 +161,7 @@ export const useShopStore = defineStore('shop', () => {
     findProduct,
     getProductFileName,
     filterProductsByTag,
+    filterProductsByTags,
     searchedProducts,
     shopData,
     allProducts,
@@ -142,8 +172,12 @@ export const useShopStore = defineStore('shop', () => {
     totalItems: computedTotalItems,
     categoryFilter,
     sortBy,
+    selectedTags,
     setPage,
     setItemsPerPage,
     setSortBy,
+    addTag,
+    removeTag,
+    clearTags,
   }
 })

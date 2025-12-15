@@ -20,7 +20,7 @@
       auto-scroll
       wheel-gestures
       loop
-      :items="shopStore.allProducts"
+      :items="productsForGallery"
       :ui="{ item: 'basis-1/1 sm:basis-1/2 lg:basis-1/3' }"
     >
       <div class="flex flex-col items-center">
@@ -37,5 +37,9 @@
 
 <script setup lang="ts">
   const shopStore = useShopStore()
+
+  const productsForGallery = computed(() => {
+    return shopStore.allProducts.filter(prod => prod.categoryId === '1')
+  })
   const { printLocale } = useLocales()
 </script>

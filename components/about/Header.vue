@@ -25,22 +25,6 @@
 
 <script setup>
   const { printLocale } = useLocales()
-
-  const container = ref(null)
-
-  // onMounted(() => {
-  //   gsap.registerPlugin(SplitText)
-
-  //   const split = new SplitText(container.value, { type: 'lines' })
-
-  //   gsap.from(split.lines, {
-  //     duration: 2,
-  //     y: 100,
-  //     autoAlpha: 0,
-  //     stagger: 0.05,
-  //     delay: 2,
-  //   })
-  // })
 </script>
 
 <style scoped>
@@ -79,16 +63,17 @@
     font-size: calc(var(--index) * 1.2);
     letter-spacing: calc(var(--index) / 30);
     margin-top: calc(var(--index) / -0.07);
+    color: var(--main-color);
   }
 
   .layers__title {
     font-size: calc(var(--index) * 2.7);
     letter-spacing: calc(var(--index) / 20);
+    color: var(--main-color);
   }
 
   .layers__base {
     top: calc(var(--index) * -5);
-    transition: var(--transition);
     background-image: var(--base-layer);
     transform: translate3d(0, calc(var(--scrollTop) / 1.5), 0);
     z-index: 0;

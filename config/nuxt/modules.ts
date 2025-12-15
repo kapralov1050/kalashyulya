@@ -9,4 +9,5 @@ export const modulesConfig: NuxtConfig['modules'] = [
   '@nuxt/image',
   'nuxt-vuefire',
   '@vueuse/nuxt',
+  '@nuxtjs/device',
 ]

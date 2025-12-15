@@ -93,6 +93,25 @@
           </template>
         </UModal>
       </div>
+      <div
+        v-if="shopStore.selectedTags.length > 0"
+        class="flex flex-wrap gap-2"
+      >
+        <UBadge
+          v-for="tag in shopStore.selectedTags"
+          :key="tag"
+          color="primary"
+          variant="solid"
+          class="cursor-pointer hover:opacity-80 transition-opacity"
+          @click="() => {
+            shopStore.removeTag(tag);
+            shopStore.filterProductsByTags();
+          }"
+        >
+          {{ tag }}
+          <UIcon name="i-heroicons-x-mark-16-solid" class="w-4 h-4 ml-1" />
+        </UBadge>
+      </div>
       <UButton
         v-if="shopStore.searchedProducts"
         color="secondary"
@@ -196,8 +215,8 @@
 
   const resetSearch = () => {
     shopStore.searchedProducts = null
+    shopStore.clearTags()
     searchState.title = ''
-    // Сбрасываем страницу и убираем page из URL при сбросе поиска
     shopStore.setPage(1)
     if (route.query.page) {
       router.push({ query: { ...route.query, page: undefined } })

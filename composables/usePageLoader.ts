@@ -6,7 +6,7 @@ export const usePageLoader = () => {
     nextTick(() => {
       setTimeout(() => {
         isLoading.value = false
-      }, 2000)
+      }, 1300)
     })
   }
 

@@ -82,15 +82,30 @@
       },
     })
 
+    const isMobile = window.innerWidth < 768
+    const isDarkTheme = window.matchMedia(
+      '(prefers-color-scheme: dark)',
+    ).matches
+
+    const themePrefix = isDarkTheme ? 'dark_' : ''
+    const fileSuffix = isMobile ? '_mobile' : ''
+
     await loadImages([
-      '/base-layer.webp',
-      '/middle-layer.webp',
-      '/front-layer.webp',
-      '/water.webp',
-      '/dark_base-layer.webp',
-      '/dark_middle-layer.webp',
-      '/dark_front-layer.webp',
-      '/dark_water.webp',
+      `/base-layer${fileSuffix}.webp`,
+      `/middle-layer${fileSuffix}.webp`,
+      `/front-layer${fileSuffix}.webp`,
+      `/water${fileSuffix}.webp`,
+      `/dark_base-layer${fileSuffix}.webp`,
+      `/dark_middle-layer${fileSuffix}.webp`,
+      `/dark_front-layer${fileSuffix}.webp`,
+      `/dark_water${fileSuffix}.webp`,
+    ])
+
+    await loadImages([
+      `/${themePrefix}base-layer${fileSuffix}.webp`,
+      `/${themePrefix}middle-layer${fileSuffix}.webp`,
+      `/${themePrefix}front-layer${fileSuffix}.webp`,
+      `/${themePrefix}water${fileSuffix}.webp`,
     ])
 
     isLoading.value = false
