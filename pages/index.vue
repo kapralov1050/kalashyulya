@@ -1,10 +1,10 @@
 <template>
-  <Transition name="fade">
-    <section v-if="isLoading">
+  <TransitionGroup name="fade">
+    <template v-if="isLoading">
       <AppPreloaderSpinner />
       <SnowEffect />
-    </section>
-  </Transition>
+    </template>
+  </TransitionGroup>
 
   <div id="wrapper">
     <div id="content">

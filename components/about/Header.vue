@@ -6,13 +6,15 @@
       after:bottom-[calc(var(--index)*-4.2)]
       dark:after:bg-[url(/dark_water.webp)]"
   >
-    <div
-      ref="snowContainerRef"
-      class="fixed inset-0 pointer-events-none z-0"
-    ></div>
     <section class="layers">
-      <div ref="container" class="layer__header">
-        <img src="/logo.png" />
+      <div
+        ref="container"
+        class="layer__header dark:text-neutral-700 text-neutral-500"
+      >
+        <h3 class="layers__caption">
+          {{ printLocale('about_header_subtitle') }}
+        </h3>
+        <h1 class="layers__title">{{ printLocale('about_header_title') }}</h1>
       </div>
       <div class="layer layers__base"></div>
       <div class="layer layers__middle"></div>
@@ -53,14 +55,20 @@
     z-index: 1;
     transform: translate3d(0, calc(var(--scrollTop) / 2), 0);
     transition: var(--transition-header-title);
-    margin-bottom: 400px;
     will-change: transform;
+    font-weight: 900;
   }
 
   .layers__caption {
     font-size: calc(var(--index) * 1.2);
     letter-spacing: calc(var(--index) / 30);
     margin-top: calc(var(--index) / -0.07);
+    color: var(--main-color);
+  }
+
+  .layers__title {
+    font-size: calc(var(--index) * 2.7);
+    letter-spacing: calc(var(--index) / 20);
     color: var(--main-color);
   }
 
