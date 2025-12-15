@@ -8,7 +8,7 @@
       xmlns="http://www.w3.org/2000/svg"
       class="absolute top-10 left-1/2 transform -translate-x-1/2 z-[-1]
         will-change-[stroke-dashoffset] translate-y-18 sm:translate-y-10
-        scale-y-106 lg:scale-y-100 sm:hidden scale-x-35 lg:block lg:scale-x-100"
+        scale-y-107 lg:scale-y-100 sm:hidden scale-x-35 lg:block lg:scale-x-100"
     >
       <path
         id="scrollPath"

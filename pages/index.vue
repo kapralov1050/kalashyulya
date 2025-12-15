@@ -1,6 +1,9 @@
 <template>
   <Transition name="fade">
-    <AppPreloaderSpinner v-if="isLoading" />
+    <section v-if="isLoading">
+      <AppPreloaderSpinner />
+      <SnowEffect />
+    </section>
   </Transition>
 
   <div id="wrapper">

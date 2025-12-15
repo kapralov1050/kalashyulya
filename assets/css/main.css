@@ -4,7 +4,7 @@
   --front-layer: url(/front-layer_mobile.webp);
   --water-layer: url(/water_mobile.webp);
   --preloader: url(/preloader.webp);
-  --main-color: rgb(126, 126, 126);
+  --main-color: rgb(75, 75, 75);
 }
 
 .dark {
