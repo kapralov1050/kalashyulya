@@ -7,6 +7,10 @@
         <p class="text-gray-600 mt-2">Аналитика переходов и кликов</p>
       </div>
 
+      <div v-if="statsStore.stats" class="mb-8">
+        <StatsCharts :stats-data="statsStore.stats" />
+      </div>
+
       <!-- Кнопка обновления -->
       <div class="mb-6">
         <button
@@ -215,6 +219,7 @@
 <script setup>
   import { computed, onMounted, ref } from 'vue'
   import { useStatsStore } from '~/stores/stats'
+  import StatsCharts from './StatsCharts.vue'
 
   const statsStore = useStatsStore()
   const loading = ref(false)

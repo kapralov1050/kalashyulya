@@ -34,6 +34,7 @@
     "@vueuse/nuxt": "^13.5.0",
     "@websitebeaver/vue-magnifier": "^1.1.0",
     "chart.js": "^4.5.1",
+    "chartjs-plugin-autocolors": "^0.3.1",
     "eslint": "^9.0.0",
     "firebase": "^11.10.0",
     "gsap": "^3.13.0",

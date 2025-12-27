@@ -1,5 +1,7 @@
+import type { StatsData } from '~/types/metrics'
+
 export const useStatsStore = defineStore('stats', () => {
-  const stats = ref<import('~/types/metrics').StatsData | null>(null)
+  const stats = ref<StatsData | null>(null)
   const config = useRuntimeConfig()
 
   async function fetchStats() {
