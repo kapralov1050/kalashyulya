@@ -75,14 +75,37 @@
                   :key="dayData.date"
                   class="px-6 py-4 hover:bg-gray-50 transition-colors"
                 >
-                  <div class="flex items-center justify-between mb-4">
-                    <span class="text-sm text-gray-500">
+                  <button
+                    class="flex items-center justify-between w-full mb-4
+                      cursor-pointer"
+                    @click="toggleDay(dayData.date)"
+                  >
+                    <span class="text-xl font-medium text-gray-700">
                       {{ formatDate(dayData.date) }}
                     </span>
-                  </div>
+                    <svg
+                      :class="[
+                        'w-5 h-5 text-gray-500 transition-transform',
+                        expandedDays.has(dayData.date) ? 'rotate-180' : '',
+                      ]"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </button>
 
                   <!-- Статистика по событиям -->
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div
+                    v-show="expandedDays.has(dayData.date)"
+                    class="grid grid-cols-1 md:grid-cols-2 gap-4"
+                  >
                     <!-- Переходы на страницы -->
                     <div class="space-y-3">
                       <h5
@@ -152,32 +175,32 @@
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  <!-- Общая статистика дня -->
-                  <div class="mt-4 pt-4 border-t">
-                    <div class="flex items-center justify-between text-sm">
-                      <div class="flex items-center space-x-4">
-                        <span class="flex items-center">
-                          <span
-                            class="w-3 h-3 bg-blue-500 rounded-full mr-1"
-                          ></span>
-                          <span class="text-gray-600">
-                            Переходы: {{ dayData.pageViews }}
+                    <!-- Общая статистика дня -->
+                    <div class="mt-4 pt-4 border-t">
+                      <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center space-x-4">
+                          <span class="flex items-center">
+                            <span
+                              class="w-3 h-3 bg-blue-500 rounded-full mr-1"
+                            ></span>
+                            <span class="text-gray-600">
+                              Переходы: {{ dayData.pageViews }}
+                            </span>
                           </span>
-                        </span>
-                        <span class="flex items-center">
-                          <span
-                            class="w-3 h-3 bg-green-500 rounded-full mr-1"
-                          ></span>
-                          <span class="text-gray-600">
-                            Клики: {{ dayData.buttonClicks }}
+                          <span class="flex items-center">
+                            <span
+                              class="w-3 h-3 bg-green-500 rounded-full mr-1"
+                            ></span>
+                            <span class="text-gray-600">
+                              Клики: {{ dayData.buttonClicks }}
+                            </span>
                           </span>
+                        </div>
+                        <span class="font-medium text-gray-900">
+                          Всего: {{ dayData.totalEvents }}
                         </span>
                       </div>
-                      <span class="font-medium text-gray-900">
-                        Всего: {{ dayData.totalEvents }}
-                      </span>
                     </div>
                   </div>
                 </div>
@@ -186,7 +209,6 @@
           </div>
         </div>
       </div>
-
       <!-- Состояние отсутствия данных -->
       <div v-else class="text-center py-12">
         <div class="text-gray-400 mb-4">
@@ -224,6 +246,7 @@
   const statsStore = useStatsStore()
   const loading = ref(false)
   const error = ref(null)
+  const expandedDays = ref(new Set())
 
   // Обработанные данные для удобного отображения
   const processedStats = computed(() => {
@@ -365,6 +388,15 @@
     const eventName = name.split('_')[1]
 
     return nameMap[eventName] || name.charAt(0).toUpperCase() + name.slice(1)
+  }
+
+  // Функция переключения состояния развернутости дня
+  const toggleDay = date => {
+    if (expandedDays.value.has(date)) {
+      expandedDays.value.delete(date)
+    } else {
+      expandedDays.value.add(date)
+    }
   }
 
   // Функция загрузки данных
