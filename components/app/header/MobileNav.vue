@@ -44,6 +44,17 @@
             {{ printLocale('header_shop') }}
           </UButton>
         </li>
+        <li>
+          <UButton
+            class="text-2xl"
+            color="neutral"
+            variant="link"
+            to="/exhibitions"
+            :prefetch="false"
+          >
+            {{ printLocale('header_exhibition') }}
+          </UButton>
+        </li>
         <!-- <li>
           <UButton
             v-for="locale in availableLocales"
