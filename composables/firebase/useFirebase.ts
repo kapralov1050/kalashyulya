@@ -5,6 +5,7 @@ import {
   updateDataByPath,
 } from '~/helpers/firebase/manageDatabase'
 import type {
+  ExhibitionsData,
   LessonsTags,
   Order,
   OrderInBase,
@@ -18,6 +19,9 @@ export const useFirebase = () => {
   const ordersData = useDatabaseObject<OrderInBase[]>(dbRef(db, 'orders'))
   const lessonsTagsData = useDatabaseObject<LessonsTags>(
     dbRef(db, 'lessonsTags'),
+  )
+  const exhibitionsData = useDatabaseObject<ExhibitionsData>(
+    dbRef(db, 'exhibitions'),
   )
   const auth = getAuth()
 
@@ -68,6 +72,7 @@ export const useFirebase = () => {
     shopData,
     ordersData,
     lessonsTagsData,
+    exhibitionsData,
     isLoading,
     logOut,
     addNewProduct,

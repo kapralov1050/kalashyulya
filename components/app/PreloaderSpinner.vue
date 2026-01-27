@@ -4,7 +4,7 @@
   </div>
 </template>
 
-<style scoped>
+<style>
   .preloader-container {
     z-index: 1001;
     position: fixed;

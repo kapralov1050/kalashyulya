@@ -16,6 +16,16 @@
           {{ printLocale('header_calendar') }}
         </UButton>
       </li>
+      <li>
+        <UButton
+          color="neutral"
+          variant="link"
+          to="/exhibitions"
+          :prefetch="false"
+        >
+          {{ printLocale('header_exhibition') }}
+        </UButton>
+      </li>
       <!-- <li>
         <UButton color="neutral" variant="link" to="/lessons">
           {{ printLocale('header_navLessons') }}

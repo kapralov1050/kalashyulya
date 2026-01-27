@@ -100,3 +100,47 @@ export interface TimelineItem {
   text: string
   Image: string
 }
+
+export type ExhibitionStatus = 'planned' | 'ongoing' | 'finished'
+
+export interface ExhibitionScheduleDay {
+  id: string
+  label: string
+  time: string
+  isClosed?: boolean
+}
+
+export interface ExhibitionLocation {
+  venue: string
+  city: string
+  addressLine: string
+  metro: string[]
+  mapLink: string
+}
+
+export interface ExhibitionWork {
+  id: number
+  title: string
+  subtitle?: string
+  image: string
+  meta?: string
+}
+
+export interface Exhibition {
+  id: number
+  slug: string
+  title: string
+  shortDescription: string
+  status: ExhibitionStatus
+  dateRange: string
+  coverImage: string
+  schedule: ExhibitionScheduleDay[]
+  location: ExhibitionLocation
+  descriptionIntro: string
+  descriptionBody: string
+  works: ExhibitionWork[]
+}
+
+// Firebase
+
+export type ExhibitionsData = Record<string, any>
