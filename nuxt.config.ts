@@ -10,6 +10,9 @@ export default defineNuxtConfig({
   ssr: false,
   nitro: {
     preset: 'static',
+    prerender: {
+      routes: ['/exhibitions/tikhij-svet-zimy'],
+    },
   },
   test: true,
   runtimeConfig: runtimeConfig,
