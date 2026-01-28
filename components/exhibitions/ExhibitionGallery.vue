@@ -1,7 +1,7 @@
 <template>
   <section class="container mb-16">
     <header
-      class="mb-8 flex flex-col items-start gap-3 sm:flex-row sm:items-end
+      class="mb-8 flex flex-col items-center gap-3 sm:flex-row sm:items-end
         sm:justify-between"
     >
       <div>
