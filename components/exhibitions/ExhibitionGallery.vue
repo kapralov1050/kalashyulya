@@ -9,10 +9,10 @@
           class="text-2xl font-semibold tracking-tight text-neutral-900
             dark:text-white sm:text-3xl"
         >
-          Доступны в магазине
+          Представленные акварели
         </h2>
         <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-300">
-          Небольшая подборка произведений из экспозиции.
+          Их можно купить после завершения выставки
         </p>
       </div>
     </header>
@@ -23,7 +23,8 @@
       :ui="{
         item: 'basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4',
       }"
-      :arrows="false"
+      dots
+      autoplay
       class="w-full"
     >
       <ShopItem
@@ -48,8 +49,8 @@
 </template>
 
 <script setup lang="ts">
-  import type { ExhibitionWork, Product } from '~/types'
   import ShopItem from '~/components/shop/Item.vue'
+  import type { ExhibitionWork, Product } from '~/types'
 
   const props = defineProps<{
     works: ExhibitionWork[]

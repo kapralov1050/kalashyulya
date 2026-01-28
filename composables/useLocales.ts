@@ -1,5 +1,6 @@
 export type LocaleOptions = {
   breakLn?: boolean
+  noBreakLn?: boolean
   capitalize?: boolean
   lowercase?: boolean
   uppercase?: boolean
@@ -13,6 +14,7 @@ export function useLocales() {
   function printLocale(key: string, options?: LocaleOptions): string {
     const {
       breakLn = false,
+      noBreakLn = false,
       capitalize = false,
       lowercase = false,
       uppercase = false,
@@ -24,7 +26,8 @@ export function useLocales() {
       return ''
     }
 
-    const value = locales.value[key] || defaultValue
+    const value = locales.value[key] || key
+
     if (!value) {
       console.warn(`Locale key "${key}" not found`)
       return defaultValue
@@ -38,8 +41,18 @@ export function useLocales() {
       }
     }
 
+    if (noBreakLn) {
+      result = result
+        .replace(/\\n/g, ' ') // строка "\n"
+        .replace(/\n/g, ' ') // настоящий символ новой строки
+        .replace(/\r\n/g, ' ') // Windows-style CRLF
+    }
+
     if (breakLn) {
-      result = result.replace(/\n/g, '<br/>')
+      result = result
+        .replace(/\\n/g, '<br/>') // строка "\n"
+        .replace(/\n/g, '<br/>') // настоящий символ новой строки
+        .replace(/\r\n/g, '<br/>') // Windows-style CRLF
     }
 
     if (capitalize) {

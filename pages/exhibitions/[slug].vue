@@ -18,7 +18,7 @@
         />
       </div>
 
-      <div class="container relative z-10 pb-12 pt-20">
+      <div class="container relative z-5 pb-12 pt-20">
         <div class="mx-auto max-w-4xl space-y-6 text-center text-white">
           <!-- Статус -->
           <div
@@ -39,9 +39,8 @@
           <h1
             class="text-3xl font-black tracking-tight sm:text-4xl md:text-5xl
               lg:text-6xl"
-          >
-            {{ exhibition.title }}
-          </h1>
+            v-html="printLocale(exhibition.title, { breakLn: true })"
+          />
         </div>
       </div>
     </section>
@@ -128,7 +127,11 @@
         </h2>
         <div class="space-y-4 text-neutral-700 dark:text-neutral-200">
           <p>{{ exhibition?.descriptionIntro }}</p>
-          <p>{{ exhibition?.descriptionBody }}</p>
+          <p
+            v-html="
+              printLocale(exhibition?.descriptionBody || '', { breakLn: true })
+            "
+          />
         </div>
       </div>
     </section>
@@ -206,6 +209,7 @@
 
   const route = useRoute()
   const exhibitionsStore = useExhibitionsStore()
+  const { printLocale } = useLocales()
 
   const slug = computed(() => route.params.slug as string)
   const exhibitionRef = exhibitionsStore.getBySlug(slug.value)
@@ -257,7 +261,7 @@
   })
 
   useSeo({
-    title: exhibition.value?.title || 'Выставка',
+    title: printLocale(exhibition.value?.title || '', { noBreakLn: true }),
     description: exhibition.value?.shortDescription || 'Выставка художника.',
     image: exhibition.value?.coverImage || '/logo.png',
   })
