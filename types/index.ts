@@ -129,6 +129,7 @@ export interface ExhibitionWork {
 export interface Exhibition {
   id: number
   slug: string
+  tabTitle: string
   title: string
   shortDescription: string
   status: ExhibitionStatus

@@ -186,7 +186,10 @@
     </UModal>
 
     <!-- Галерея -->
-    <ExhibitionGallery v-if="exhibition" :works="exhibition.works" />
+    <ExhibitionGallery
+      v-if="exhibition && exhibition.status !== 'planned'"
+      :works="exhibition.works"
+    />
 
     <section
       v-if="!exhibition"
@@ -261,7 +264,7 @@
   })
 
   useSeo({
-    title: printLocale(exhibition.value?.title || '', { noBreakLn: true }),
+    title: exhibition.value?.tabTitle,
     description: exhibition.value?.shortDescription || 'Выставка художника.',
     image: exhibition.value?.coverImage || '/logo.png',
   })

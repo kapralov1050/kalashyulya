@@ -34,9 +34,8 @@
         <h3
           class="line-clamp-2 text-base font-semibold text-neutral-900
             dark:text-white"
-        >
-          {{ exhibition.title }}
-        </h3>
+          v-html="printLocale(exhibition?.title || '', { breakLn: true })"
+        />
         <p
           class="text-xs font-medium uppercase tracking-wide text-neutral-500
             dark:text-neutral-400"
@@ -62,6 +61,7 @@
   }>()
 
   const { getStatusLabel } = useExhibitionsStore()
+  const { printLocale } = useLocales()
 
   const statusLabel = computed(() => getStatusLabel(props.exhibition.status))
 
