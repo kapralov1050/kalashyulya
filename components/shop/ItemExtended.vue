@@ -73,19 +73,29 @@
           </span>
           <span class="text-green-600 font-medium">В наличии</span>
         </div>
-        <UButton
-          class="w-full bg-neutral-900 dark:bg-neutral-400 hover:bg-neutral-700
-            text-white py-3 px-6 rounded-md font-medium transition flex
-            items-center justify-center gap-2"
-          :color="isInBasket ? 'success' : 'secondary'"
-          :disabled="isInBasket"
-          :loading="isLoading"
-          @click="addToBasket(props.product)"
-        >
-          <span>
-            {{ isInBasket ? 'В корзине' : 'Добавить в корзину' }}
-          </span>
-        </UButton>
+        <div class="flex flex-col gap-3">
+          <ShopARButton
+            v-if="props.product.image[0]"
+            :ar-model="props.product.arModel"
+            :image="props.product.image[0]"
+            :size="props.product.size"
+            :alt="props.product.title"
+            color="neutral"
+          />
+          <UButton
+            class="w-full bg-neutral-900 dark:bg-neutral-400 hover:bg-neutral-700
+              text-white py-3 px-6 rounded-md font-medium transition flex
+              items-center justify-center gap-2"
+            :color="isInBasket ? 'success' : 'secondary'"
+            :disabled="isInBasket"
+            :loading="isLoading"
+            @click="addToBasket(props.product)"
+          >
+            <span>
+              {{ isInBasket ? 'В корзине' : 'Добавить в корзину' }}
+            </span>
+          </UButton>
+        </div>
       </div>
     </div>
   </div>

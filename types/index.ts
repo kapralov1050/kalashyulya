@@ -12,6 +12,7 @@ export interface Product {
   price: number
   stock: number
   tags: string[]
+  arModel?: string // Опциональная AR-модель (GLB/GLTF) для просмотра в пространстве
 }
 
 export interface ShopData {
