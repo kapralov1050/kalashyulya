@@ -23,7 +23,7 @@
         </div>
       </template>
 
-      <template v-else-if="false">
+      <template v-else-if="error">
         <UAlert
           title="Ошибка загрузки товаров"
           :description="errorMessage"
@@ -134,7 +134,8 @@
   })
 
   const checkStatus = (prod: Product) => {
-    return basketStore.shoppingCart.some(el => el.item.id === prod.id)
+    const { isInBasket } = useProductInBasket(prod.id)
+    return isInBasket.value
   }
 
   const addToBasket = async (product: Product) => {

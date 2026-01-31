@@ -116,9 +116,7 @@
                       </h5>
                       <div class="space-y-2">
                         <div
-                          v-for="event in dayData.events.filter(
-                            e => e.type === 'page_view',
-                          )"
+                          v-for="event in getEventsByType(dayData, 'page_view')"
                           :key="event.name"
                           class="flex items-center justify-between p-3
                             bg-blue-50 rounded-lg"
@@ -151,9 +149,7 @@
                       </h5>
                       <div class="space-y-2">
                         <div
-                          v-for="event in dayData.events.filter(
-                            e => e.type === 'button_click',
-                          )"
+                          v-for="event in getEventsByType(dayData, 'button_click')"
                           :key="event.name"
                           class="flex items-center justify-between p-3
                             bg-green-50 rounded-lg"
@@ -242,153 +238,23 @@
   import { computed, onMounted, ref } from 'vue'
   import { useStatsStore } from '~/stores/stats'
   import StatsCharts from './StatsCharts.vue'
+  import {
+    formatDate,
+    formatEventName,
+    formatLastUpdated,
+    getMonthName,
+  } from '~/utils/statsFormatters'
+  import { useStatsDataProcessing } from '~/composables/useStatsDataProcessing'
 
   const statsStore = useStatsStore()
   const loading = ref(false)
   const error = ref(null)
   const expandedDays = ref(new Set())
 
-  // Обработанные данные для удобного отображения
-  const processedStats = computed(() => {
-    if (!statsStore.stats) return []
-
-    const result = []
-
-    // Проходим по датам (новый формат: "2025-12-07")
-    Object.entries(statsStore.stats).forEach(([dateString, events]) => {
-      // Парсим дату из строки "2025-12-07"
-      const [year, month, day] = dateString.split('-')
-
-      // Находим или создаем год
-      let yearData = result.find(y => y.year === year)
-      if (!yearData) {
-        yearData = {
-          year,
-          months: [],
-        }
-        result.push(yearData)
-      }
-
-      // Находим или создаем месяц
-      let monthData = yearData.months.find(m => m.month === month)
-      if (!monthData) {
-        monthData = {
-          month,
-          monthName: getMonthName(month),
-          days: [],
-          totalEvents: 0,
-        }
-        yearData.months.push(monthData)
-      }
-
-      // Создаем день
-      const dayStats = {
-        day,
-        date: dateString,
-        events: [],
-        totalEvents: 0,
-        pageViews: 0,
-        buttonClicks: 0,
-      }
-
-      // Обрабатываем события дня (новый формат: "type_name": [timestamp, counter])
-      Object.entries(events).forEach(([eventKey, eventData]) => {
-        // Парсим тип и имя из ключа "page_view_calendar"
-        const [type, ...nameParts] = eventKey.split('_')
-        const name = nameParts.join('_')
-
-        // Преобразуем timestamp в миллисекунды
-        const timestamp = eventData[0] * 1000
-
-        const event = {
-          name,
-          counter: eventData[1],
-          last_updated: new Date(timestamp).toISOString(),
-          type: type === 'page' ? 'page_view' : 'button_click',
-        }
-
-        dayStats.events.push(event)
-        dayStats.totalEvents += eventData[1]
-
-        if (type === 'page') {
-          dayStats.pageViews += eventData[1]
-        } else {
-          dayStats.buttonClicks += eventData[1]
-        }
-      })
-
-      monthData.days.push(dayStats)
-      monthData.totalEvents += dayStats.totalEvents
-    })
-
-    // Сортируем дни по убыванию даты
-    result.forEach(yearData => {
-      yearData.months.forEach(monthData => {
-        monthData.days.sort((a, b) => new Date(b.date) - new Date(a.date))
-      })
-      // Сортируем месяцы по убыванию
-      yearData.months.sort((a, b) => b.month - a.month)
-    })
-
-    // Сортируем годы по убыванию
-    result.sort((a, b) => b.year - a.year)
-
-    return result
-  })
-
-  // Функции форматирования
-  const getMonthName = monthNumber => {
-    const months = [
-      'Январь',
-      'Февраль',
-      'Март',
-      'Апрель',
-      'Май',
-      'Июнь',
-      'Июль',
-      'Август',
-      'Сентябрь',
-      'Октябрь',
-      'Ноябрь',
-      'Декабрь',
-    ]
-    return months[parseInt(monthNumber) - 1] || monthNumber
-  }
-
-  const formatDate = dateString => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('ru-RU', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-  }
-
-  const formatLastUpdated = timestamp => {
-    const date = new Date(timestamp)
-    return `обновлено: ${date.toLocaleTimeString('ru-RU', {
-      hour: '2-digit',
-      minute: '2-digit',
-    })}`
-  }
-
-  const formatEventName = name => {
-    // Преобразуем имена для красивого отображения
-    const nameMap = {
-      calendar: 'Переходов на страницу календарей',
-      shop: 'Переходов в магазин',
-      productExtendedButton: 'Открывал карточку товара',
-      startOrderButton: 'Начинал оформление заказа',
-      completeOrderButton: 'Закончил оформление заказа',
-      vkButton: 'Переходы во Вконтакте',
-      telegramButton: 'Переходы в Телеграм',
-    }
-
-    const eventName = name.split('_')[1]
-
-    return nameMap[eventName] || name.charAt(0).toUpperCase() + name.slice(1)
-  }
+  // Используем composable для обработки данных
+  const { processedStats, getEventsByType } = useStatsDataProcessing(
+    computed(() => statsStore.stats),
+  )
 
   // Функция переключения состояния развернутости дня
   const toggleDay = date => {

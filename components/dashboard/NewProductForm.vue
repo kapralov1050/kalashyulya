@@ -7,11 +7,11 @@
       class="bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-md p-2"
     >
       <option selected value="">{{ printLocale('shop_filtersTitle') }}</option>
-      <option value="1">{{ printLocale('shop_filters_pictures') }}</option>
-      <option value="2">{{ printLocale('shop_filters_sketches') }}</option>
-      <option value="3">{{ printLocale('shop_filters_postcards') }}</option>
-      <option value="4">{{ printLocale('shop_filters_stickers') }}</option>
-      <option value="5">{{ printLocale('shop_filters_calendar') }}</option>
+      <option :value="ProductCategory.PICTURES">{{ printLocale('shop_filters_pictures') }}</option>
+      <option :value="ProductCategory.SKETCHES">{{ printLocale('shop_filters_sketches') }}</option>
+      <option :value="ProductCategory.POSTCARDS">{{ printLocale('shop_filters_postcards') }}</option>
+      <option :value="ProductCategory.STICKERS">{{ printLocale('shop_filters_stickers') }}</option>
+      <option :value="ProductCategory.CALENDARS">{{ printLocale('shop_filters_calendar') }}</option>
     </select>
 
     <AppFormField
@@ -33,7 +33,7 @@
     />
 
     <AppFormField
-      id="description"
+      id="product-size"
       v-model="formData.size"
       type="textarea"
       placeholder="Введите размер"
@@ -42,7 +42,7 @@
     />
 
     <AppFormField
-      id="description"
+      id="product-material"
       v-model="formData.material"
       type="textarea"
       placeholder="Введите материалы"
@@ -51,7 +51,7 @@
     />
 
     <AppFormField
-      id="description"
+      id="product-tecnic"
       v-model="formData.tecnic"
       type="textarea"
       placeholder="Введите технику"
@@ -60,7 +60,7 @@
     />
 
     <AppFormField
-      id="description"
+      id="product-year"
       v-model="formData.year"
       type="textarea"
       placeholder="Введите год"
@@ -112,6 +112,7 @@
 <script setup lang="ts">
   import { useFirebase } from '~/composables/firebase/useFirebase'
   import { showToast } from '~/helpers/showToast'
+  import { ProductCategory } from '~/constants/products'
 
   const { addNewProduct } = useFirebase()
   const { uploadToMountedBucket } = useYandexDatabase()

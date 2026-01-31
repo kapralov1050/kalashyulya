@@ -2,6 +2,7 @@
   import { Chart, registerables } from 'chart.js'
   import autocolors from 'chartjs-plugin-autocolors'
   import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+  import { formatEventName } from '~/utils/statsFormatters'
 
   Chart.register(...registerables, autocolors)
 
@@ -20,30 +21,6 @@
   const aggregatedData = computed(() => {
     const eventTypes = new Set<string>()
     const datasets: Record<string, Record<string, number>> = {}
-
-    // Маппинг для красивых названий событий
-    const nameMap: Record<string, string> = {
-      calendar: 'Переходов на страницу календарей',
-      shop: 'Переходов в магазин',
-      productExtendedButton: 'Открывал карточку товара',
-      startOrderButton: 'Начинал оформление заказа',
-      completeOrderButton: 'Закончил оформление заказа',
-      vkButton: 'Переходы во Вконтакте',
-      telegramButton: 'Переходы в Телеграм',
-    }
-
-    // Функция форматирования названий событий
-    const formatEventName = (eventType: string) => {
-      const [entity, action, ...nameParts] = eventType.split('_')
-      const name = nameParts.join('_')
-      return (
-        nameMap[name] ||
-        eventType
-          .replace('page_view_', 'Просмотр: ')
-          .replace('button_click_', 'Клик: ')
-          .replace(/_/g, ' ')
-      )
-    }
 
     // Собираем все уникальные типы событий и данные по датам
     Object.entries(props.statsData).forEach(([date, events]) => {

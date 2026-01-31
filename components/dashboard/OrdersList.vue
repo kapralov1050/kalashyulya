@@ -14,10 +14,9 @@
             focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="all">Все заказы</option>
-          <option value="Новый заказ">Новый заказ</option>
-          <option value="В работе">В работе</option>
-          <option value="Оплачен">Оплачен</option>
-          <option value="Отправлен">Отправлен</option>
+          <option v-for="status in ORDER_STATUS_OPTIONS" :key="status" :value="status">
+            {{ status }}
+          </option>
         </select>
       </div>
     </div>
@@ -29,12 +28,7 @@
       :key="key"
       class="order-card mb-6 p-6 bg-white rounded-lg shadow-md transition-all
         hover:shadow-lg border-l-4"
-      :class="{
-        'border-blue-500': order.status === 'Новый заказ',
-        'border-yellow-500': order.status === 'В работе',
-        'border-green-500': order.status === 'Оплачен',
-        'border-gray-500': order.status === 'Отправлен',
-      }"
+      :class="getStatusBorderClass(order.status)"
     >
       <div
         class="order-header flex flex-col md:flex-row justify-between
@@ -63,21 +57,11 @@
             <select
               v-model="order.status"
               class="px-3 py-2 rounded-md border w-full md:w-48"
-              :class="{
-                'bg-blue-100 border-blue-300 text-blue-800':
-                  order.status === 'Новый заказ',
-                'bg-yellow-100 border-yellow-300 text-yellow-800':
-                  order.status === 'В работе',
-                'bg-green-100 border-green-300 text-green-800':
-                  order.status === 'Оплачен',
-                'bg-gray-100 border-gray-300 text-gray-800':
-                  order.status === 'Отправлен',
-              }"
+              :class="getStatusBgClass(order.status)"
             >
-              <option value="Новый заказ">Новый заказ</option>
-              <option value="В работе">В работе</option>
-              <option value="Оплачен">Оплачен</option>
-              <option value="Отправлен">Отправлен</option>
+              <option v-for="status in ORDER_STATUS_OPTIONS" :key="status" :value="status">
+                {{ status }}
+              </option>
             </select>
             <UButton
               color="primary"
@@ -173,6 +157,12 @@
 <script setup lang="ts">
   import { computed, ref } from 'vue'
   import { useFirebase } from '~/composables/firebase/useFirebase'
+  import {
+    OrderStatus,
+    OrderStatusColors,
+    ORDER_STATUS_OPTIONS,
+    getOrderStatusColor,
+  } from '~/constants/orders'
 
   const { allOrders } = storeToRefs(useOrdersStore())
   const { updateOrderStatus } = useFirebase()
@@ -188,6 +178,16 @@
 
   function updateStatus(id: number, status: string) {
     updateOrderStatus(id, status)
+  }
+
+  function getStatusBorderClass(status: string): string {
+    const color = getOrderStatusColor(status)
+    return `border-${color}-500`
+  }
+
+  function getStatusBgClass(status: string): string {
+    const color = getOrderStatusColor(status)
+    return `bg-${color}-100 border-${color}-300 text-${color}-800`
   }
 </script>
 <style scoped>

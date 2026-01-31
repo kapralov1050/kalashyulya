@@ -21,7 +21,7 @@
           :mg-width="magnifierSize"
           :mg-height="magnifierSize"
           :zoom-factor="zoom"
-          :mg-show="props.product.categoryId !== '5'"
+          :mg-show="!isCalendarCategory(props.product.categoryId)"
           :mg-touch-offset-x="-35"
           :mg-touch-offset-y="-35"
           class="aspect-auto object-contain max-h-[50vh] p-5"
@@ -97,6 +97,7 @@
   import '@websitebeaver/vue-magnifier/styles.css'
   import { nextTick, onMounted, ref } from 'vue'
   import { useProductViews } from '~/composables/useProductViews'
+  import { getProductTypeLabel, isCalendarCategory } from '~/constants/products'
   import type { Product } from '~/types'
 
   const props = defineProps<{
@@ -104,12 +105,12 @@
   }>()
 
   const { addShopItemToBasket } = useBasketStore()
-  const { shoppingCart } = storeToRefs(useBasketStore())
   const route = useRoute()
 
   const productId = String(route.query.id)
   const { trackView, getViews } = useProductViews(productId)
   const [isLoading, setLoading] = useToggle(false)
+  const { isInBasket } = useProductInBasket(productId)
 
   const views = ref(0)
 
@@ -120,10 +121,6 @@
     },
   ]
 
-  const isInBasket = computed(() => {
-    return shoppingCart.value.some(el => el.item.id.toString() == productId)
-  })
-
   const magnifierSize = computed(() => {
     return window.innerWidth > 1024 ? 200 : 100
   })
@@ -133,20 +130,7 @@
   })
 
   const subtitleProduct = computed(() => {
-    switch (props.product.categoryId) {
-      case '1':
-        return 'Оригинальная работа'
-      case '2':
-        return 'Оригинальный работа'
-      case '3':
-        return 'Авторская открытка'
-      case '4':
-        return 'Авторский стикерпак'
-      case '5':
-        return 'Авторские календари'
-      default:
-        return ''
-    }
+    return getProductTypeLabel(props.product.categoryId)
   })
 
   const addToBasket = async (product: Product) => {
