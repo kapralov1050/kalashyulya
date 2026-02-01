@@ -1,4 +1,3 @@
-// @ts-check
 import prettier from 'eslint-config-prettier'
 import unusedImports from 'eslint-plugin-unused-imports'
 import withNuxt from './.nuxt/eslint.config.mjs'
@@ -29,8 +28,8 @@ export default withNuxt([
       'vue/component-api-style': ['error', ['script-setup']],
       'vue/component-name-in-template-casing': ['error', 'PascalCase'],
       'vue/no-v-html': 'warn',
-      'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
-      'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
+      'no-console': 'error',
+      'no-debugger': 'error',
       'unused-imports/no-unused-imports': 'error',
       'vue/max-attributes-per-line': [
         'error',

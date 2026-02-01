@@ -59,28 +59,11 @@
         </div>
       </template>
 
-      <UModal
-        v-if="selectedProduct && selectedProduct.id"
-        v-model:open="isProductModalOpen"
-        :ui="{
-          overlay: 'bg-black/50 backdrop-blur-sm',
-          content: 'min-w-[80vw] max-h-[70vh] h-auto shadow-4xl',
-        }"
-      >
-        <template #content>
-          <UButton
-            icon="heroicons:x-mark-16-solid"
-            variant="link"
-            color="neutral"
-            size="lg"
-            class="absolute top-4 right-4 z-10000 rounded-full text-black
-              dark:text-white border-2 border-black dark:border-white
-              hover:text-neutral-500 hover:border-neutral-500"
-            @click="isProductModalOpen = false"
-          />
-          <ShopItemExtended :product="selectedProduct" />
-        </template>
-      </UModal>
+      <ProductModal
+        :selected-product="selectedProduct"
+        :is-product-modal-open="isProductModalOpen"
+        @close="closeModal"
+      />
     </section>
   </div>
 </template>
@@ -88,12 +71,12 @@
 <script setup lang="ts">
   import { useRoute } from 'vue-router'
   import { useFirebase } from '~/composables/firebase/useFirebase'
+  import { useProductModal } from '~/composables/useProductModal'
+  import ProductModal from '~/components/shop/ProductModal.vue'
   import type { Product } from '~/types'
 
   const route = useRoute()
   const router = useRouter()
-  const isProductModalOpen = ref(false)
-  const selectedProductId = ref<string | null>(null)
 
   const basketStore = useBasketStore()
   const { addShopItemToBasket } = useBasketStore()
@@ -107,6 +90,8 @@
     totalItems,
   } = storeToRefs(shopStore)
   const { isLoading } = useFirebase()
+
+  const { isProductModalOpen, selectedProduct, closeModal } = useProductModal()
 
   const error = computed(() => {
     if (shopData.value instanceof Error) {
@@ -123,13 +108,6 @@
     return (
       error.value.message ||
       'Не удалось загрузить товары из магазина. Пожалуйста, попробуйте позже.'
-    )
-  })
-
-  const selectedProduct = computed(() => {
-    if (!selectedProductId.value) return null
-    return shopStore.allProducts.find(
-      p => p.id.toString() === selectedProductId.value,
     )
   })
 
@@ -183,29 +161,13 @@
 
     shopStore.setPage(page)
 
-    // Обновляем URL
     router
       .push({ query: { ...route.query, page: page.toString() } })
       .then(() => {
-        // Прокручиваем вверх после обновления URL
         window.scrollTo({ top: 0, behavior: 'smooth' })
         isUpdatingPage.value = false
       })
   }
-
-  watch(
-    () => route.query.id,
-    newVal => {
-      isProductModalOpen.value = !!newVal
-      selectedProductId.value = newVal?.toString() || null
-    },
-  )
-
-  watch(isProductModalOpen, isOpen => {
-    if (!isOpen && route.query.id) {
-      router.replace({ query: { ...route.query, id: undefined } })
-    }
-  })
 
   onMounted(() => {
     if (route.query.page) {
@@ -214,21 +176,16 @@
         shopStore.setPage(page)
       }
     }
-
-    if (route.query.id) {
-      isProductModalOpen.value = true
-      selectedProductId.value = route.query.id?.toString() || null
-    }
   })
 </script>
 
 <style scoped>
   .scrollbar-hidden {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
 
   .scrollbar-hidden::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
+    display: none;
   }
 </style>

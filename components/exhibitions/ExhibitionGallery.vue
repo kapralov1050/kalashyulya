@@ -17,6 +17,12 @@
       </div>
     </header>
 
+    <ProductModal
+      :selected-product="selectedProduct"
+      :is-product-modal-open="isProductModalOpen"
+      @close="closeModal"
+    />
+
     <UCarousel
       v-slot="{ item }"
       :items="filteredProducts"
@@ -50,6 +56,8 @@
 
 <script setup lang="ts">
   import ShopItem from '~/components/shop/Item.vue'
+  import ProductModal from '~/components/shop/ProductModal.vue'
+  import { useProductModal } from '~/composables/useProductModal'
   import type { ExhibitionWork, Product } from '~/types'
 
   const props = defineProps<{
@@ -60,7 +68,6 @@
   const basketStore = useBasketStore()
   const { addShopItemToBasket } = useBasketStore()
 
-  // Фильтруем товары из магазина по совпадению title с works
   const filteredProducts = computed<Product[]>(() => {
     if (!props.works || props.works.length === 0) return []
 
@@ -71,6 +78,10 @@
       return workTitles.some(workTitle => productTitle === workTitle)
     })
   })
+
+  const { isProductModalOpen, selectedProduct, closeModal } = useProductModal(
+    computed(() => filteredProducts.value),
+  )
 
   const checkStatus = (prod: Product) => {
     return basketStore.shoppingCart.some(el => el.item.id === prod.id)
