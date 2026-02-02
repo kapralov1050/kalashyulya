@@ -34,7 +34,10 @@
         <h3
           class="line-clamp-2 text-base font-semibold text-neutral-900
             dark:text-white"
-          v-html="printLocale(exhibition?.title || '', { breakLn: true })"
+          v-html="
+            /* eslint-disable-next-line vue/no-v-html */
+            printLocale(exhibition?.title || '', { breakLn: true })
+          "
         />
         <p
           class="text-xs font-medium uppercase tracking-wide text-neutral-500

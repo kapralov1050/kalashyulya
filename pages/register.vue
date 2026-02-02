@@ -71,7 +71,7 @@
     password: '',
   })
 
-  const onSubmit = async (event: FormSubmitEvent<registerSchemaType>) => {
+  const onSubmit = async (_event: FormSubmitEvent<registerSchemaType>) => {
     const { user, error } = await createUser(
       userData.name,
       userData.email,

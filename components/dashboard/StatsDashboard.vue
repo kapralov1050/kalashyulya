@@ -275,6 +275,7 @@
     } catch (err) {
       error.value =
         'Ошибка при загрузке статистики. Пожалуйста, попробуйте позже.'
+      // eslint-disable-next-line no-console
       console.error('Error fetching stats:', err)
     } finally {
       loading.value = false

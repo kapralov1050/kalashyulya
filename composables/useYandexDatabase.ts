@@ -29,8 +29,11 @@ export function useYandexDatabase() {
               const base64Data = base64.split(',')[1]
 
               // Логирование размера
+              // eslint-disable-next-line no-console
               console.log('Original size:', file.size, 'bytes')
+              // eslint-disable-next-line no-console
               console.log('WebP size:', blob!.size, 'bytes')
+              // eslint-disable-next-line no-console
               console.log(
                 'Compression ratio:',
                 Math.round((1 - blob!.size / file.size) * 100) + '%',
@@ -68,6 +71,7 @@ export function useYandexDatabase() {
 
       return response
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log('Upload error:', error)
       throw error
     }
@@ -82,6 +86,7 @@ export function useYandexDatabase() {
         },
       })
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error)
     }
   }

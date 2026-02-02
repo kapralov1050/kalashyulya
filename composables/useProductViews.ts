@@ -16,11 +16,12 @@ export const useProductViews = (productId: string) => {
     if (sessionStorage.getItem(viewsKey) || !productId) return
 
     try {
-      const updates = {} as Record<string, any>
+      const updates: Record<string, unknown> = {}
       updates[`shop/products/product_${productId}/views`] = increment(1)
       await update(dbRef(db), updates)
       sessionStorage.setItem(viewsKey, 'true')
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error tracking product view:', error)
     }
   }

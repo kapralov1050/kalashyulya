@@ -135,6 +135,7 @@
       await logOut()
       router.push('/')
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Ошибка при выходе:', error)
     }
   }

@@ -78,7 +78,6 @@
   const route = useRoute()
   const router = useRouter()
 
-  const basketStore = useBasketStore()
   const { addShopItemToBasket } = useBasketStore()
 
   const shopStore = useShopStore()

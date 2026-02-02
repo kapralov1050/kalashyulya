@@ -29,6 +29,7 @@ export function useLocales() {
     const value = locales.value[key] || key
 
     if (!value) {
+      // eslint-disable-next-line no-console
       console.warn(`Locale key "${key}" not found`)
       return defaultValue
     }

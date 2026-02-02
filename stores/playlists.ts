@@ -1,11 +1,4 @@
 import { defineStore } from 'pinia'
-interface Playlist {
-  title: string
-  id: number
-  description: string
-  tagIds: number[]
-  lessonIds: number[]
-}
 
 export const usePlaylistsStore = defineStore('playlists', () => {
   const { printLocale } = useLocales()

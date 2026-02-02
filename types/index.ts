@@ -144,4 +144,4 @@ export interface Exhibition {
 
 // Firebase
 
-export type ExhibitionsData = Record<string, any>
+export type ExhibitionsData = Record<string, unknown>

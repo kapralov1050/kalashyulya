@@ -14,7 +14,7 @@ const EVENT_NAME_MAP: Record<string, string> = {
  * @returns отформатированное название события
  */
 export function formatEventName(eventType: string): string {
-  const [entity, action, ...nameParts] = eventType.split('_')
+  const [_entity, _action, ...nameParts] = eventType.split('_')
   const name = nameParts.join('_')
 
   return (

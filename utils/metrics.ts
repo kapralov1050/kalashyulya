@@ -1,10 +1,3 @@
-interface Metric {
-  type: 'button_click' | 'page_view'
-  name: string // название кнопки или страницы
-  timestamp: string
-  date: string // YYYY-MM-DD
-}
-
 // Обновленная структура для хранения на сервере
 interface OptimizedMetric {
   t: number // timestamp в секундах
@@ -106,6 +99,7 @@ export class MetricsTracker {
         keepalive: true,
       })
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.warn('Failed to send metrics:', error)
       // Можно добавить повторную попытку или локальное хранение
     }

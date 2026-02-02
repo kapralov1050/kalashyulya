@@ -64,6 +64,7 @@ export const useFirebase = () => {
     try {
       await auth.signOut()
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error signing out:', error)
     }
   }

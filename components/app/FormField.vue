@@ -39,9 +39,9 @@
   defineOptions({ inheritAttrs: false })
 
   interface Props {
-    id: string
-    type: string
-    placeholder: string
+    id?: string
+    type?: string
+    placeholder?: string
     label?: string
   }
 

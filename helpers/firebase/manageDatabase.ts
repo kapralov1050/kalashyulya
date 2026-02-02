@@ -11,6 +11,7 @@ export const getDataByPath = async <T>(
 
     return snapshot.exists() ? (snapshot.val() as T) : defaultValue
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log(error)
     throw error
   }
@@ -24,6 +25,7 @@ export const setDataByPath = async <T>(
     const reference: DatabaseReference = dbRef(useDatabase(), path)
     await set(reference, data)
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log('error while setting data:', error)
     throw error
   }
@@ -34,6 +36,7 @@ export const removeDataByPath = async (path: string): Promise<void> => {
     const reference: DatabaseReference = dbRef(useDatabase(), path)
     await remove(reference)
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log('error while removing data:', error)
     throw error
   }
@@ -47,6 +50,7 @@ export const updateDataByPath = async (
     const updatesRef = dbRef(useDatabase(), path)
     update(updatesRef, updates)
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log('error while updating data:', error)
     throw error
   }
@@ -60,6 +64,7 @@ export const getSnapshotByPath = async (
     const snapshot = await get(itemsRef)
     return snapshot.val() || []
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log('error while getting snapshot:', error)
     throw error
   }
@@ -72,6 +77,7 @@ export const pushDataByPath = async <T>(data: T, path: string) => {
 
     await set(newRef, data)
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error(`Error pushing data to ${path}:`, error)
     return { id: null, error }
   }

@@ -39,7 +39,10 @@
           <h1
             class="text-3xl font-black tracking-tight sm:text-4xl md:text-5xl
               lg:text-6xl"
-            v-html="printLocale(exhibition.title, { breakLn: true })"
+            v-html="
+              /* eslint-disable-next-line vue/no-v-html */
+              printLocale(exhibition.title, { breakLn: true })
+            "
           />
         </div>
       </div>
@@ -129,6 +132,7 @@
           <p>{{ exhibition?.descriptionIntro }}</p>
           <p
             v-html="
+              /* eslint-disable-next-line vue/no-v-html */
               printLocale(exhibition?.descriptionBody || '', { breakLn: true })
             "
           />

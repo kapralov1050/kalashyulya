@@ -84,7 +84,6 @@
 
 <script setup lang="ts">
   const { printLocale } = useLocales()
-  const { currentUser } = storeToRefs(useAuthStore())
 </script>
 
 <style scoped lang="scss"></style>

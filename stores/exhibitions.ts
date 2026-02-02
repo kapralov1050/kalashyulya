@@ -10,34 +10,34 @@ export const useExhibitionsStore = defineStore('exhibitions', () => {
 
     const raw = exhibitionsData.value
 
-    return Object.values(raw).map((item: any) => {
+    return Object.values(raw).map((item: Record<string, unknown>) => {
       const status: ExhibitionStatus =
         item.status === 'planned' ||
         item.status === 'ongoing' ||
         item.status === 'finished'
-          ? item.status
+          ? (item.status as ExhibitionStatus)
           : 'planned'
 
       return {
-        id: item.id,
-        slug: item.slug,
-        title: item.title,
-        shortDescription: item.shortDescription || item.descriptionIntro || '',
+        id: item.id as number,
+        slug: item.slug as string,
+        title: item.title as string,
+        shortDescription: (item.shortDescription as string) || (item.descriptionIntro as string) || '',
         status,
-        dateRange: item.dateRange || '',
-        coverImage: item.coverImage || '',
-        schedule: item.schedule || [],
+        dateRange: (item.dateRange as string) || '',
+        coverImage: (item.coverImage as string) || '',
+        schedule: (item.schedule as unknown[]) || [],
         location: {
-          venue: item.location?.venue || '',
-          city: item.location?.city || '',
+          venue: (item.location as Record<string, unknown>)?.venue as string || '',
+          city: (item.location as Record<string, unknown>)?.city as string || '',
           addressLine:
-            item.location?.address || item.location?.addressLine || '',
-          metro: item.location?.metro || [],
-          mapLink: item.location?.mapLink || '',
+            (item.location as Record<string, unknown>)?.address as string || (item.location as Record<string, unknown>)?.addressLine as string || '',
+          metro: (item.location as Record<string, unknown>)?.metro as string[] || [],
+          mapLink: (item.location as Record<string, unknown>)?.mapLink as string || '',
         },
-        descriptionIntro: item.descriptionIntro || '',
-        descriptionBody: item.descriptionBody || '',
-        works: item.works || [],
+        descriptionIntro: (item.descriptionIntro as string) || '',
+        descriptionBody: (item.descriptionBody as string) || '',
+        works: (item.works as unknown[]) || [],
       } as Exhibition
     })
   })

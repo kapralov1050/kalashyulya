@@ -23,6 +23,7 @@ export const useLocalesStore = defineStore('locales', () => {
       })
       locales.value = newLocales
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.log(err)
     }
   }

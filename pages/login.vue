@@ -54,7 +54,7 @@
   const router = useRouter()
   const { setUser } = useAuthStore()
 
-  const onSubmit = async (event: FormSubmitEvent<loginSchemaType>) => {
+  const onSubmit = async (_event: FormSubmitEvent<loginSchemaType>) => {
     const { user, error } = await loginUser(userData.email, userData.password)
 
     if (user) {
