@@ -2,12 +2,13 @@ import prettier from 'eslint-config-prettier'
 import unusedImports from 'eslint-plugin-unused-imports'
 import withNuxt from './.nuxt/eslint.config.mjs'
 
-export default withNuxt([
-  {
-    ignores: ['.nuxt/**', 'dist/**', '.output/**', '*.min.js', 'coverage/**'],
-    plugins: {
-      'unused-imports': unusedImports,
-    },
+export default withNuxt(
+  [
+    {
+      ignores: ['.nuxt/**', 'dist/**', '.output/**', '*.min.js', 'coverage/**'],
+      plugins: {
+        'unused-imports': unusedImports,
+      },
     languageOptions: {
       parserOptions: {
         ecmaFeatures: {
@@ -82,6 +83,15 @@ export default withNuxt([
           ],
         },
       ],
+    },
+  },
+  {
+    files: [
+      'components/exhibitions/ExhibitionCard.vue',
+      'pages/exhibitions/\\[slug\\].vue',
+    ],
+    rules: {
+      'vue/no-v-html': 'off',
     },
   },
   prettier,

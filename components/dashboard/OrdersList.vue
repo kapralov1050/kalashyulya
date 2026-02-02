@@ -158,8 +158,6 @@
   import { computed, ref } from 'vue'
   import { useFirebase } from '~/composables/firebase/useFirebase'
   import {
-    OrderStatus,
-    OrderStatusColors,
     ORDER_STATUS_OPTIONS,
     getOrderStatusColor,
   } from '~/constants/orders'

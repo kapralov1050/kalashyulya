@@ -36,13 +36,11 @@
           </p>
 
           <!-- Заголовок -->
+          <!-- eslint-disable-next-line vue/no-v-html -->
           <h1
             class="text-3xl font-black tracking-tight sm:text-4xl md:text-5xl
               lg:text-6xl"
-            v-html="
-              /* eslint-disable-next-line vue/no-v-html */
-              printLocale(exhibition.title, { breakLn: true })
-            "
+            v-html="printLocale(exhibition.title, { breakLn: true })"
           />
         </div>
       </div>
@@ -130,11 +128,9 @@
         </h2>
         <div class="space-y-4 text-neutral-700 dark:text-neutral-200">
           <p>{{ exhibition?.descriptionIntro }}</p>
+          <!-- eslint-disable-next-line vue/no-v-html -->
           <p
-            v-html="
-              /* eslint-disable-next-line vue/no-v-html */
-              printLocale(exhibition?.descriptionBody || '', { breakLn: true })
-            "
+            v-html="printLocale(exhibition?.descriptionBody || '', { breakLn: true })"
           />
         </div>
       </div>
@@ -207,6 +203,7 @@
 </template>
 
 <script setup lang="ts">
+   
   import ExhibitionGallery from '~/components/exhibitions/ExhibitionGallery.vue'
   import ExhibitionScheduleAddress from '~/components/exhibitions/ExhibitionScheduleAddress.vue'
 

@@ -31,13 +31,11 @@
       </div>
 
       <div class="flex flex-1 flex-col gap-2 px-5 py-4">
+        <!-- eslint-disable-next-line vue/no-v-html -->
         <h3
           class="line-clamp-2 text-base font-semibold text-neutral-900
             dark:text-white"
-          v-html="
-            /* eslint-disable-next-line vue/no-v-html */
-            printLocale(exhibition?.title || '', { breakLn: true })
-          "
+          v-html="printLocale(exhibition?.title || '', { breakLn: true })"
         />
         <p
           class="text-xs font-medium uppercase tracking-wide text-neutral-500
@@ -57,6 +55,7 @@
 </template>
 
 <script setup lang="ts">
+   
   import type { Exhibition } from '~/types'
 
   const props = defineProps<{
