@@ -1,5 +1,7 @@
 import { computed, type Ref } from 'vue'
-import type { StatsData } from '~/types'
+
+// Type for the stats data structure from Firebase
+export type StatsData = Record<string, Record<string, [number, number]>>
 
 /**
  * Интерфейс для обработанных данных статистики
@@ -85,6 +87,8 @@ export const useStatsDataProcessing = (stats: Ref<StatsData | null>) => {
 
       // Обрабатываем события дня (новый формат: "type_name": [timestamp, counter])
       Object.entries(events).forEach(([eventKey, eventData]) => {
+        if (!Array.isArray(eventData) || eventData.length < 2) return
+
         // Парсим тип и имя из ключа "page_view_calendar"
         const [type, ...nameParts] = eventKey.split('_')
         const name = nameParts.join('_')

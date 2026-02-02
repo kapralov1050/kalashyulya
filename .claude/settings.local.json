@@ -3,7 +3,8 @@
     "allow": [
       "Bash(dir:*)",
       "Read(//d/**)",
-      "Bash(npm run lint:*)"
+      "Bash(npm run lint:*)",
+      "Bash(npm run typecheck:*)"
     ]
   }
 }

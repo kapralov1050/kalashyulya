@@ -8,7 +8,7 @@ export const useExhibitionsStore = defineStore('exhibitions', () => {
   const exhibitions = computed<Exhibition[]>(() => {
     if (!exhibitionsData.value) return []
 
-    const raw = exhibitionsData.value
+    const raw = exhibitionsData.value as Record<string, Record<string, unknown>>
 
     return Object.values(raw).map((item: Record<string, unknown>) => {
       const status: ExhibitionStatus =
