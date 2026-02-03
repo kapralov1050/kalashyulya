@@ -25,15 +25,6 @@
             class="w-full"
           />
         </UFormField>
-        <UFormField name="phone" label="Ваш телефон">
-          <UInput
-            v-model="formData.phone"
-            size="xl"
-            type="text"
-            placeholder="Введите ваш номер телефона"
-            class="w-full"
-          />
-        </UFormField>
         <UFormField name="способ связи" label="Как с вами связаться?">
           <UCheckboxGroup
             v-model="messengerType"
@@ -43,17 +34,30 @@
           />
         </UFormField>
         <UFormField
+          v-if="messengerType.includes('Звонок')"
+          name="phone"
+          label="Ваш телефон *"
+        >
+          <UInput
+            v-model="formData.phone"
+            size="xl"
+            type="text"
+            placeholder="Введите ваш номер телефона"
+            class="w-full"
+          />
+        </UFormField>
+        <UFormField
           v-if="
             ['Вконтакте', 'Телеграм'].some(item => messengerType.includes(item))
           "
           name="nickname"
-          label="ваш ник в vk или telegram"
+          label="Ваш ник в VK или Telegram *"
         >
           <UInput
             v-model="formData.nickname"
             size="xl"
             type="text"
-            placeholder="Введите ваш номер телефона"
+            placeholder="введите ваш ник в VK или Telegram"
             class="w-full"
           />
         </UFormField>
@@ -198,20 +202,36 @@
   }
 
   const isFormValid = computed(() => {
-    const baseFields =
-      formData.name.trim() && formData.phone.trim() && formData.email.trim()
+    // Базовые поля - имя и email всегда обязательны
+    const baseFields = formData.name.trim() && formData.email.trim()
 
-    if (isDelivery.value) {
-      return (
-        baseFields &&
-        formData.city.trim() &&
-        formData.recipient.trim() &&
-        formData.street.trim() &&
-        (formData.house.trim() || formData.apartment.trim())
-      )
+    // Телефон обязателен только если выбран "Звонок"
+    const phoneRequired = messengerType.value.includes('Звонок')
+      ? formData.phone.trim()
+      : true
+
+    // Никнейм обязателен если выбран ВК или Телеграм
+    const nicknameRequired = ['Вконтакте', 'Телеграм'].some(item =>
+      messengerType.value.includes(item),
+    )
+      ? formData.nickname.trim()
+      : true
+
+    // Если доставку не запрашивают, проверяем только базовые поля
+    if (!isDelivery.value) {
+      return baseFields && phoneRequired && nicknameRequired
     }
 
-    return baseFields
+    // Если доставка - проверяем все поля
+    return (
+      baseFields &&
+      phoneRequired &&
+      nicknameRequired &&
+      formData.city.trim() &&
+      formData.recipient.trim() &&
+      formData.street.trim() &&
+      (formData.house.trim() || formData.apartment.trim())
+    )
   })
 
   async function submitOrder() {

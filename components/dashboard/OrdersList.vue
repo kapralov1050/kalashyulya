@@ -55,9 +55,9 @@
               w-full"
           >
             <select
-              v-model="order.status"
+              v-model="pendingStatuses[order.id]"
               class="px-3 py-2 rounded-md border w-full md:w-48"
-              :class="getStatusBgClass(order.status)"
+              :class="getStatusBgClass(pendingStatuses[order.id])"
             >
               <option v-for="status in ORDER_STATUS_OPTIONS" :key="status" :value="status">
                 {{ status }}
@@ -67,7 +67,8 @@
               color="primary"
               variant="solid"
               class="w-full md:w-auto"
-              @click="updateStatus(order.id, order.status)"
+              :disabled="pendingStatuses[order.id] === order.status"
+              @click="openStatusModal(order)"
             >
               Обновить статус
             </UButton>
@@ -152,19 +153,36 @@
         </div>
       </div>
     </div>
+
+    <!-- Модальное окно изменения статуса -->
+    <StatusChangeModal
+      v-model:open="isStatusModalOpen"
+      :order="selectedOrder"
+      :new-status="pendingStatuses[selectedOrder?.id || 0]"
+      @confirm="handleStatusConfirm"
+    />
   </div>
 </template>
 <script setup lang="ts">
-  import { computed, ref } from 'vue'
+  import type { OrderInBase } from '~/types'
+  import { computed, ref, watch } from 'vue'
   import { useFirebase } from '~/composables/firebase/useFirebase'
+  import { useOrderEmail } from '~/composables/useOrderEmail'
   import {
     ORDER_STATUS_OPTIONS,
     getOrderStatusColor,
   } from '~/constants/orders'
+  import StatusChangeModal from './StatusChangeModal.vue'
 
   const { allOrders } = storeToRefs(useOrdersStore())
   const { updateOrderStatus } = useFirebase()
+  const { sendStatusUpdateEmail } = useOrderEmail()
+  const toast = useToast()
+
   const selectedStatus = ref('all')
+  const isStatusModalOpen = ref(false)
+  const selectedOrder = ref<OrderInBase | null>(null)
+  const pendingStatuses = ref<Record<number, string>>({})
 
   const filteredOrders = computed(() => {
     if (!allOrders.value) return []
@@ -174,8 +192,84 @@
     )
   })
 
-  function updateStatus(id: number, status: string) {
-    updateOrderStatus(id, status)
+  // Инициализация pending statuses при загрузке заказов
+  watch(
+    allOrders,
+    orders => {
+      if (orders) {
+        orders.forEach(order => {
+          if (!(order.id in pendingStatuses.value)) {
+            pendingStatuses.value[order.id] = order.status
+          }
+        })
+      }
+    },
+    { immediate: true },
+  )
+
+  function openStatusModal(order: OrderInBase) {
+    const newStatus = pendingStatuses.value[order.id]
+    if (newStatus === order.status) {
+      toast.add({
+        title: 'Внимание',
+        description: 'Статус не изменился',
+        color: 'warning',
+      })
+      return
+    }
+    selectedOrder.value = order
+    isStatusModalOpen.value = true
+  }
+
+  async function handleStatusConfirm(data: {
+    orderId: number
+    status: string
+    message: string
+  }) {
+    try {
+      const order = allOrders.value?.find(o => o.id === data.orderId)
+      if (!order) {
+        throw new Error('Заказ не найден')
+      }
+
+      // Обновляем статус в Firebase
+      await updateOrderStatus(data.orderId, data.status)
+
+      // Отправляем email уведомление
+      const emailResult = await sendStatusUpdateEmail(
+        order,
+        data.status,
+        data.message,
+      )
+
+      if (emailResult.success) {
+        toast.add({
+          title: 'Успешно',
+          description: `Статус заказа #${data.orderId} обновлен, уведомление отправлено`,
+          color: 'success',
+        })
+      } else {
+        toast.add({
+          title: 'Предупреждение',
+          description: `Статус обновлен, но email не отправлен: ${emailResult.error}`,
+          color: 'warning',
+        })
+      }
+
+      // Обновляем pending status
+      pendingStatuses.value[data.orderId] = data.status
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error updating order status:', error)
+      toast.add({
+        title: 'Ошибка',
+        description: 'Не удалось обновить статус заказа',
+        color: 'error',
+      })
+    } finally {
+      isStatusModalOpen.value = false
+      selectedOrder.value = null
+    }
   }
 
   function getStatusBorderClass(status: string): string {
