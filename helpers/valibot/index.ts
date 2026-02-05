@@ -16,10 +16,6 @@ export const orderSchema = v.object({
   email: v.pipe(v.string(), v.email('Некорректный email')),
   phone: v.pipe(v.string(), v.minLength(11, 'Номер телефона не корректен')),
   comment: v.pipe(v.string(), v.minLength(1, 'Введите имя')),
-  'способ связи': v.pipe(
-    v.array(v.string()),
-    v.minLength(1, 'Выберите способ связи'),
-  ),
 })
 
 export const productSchema = v.object({

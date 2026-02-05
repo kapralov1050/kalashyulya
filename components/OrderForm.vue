@@ -25,7 +25,7 @@
             class="w-full"
           />
         </UFormField>
-        <UFormField name="способ связи" label="Как с вами связаться? *">
+        <UFormField name="messenger" label="Как с вами связаться? *">
           <UCheckboxGroup
             v-model="messengerType"
             orientation="horizontal"
@@ -63,7 +63,11 @@
         </UFormField>
       </div>
 
-      <UCheckbox v-model="isDelivery" label="Запросить доставку" />
+      <UCheckbox
+        v-if="messengerType.length > 0"
+        v-model="isDelivery"
+        label="Запросить доставку"
+      />
 
       <div v-if="isDelivery" class="space-y-4">
         <h3 class="text-xl font-bold">Доставка</h3>
@@ -178,6 +182,13 @@
   const items = ref<CheckboxGroupItem[]>(['Вконтакте', 'Телеграм', 'Звонок'])
   const messengerType = ref<string[]>([])
 
+  // Сбрасываем доставку, если убраны все способы связи
+  watch(messengerType, (newVal) => {
+    if (newVal.length === 0) {
+      isDelivery.value = false
+    }
+  })
+
   const formData = reactive({
     name: '',
     phone: '',
@@ -222,7 +233,9 @@
 
     // Если доставку не запрашивают, проверяем только базовые поля
     if (!isDelivery.value) {
-      return baseFields && messengerRequired && phoneRequired && nicknameRequired
+      return (
+        baseFields && messengerRequired && phoneRequired && nicknameRequired
+      )
     }
 
     // Если доставка - проверяем все поля
