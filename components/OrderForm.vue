@@ -25,7 +25,7 @@
             class="w-full"
           />
         </UFormField>
-        <UFormField name="способ связи" label="Как с вами связаться?">
+        <UFormField name="способ связи" label="Как с вами связаться? *">
           <UCheckboxGroup
             v-model="messengerType"
             orientation="horizontal"
@@ -176,7 +176,7 @@
   const isSending = shallowRef(false)
   const isDelivery = shallowRef(false)
   const items = ref<CheckboxGroupItem[]>(['Вконтакте', 'Телеграм', 'Звонок'])
-  const messengerType = ref([''])
+  const messengerType = ref<string[]>([])
 
   const formData = reactive({
     name: '',
@@ -205,6 +205,9 @@
     // Базовые поля - имя и email всегда обязательны
     const baseFields = formData.name.trim() && formData.email.trim()
 
+    // Обязателен выбор хотя бы одного способа связи
+    const messengerRequired = messengerType.value.length > 0
+
     // Телефон обязателен только если выбран "Звонок"
     const phoneRequired = messengerType.value.includes('Звонок')
       ? formData.phone.trim()
@@ -219,12 +222,13 @@
 
     // Если доставку не запрашивают, проверяем только базовые поля
     if (!isDelivery.value) {
-      return baseFields && phoneRequired && nicknameRequired
+      return baseFields && messengerRequired && phoneRequired && nicknameRequired
     }
 
     // Если доставка - проверяем все поля
     return (
       baseFields &&
+      messengerRequired &&
       phoneRequired &&
       nicknameRequired &&
       formData.city.trim() &&
@@ -241,7 +245,7 @@
           name: formData.name,
           phone: formData.phone,
           email: formData.email,
-          userMessenger: messengerType.value.join(''),
+          userMessenger: messengerType.value.join(', '),
           userNickname: formData.nickname,
           delivery: {
             city: formData.city,

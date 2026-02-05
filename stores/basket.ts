@@ -24,8 +24,10 @@ export const useBasketStore = defineStore('basket', () => {
   })
 
   function loadPurchase() {
-    const basketContent = localStorage.getItem('basket')
-    if (basketContent) shoppingCart.value = JSON.parse(basketContent)
+    if (shoppingCart.value.length === 0) {
+      const basketContent = localStorage.getItem('basket')
+      if (basketContent) shoppingCart.value = JSON.parse(basketContent)
+    }
   }
 
   function addShopItemToBasket(userPurchase: Purchase): void {

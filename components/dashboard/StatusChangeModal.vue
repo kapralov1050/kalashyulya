@@ -24,7 +24,7 @@
           />
         </div>
 
-        <div class="p-6 space-y-4">
+        <div class="p-6 space-y-4 overflow-y-auto max-h-[60vh]">
           <div class="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-4">
             <p class="text-sm text-neutral-600 dark:text-neutral-400 mb-2">
               Заказ #{{ order?.id }}
