@@ -62,6 +62,26 @@ export class MetricsTracker {
     return `${year}-${month}-${day}`
   }
 
+  // Проверка, следует ли отправлять метрики
+  private shouldSendMetrics(): boolean {
+    if (typeof window === 'undefined') return false
+
+    const hostname = window.location.hostname
+    const url = window.location.href
+
+    // Исключаем localhost
+    if (hostname === 'localhost' || hostname.startsWith('127.0.0.1')) {
+      return false
+    }
+
+    // Исключаем тестовый стенд Vercel
+    if (url.includes('kalashyulya.vercel.app')) {
+      return false
+    }
+
+    return true
+  }
+
   // Отправка накопленных метрик
   private flushMetrics(): void {
     if (this.metricsQueue.size === 0) return
@@ -91,6 +111,9 @@ export class MetricsTracker {
   private sendOptimizedMetrics(
     data: Record<string, Record<string, [number, number]>>,
   ): void {
+    // Не отправляем метрики на localhost и тестовый стенд
+    if (!this.shouldSendMetrics()) return
+
     try {
       fetch(this.endpoint, {
         method: 'POST',
