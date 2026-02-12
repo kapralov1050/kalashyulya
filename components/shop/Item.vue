@@ -43,10 +43,27 @@
         </h2>
       </header>
 
-      <footer class="mt-5 flex items-center gap-3">
+      <footer class="mt-5 relative flex items-center gap-3">
         <h3 class="text-lg font-semibold dark:text-white">
           {{ product.price }} ₽
         </h3>
+
+        <!-- Reservation Badge -->
+        <div
+          v-if="product.isReserved"
+          class="reservation-badge absolute -top-3.5 right-0 flex items-center space-x-1.5
+            bg-amber-500 text-white px-4 py-1.5 rounded-full text-xs font-medium
+            shadow-sm cursor-pointer"
+        >
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fill-rule="evenodd"
+              d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          <span>Бронь</span>
+        </div>
 
         <UButton
           :color="isInBasket ? 'success' : 'secondary'"
@@ -101,4 +118,24 @@
   }
 </script>
 
-<style scoped></style>
+<style scoped>
+  .reservation-badge {
+    transition: transform 0.3s ease;
+  }
+
+  .reservation-badge:hover {
+    animation: wiggle 0.5s ease-in-out;
+  }
+
+  @keyframes wiggle {
+    0%, 100% {
+      transform: rotate(0deg);
+    }
+    25% {
+      transform: rotate(-8deg);
+    }
+    75% {
+      transform: rotate(8deg);
+    }
+  }
+</style>

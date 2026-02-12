@@ -16,8 +16,6 @@
         <div class="flex items-center justify-between">
           <!-- Product Info -->
           <div class="flex items-center space-x-4 flex-1">
-            <!-- Product Image Placeholder -->
-
             <!-- Product Details -->
             <div class="flex-1 min-w-0">
               <h3 class="text-lg font-medium text-gray-900 truncate">
@@ -37,28 +35,79 @@
             </div>
           </div>
 
-          <!-- Delete Button -->
-          <button
-            class="flex items-center space-x-2 px-4 py-2 text-red-600 border
-              border-red-300 rounded-lg hover:bg-red-50 hover:border-red-400
-              transition-colors duration-200 font-medium"
-            @click="removeProduct(product.id)"
-          >
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          <!-- Reservation Controls -->
+          <div class="flex items-center space-x-4">
+            <!-- Toggle Switch -->
+            <div class="flex items-center space-x-3">
+              <span
+                class="text-sm font-medium"
+                :class="pendingReservations[product.id] ? 'text-amber-600' : 'text-gray-600'"
+              >
+                {{ getReservationLabel(product.id) }}
+              </span>
+              <button
+                :class="[
+                  'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2',
+                  getReservationStatus(product.id) ? 'bg-amber-600' : 'bg-gray-200',
+                ]"
+                @click="toggleReservation(product.id)"
+              >
+                <span
+                  :class="[
+                    'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                    getReservationStatus(product.id) ? 'translate-x-5' : 'translate-x-0',
+                  ]"
+                />
+              </button>
+            </div>
+
+            <!-- Confirm Button -->
+            <button
+              v-if="hasPendingChange(product.id)"
+              class="flex items-center space-x-2 px-4 py-2 text-amber-600 border
+                border-amber-300 rounded-lg hover:bg-amber-50 hover:border-amber-400
+                transition-colors duration-200 font-medium"
+              @click="confirmReservation(product.id)"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-              />
-            </svg>
-            <span>Удалить</span>
-          </button>
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              <span>Подтвердить</span>
+            </button>
+
+            <!-- Delete Button -->
+            <button
+              class="flex items-center space-x-2 px-4 py-2 text-red-600 border
+                border-red-300 rounded-lg hover:bg-red-50 hover:border-red-400
+                transition-colors duration-200 font-medium"
+              @click="removeProduct(product.id)"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
+              </svg>
+              <span>Удалить</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -91,11 +140,80 @@
   import {
     getDataByPath,
     removeDataByPath,
+    updateDataByPath,
   } from '~/helpers/firebase/manageDatabase'
+  import { showToast } from '~/helpers/showToast'
   import type { Product } from '~/types'
 
   const shopStore = useShopStore()
   const { deleteFile } = useYandexDatabase()
+
+  // Хранилище для отслеживания изменений
+  const pendingReservations = ref<Record<number, boolean | undefined>>({})
+
+  const getReservationStatus = (productId: number): boolean => {
+    const product = shopStore.allProducts.find(p => p.id === productId)
+    const currentStatus = product?.isReserved || false
+    // Если есть pending изменение, возвращаем его, иначе текущий статус
+    return pendingReservations.value[productId] ?? currentStatus
+  }
+
+  const hasPendingChange = (productId: number): boolean => {
+    return pendingReservations.value[productId] !== undefined
+  }
+
+  const getReservationLabel = (productId: number): string => {
+    const product = shopStore.allProducts.find(p => p.id === productId)
+    const currentStatus = product?.isReserved || false
+    const displayStatus = pendingReservations.value[productId] ?? currentStatus
+
+    if (pendingReservations.value[productId] !== undefined) {
+      return displayStatus ? 'В брони' : 'Не забронирован'
+    }
+    return currentStatus ? 'Забронирован' : 'Доступен'
+  }
+
+  const toggleReservation = (productId: number): void => {
+    // Переключаем между отображаемым состоянием
+    const displayStatus = getReservationStatus(productId)
+    pendingReservations.value[productId] = !displayStatus
+  }
+
+  const confirmReservation = async (productId: number): Promise<void> => {
+    const pendingValue = pendingReservations.value[productId]
+
+    if (pendingValue === null || pendingValue === undefined) {
+      return
+    }
+
+    try {
+      await updateDataByPath(
+        { isReserved: pendingValue },
+        `shop/products/product_${productId}`,
+      )
+
+      // Успешное обновление - сбрасываем pending состояние
+      Reflect.deleteProperty(pendingReservations.value, productId)
+
+      showToast(
+        'Успешно!',
+        `Статус брони товара обновлен на "${pendingValue ? 'Забронирован' : 'Доступен'}"`,
+        'heroicons:check-circle',
+      )
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Ошибка при обновлении статуса брони:', error)
+
+      // При ошибке убираем pending состояние (тогл вернется в исходное положение)
+      Reflect.deleteProperty(pendingReservations.value, productId)
+
+      showToast(
+        'Ошибка',
+        'Не удалось обновить статус брони. Попробуйте еще раз.',
+        'heroicons:exclamation-circle',
+      )
+    }
+  }
 
   const removeProduct = async (productid: number) => {
     if (confirm('Вы уверены, что хотите удалить этот товар?')) {

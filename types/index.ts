@@ -12,6 +12,7 @@ export interface Product {
   price: number
   stock: number
   tags: string[]
+  isReserved?: boolean
 }
 
 export interface ShopData {

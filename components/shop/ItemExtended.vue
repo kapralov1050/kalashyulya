@@ -71,7 +71,21 @@
           >
             {{ props.product.price }} ₽
           </span>
-          <span class="text-green-600 font-medium">В наличии</span>
+          <div
+            v-if="product.isReserved"
+            class="flex items-center space-x-1.5 bg-amber-100
+              text-amber-700 px-3 py-1.5 rounded-lg text-sm font-medium"
+          >
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fill-rule="evenodd"
+                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            <span>Товар забронирован</span>
+          </div>
+          <span v-else class="text-green-600 font-medium">В наличии</span>
         </div>
         <UButton
           class="w-full bg-neutral-900 dark:bg-neutral-400 hover:bg-neutral-700
