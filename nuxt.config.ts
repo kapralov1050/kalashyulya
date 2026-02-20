@@ -11,7 +11,10 @@ export default defineNuxtConfig({
   nitro: {
     preset: 'static',
     prerender: {
-      routes: ['/exhibitions/**'],
+      routes: [
+        '/exhibitions/tikhij-svet-zimy',
+        '/exhibitions/arktika-izvestnaja-i-neizvestnaja',
+      ],
     },
   },
   test: true,
