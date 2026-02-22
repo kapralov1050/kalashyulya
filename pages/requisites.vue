@@ -120,6 +120,13 @@
           </div>
         </div>
       </div>
+
+      <!-- Pseudonym Notice -->
+      <div class="mt-8 text-center">
+        <p class="text-neutral-600 dark:text-neutral-400 text-base">
+          Калашникова Юлия (kalashyulya) является творческим псевдонимом Капраловой Юлии
+        </p>
+      </div>
     </div>
   </div>
 </template>
