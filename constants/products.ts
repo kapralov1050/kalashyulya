@@ -50,3 +50,21 @@ export function getProductTypeLabel(categoryId: string): string {
 }
 
 export type ProductCategoryId = typeof ProductCategory[keyof typeof ProductCategory]
+
+/**
+ * Константы оформления картин
+ */
+export const FramingType = {
+  FRAME: 'frame',
+  PASSEPARTOUT: 'passepartout',
+} as const
+
+/**
+ * Локализованные названия оформления
+ */
+export const FramingTypeLabels = {
+  [FramingType.FRAME]: 'В раме',
+  [FramingType.PASSEPARTOUT]: 'В паспарту',
+} as const
+
+export type FramingTypeId = typeof FramingType[keyof typeof FramingType]

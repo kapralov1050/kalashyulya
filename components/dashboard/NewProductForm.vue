@@ -14,6 +14,36 @@
       <option :value="ProductCategory.CALENDARS">{{ printLocale('shop_filters_calendar') }}</option>
     </select>
 
+    <!-- Framing options - only for PICTURES and SKETCHES -->
+    <div
+      v-if="formData.category === ProductCategory.PICTURES || formData.category === ProductCategory.SKETCHES"
+      class="bg-gray-50 dark:bg-neutral-800/60 rounded-lg p-4"
+    >
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+        Оформление
+      </label>
+      <div class="flex flex-col gap-2">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input
+            v-model="formData.framing"
+            type="checkbox"
+            :value="FramingType.FRAME"
+            class="w-4 h-4 text-primary-600 focus:ring-primary-500 rounded"
+          >
+          <span class="text-gray-700 dark:text-gray-300">В раме</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input
+            v-model="formData.framing"
+            type="checkbox"
+            :value="FramingType.PASSEPARTOUT"
+            class="w-4 h-4 text-primary-600 focus:ring-primary-500 rounded"
+          >
+          <span class="text-gray-700 dark:text-gray-300">В паспарту</span>
+        </label>
+      </div>
+    </div>
+
     <AppFormField
       id="title"
       v-model="formData.title"
@@ -112,7 +142,7 @@
 <script setup lang="ts">
   import { useFirebase } from '~/composables/firebase/useFirebase'
   import { showToast } from '~/helpers/showToast'
-  import { ProductCategory } from '~/constants/products'
+  import { ProductCategory, FramingType } from '~/constants/products'
 
   const { addNewProduct } = useFirebase()
   const { uploadToMountedBucket } = useYandexDatabase()
@@ -130,6 +160,7 @@
     imageUrl: '',
     tags: [],
     title: '',
+    framing: [] as ('frame' | 'passepartout')[],
   })
 
   const fileInput = ref<File[]>()
@@ -163,6 +194,7 @@
         stock: Number(formData.stock),
         tags: formData.tags,
         title: formData.title,
+        framing: formData.framing,
       }
 
       const success = await addNewProduct(newProduct, 'shop/products/')

@@ -13,6 +13,7 @@ export interface Product {
   stock: number
   tags: string[]
   isReserved?: boolean
+  framing?: ('frame' | 'passepartout')[]
 }
 
 export interface ShopData {

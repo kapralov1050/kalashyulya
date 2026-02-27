@@ -58,6 +58,7 @@
               <p>Материал: {{ props.product.material }}</p>
               <p>Техника: {{ props.product.tecnic }}</p>
               <p>Год: {{ props.product.year }}</p>
+              <p v-if="framingLabel">Оформление: {{ framingLabel }}</p>
             </div>
           </template>
         </UAccordion>
@@ -73,8 +74,8 @@
           </span>
           <div
             v-if="product.isReserved"
-            class="flex items-center space-x-1.5 bg-amber-100
-              text-amber-700 px-3 py-1.5 rounded-lg text-sm font-medium"
+            class="flex items-center space-x-1.5 bg-amber-100 text-amber-700
+              px-3 py-1.5 rounded-lg text-sm font-medium"
           >
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path
@@ -111,7 +112,12 @@
   import '@websitebeaver/vue-magnifier/styles.css'
   import { nextTick, onMounted, ref } from 'vue'
   import { useProductViews } from '~/composables/useProductViews'
-  import { getProductTypeLabel, isCalendarCategory } from '~/constants/products'
+  import {
+    FramingTypeLabels,
+    getProductTypeLabel,
+    isCalendarCategory,
+    ProductCategory,
+  } from '~/constants/products'
   import type { Product } from '~/types'
 
   const props = defineProps<{
@@ -145,6 +151,22 @@
 
   const subtitleProduct = computed(() => {
     return getProductTypeLabel(props.product.categoryId)
+  })
+
+  const framingLabel = computed(() => {
+    if (
+      !props.product.framing ||
+      (props.product.categoryId !== ProductCategory.PICTURES &&
+        props.product.categoryId !== ProductCategory.SKETCHES)
+    ) {
+      return null
+    }
+
+    if (!Array.isArray(props.product.framing)) {
+      return FramingTypeLabels[props.product.framing]
+    }
+
+    return 'В раме и паспарту'
   })
 
   const addToBasket = async (product: Product) => {
