@@ -95,6 +95,7 @@ export type DashBoardOption =
   | 'LocalesForm'
   | 'OrdersList'
   | 'StatsDashboard'
+  | 'CertificateGenerator'
 
 export interface TimelineItem {
   id: number

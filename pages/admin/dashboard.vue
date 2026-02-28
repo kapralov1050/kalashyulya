@@ -114,6 +114,9 @@
     StatsDashboard: defineAsyncComponent(
       () => import('@/components/dashboard/StatsDashboard.vue'),
     ),
+    CertificateGenerator: defineAsyncComponent(
+      () => import('@/components/dashboard/CertificateGenerator.vue'),
+    ),
   }
 
   const getModalDisplayName = (option: string) => {
@@ -123,6 +126,7 @@
       LocalesForm: 'Изменить локали',
       OrdersList: 'Список заказов',
       StatsDashboard: 'Статистика',
+      CertificateGenerator: 'Генератор сертификатов',
     }
     return names[option] || option
   }

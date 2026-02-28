@@ -20,5 +20,7 @@ export const runtimeConfig: NuxtConfig['runtimeConfig'] = {
     statsUpload: process.env.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_STATS,
     stats: process.env.NUXT_PUBLIC_STATS,
     locales: process.env.NUXT_PUBLIC_LOCALES,
+    cloudFunctionPdfGenerator:
+      process.env.NUXT_PUBLIC_CLOUD_FUNCTION_PDF_GENERATOR_URL,
   },
 }
