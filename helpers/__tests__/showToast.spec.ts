@@ -38,31 +38,3 @@ describe('showToast', () => {
     })
   })
 })
-
-describe('showToast', () => {
-  beforeEach(() => {
-    mockAdd.mockClear()
-  })
-
-  it('should call toast.add with correct parameters', () => {
-    showToast('Test Title', 'Test Description', 'test-icon')
-
-    expect(mockAdd).toHaveBeenCalledTimes(1)
-    expect(mockAdd).toHaveBeenCalledWith({
-      title: 'Test Title',
-      description: 'Test Description',
-      icon: 'test-icon',
-    })
-  })
-
-  it('should handle empty parameters', () => {
-    showToast('', '', '')
-
-    expect(mockAdd).toHaveBeenCalledTimes(1)
-    expect(mockAdd).toHaveBeenCalledWith({
-      title: '',
-      description: '',
-      icon: '',
-    })
-  })
-})
