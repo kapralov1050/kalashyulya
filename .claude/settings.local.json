@@ -4,7 +4,31 @@
       "Bash(dir:*)",
       "Read(//d/**)",
       "Bash(npm run lint:*)",
-      "Bash(npm run typecheck:*)"
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run test)",
+      "Bash(git add vitest.config.ts)",
+      "Bash(git commit -m \"chore: update vitest config for co-located tests\")",
+      "Bash(npx vitest run --reporter=verbose)",
+      "Bash(git commit -m \"fix: update vitest include pattern to support both .spec.ts and .test.ts\")",
+      "Bash(npm run test utils/__tests__/slugify.spec.ts)",
+      "Bash(git add utils/__tests__/slugify.spec.ts)",
+      "Bash(git commit -m \"test: add slugify function tests\")",
+      "Bash(npm test -- utils/__tests__/slugify.spec.ts --reporter=verbose)",
+      "Bash(npm run test utils/__tests__/pluralize.spec.ts)",
+      "Bash(git add utils/__tests__/pluralize.spec.ts)",
+      "Bash(git commit:*)",
+      "Bash(npm test -- pluralize.spec.ts)",
+      "Bash(npm test -- pluralize.spec.ts --reporter=verbose)",
+      "Bash(npm run test utils/__tests__/statsFormatters.spec.ts)",
+      "Bash(git add utils/__tests__/statsFormatters.spec.ts)",
+      "Bash(npm test -- utils/__tests__/statsFormatters.spec.ts)",
+      "Bash(npm run test:run -- utils/__tests__/statsFormatters.spec.ts)",
+      "Bash(npm run test helpers/__tests__/showToast.spec.ts)",
+      "Bash(git add helpers/__tests__/showToast.spec.ts helpers/__tests__/mocks/useToast.ts)",
+      "Bash(git add helpers/__tests__/showToast.spec.ts)",
+      "Bash(npm run test:run)",
+      "Bash(npm test -- showToast.spec.ts --run)",
+      "Bash(npx tsc --noEmit helpers/showToast.ts)"
     ]
   }
 }

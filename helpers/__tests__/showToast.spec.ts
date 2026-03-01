@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { showToast } from '../showToast'
 
 // Mock the useToast composable from @nuxt/ui
@@ -9,6 +9,11 @@ beforeEach(() => {
   vi.stubGlobal('useToast', () => ({
     add: mockAdd,
   }))
+})
+
+// Clean up global stubs to prevent pollution
+afterEach(() => {
+  vi.unstubAllGlobals()
 })
 
 describe('showToast', () => {
