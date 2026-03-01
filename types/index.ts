@@ -14,6 +14,7 @@ export interface Product {
   tags: string[]
   isReserved?: boolean
   framing?: ('frame' | 'passepartout')[]
+  certificateId?: string // Номер сертификата, если был сгенерирован
 }
 
 export interface ShopData {

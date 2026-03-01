@@ -10,7 +10,9 @@ export interface CertificateProduct {
 }
 
 export interface CertificateRequest {
+  certificateNumber: string // Номер сертификата, например "JK-2026-015"
   purchaseDate: string // ISO дата покупки
+  additionalInfo?: string // Дополнительная информация
   product: CertificateProduct
 }
 
@@ -20,15 +22,24 @@ export const usePdfGenerator = () => {
     (config.public.cloudFunctionPdfGenerator as string) ||
     'https://functions.yandexcloud.net/d4ertp5k9fuh1q4d18ut'
 
+  const { getNextCertificateNumber, saveCertificateIdToProduct } = useCertificateCounter()
+
   /**
    * Генерирует сертификат подлинности для товара
    */
   const generateCertificate = async (
     product: Product,
     purchaseDate: string,
+    additionalInfo?: string,
+    manualCertificateNumber?: string,
   ): Promise<Blob> => {
+    // Используем ручной номер если указан, иначе генерируем из Firebase
+    const certificateNumber = manualCertificateNumber || (await getNextCertificateNumber())
+
     const data: CertificateRequest = {
+      certificateNumber,
       purchaseDate,
+      additionalInfo,
       product: {
         id: product.id,
         title: product.title,
@@ -39,7 +50,13 @@ export const usePdfGenerator = () => {
       },
     }
 
-    return await generatePdf(data)
+    // Генерируем PDF
+    const blob = await generatePdf(data)
+
+    // Сохраняем номер сертификата в продукт
+    await saveCertificateIdToProduct(product.id, certificateNumber)
+
+    return blob
   }
 
   /**
@@ -97,9 +114,16 @@ export const usePdfGenerator = () => {
   const previewCertificate = async (
     product: Product,
     purchaseDate: string,
+    additionalInfo?: string,
+    manualCertificateNumber?: string,
   ): Promise<void> => {
+    // Используем ручной номер если указан, иначе генерируем из Firebase
+    const certificateNumber = manualCertificateNumber || (await getNextCertificateNumber())
+
     const data: CertificateRequest = {
+      certificateNumber,
       purchaseDate,
+      additionalInfo,
       product: {
         id: product.id,
         title: product.title,

@@ -94,15 +94,51 @@
       </p>
     </div>
 
+    <!-- Шаг 2.5: Номер сертификата -->
+    <div v-if="selectedProduct" class="mb-8">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">
+        2.5. Номер сертификата
+      </h3>
+      <input
+        v-model="certificateNumber"
+        type="text"
+        placeholder="Оставьте пустым для автогенерации"
+        class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none
+          focus:ring-2 focus:ring-blue-500"
+      />
+      <p class="mt-2 text-sm text-gray-600">
+        Необязательно. Укажите номер вручную для коррекции ошибок (формат:
+        JK-2026-001)
+      </p>
+    </div>
+
+    <!-- Шаг 3: Дополнительная информация -->
+    <div v-if="selectedProduct" class="mb-8">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">
+        3. Дополнительная информация
+      </h3>
+      <textarea
+        v-model="additionalInfo"
+        rows="4"
+        placeholder="Введите дополнительную информацию для сертификата..."
+        class="w-full px-4 py-2 border border-gray-300 rounded-lg
+          focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+      />
+      <p class="mt-2 text-sm text-gray-600">
+        Необязательно поле. Информация будет отображена в сертификате
+      </p>
+    </div>
+
     <!-- Кнопка генерации -->
     <div v-if="selectedProduct" class="flex justify-end">
       <button
-        :disabled="isGenerating"
+        :disabled="isFormDisabled"
         class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white
           rounded-lg hover:bg-blue-700 disabled:bg-gray-400
           disabled:cursor-not-allowed transition-colors font-medium"
         @click="handleGenerateCertificate"
       >
+        {{ blockMessage || 'Скачать сертификат' }}
         <svg
           v-if="!isGenerating"
           class="w-5 h-5"
@@ -117,21 +153,6 @@
             d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
           />
         </svg>
-        <svg
-          v-else
-          class="w-5 h-5 animate-spin"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-          />
-        </svg>
-        {{ isGenerating ? 'Генерация...' : 'Скачать сертификат' }}
       </button>
     </div>
 
@@ -181,17 +202,46 @@
             String(selectedProductId) === String(product.id)
               ? 'border-blue-500 shadow-md'
               : 'border-transparent hover:border-gray-300',
+            product.certificateId ? 'opacity-50 cursor-not-allowed' : '',
           ]"
-          @click="selectedProductId = product.id"
+          @click="handleSelectProduct(product.id)"
         >
           <img
             :src="getProductImage(product)"
             :alt="product.title"
             class="w-full aspect-square object-cover"
           />
-          <div class="p-2 bg-white">
+          <div class="p-2 bg-white relative">
             <p class="text-sm font-medium truncate">{{ product.title }}</p>
             <p class="text-xs text-gray-500">{{ product.year }}</p>
+            <p
+              v-if="product.certificateId"
+              class="text-xs font-semibold text-blue-600 mt-1"
+            >
+              Сертификат: {{ product.certificateId }}
+            </p>
+            <!-- Кнопка удаления сертификата -->
+            <button
+              v-if="product.certificateId"
+              title="Удалить номер сертификата"
+              @click.stop="handleRemoveCertificate(product.id)"
+              class="absolute top-2 right-2 p-1 text-red-500 hover:text-red-700
+                hover:bg-red-50 rounded-md transition-colors"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12M18 6l-12 12"
+                />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -204,10 +254,13 @@
 
   const shopStore = useShopStore()
   const { shopData } = storeToRefs(shopStore)
+  const { removeCertificateIdFromProduct } = useCertificateCounter()
 
   const searchQuery = ref('')
   const selectedProductId = ref<number | string>('')
   const purchaseDate = ref<string>('')
+  const certificateNumber = ref<string>('')
+  const additionalInfo = ref<string>('')
   const isGenerating = ref(false)
   const message = ref<{ type: 'success' | 'error'; text: string } | null>(null)
 
@@ -229,6 +282,28 @@
     return products.value.filter(p => p.title.toLowerCase().includes(query))
   })
 
+  // Проверяем, выбран ли продукт с уже выданным сертификатом
+  const isProductWithCertificate = computed(() => {
+    if (!selectedProductId.value) return false
+    const product = products.value.find(
+      p => p.id === Number(selectedProductId.value),
+    )
+    return product?.certificateId ? true : false
+  })
+
+  // Блокировка кнопки и полей формы
+  const isFormDisabled = computed(() => {
+    return isGenerating.value || isProductWithCertificate.value
+  })
+
+  // Сообщение блокировки
+  const blockMessage = computed(() => {
+    if (isProductWithCertificate.value) {
+      return 'Недоступно, удалите сущестующий сертификат'
+    }
+    return ''
+  })
+
   // Выбранный продукт
   const selectedProduct = computed(() => {
     if (!selectedProductId.value) return null
@@ -247,6 +322,43 @@
 
   const { generateCertificate: generatePdfCertificate } = usePdfGenerator()
 
+  const handleSelectProduct = (productId: number | string) => {
+    const product = products.value.find(p => p.id === Number(productId))
+    if (product?.certificateId) {
+      // Если у продукта уже есть сертификат, показываем предупреждение и блокируем
+      return
+    }
+
+    selectedProductId.value = productId
+
+    // Очищаем форму и поля, если был выбран продукт с сертификатом
+    const prevProduct = products.value.find(
+      p => p.id === Number(selectedProductId.value),
+    )
+    if (prevProduct?.certificateId) {
+      certificateNumber.value = ''
+      additionalInfo.value = ''
+    }
+  }
+
+  const handleRemoveCertificate = async (productId: number) => {
+    try {
+      await removeCertificateIdFromProduct(productId)
+      message.value = {
+        type: 'success',
+        text: `Номер сертификата успешно удален`,
+      }
+      setTimeout(() => {
+        message.value = null
+      }, 3000)
+    } catch (error) {
+      message.value = {
+        type: 'error',
+        text: `Ошибка удаления: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`,
+      }
+    }
+  }
+
   const handleGenerateCertificate = async () => {
     if (!selectedProduct.value) return
 
@@ -259,7 +371,15 @@
         ? new Date(purchaseDate.value).toISOString()
         : new Date().toISOString()
 
-      await generatePdfCertificate(selectedProduct.value, dateToSend)
+      // Используем ручной номер сертификата если указан, иначе генерируем автоматически
+      const manualCertNumber = certificateNumber.value.trim() || undefined
+
+      await generatePdfCertificate(
+        selectedProduct.value,
+        dateToSend,
+        additionalInfo.value || undefined,
+        manualCertNumber,
+      )
 
       message.value = {
         type: 'success',
