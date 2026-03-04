@@ -11,6 +11,7 @@ export const useShopStore = defineStore('shop', () => {
   const itemsPerPage = ref(12)
   const sortBy = ref<string>('default')
   const selectedTags = ref<string[]>([])
+  const framingFilter = ref<'all' | 'none' | 'hasFraming'>('all')
 
   // При изменении фильтра категории очищаем searchedProducts и сбрасываем страницу
   watch(categoryFilter, (newValue, oldValue) => {
@@ -55,6 +56,17 @@ export const useShopStore = defineStore('shop', () => {
     if (selectedTags.value.length > 0) {
       products = products.filter(prod =>
         selectedTags.value.every(tag => prod.tags?.includes(tag)),
+      )
+    }
+
+    // Фильтрация по оформлению
+    if (framingFilter.value === 'none') {
+      products = products.filter(
+        prod => !prod.framing || prod.framing.length === 0,
+      )
+    } else if (framingFilter.value === 'hasFraming') {
+      products = products.filter(
+        prod => prod.framing && prod.framing.length > 0,
       )
     }
 
@@ -122,6 +134,12 @@ export const useShopStore = defineStore('shop', () => {
     selectedTags.value = []
   }
 
+  function setFramingFilter(filter: 'all' | 'none' | 'hasFraming') {
+    framingFilter.value = filter
+    currentPage.value = 1
+    searchedProducts.value = null
+  }
+
   function filterProductsByTag(tag: string) {
     addTag(tag)
     return filterProductsByTags()
@@ -179,5 +197,7 @@ export const useShopStore = defineStore('shop', () => {
     addTag,
     removeTag,
     clearTags,
+    framingFilter,
+    setFramingFilter,
   }
 })

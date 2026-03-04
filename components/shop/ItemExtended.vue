@@ -162,11 +162,16 @@
       return null
     }
 
-    if (!Array.isArray(props.product.framing)) {
-      return FramingTypeLabels[props.product.framing]
+    if (
+      Array.isArray(props.product.framing) &&
+      props.product.framing.length > 1
+    ) {
+      return 'В раме и паспарту'
+    } else if (Array.isArray(props.product.framing)) {
+      return FramingTypeLabels[props.product.framing[0]]
     }
 
-    return 'В раме и паспарту'
+    return ''
   })
 
   const addToBasket = async (product: Product) => {

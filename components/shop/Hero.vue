@@ -77,6 +77,16 @@
           />
         </div>
 
+        <div class="flex items-center justify-center gap-2">
+          <USelectMenu
+            v-model="selectedFramingLabel"
+            :search-input="false"
+            :items="framingOptionsWithLabels"
+            size="md"
+            class="w-48"
+          />
+        </div>
+
         <UModal
           v-model:open="isCustomerInfoOpen"
           scrollable
@@ -103,10 +113,12 @@
           color="primary"
           variant="solid"
           class="cursor-pointer hover:opacity-80 transition-opacity"
-          @click="() => {
-            shopStore.removeTag(tag);
-            shopStore.filterProductsByTags();
-          }"
+          @click="
+            () => {
+              shopStore.removeTag(tag)
+              shopStore.filterProductsByTags()
+            }
+          "
         >
           {{ tag }}
           <UIcon name="i-heroicons-x-mark-16-solid" class="w-4 h-4 ml-1" />
@@ -169,6 +181,23 @@
     'price-desc': 'По убыванию цены',
   }
 
+  // Опции фильтра по оформлению с читаемыми названиями
+  const framingOptionsWithLabels = ref(['Без оформления', 'С оформлением'])
+
+  // Маппинг читаемых названий на значения для фильтра оформления
+  const framingValueMap: Record<string, 'all' | 'none' | 'hasFraming'> = {
+    Оформление: 'all',
+    'Без оформления': 'none',
+    'С оформлением': 'hasFraming',
+  }
+
+  // Обратный маппинг значений на читаемые названия для фильтра оформления
+  const framingLabelMap: Record<string, string> = {
+    all: 'Оформление',
+    none: 'Без оформления',
+    hasFraming: 'С оформлением',
+  }
+
   // Локальная переменная для отображения (читаемое название)
   const selectedSortLabel = ref(
     sortLabelMap[shopStore.sortBy] || 'По умолчанию',
@@ -197,6 +226,32 @@
     },
   )
 
+  // Локальная переменная для отображения фильтра оформления (читаемое название)
+  const selectedFramingLabel = ref(framingLabelMap[shopStore.framingFilter])
+
+  // Синхронизация с store при изменении фильтра оформления
+  watch(selectedFramingLabel, newLabel => {
+    if (newLabel && framingValueMap[newLabel]) {
+      shopStore.setFramingFilter(framingValueMap[newLabel])
+      // Сбрасываем страницу при изменении фильтра
+      shopStore.setPage(1)
+      if (route.query.page) {
+        router.push({ query: { ...route.query, page: undefined } })
+      }
+    }
+  })
+
+  // Синхронизация из store при изменении фильтра оформления
+  watch(
+    () => shopStore.framingFilter,
+    newValue => {
+      const newLabel = framingLabelMap[newValue] || 'Все товары'
+      if (selectedFramingLabel.value !== newLabel) {
+        selectedFramingLabel.value = newLabel
+      }
+    },
+  )
+
   const searchState = reactive({
     title: '',
   })
@@ -216,6 +271,7 @@
   const resetSearch = () => {
     shopStore.searchedProducts = null
     shopStore.clearTags()
+    shopStore.setFramingFilter('all')
     searchState.title = ''
     shopStore.setPage(1)
     if (route.query.page) {

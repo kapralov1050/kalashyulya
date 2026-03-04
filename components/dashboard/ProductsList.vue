@@ -9,7 +9,7 @@
     <!-- Products List -->
     <div class="divide-y divide-gray-200">
       <div
-        v-for="product in shopStore.allProducts"
+        v-for="product in orderedShopItems"
         :key="product.id"
         class="px-6 py-4 hover:bg-gray-50 transition-colors duration-200"
       >
@@ -19,7 +19,7 @@
             <!-- Product Details -->
             <div class="flex-1 min-w-0">
               <h3 class="text-lg font-medium text-gray-900 truncate">
-                {{ product.title }}
+                {{ product.id }}. {{ product.title }}
               </h3>
               <div class="flex items-center space-x-4 mt-1">
                 <span
@@ -41,21 +41,29 @@
             <div class="flex items-center space-x-3">
               <span
                 class="text-sm font-medium"
-                :class="pendingReservations[product.id] ? 'text-amber-600' : 'text-gray-600'"
+                :class="
+                  pendingReservations[product.id]
+                    ? 'text-amber-600'
+                    : 'text-gray-600'
+                "
               >
                 {{ getReservationLabel(product.id) }}
               </span>
               <button
                 :class="[
                   'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2',
-                  getReservationStatus(product.id) ? 'bg-amber-600' : 'bg-gray-200',
+                  getReservationStatus(product.id)
+                    ? 'bg-amber-600'
+                    : 'bg-gray-200',
                 ]"
                 @click="toggleReservation(product.id)"
               >
                 <span
                   :class="[
                     'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
-                    getReservationStatus(product.id) ? 'translate-x-5' : 'translate-x-0',
+                    getReservationStatus(product.id)
+                      ? 'translate-x-5'
+                      : 'translate-x-0',
                   ]"
                 />
               </button>
@@ -65,8 +73,9 @@
             <button
               v-if="hasPendingChange(product.id)"
               class="flex items-center space-x-2 px-4 py-2 text-amber-600 border
-                border-amber-300 rounded-lg hover:bg-amber-50 hover:border-amber-400
-                transition-colors duration-200 font-medium"
+                border-amber-300 rounded-lg hover:bg-amber-50
+                hover:border-amber-400 transition-colors duration-200
+                font-medium"
               @click="confirmReservation(product.id)"
             >
               <svg
@@ -147,6 +156,11 @@
 
   const shopStore = useShopStore()
   const { deleteFile } = useYandexDatabase()
+
+  const orderedShopItems = computed(() => {
+    const items = shopStore.allProducts
+    return items.sort((a, b) => a.id - b.id)
+  })
 
   // Хранилище для отслеживания изменений
   const pendingReservations = ref<Record<number, boolean | undefined>>({})
