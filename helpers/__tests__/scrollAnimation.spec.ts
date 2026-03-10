@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { setupScrollAnimation, cleanupScrollAnimation } from '../scrollAnimation'
+import {
+  setupScrollAnimation,
+  cleanupScrollAnimation,
+} from '../scrollAnimation'
 
 vi.mock('gsap', () => ({
   gsap: {
@@ -44,7 +47,7 @@ describe('setupScrollAnimation', () => {
     const result = setupScrollAnimation('.test-path')
 
     expect(result).toBeDefined()
-    expect(result.cleanup).toBeInstanceOf(Function)
+    expect(result?.cleanup).toBeInstanceOf(Function)
   })
 
   it('should return null when path element does not exist', () => {
