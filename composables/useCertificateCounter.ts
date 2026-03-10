@@ -47,7 +47,6 @@ export function useCertificateCounter() {
 
       return certificateNumber
     } catch (error) {
-      console.error('Error getting next certificate number:', error)
       throw new Error('Failed to generate certificate number')
     }
   }
@@ -65,7 +64,6 @@ export function useCertificateCounter() {
       const count = snapshot.val() as number | null
       return count ?? 0
     } catch (error) {
-      console.error('Error getting certificate count:', error)
       throw new Error('Failed to get certificate count')
     }
   }
@@ -78,12 +76,14 @@ export function useCertificateCounter() {
     certificateNumber: string,
   ): Promise<void> => {
     const db = useDatabase()
-    const productRef = dbRef(db, `shop/products/product_${productId}/certificateId`)
+    const productRef = dbRef(
+      db,
+      `shop/products/product_${productId}/certificateId`,
+    )
 
     try {
       await set(productRef, certificateNumber)
     } catch (error) {
-      console.error('Error saving certificate ID to product:', error)
       throw new Error('Failed to save certificate ID to product')
     }
   }
@@ -95,7 +95,10 @@ export function useCertificateCounter() {
     productId: number,
   ): Promise<void> => {
     const db = useDatabase()
-    const productRef = dbRef(db, `shop/products/product_${productId}/certificateId`)
+    const productRef = dbRef(
+      db,
+      `shop/products/product_${productId}/certificateId`,
+    )
 
     try {
       // Получаем текущий certificateId продукта перед удалением
@@ -122,7 +125,6 @@ export function useCertificateCounter() {
         }
       }
     } catch (error) {
-      console.error('Error removing certificate ID from product:', error)
       throw new Error('Failed to remove certificate ID from product')
     }
   }

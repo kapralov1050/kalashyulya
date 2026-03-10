@@ -224,9 +224,9 @@
             <button
               v-if="product.certificateId"
               title="Удалить номер сертификата"
-              @click.stop="handleRemoveCertificate(product.id)"
               class="absolute top-2 right-2 p-1 text-red-500 hover:text-red-700
                 hover:bg-red-50 rounded-md transition-colors"
+              @click.stop="handleRemoveCertificate(product.id)"
             >
               <svg
                 class="w-4 h-4"
