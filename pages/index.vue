@@ -2,7 +2,6 @@
   <TransitionGroup name="fade">
     <template v-if="isLoading">
       <AppPreloaderSpinner />
-      <SnowEffect />
     </template>
   </TransitionGroup>
 
