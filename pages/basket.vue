@@ -140,7 +140,9 @@
 
           <UModal v-model:open="isOrderSuccessModalOpen">
             <template #content>
-              <ShopSuccessOrder />
+              <PaymentMethodSelector
+                @select-payment-method="handlePaymentMethod"
+              />
             </template>
           </UModal>
         </div>
@@ -150,6 +152,9 @@
 </template>
 
 <script setup lang="ts">
+  import UModal from '@nuxt/ui/components/Modal.vue'
+  import PaymentMethodSelector from '~/components/shop/PaymentMethodSelector.vue'
+  import OrderForm from '~/components/OrderForm.vue'
   import type { PurchaseParams } from '~/types'
   const { deleteShopItemFromBasket, loadPurchase, changeShopItemQty } =
     useBasketStore()
@@ -161,6 +166,8 @@
   const { printLocale } = useLocales()
   const { clearBasket } = useBasketStore()
   const router = useRouter()
+  const basketStore = useBasketStore()
+  const lastOrderId = ref<string | null>(null)
 
   const purchaseButtonText = computed(() => {
     return currentUser ? 'Заказать' : 'Оформить заказ'
@@ -173,9 +180,34 @@
     changeShopItemQty(1, purchaseItem)
   }
 
-  function onSuccess() {
+  function onSuccess(orderId: string) {
+    lastOrderId.value = orderId
     isOrderModalOpen.value = false
     isOrderSuccessModalOpen.value = true
+  }
+
+  function handlePaymentMethod(method: 'yookassa' | 'manual') {
+    isOrderSuccessModalOpen.value = false
+
+    if (method === 'yookassa') {
+      // Онлайн оплата → редирект на страницу оплаты
+      const orderId = lastOrderId.value || Date.now().toString()
+      const amount = totalPurchaseAmount.value
+      const description = `Оплата заказа #${orderId}`
+
+      router.push({
+        path: '/shop/payment',
+        query: {
+          orderId,
+          amount: amount.toString(),
+          description,
+        },
+      })
+    } else {
+      // Оплата вручную → сообщение и редирект на магазин
+      // Показываем SuccessOrder
+      isOrderSuccessModalOpen.value = true
+    }
   }
 
   function startOrder() {

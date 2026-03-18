@@ -22,5 +22,8 @@ export const runtimeConfig: NuxtConfig['runtimeConfig'] = {
     locales: process.env.NUXT_PUBLIC_LOCALES,
     cloudFunctionPdfGenerator:
       process.env.NUXT_PUBLIC_CLOUD_FUNCTION_PDF_GENERATOR_URL,
+    //payments:
+    cloudFunctionYookassaCreatePayment:
+      process.env.NUXT_PUBLIC_CLOUD_FUNCTION_YOOKASSA_CREATE_PAYMENT,
   },
 }

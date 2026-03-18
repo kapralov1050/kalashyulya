@@ -64,15 +64,42 @@
         :is-product-modal-open="isProductModalOpen"
         @close="closeModal"
       />
+
+      <!-- Order Modal -->
+      <UModal
+        v-model:open="isOrderModalOpen"
+        title="Оформление заказа"
+        description="Для оформления заказа мне потребуются ваши данные"
+        close-icon="heroicons:x-mark-16-solid"
+      >
+        <template #body>
+          <OrderForm
+            @close-modal="isOrderModalOpen = false"
+            @success-order="onOrderSuccess"
+          />
+        </template>
+      </UModal>
+
+      <!-- Payment Method Selector Modal -->
+      <UModal v-model:open="isOrderSuccessModalOpen">
+        <template #content>
+          <PaymentMethodSelector
+            @select-payment-method="handlePaymentMethod"
+          />
+        </template>
+      </UModal>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
+  import UModal from '@nuxt/ui/components/Modal.vue'
   import { useRoute } from 'vue-router'
   import { useFirebase } from '~/composables/firebase/useFirebase'
   import { useProductModal } from '~/composables/useProductModal'
   import ProductModal from '~/components/shop/ProductModal.vue'
+  import OrderForm from '~/components/OrderForm.vue'
+  import PaymentMethodSelector from '~/components/shop/PaymentMethodSelector.vue'
   import type { Product } from '~/types'
 
   const route = useRoute()
@@ -91,6 +118,12 @@
   const { isLoading } = useFirebase()
 
   const { isProductModalOpen, selectedProduct, closeModal } = useProductModal()
+
+  const isOrderModalOpen = shallowRef(false)
+  const isOrderSuccessModalOpen = shallowRef(false)
+  const lastOrderId = ref<string | null>(null)
+  const lastProduct = ref<Product | null>(null)
+  const basketStore = useBasketStore()
 
   const error = computed(() => {
     if (shopData.value instanceof Error) {
@@ -130,11 +163,44 @@
   }
 
   const buyNow = async (product: Product) => {
+    lastProduct.value = product
     addToBasket(product)
     await new Promise(resolve => {
       setTimeout(resolve, 500)
     })
-    router.push('/basket')
+    isOrderModalOpen.value = true
+  }
+
+  const onOrderSuccess = (orderId: string) => {
+    lastOrderId.value = orderId
+    isOrderModalOpen.value = false
+    isOrderSuccessModalOpen.value = true
+  }
+
+  const handlePaymentMethod = (method: 'yookassa' | 'manual') => {
+    isOrderSuccessModalOpen.value = false
+
+    if (method === 'yookassa') {
+      // Онлайн оплата → редирект на страницу оплаты
+      const orderId = lastOrderId.value || Date.now().toString()
+      const product = lastProduct.value
+      const amount = product?.price || '0'
+      const description = `Оплата: ${product?.title || 'Заказ'}`
+
+      console.log('Payment redirect:', { orderId, amount, description })
+
+      router.push({
+        path: '/shop/payment',
+        query: {
+          orderId,
+          amount: amount.toString(),
+          description,
+        },
+      })
+    } else {
+      // Оплата вручную → сообщение и редирект на магазин
+      router.push('/shop')
+    }
   }
 
   function handleTagCLick(tag: string) {

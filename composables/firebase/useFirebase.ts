@@ -53,6 +53,7 @@ export const useFirebase = () => {
     }
 
     await updateDataByPath(newItemWithId, `${path}order_${maxId}`)
+    return maxId.toString()
   }
 
   async function updateOrderStatus(orderId: number, status: string) {

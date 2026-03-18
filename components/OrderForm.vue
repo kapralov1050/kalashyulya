@@ -168,7 +168,7 @@
 
   const emit = defineEmits<{
     closeModal: []
-    successOrder: []
+    successOrder: [orderId: string]
   }>()
 
   const { suggestions, fetchAddresses } = useDaDataAddress()
@@ -281,10 +281,10 @@
 
       const telegramResponse = await sendOrderInfoTelegram(orderInfo)
       const emailResponse = await sendOrderInfoEmail(orderInfo)
-      addNewOrder(orderInfo, 'orders/')
+      const orderId = await addNewOrder(orderInfo, 'orders/')
 
       if (telegramResponse.success || emailResponse.success) {
-        emit('successOrder')
+        emit('successOrder', orderId)
       }
     } catch {
       showToast(

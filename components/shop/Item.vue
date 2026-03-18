@@ -69,7 +69,7 @@
           :color="isInBasket ? 'success' : 'secondary'"
           size="sm"
           class="transition-all"
-          @click="emit('buy', product)"
+          @click="handleBuy"
         >
           {{ isInBasket ? 'В корзине' : 'Купить' }}
         </UButton>
@@ -115,6 +115,11 @@
       },
       hash: route.hash,
     })
+  }
+
+  function handleBuy() {
+    metrics.trackButtonClick('buyButton')
+    emit('buy', props.product)
   }
 </script>
 
