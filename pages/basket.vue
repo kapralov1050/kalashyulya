@@ -131,15 +131,6 @@
             close-icon="heroicons:x-mark-16-solid"
           >
             <template #body>
-              <OrderForm
-                @close-modal="isOrderModalOpen = false"
-                @success-order="onSuccess"
-              />
-            </template>
-          </UModal>
-
-          <UModal v-model:open="isOrderSuccessModalOpen">
-            <template #content>
               <PaymentMethodSelector
                 @select-payment-method="handlePaymentMethod"
               />
@@ -152,22 +143,18 @@
 </template>
 
 <script setup lang="ts">
-  import UModal from '@nuxt/ui/components/Modal.vue'
   import PaymentMethodSelector from '~/components/shop/PaymentMethodSelector.vue'
-  import OrderForm from '~/components/OrderForm.vue'
   import type { PurchaseParams } from '~/types'
   const { deleteShopItemFromBasket, loadPurchase, changeShopItemQty } =
     useBasketStore()
   const { totalPurchaceQty, totalPurchaseAmount, shoppingCart } =
     storeToRefs(useBasketStore())
   const isOrderModalOpen = shallowRef(false)
-  const isOrderSuccessModalOpen = shallowRef(false)
   const { currentUser } = storeToRefs(useAuthStore())
   const { printLocale } = useLocales()
   const { clearBasket } = useBasketStore()
   const router = useRouter()
   const basketStore = useBasketStore()
-  const lastOrderId = ref<string | null>(null)
 
   const purchaseButtonText = computed(() => {
     return currentUser ? 'Заказать' : 'Оформить заказ'
@@ -180,18 +167,10 @@
     changeShopItemQty(1, purchaseItem)
   }
 
-  function onSuccess(orderId: string) {
-    lastOrderId.value = orderId
-    isOrderModalOpen.value = false
-    isOrderSuccessModalOpen.value = true
-  }
-
   function handlePaymentMethod(method: 'yookassa' | 'manual') {
-    isOrderSuccessModalOpen.value = false
-
     if (method === 'yookassa') {
       // Онлайн оплата → редирект на страницу оплаты
-      const orderId = lastOrderId.value || Date.now().toString()
+      const orderId = Date.now().toString()
       const amount = totalPurchaseAmount.value
       const description = `Оплата заказа #${orderId}`
 
@@ -204,9 +183,8 @@
         },
       })
     } else {
-      // Оплата вручную → сообщение и редирект на магазин
-      // Показываем SuccessOrder
-      isOrderSuccessModalOpen.value = true
+      clearBasket()
+      router.push('/')
     }
   }
 
@@ -214,20 +192,6 @@
     metrics.trackButtonClick('startOrderButton')
     isOrderModalOpen.value = true
   }
-
-  watch(
-    isOrderSuccessModalOpen,
-    () => {
-      if (!isOrderSuccessModalOpen.value) {
-        isOrderSuccessModalOpen.value = false
-        clearBasket()
-        router.push('/')
-      }
-    },
-    {
-      immediate: false,
-    },
-  )
 
   onMounted(() => {
     loadPurchase()
