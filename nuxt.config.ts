@@ -14,6 +14,7 @@ export default defineNuxtConfig({
       routes: [
         '/exhibitions/tikhij-svet-zimy',
         '/exhibitions/arktika-izvestnaja-i-neizvestnaja',
+        '/exhibitions/kalininskiy-cherez-prizmu-vremeni',
       ],
     },
   },
