@@ -75,7 +75,9 @@
       const { createPayment } = useYookassaPayment()
       const authStore = useAuthStore()
 
-      if (!orderId || !amount || !authStore.currentUser?.uid) {
+      const { orderInfo } = storeToRefs(useOrdersStore())
+
+      if (!orderId || !amount) {
         throw new Error('Missing required data')
       }
 
@@ -85,9 +87,8 @@
         currency: 'RUB',
         description,
         returnUrl: `${window.location.origin}/shop/payment-success`,
-        userId: authStore.currentUser.uid,
         customer: {
-          email: authStore.currentUser.email || '',
+          email: orderInfo.value?.customer.email || '',
         },
       })
 

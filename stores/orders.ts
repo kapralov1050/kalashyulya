@@ -1,5 +1,5 @@
 import { useFirebase } from '~/composables/firebase/useFirebase'
-import type { OrderInBase } from '~/types'
+import type { Order, OrderInBase } from '~/types'
 
 export const useOrdersStore = defineStore('orders', () => {
   const { ordersData } = useFirebase()
@@ -12,7 +12,10 @@ export const useOrdersStore = defineStore('orders', () => {
     return orders
   })
 
+  const orderInfo = ref<Order | null>(null)
+
   return {
     allOrders,
+    orderInfo,
   }
 })

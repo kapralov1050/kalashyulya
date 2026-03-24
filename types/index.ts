@@ -74,6 +74,7 @@ export interface Order {
 export interface OrderInBase extends Order {
   id: number
   status: string
+  paymentId: string
 }
 
 export interface DaDataSuggestion {

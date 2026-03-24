@@ -175,6 +175,7 @@
   const basketStore = useBasketStore()
   const { sendOrderInfoTelegram, sendOrderInfoEmail } = useShop()
   const { addNewOrder } = useFirebase()
+  const { orderInfo } = storeToRefs(useOrdersStore())
 
   const addressQuery = ref('')
   const isSending = shallowRef(false)
@@ -183,7 +184,7 @@
   const messengerType = ref<string[]>([])
 
   // Сбрасываем доставку, если убраны все способы связи
-  watch(messengerType, (newVal) => {
+  watch(messengerType, newVal => {
     if (newVal.length === 0) {
       isDelivery.value = false
     }
@@ -253,7 +254,7 @@
 
   async function submitOrder() {
     try {
-      const orderInfo: Order = {
+      const orderData: Order = {
         customer: {
           name: formData.name,
           phone: formData.phone,
@@ -275,15 +276,19 @@
         totalPrice: basketStore.totalPurchaseAmount,
       }
 
+      orderInfo.value = orderData
+
       metrics.trackButtonClick('completeOrderButton')
 
       isSending.value = true
 
-      const telegramResponse = await sendOrderInfoTelegram(orderInfo)
-      const emailResponse = await sendOrderInfoEmail(orderInfo)
-      const orderId = await addNewOrder(orderInfo, 'orders/')
+      const telegramResponse = await sendOrderInfoTelegram(orderInfo.value)
+      const emailResponse = await sendOrderInfoEmail(orderInfo.value)
+      const orderId = await addNewOrder(orderInfo.value, 'orders/')
 
       if (telegramResponse.success || emailResponse.success) {
+        // Очищаем корзину после успешного заказа
+        basketStore.clearBasket()
         emit('successOrder', orderId)
       }
     } catch {

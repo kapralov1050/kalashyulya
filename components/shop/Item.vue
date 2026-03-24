@@ -51,9 +51,9 @@
         <!-- Reservation Badge -->
         <div
           v-if="product.isReserved"
-          class="reservation-badge absolute -top-3.5 right-0 flex items-center space-x-1.5
-            bg-amber-500 text-white px-4 py-1.5 rounded-full text-xs font-medium
-            shadow-sm cursor-pointer"
+          class="reservation-badge absolute -top-3.5 right-0 flex items-center
+            space-x-1.5 bg-amber-500 text-white px-4 py-1.5 rounded-full text-xs
+            font-medium shadow-sm cursor-pointer"
         >
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path
@@ -119,7 +119,12 @@
 
   function handleBuy() {
     metrics.trackButtonClick('buyButton')
-    emit('buy', props.product)
+
+    if (props.isInBasket) {
+      router.push('/basket')
+    } else {
+      emit('buy', props.product)
+    }
   }
 </script>
 
@@ -133,7 +138,8 @@
   }
 
   @keyframes wiggle {
-    0%, 100% {
+    0%,
+    100% {
       transform: rotate(0deg);
     }
     25% {

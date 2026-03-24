@@ -5,7 +5,7 @@ export interface CreatePaymentOptions {
   amount: number
   description: string
   returnUrl: string
-  userId: string
+  currency: string
   customer: {
     email: string
     phone?: string
