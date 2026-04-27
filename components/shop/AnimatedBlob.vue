@@ -17,7 +17,10 @@
     </svg>
 
     <!-- Слот для иконки -->
-    <div ref="iconSlot" class="absolute top-[30%] left-1/2 -translate-x-1/2 -translate-y-1/2">
+    <div
+      ref="iconSlot"
+      class="absolute top-[30%] left-1/2 -translate-x-1/2 -translate-y-1/2"
+    >
       <slot name="icon" />
     </div>
 
@@ -43,7 +46,7 @@
   import { onMounted, ref } from 'vue'
 
   const blob = ref(null)
-  const iconSlot = ref(null)
+  const iconSlot = ref<Element | null>(null)
 
   defineSlots<{
     heading?: () => any
@@ -77,7 +80,7 @@
     })
 
     // Появление иконки (если она есть)
-    if (iconSlot.value?.children?.[0]) {
+    if (iconSlot.value && (iconSlot.value as Element)?.children?.[0]) {
       tl.from(
         iconSlot.value.children[0],
         {

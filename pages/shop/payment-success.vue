@@ -122,9 +122,7 @@
               <div
                 class="py-3 border-b border-neutral-200 dark:border-neutral-700"
               >
-                <span
-                  class="text-neutral-600 dark:text-neutral-400 block mb-2"
-                >
+                <span class="text-neutral-600 dark:text-neutral-400 block mb-2">
                   Товары:
                 </span>
                 <ul class="space-y-1">
@@ -303,7 +301,11 @@
     newOrder => {
       if (newOrder) {
         onOrderFound(newOrder)
-      } else if (allOrders.value.length > 0 && paymentId.value && !webhookTimeout) {
+      } else if (
+        allOrders.value.length > 0 &&
+        paymentId.value &&
+        !webhookTimeout
+      ) {
         // Заказы из Firebase загружены, но этот ещё без paymentId (webhook в пути)
         waitingForWebhook.value = true
         webhookTimeout = setTimeout(() => {
@@ -346,8 +348,13 @@
     if (loadingTimeout) clearTimeout(loadingTimeout)
   })
 
-  const goToShop = () => router.push('/shop')
-  const goToTracking = () => router.push('/shop/tracking')
+  function goToShop() {
+    router.push('/shop')
+  }
+
+  function goToTracking() {
+    router.push('/shop/tracking')
+  }
 
   watch(
     [order, error],
