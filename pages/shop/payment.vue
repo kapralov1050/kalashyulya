@@ -67,13 +67,21 @@
   const redirecting = ref(false)
 
   onMounted(async () => {
+    // Если paymentId уже создан для этого orderId — не создаём повторно
+    const existingPaymentId = localStorage.getItem('pendingPaymentId')
+    const existingOrderId = localStorage.getItem('pendingOrderId')
+    if (existingPaymentId && existingOrderId === orderId) {
+      redirecting.value = true
+      loading.value = false
+      window.location.href = `${window.location.origin}/shop/success`
+      return
+    }
     await createPayment()
   })
 
   const createPayment = async () => {
     try {
       const { createPayment } = useYookassaPayment()
-      const authStore = useAuthStore()
 
       const { orderInfo } = storeToRefs(useOrdersStore())
 
@@ -86,16 +94,16 @@
         amount,
         currency: 'RUB',
         description,
-        returnUrl: `${window.location.origin}/shop/payment-success`,
+        returnUrl: `${window.location.origin}/shop/success`,
         customer: {
           email: orderInfo.value?.customer.email || '',
         },
       })
 
       if (result.success && result.confirmationUrl) {
-        // Сохраняем paymentId в localStorage для использования на странице успеха
         if (result.paymentId) {
           localStorage.setItem('pendingPaymentId', result.paymentId)
+          localStorage.setItem('pendingOrderId', orderId)
         }
 
         redirecting.value = true

@@ -35,4 +35,7 @@ export default defineNuxtConfig({
     '/profile/**': { ssr: false },
     '/admin/dashboard': { ssr: false },
   },
+  devServer: {
+    host: '127.0.0.1',
+  },
 })

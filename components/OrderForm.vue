@@ -282,15 +282,14 @@
 
       isSending.value = true
 
-      const telegramResponse = await sendOrderInfoTelegram(orderInfo.value)
-      const emailResponse = await sendOrderInfoEmail(orderInfo.value)
       const orderId = await addNewOrder(orderInfo.value, 'orders/')
 
-      if (telegramResponse.success || emailResponse.success) {
-        // Очищаем корзину после успешного заказа
-        basketStore.clearBasket()
-        emit('successOrder', orderId)
-      }
+      // Уведомления отправляем параллельно, не блокируем флоу заказа
+      sendOrderInfoTelegram(orderInfo.value)
+      sendOrderInfoEmail(orderInfo.value)
+
+      basketStore.clearBasket()
+      emit('successOrder', orderId)
     } catch {
       showToast(
         'Ошибка оформления заказа',

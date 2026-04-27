@@ -12,13 +12,13 @@ const route = useRoute()
 const router = useRouter()
 
 onMounted(() => {
-  const paymentId = route.query.paymentId as string
+  const paymentId =
+    (route.query.paymentId as string) ||
+    localStorage.getItem('pendingPaymentId') ||
+    ''
 
   if (paymentId) {
-    router.push({
-      path: '/shop/payment-success',
-      query: { paymentId }
-    })
+    router.push({ path: '/shop/payment-success', query: { paymentId } })
   } else {
     router.push('/shop')
   }

@@ -1,6 +1,9 @@
-import { metrics } from '~/utils/metrics'
+import { initMetrics, metrics } from '~/utils/metrics'
 
-export const useMetrics = () => {
+export default defineNuxtPlugin(() => {
+  const config = useRuntimeConfig()
+  initMetrics(config.public.statsUpload)
+
   const route = useRoute()
 
   onMounted(() => {
@@ -13,4 +16,4 @@ export const useMetrics = () => {
       metrics.trackPageView(path)
     },
   )
-}
+})

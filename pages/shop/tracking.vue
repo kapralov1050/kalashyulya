@@ -140,17 +140,26 @@
             </h3>
 
             <div class="space-y-3">
-              <!-- Товар -->
+              <!-- Товары -->
               <div class="flex justify-between items-start">
-                <span class="text-neutral-600 dark:text-neutral-400">
-                  Товар:
+                <span class="text-neutral-600 dark:text-neutral-400 shrink-0">
+                  Товары:
                 </span>
-                <span
-                  class="text-right font-medium text-neutral-900
-                    dark:text-neutral-100 max-w-xs"
-                >
-                  {{ order.purchase?.order?.[0]?.title || 'Не указано' }}
-                </span>
+                <ul class="text-right space-y-0.5 max-w-xs">
+                  <li
+                    v-for="(item, i) in order.purchase?.order"
+                    :key="i"
+                    class="font-medium text-neutral-900 dark:text-neutral-100"
+                  >
+                    {{ item.title }}
+                    <span
+                      v-if="item.amount > 1"
+                      class="text-neutral-500 dark:text-neutral-400"
+                    >
+                      × {{ item.amount }}
+                    </span>
+                  </li>
+                </ul>
               </div>
 
               <!-- Цена -->

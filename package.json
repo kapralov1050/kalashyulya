@@ -20,6 +20,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@iconify-json/heroicons": "^1.2.3",
     "@nuxt/eslint": "^1.5.2",
     "@nuxt/icon": "^1.15.0",
     "@nuxt/image": "^1.11.0",

@@ -14,6 +14,12 @@
         <p class="text-neutral-600 dark:text-neutral-400">
           Загрузка информации о заказе...
         </p>
+        <p
+          v-if="waitingForWebhook"
+          class="text-sm text-neutral-500 dark:text-neutral-500 mt-2"
+        >
+          Ожидаем подтверждения от платёжной системы
+        </p>
       </div>
 
       <!-- Ошибка -->
@@ -47,15 +53,26 @@
 
       <!-- Успешная оплата -->
       <div v-else-if="order" class="space-y-6">
-        <!-- Заголовок с анимацией -->
+        <!-- Заголовок -->
         <div class="text-center">
           <UIcon
+            v-if="order.status === 'Оплачен'"
             name="i-heroicons-check-circle"
             class="w-16 h-16 text-green-500 mb-4 mx-auto"
           />
-          <h2 class="text-2xl font-bold mb-2">Оплата прошла успешно!</h2>
+          <UIcon
+            v-else-if="order.status === 'Отменен'"
+            name="i-heroicons-x-circle"
+            class="w-16 h-16 text-red-500 mb-4 mx-auto"
+          />
+          <UIcon
+            v-else
+            name="i-heroicons-clock"
+            class="w-16 h-16 text-orange-400 mb-4 mx-auto"
+          />
+          <h2 class="text-2xl font-bold mb-2">{{ statusTitle }}</h2>
           <p class="text-neutral-600 dark:text-neutral-400">
-            Спасибо за ваш заказ. Мы скоро свяжемся с вами.
+            {{ statusSubtitle }}
           </p>
         </div>
 
@@ -101,20 +118,31 @@
             </h3>
 
             <div class="grid gap-4">
-              <!-- Товар -->
+              <!-- Товары -->
               <div
-                class="flex justify-between items-start py-3 border-b
-                  border-neutral-200 dark:border-neutral-700"
+                class="py-3 border-b border-neutral-200 dark:border-neutral-700"
               >
-                <span class="text-neutral-600 dark:text-neutral-400">
-                  Товар:
-                </span>
                 <span
-                  class="text-right font-medium text-neutral-900
-                    dark:text-neutral-100"
+                  class="text-neutral-600 dark:text-neutral-400 block mb-2"
                 >
-                  {{ order.purchase?.order?.[0]?.title || 'Не указано' }}
+                  Товары:
                 </span>
+                <ul class="space-y-1">
+                  <li
+                    v-for="(item, i) in order.purchase?.order"
+                    :key="i"
+                    class="flex justify-between text-sm font-medium
+                      text-neutral-900 dark:text-neutral-100"
+                  >
+                    <span>{{ item.title }}</span>
+                    <span
+                      v-if="item.amount > 1"
+                      class="text-neutral-500 dark:text-neutral-400 ml-2"
+                    >
+                      × {{ item.amount }}
+                    </span>
+                  </li>
+                </ul>
               </div>
 
               <!-- Цена -->
@@ -162,7 +190,7 @@
               <!-- Дата оплаты -->
               <div class="flex justify-between items-start py-3">
                 <span class="text-neutral-600 dark:text-neutral-400">
-                  Дата оплаты:
+                  Дата заказа:
                 </span>
                 <span
                   class="text-right font-medium text-neutral-900
@@ -215,84 +243,112 @@
   const { allOrders } = storeToRefs(useOrdersStore())
   const { clearBasket } = useBasketStore()
 
-  // Состояния
   const loading = ref(true)
   const error = ref<string | null>(null)
   const order = ref<OrderInBase | null>(null)
-
-  // Получаем paymentId из query или localStorage
+  const waitingForWebhook = ref(false)
   const paymentId = ref<string | null>(null)
 
-  // Форматирование цены
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ru-RU').format(price)
-  }
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat('ru-RU').format(price)
 
-  // Форматирование даты
   const formatDate = (dateString: string) => {
     if (!dateString) return 'Не указана'
-    const date = new Date(dateString)
     return new Intl.DateTimeFormat('ru-RU', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-    }).format(date)
+    }).format(new Date(dateString))
   }
 
-  // Вычисляемый для поиска заказа
-  const foundOrder = computed(() => {
-    if (!paymentId.value || !allOrders.value.length) {
-      return null
-    }
-
-    return (
-      allOrders.value.find(order => order.paymentId === paymentId.value) || null
-    )
+  const statusTitle = computed(() => {
+    if (order.value?.status === 'Оплачен') return 'Оплата прошла успешно!'
+    if (order.value?.status === 'Отменен') return 'Платёж отменён'
+    return 'Заказ принят'
   })
 
-  // Отслеживаем изменения найденного заказа
+  const statusSubtitle = computed(() => {
+    if (order.value?.status === 'Оплачен')
+      return 'Спасибо за ваш заказ. Мы скоро свяжемся с вами.'
+    if (order.value?.status === 'Отменен')
+      return 'Платёж не был завершён. Свяжитесь с нами если нужна помощь.'
+    return 'Ожидаем подтверждения оплаты от платёжной системы.'
+  })
+
+  const foundOrder = computed(() => {
+    if (!paymentId.value || !allOrders.value.length) return null
+    return allOrders.value.find(o => o.paymentId === paymentId.value) ?? null
+  })
+
+  // Таймер ожидания webhook — даём Firebase 30 секунд на обновление
+  let webhookTimeout: ReturnType<typeof setTimeout> | null = null
+  // Таймаут на случай если Firebase вообще не ответил
+  let loadingTimeout: ReturnType<typeof setTimeout> | null = null
+
+  function onOrderFound(found: OrderInBase) {
+    order.value = found
+    loading.value = false
+    waitingForWebhook.value = false
+    if (webhookTimeout) clearTimeout(webhookTimeout)
+    if (loadingTimeout) clearTimeout(loadingTimeout)
+    clearBasket()
+    localStorage.removeItem('pendingPaymentId')
+    localStorage.removeItem('pendingOrderId')
+  }
+
   watch(
     foundOrder,
     newOrder => {
       if (newOrder) {
-        order.value = newOrder
-        loading.value = false
-        // Очищаем корзину после успешной оплаты
-        clearBasket()
-      } else if (allOrders.value.length > 0 && paymentId.value) {
-        // Если есть заказы, но не найден нужный
-        error.value =
-          'Заказ не найден. Проверьте ID платежа или свяжитесь с поддержкой.'
-        loading.value = false
+        onOrderFound(newOrder)
+      } else if (allOrders.value.length > 0 && paymentId.value && !webhookTimeout) {
+        // Заказы из Firebase загружены, но этот ещё без paymentId (webhook в пути)
+        waitingForWebhook.value = true
+        webhookTimeout = setTimeout(() => {
+          if (!order.value) {
+            error.value =
+              'Заказ не найден. Проверьте ID платежа или свяжитесь с поддержкой.'
+            loading.value = false
+          }
+        }, 30_000)
       }
     },
     { immediate: true },
   )
 
-  // Загружаем данные при монтировании
   onMounted(() => {
-    // Получаем paymentId из localStorage
-    paymentId.value = localStorage.getItem('pendingPaymentId')
+    // Принимаем paymentId из URL (переданный success.vue) или из localStorage
+    paymentId.value =
+      (route.query.paymentId as string) ||
+      localStorage.getItem('pendingPaymentId')
 
     if (!paymentId.value) {
       error.value =
         'Не передан ID платежа. Перейдите по ссылке из письма или свяжитесь с поддержкой.'
       loading.value = false
+      return
     }
+
+    // Страховочный таймаут — если Firebase не ответил вообще
+    loadingTimeout = setTimeout(() => {
+      if (loading.value) {
+        error.value =
+          'Превышено время ожидания. Проверьте статус заказа на странице отслеживания.'
+        loading.value = false
+      }
+    }, 45_000)
   })
 
-  // Навигация
-  const goToShop = () => {
-    router.push('/shop')
-  }
+  onUnmounted(() => {
+    if (webhookTimeout) clearTimeout(webhookTimeout)
+    if (loadingTimeout) clearTimeout(loadingTimeout)
+  })
 
-  const goToTracking = () => {
-    router.push('/shop/tracking')
-  }
+  const goToShop = () => router.push('/shop')
+  const goToTracking = () => router.push('/shop/tracking')
 
-  // Динамическое SEO в зависимости от состояния
   watch(
     [order, error],
     () => {

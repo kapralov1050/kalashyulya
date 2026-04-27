@@ -28,7 +28,8 @@
       "Bash(git add helpers/__tests__/showToast.spec.ts)",
       "Bash(npm run test:run)",
       "Bash(npm test -- showToast.spec.ts --run)",
-      "Bash(npx tsc --noEmit helpers/showToast.ts)"
+      "Bash(npx tsc --noEmit helpers/showToast.ts)",
+      "Bash(npx nuxi:*)"
     ]
   }
 }

@@ -129,5 +129,17 @@ export class MetricsTracker {
   }
 }
 
-const config = useRuntimeConfig()
-export const metrics = new MetricsTracker(config.public.statsUpload)
+let _instance: MetricsTracker | null = null
+
+export function initMetrics(endpoint: string) {
+  _instance = new MetricsTracker(endpoint)
+}
+
+export const metrics = {
+  trackPageView(pageName: string) {
+    _instance?.trackPageView(pageName)
+  },
+  trackButtonClick(buttonName: string) {
+    _instance?.trackButtonClick(buttonName)
+  },
+}

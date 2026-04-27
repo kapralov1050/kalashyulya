@@ -5,11 +5,11 @@
     </template>
   </TransitionGroup>
 
+  <AppHeader id="header" />
   <div id="wrapper">
     <div id="content">
       <AboutHeader />
       <main class="pt-30 pb-10 min-h-[100vh]">
-        <AppHeader id="header" />
         <AboutHero class="mb-30" />
         <AboutTimeline class="mb-10" />
         <div class="flex justify-center mb-20">
@@ -58,7 +58,7 @@
 
   let smoother
   const handleScroll = () => {
-    document.body.style.cssText += `--scrollTop: ${window.scrollY}px`
+    document.documentElement.style.setProperty('--scrollTop', `${window.scrollY}px`)
   }
 
   onMounted(async () => {
@@ -73,15 +73,12 @@
       normalizeScroll: true,
     })
 
-    gsap.from('#header', {
-      opacity: 0,
-      duration: 1,
-      scrollTrigger: {
-        start: '-=150',
-        end: 'top bottom',
-        trigger: '#header',
-        toggleActions: 'restart none none reverse',
-      },
+    gsap.set('#header', { opacity: 0 })
+    ScrollTrigger.create({
+      trigger: 'main',
+      start: 'top top',
+      onEnter: () => gsap.to('#header', { opacity: 1, duration: 0.4 }),
+      onLeaveBack: () => gsap.to('#header', { opacity: 0, duration: 0.3 }),
     })
 
     const isMobile = window.innerWidth < 768
@@ -115,7 +112,7 @@
 
   onUnmounted(() => {
     window.removeEventListener('scroll', handleScroll)
-    document.body.style.cssText = '--scrollTop: 0px'
+    document.documentElement.style.removeProperty('--scrollTop')
     smoother.kill()
     ScrollTrigger.getAll().forEach(st => st.kill())
   })

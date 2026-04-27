@@ -35,6 +35,31 @@
             </div>
           </div>
 
+          <!-- Stock Controls -->
+          <div class="flex items-center space-x-2">
+            <span class="text-sm text-gray-500">В наличии:</span>
+            <input
+              :value="stockInputs[product.id] ?? product.stock"
+              type="number"
+              min="0"
+              class="w-16 px-2 py-1 text-sm border border-gray-300 rounded-lg
+                text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+              @input="onStockInput(product.id, ($event.target as HTMLInputElement).value)"
+            />
+            <button
+              v-if="hasStockChange(product.id)"
+              class="flex items-center space-x-1 px-3 py-1.5 text-blue-600 border
+                border-blue-300 rounded-lg hover:bg-blue-50 hover:border-blue-400
+                transition-colors duration-200 font-medium text-sm"
+              @click="updateStock(product.id)"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <span>Сохранить</span>
+            </button>
+          </div>
+
           <!-- Reservation Controls -->
           <div class="flex items-center space-x-4">
             <!-- Toggle Switch -->
@@ -123,7 +148,7 @@
 
     <!-- Empty State -->
     <div
-      v-if="shopStore.allProducts.length === 0"
+      v-if="orderedShopItems.length === 0"
       class="px-6 py-12 text-center"
     >
       <svg
@@ -158,17 +183,55 @@
   const { deleteFile } = useYandexDatabase()
 
   const orderedShopItems = computed(() => {
-    const items = shopStore.allProducts
+    const items = Object.values(shopStore.shopData?.products ?? {})
     return items.sort((a, b) => a.id - b.id)
   })
 
   // Хранилище для отслеживания изменений
   const pendingReservations = ref<Record<number, boolean | undefined>>({})
 
+  const stockInputs = ref<Record<number, number | undefined>>({})
+
+  const onStockInput = (productId: number, value: string): void => {
+    const parsed = parseInt(value, 10)
+    stockInputs.value[productId] = isNaN(parsed) ? 0 : Math.max(0, parsed)
+  }
+
+  const hasStockChange = (productId: number): boolean => {
+    if (stockInputs.value[productId] === undefined) return false
+    const product = shopStore.shopData?.products?.[`product_${productId}`]
+    return stockInputs.value[productId] !== (product?.stock ?? 0)
+  }
+
+  const updateStock = async (productId: number): Promise<void> => {
+    const newStock = stockInputs.value[productId]
+    if (newStock === undefined) return
+
+    try {
+      await updateDataByPath(
+        { stock: newStock },
+        `shop/products/product_${productId}`,
+      )
+      Reflect.deleteProperty(stockInputs.value, productId)
+      showToast(
+        'Успешно!',
+        `Наличие товара обновлено: ${newStock} шт.`,
+        'heroicons:check-circle',
+      )
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Ошибка при обновлении наличия:', error)
+      showToast(
+        'Ошибка',
+        'Не удалось обновить наличие. Попробуйте еще раз.',
+        'heroicons:exclamation-circle',
+      )
+    }
+  }
+
   const getReservationStatus = (productId: number): boolean => {
-    const product = shopStore.allProducts.find(p => p.id === productId)
+    const product = shopStore.shopData?.products?.[`product_${productId}`]
     const currentStatus = product?.isReserved || false
-    // Если есть pending изменение, возвращаем его, иначе текущий статус
     return pendingReservations.value[productId] ?? currentStatus
   }
 
@@ -177,7 +240,7 @@
   }
 
   const getReservationLabel = (productId: number): string => {
-    const product = shopStore.allProducts.find(p => p.id === productId)
+    const product = shopStore.shopData?.products?.[`product_${productId}`]
     const currentStatus = product?.isReserved || false
     const displayStatus = pendingReservations.value[productId] ?? currentStatus
 
