@@ -6,35 +6,31 @@
   </TransitionGroup>
 
   <AppHeader id="header" />
-  <div id="wrapper">
-    <div id="content">
-      <AboutHeader />
-      <main class="pt-30 pb-10 min-h-[100vh]">
-        <AboutHero class="mb-30" />
-        <AboutTimeline class="mb-10" />
-        <div class="flex justify-center mb-20">
-          <UButton
-            class="hover:transform hover:scale-110 transition-transform
-              duration-200 hidden sm:flex"
-            icon="heroicons:arrow-up"
-            size="xl"
-            variant="link"
-            color="neutral"
-            to="#header"
-          >
-            {{ printLocale('about_arrow_up') }}
-          </UButton>
-        </div>
-        <AboutGallery />
-      </main>
-      <AppFooter />
+  <AboutHeader />
+  <main class="pt-30 pb-10 min-h-[100vh]">
+    <AboutHero class="mb-30" />
+    <AboutTimeline class="mb-10" />
+    <div class="flex justify-center mb-20">
+      <UButton
+        class="hover:transform hover:scale-110 transition-transform
+          duration-200 hidden sm:flex"
+        icon="heroicons:arrow-up"
+        size="xl"
+        variant="link"
+        color="neutral"
+        to="#header"
+      >
+        {{ printLocale('about_arrow_up') }}
+      </UButton>
     </div>
-  </div>
+    <AboutGallery />
+  </main>
+  <AppFooter />
 </template>
 
 <script setup>
+  import Lenis from 'lenis'
   import { gsap } from 'gsap'
-  import { ScrollSmoother } from 'gsap/ScrollSmoother'
   import { ScrollTrigger } from 'gsap/ScrollTrigger'
   import { awaitImage } from '~/helpers/useImages'
 
@@ -54,24 +50,27 @@
 
   const isLoading = ref(false)
 
-  gsap.registerPlugin(ScrollTrigger, ScrollSmoother)
+  gsap.registerPlugin(ScrollTrigger)
 
-  let smoother
-  const handleScroll = () => {
-    document.documentElement.style.setProperty('--scrollTop', `${window.scrollY}px`)
-  }
+  let lenis
+  let rafCallback
 
   onMounted(async () => {
     isLoading.value = true
-    window.addEventListener('scroll', handleScroll)
 
-    smoother = ScrollSmoother.create({
-      wrapper: '#wrapper',
-      content: '#content',
-      smooth: 1.4,
-      effects: true,
-      normalizeScroll: true,
+    lenis = new Lenis({
+      duration: 1.4,
+      easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     })
+
+    lenis.on('scroll', ScrollTrigger.update)
+    lenis.on('scroll', ({ scroll }) => {
+      document.documentElement.style.setProperty('--scrollTop', `${scroll}px`)
+    })
+
+    rafCallback = time => lenis.raf(time * 1000)
+    gsap.ticker.add(rafCallback)
+    gsap.ticker.lagSmoothing(0)
 
     gsap.set('#header', { opacity: 0 })
     ScrollTrigger.create({
@@ -111,9 +110,9 @@
   })
 
   onUnmounted(() => {
-    window.removeEventListener('scroll', handleScroll)
     document.documentElement.style.removeProperty('--scrollTop')
-    smoother.kill()
+    gsap.ticker.remove(rafCallback)
+    lenis.destroy()
     ScrollTrigger.getAll().forEach(st => st.kill())
   })
 </script>
@@ -126,10 +125,5 @@
 
   .fade-leave-to {
     opacity: 0;
-  }
-
-  #wrapper {
-    opacity: 1;
-    transition: opacity 0.3s ease;
   }
 </style>

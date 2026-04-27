@@ -44,8 +44,6 @@
     position: absolute;
     background-size: cover;
     background-position: center;
-    transition: var(--transition);
-    scroll-behavior: smooth;
     will-change: transform;
     z-index: 2;
     scrollbar-gutter: stable;
@@ -54,7 +52,6 @@
   .layer__header {
     z-index: 1;
     transform: translate3d(0, calc(var(--scrollTop) / 2), 0);
-    transition: var(--transition-header-title);
     will-change: transform;
     font-weight: 900;
   }
