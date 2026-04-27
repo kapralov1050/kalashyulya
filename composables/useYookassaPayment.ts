@@ -50,8 +50,6 @@ export const useYookassaPayment = () => {
 
       return response
     } catch (error: unknown) {
-      console.error('Create payment error:', error)
-
       let errorMessage = 'Неизвестная ошибка'
 
       if (error && typeof error === 'object' && 'status' in error) {
