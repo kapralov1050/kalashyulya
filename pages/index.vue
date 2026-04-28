@@ -61,13 +61,20 @@
     lenis = new Lenis({
       duration: 1.4,
       easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      syncTouch: true,
+      syncTouchLerp: 0.075,
     })
 
+    const setBaseY = gsap.quickSetter('.layers__base', 'y', 'px')
+    const setMiddleY = gsap.quickSetter('.layers__middle', 'y', 'px')
+    const setFrontY = gsap.quickSetter('.layers__front', 'y', 'px')
     const setHeaderTextY = gsap.quickSetter('.layer__header', 'y', 'px')
 
     lenis.on('scroll', ScrollTrigger.update)
     lenis.on('scroll', ({ scroll }) => {
-      document.documentElement.style.setProperty('--scrollTop', `${scroll}px`)
+      setBaseY(scroll / 1.5)
+      setMiddleY(scroll / 3.5)
+      setFrontY(scroll / 5.5)
       setHeaderTextY(scroll / 2)
     })
 
@@ -113,7 +120,6 @@
   })
 
   onUnmounted(() => {
-    document.documentElement.style.removeProperty('--scrollTop')
     gsap.ticker.remove(rafCallback)
     lenis.destroy()
     ScrollTrigger.getAll().forEach(st => st.kill())

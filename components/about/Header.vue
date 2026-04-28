@@ -71,17 +71,14 @@
     height: calc(100% + calc(var(--index) * 10));
     top: calc(var(--index) * -5);
     background-image: var(--base-layer);
-    transform: translate3d(0, calc(var(--scrollTop) / 1.5), 0);
     z-index: 0;
   }
 
   .layers__middle {
     background-image: var(--middle-layer);
-    transform: translate3d(0, calc(var(--scrollTop) / 3.5), 0);
   }
 
   .layers__front {
     background-image: var(--front-layer);
-    transform: translate3d(0, calc(var(--scrollTop) / 5.5), 0);
   }
 </style>
