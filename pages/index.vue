@@ -63,9 +63,12 @@
       easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     })
 
+    const setHeaderTextY = gsap.quickSetter('.layer__header', 'y', 'px')
+
     lenis.on('scroll', ScrollTrigger.update)
     lenis.on('scroll', ({ scroll }) => {
       document.documentElement.style.setProperty('--scrollTop', `${scroll}px`)
+      setHeaderTextY(scroll / 2)
     })
 
     rafCallback = time => lenis.raf(time * 1000)
