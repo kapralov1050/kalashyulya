@@ -12,8 +12,8 @@
     <AboutTimeline class="mb-10" />
     <div class="flex justify-center mb-20">
       <UButton
-        class="hover:transform hover:scale-110 transition-transform
-          duration-200 hidden sm:flex"
+        class="hover:transform hover:scale-110 transition-transform duration-200
+          hidden sm:flex"
         icon="heroicons:arrow-up"
         size="xl"
         variant="link"
@@ -62,7 +62,7 @@
       duration: 1.4,
       easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       syncTouch: true,
-      syncTouchLerp: 0.075,
+      syncTouchLerp: 0.06,
     })
 
     const setBaseY = gsap.quickSetter('.layers__base', 'y', 'px')
