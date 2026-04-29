@@ -4,7 +4,7 @@ export const useLocalesStore = defineStore('locales', () => {
   const config = useRuntimeConfig()
 
   async function fetchLocales() {
-    const blob = await $fetch<Blob>(`${config.public.locales}`, {
+    const blob = await $fetch<Blob>(`${config.public.locales}?v=${Date.now()}`, {
       responseType: 'blob',
     })
 
@@ -21,7 +21,10 @@ export const useLocalesStore = defineStore('locales', () => {
 
   async function updateLocales(newLocales: Record<string, string>) {
     try {
-      const newVersion = new Date().toISOString().split('T')[0].replace(/-/g, '')
+      const newVersion = new Date()
+        .toISOString()
+        .split('T')[0]
+        .replace(/-/g, '')
 
       const dataWithVersion = {
         _version: newVersion,
