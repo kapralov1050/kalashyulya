@@ -6,10 +6,10 @@
         <h1
           class="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-2"
         >
-          Отслеживание заказа
+          {{ printLocale('tracking_page_title') }}
         </h1>
         <p class="text-neutral-600 dark:text-neutral-400">
-          Введите ID платежа для поиска вашего заказа
+          {{ printLocale('tracking_page_subtitle') }}
         </p>
       </div>
 
@@ -21,12 +21,12 @@
               class="block text-sm font-medium text-neutral-700
                 dark:text-neutral-300 mb-2"
             >
-              ID платежа
+              {{ printLocale('tracking_payment_id_label') }}
             </label>
             <input
               v-model="paymentId"
               type="text"
-              placeholder="Например: 314c92fb-000f-5000-b000-1c4140d12338"
+              :placeholder="printLocale('tracking_payment_id_placeholder')"
               class="w-full px-4 py-3 rounded-lg border border-neutral-300
                 dark:border-neutral-600 bg-white dark:bg-neutral-700
                 text-neutral-900 dark:text-neutral-100 focus:outline-none
@@ -48,7 +48,7 @@
               name="i-heroicons-arrow-path"
               class="animate-spin w-5 h-5 mr-2"
             />
-            {{ loading ? 'Поиск...' : 'Найти заказ' }}
+            {{ loading ? printLocale('tracking_searching') : printLocale('tracking_find') }}
           </UButton>
         </div>
       </div>
@@ -63,7 +63,7 @@
           class="animate-spin w-12 h-12 mb-4 text-neutral-600
             dark:text-neutral-400"
         />
-        <p class="text-neutral-600 dark:text-neutral-400">Поиск заказа...</p>
+        <p class="text-neutral-600 dark:text-neutral-400">{{ printLocale('tracking_loading') }}</p>
       </div>
 
       <!-- Ошибка -->
@@ -79,7 +79,7 @@
           />
           <div class="flex-1">
             <h3 class="font-semibold text-red-900 dark:text-red-100 mb-1">
-              Ошибка
+              {{ printLocale('tracking_error_title') }}
             </h3>
             <p class="text-red-700 dark:text-red-300">{{ error }}</p>
             <UButton
@@ -89,7 +89,7 @@
               class="mt-4"
               @click="resetSearch"
             >
-              Попробовать снова
+              {{ printLocale('tracking_retry') }}
             </UButton>
           </div>
         </div>
@@ -120,7 +120,7 @@
             <span
               class="text-sm font-medium text-neutral-600 dark:text-neutral-400"
             >
-              Статус:
+              {{ printLocale('tracking_status_label') }}
             </span>
             <span
               class="px-3 py-1.5 rounded-full text-sm font-medium text-white"
@@ -136,14 +136,14 @@
               class="text-lg font-semibold text-neutral-900
                 dark:text-neutral-100 mb-4"
             >
-              Детали заказа
+              {{ printLocale('order_details_title') }}
             </h3>
 
             <div class="space-y-3">
               <!-- Товары -->
               <div class="flex justify-between items-start">
                 <span class="text-neutral-600 dark:text-neutral-400 shrink-0">
-                  Товары:
+                  {{ printLocale('order_goods_label') }}
                 </span>
                 <ul class="text-right space-y-0.5 max-w-xs">
                   <li
@@ -165,7 +165,7 @@
               <!-- Цена -->
               <div class="flex justify-between items-start">
                 <span class="text-neutral-600 dark:text-neutral-400">
-                  Сумма:
+                  {{ printLocale('order_sum_label') }}
                 </span>
                 <span
                   class="text-right font-bold text-lg text-green-600
@@ -178,7 +178,7 @@
               <!-- Дата заказа -->
               <div class="flex justify-between items-start">
                 <span class="text-neutral-600 dark:text-neutral-400">
-                  Дата заказа:
+                  {{ printLocale('order_date_label') }}
                 </span>
                 <span
                   class="text-right font-medium text-neutral-900
@@ -191,7 +191,7 @@
               <!-- Способ доставки -->
               <div class="flex justify-between items-start">
                 <span class="text-neutral-600 dark:text-neutral-400">
-                  Способ доставки:
+                  {{ printLocale('order_delivery_method_label') }}
                 </span>
                 <span
                   class="text-right font-medium text-neutral-900
@@ -222,13 +222,13 @@
               class="text-lg font-semibold text-neutral-900
                 dark:text-neutral-100 mb-4"
             >
-              Информация о клиенте
+              {{ printLocale('tracking_customer_info_title') }}
             </h3>
 
             <div class="space-y-3">
               <!-- Имя -->
               <div class="flex justify-between items-start">
-                <span class="text-neutral-600 dark:text-neutral-400">Имя:</span>
+                <span class="text-neutral-600 dark:text-neutral-400">{{ printLocale('tracking_customer_name_label') }}</span>
                 <span
                   class="text-right font-medium text-neutral-900
                     dark:text-neutral-100"
@@ -240,7 +240,7 @@
               <!-- Email -->
               <div class="flex justify-between items-start">
                 <span class="text-neutral-600 dark:text-neutral-400">
-                  Email:
+                  {{ printLocale('tracking_customer_email_label') }}
                 </span>
                 <span
                   class="text-right font-medium text-neutral-900
@@ -253,7 +253,7 @@
               <!-- Телефон -->
               <div class="flex justify-between items-start">
                 <span class="text-neutral-600 dark:text-neutral-400">
-                  Телефон:
+                  {{ printLocale('tracking_customer_phone_label') }}
                 </span>
                 <span
                   class="text-right font-medium text-neutral-900
@@ -266,7 +266,7 @@
               <!-- Способ связи -->
               <div class="flex justify-between items-start">
                 <span class="text-neutral-600 dark:text-neutral-400">
-                  Способ связи:
+                  {{ printLocale('tracking_customer_contact_label') }}
                 </span>
                 <span
                   class="text-right font-medium text-neutral-900
@@ -293,35 +293,35 @@
               class="text-lg font-semibold text-neutral-900
                 dark:text-neutral-100 mb-4"
             >
-              Адрес доставки
+              {{ printLocale('tracking_delivery_address_title') }}
             </h3>
 
             <div class="text-neutral-700 dark:text-neutral-300 space-y-1">
               <p v-if="order.customer?.delivery?.city">
                 <span class="text-neutral-600 dark:text-neutral-400">
-                  Город:
+                  {{ printLocale('tracking_city_label') }}
                 </span>
                 {{ order.customer.delivery.city }}
               </p>
               <p v-if="order.customer?.delivery?.street">
                 <span class="text-neutral-600 dark:text-neutral-400">
-                  Улица:
+                  {{ printLocale('tracking_street_label') }}
                 </span>
                 {{ order.customer.delivery.street }}
               </p>
               <p v-if="order.customer?.delivery?.house">
-                <span class="text-neutral-600 dark:text-neutral-400">Дом:</span>
+                <span class="text-neutral-600 dark:text-neutral-400">{{ printLocale('tracking_house_label') }}</span>
                 {{ order.customer.delivery.house }}
               </p>
               <p v-if="order.customer?.delivery?.apartment">
                 <span class="text-neutral-600 dark:text-neutral-400">
-                  Квартира:
+                  {{ printLocale('tracking_apartment_label') }}
                 </span>
                 {{ order.customer.delivery.apartment }}
               </p>
               <p v-if="order.customer?.delivery?.recipient">
                 <span class="text-neutral-600 dark:text-neutral-400">
-                  Получатель:
+                  {{ printLocale('tracking_recipient_label') }}
                 </span>
                 {{ order.customer.delivery.recipient }}
               </p>
@@ -337,7 +337,7 @@
               @click="resetSearch"
             >
               <UIcon name="i-heroicons-magnifying-glass" class="w-5 h-5 mr-2" />
-              Найти другой заказ
+              {{ printLocale('tracking_find_other') }}
             </UButton>
           </div>
         </div>
@@ -350,7 +350,7 @@
           class="w-16 h-16 text-neutral-400 dark:text-neutral-600 mb-4"
         />
         <p class="text-neutral-600 dark:text-neutral-400">
-          Введите ID платежа выше для поиска заказа
+          {{ printLocale('tracking_empty_hint') }}
         </p>
       </div>
     </div>
@@ -360,6 +360,7 @@
 <script setup lang="ts">
   import type { OrderInBase } from '~/types'
 
+  const { printLocale } = useLocales()
   const toast = useToast()
   const { allOrders } = storeToRefs(useOrdersStore())
 

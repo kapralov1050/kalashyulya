@@ -12,13 +12,13 @@
             dark:text-neutral-400"
         />
         <p class="text-neutral-600 dark:text-neutral-400">
-          Загрузка информации о заказе...
+          {{ printLocale('payment_success_loading') }}
         </p>
         <p
           v-if="waitingForWebhook"
           class="text-sm text-neutral-500 dark:text-neutral-500 mt-2"
         >
-          Ожидаем подтверждения от платёжной системы
+          {{ printLocale('payment_success_webhook_waiting') }}
         </p>
       </div>
 
@@ -32,11 +32,11 @@
             name="i-heroicons-x-circle"
             class="w-16 h-16 text-red-500 mb-4"
           />
-          <h2 class="text-2xl font-bold mb-2">Ошибка</h2>
+          <h2 class="text-2xl font-bold mb-2">{{ printLocale('tracking_error_title') }}</h2>
           <p class="text-neutral-600 dark:text-neutral-400 mb-6">{{ error }}</p>
           <div class="flex flex-col gap-3 max-w-sm">
             <UButton color="primary" size="lg" block @click="goToShop">
-              Вернуться в магазин
+              {{ printLocale('shop_back_to_shop') }}
             </UButton>
             <UButton
               color="neutral"
@@ -45,7 +45,7 @@
               block
               @click="goToTracking"
             >
-              Страница отслеживания заказа
+              {{ printLocale('shop_tracking_link') }}
             </UButton>
           </div>
         </div>
@@ -91,20 +91,20 @@
                 mb-1"
             >
               <UIcon name="i-heroicons-hashtag" class="w-5 h-5" />
-              <span class="font-semibold">Номер для отслеживания</span>
+              <span class="font-semibold">{{ printLocale('payment_success_tracking_number_label') }}</span>
             </div>
             <div
               class="text-2xl font-mono font-bold text-green-800
                 dark:text-green-300 mb-2"
             >
-              {{ order.paymentId || 'Ожидание...' }}
+              {{ order.paymentId || printLocale('payment_success_tracking_number_waiting') }}
             </div>
             <p class="text-sm text-green-700 dark:text-green-400">
               <UIcon
                 name="i-heroicons-exclamation-triangle"
                 class="w-4 h-4 inline mr-1"
               />
-              Сохраните этот номер для отслеживания заказа
+              {{ printLocale('payment_success_save_hint') }}
             </p>
           </div>
 
@@ -123,7 +123,7 @@
                 class="py-3 border-b border-neutral-200 dark:border-neutral-700"
               >
                 <span class="text-neutral-600 dark:text-neutral-400 block mb-2">
-                  Товары:
+                  {{ printLocale('order_goods_label') }}
                 </span>
                 <ul class="space-y-1">
                   <li
@@ -149,7 +149,7 @@
                   border-neutral-200 dark:border-neutral-700"
               >
                 <span class="text-neutral-600 dark:text-neutral-400">
-                  Сумма оплаты:
+                  {{ printLocale('payment_success_payment_sum_label') }}
                 </span>
                 <span
                   class="text-right font-bold text-2xl text-green-600
@@ -165,7 +165,7 @@
                   border-neutral-200 dark:border-neutral-700"
               >
                 <span class="text-neutral-600 dark:text-neutral-400">
-                  Способ доставки:
+                  {{ printLocale('order_delivery_method_label') }}
                 </span>
                 <span
                   class="text-right font-medium text-neutral-900
@@ -176,11 +176,11 @@
                     class="flex items-center gap-1"
                   >
                     <UIcon name="i-heroicons-truck" class="w-5 h-5" />
-                    Доставка
+                    {{ printLocale('order_delivery') }}
                   </span>
                   <span v-else class="flex items-center gap-1">
                     <UIcon name="i-heroicons-bag" class="w-5 h-5" />
-                    Самовывоз
+                    {{ printLocale('order_pickup') }}
                   </span>
                 </span>
               </div>
@@ -204,10 +204,7 @@
         <!-- Что будет дальше -->
         <div class="bg-white dark:bg-neutral-800 rounded-xl shadow-lg p-6">
           <p class="text-neutral-700 dark:text-neutral-300 leading-relaxed">
-            Спасибо за ваш заказ! Я скоро свяжусь с вами, чтобы подтвердить
-            оплату и обсудить детали доставки. Вы можете следить за статусом
-            заказа на странице отслеживания в любое время. Если у вас возникнут
-            вопросы, можете написать мне в Telegram — @kalashyulyaa
+            {{ printLocale('payment_success_contact_text') }}
           </p>
         </div>
 
@@ -215,7 +212,7 @@
         <div class="flex flex-col sm:flex-row gap-3">
           <UButton color="primary" size="lg" block @click="goToShop">
             <UIcon name="i-heroicons-arrow-left" class="w-5 h-5 mr-2" />
-            Вернуться в магазин
+            {{ printLocale('shop_back_to_shop') }}
           </UButton>
           <UButton
             color="neutral"
@@ -225,7 +222,7 @@
             @click="goToTracking"
           >
             <UIcon name="i-heroicons-magnifying-glass" class="w-5 h-5 mr-2" />
-            Страница отслеживания заказа
+            {{ printLocale('shop_tracking_link') }}
           </UButton>
         </div>
       </div>
@@ -236,6 +233,7 @@
 <script setup lang="ts">
   import type { OrderInBase } from '~/types'
 
+  const { printLocale } = useLocales()
   const route = useRoute()
   const router = useRouter()
   const { allOrders } = storeToRefs(useOrdersStore())
@@ -262,17 +260,17 @@
   }
 
   const statusTitle = computed(() => {
-    if (order.value?.status === 'Оплачен') return 'Оплата прошла успешно!'
-    if (order.value?.status === 'Отменен') return 'Платёж отменён'
-    return 'Заказ принят'
+    if (order.value?.status === 'Оплачен') return printLocale('payment_success_status_paid')
+    if (order.value?.status === 'Отменен') return printLocale('payment_success_status_cancelled')
+    return printLocale('payment_success_status_pending')
   })
 
   const statusSubtitle = computed(() => {
     if (order.value?.status === 'Оплачен')
-      return 'Спасибо за ваш заказ. Мы скоро свяжемся с вами.'
+      return printLocale('payment_success_subtitle_paid')
     if (order.value?.status === 'Отменен')
-      return 'Платёж не был завершён. Свяжитесь с нами если нужна помощь.'
-    return 'Ожидаем подтверждения оплаты от платёжной системы.'
+      return printLocale('payment_success_subtitle_cancelled')
+    return printLocale('payment_success_subtitle_pending')
   })
 
   const foundOrder = computed(() => {

@@ -27,20 +27,14 @@
       >
         <div class="p-8 flex flex-col gap-y-3">
           <p class="mt-2 text-neutral-500 dark:text-neutral-300">
-            С 2021 года мы перед каждыми праздниками создаем особенные
-            календари. Это не серийная продукция, а уникальный проект с
-            неповторяющимися акварельными иллюстрациями — нежными этюдами
-            цветов, пейзажей или натюрмортов, иногда дополненными легкими
-            набросками.
+            {{ printLocale('calendar_desc_1') }}
           </p>
           <p class="mt-2 text-neutral-600 dark:text-neutral-300">
-            К 2026 году мы впервые подготовили целых
+            {{ printLocale('calendar_desc_2_prefix') }}
             <span class="font-semibold text-lg text-black dark:text-white">
-              3 вида календарей
+              {{ printLocale('calendar_desc_2_highlight') }}
             </span>
-            ! Это красивый и душевный подарок с ограниченным тиражом для вас и
-            ваших близких. Качественная печать, яркие цвета и уютные сюжеты
-            будут круглый год создавать праздничное настроение в вашем доме.
+            {{ printLocale('calendar_desc_2_suffix') }}
           </p>
         </div>
       </div>
@@ -67,7 +61,7 @@
                 variant="outline"
                 @click="openProductPage(calendar.id)"
               >
-                купить!
+                {{ printLocale('calendar_buy_button') }}
               </UButton>
             </template>
           </AppHeroContent>
@@ -81,6 +75,8 @@
   import { gsap } from 'gsap'
   import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin'
   import { onMounted } from 'vue'
+
+  const { printLocale } = useLocales()
   const shopStore = useShopStore()
   const { allProducts } = storeToRefs(shopStore)
   const router = useRouter()

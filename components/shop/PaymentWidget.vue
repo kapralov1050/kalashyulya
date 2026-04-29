@@ -4,7 +4,7 @@
   </div>
   <div v-else class="payment-loading">
     <UIcon name="i-heroicons-arrow-path" class="animate-spin w-8 h-8" />
-    <p>Загрузка платежной формы...</p>
+    <p>{{ printLocale('shop_payment_widget_loading') }}</p>
   </div>
 </template>
 
@@ -20,6 +20,7 @@ const emit = defineEmits<{
   error: [error: string]
 }>()
 
+const { printLocale } = useLocales()
 const { openPaymentWidget } = useYookassaPayment()
 
 onMounted(() => {

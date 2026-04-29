@@ -7,25 +7,25 @@
       @submit="submitOrder"
     >
       <div class="space-y-4">
-        <UFormField name="name" label="Ваше имя">
+        <UFormField name="name" :label="printLocale('order_form_name_label')">
           <UInput
             v-model="formData.name"
             size="xl"
             type="text"
-            placeholder="Введите ваше имя"
+            :placeholder="printLocale('order_form_name_placeholder')"
             class="w-full"
           />
         </UFormField>
-        <UFormField name="email" label="Ваш email">
+        <UFormField name="email" :label="printLocale('order_form_email_label')">
           <UInput
             v-model="formData.email"
             size="xl"
             type="email"
-            placeholder="Введите ваш email"
+            :placeholder="printLocale('order_form_email_placeholder')"
             class="w-full"
           />
         </UFormField>
-        <UFormField name="messenger" label="Как с вами связаться? *">
+        <UFormField name="messenger" :label="printLocale('order_form_contact_label')">
           <UCheckboxGroup
             v-model="messengerType"
             orientation="horizontal"
@@ -36,13 +36,13 @@
         <UFormField
           v-if="messengerType.includes('Звонок')"
           name="phone"
-          label="Ваш телефон *"
+          :label="printLocale('order_form_phone_label')"
         >
           <UInput
             v-model="formData.phone"
             size="xl"
             type="text"
-            placeholder="Введите ваш номер телефона"
+            :placeholder="printLocale('order_form_phone_placeholder')"
             class="w-full"
           />
         </UFormField>
@@ -51,13 +51,13 @@
             ['Вконтакте', 'Телеграм'].some(item => messengerType.includes(item))
           "
           name="nickname"
-          label="Ваш ник в VK или Telegram *"
+          :label="printLocale('order_form_nickname_label')"
         >
           <UInput
             v-model="formData.nickname"
             size="xl"
             type="text"
-            placeholder="введите ваш ник в VK или Telegram"
+            :placeholder="printLocale('order_form_nickname_placeholder')"
             class="w-full"
           />
         </UFormField>
@@ -66,17 +66,17 @@
       <UCheckbox
         v-if="messengerType.length > 0"
         v-model="isDelivery"
-        label="Запросить доставку"
+        :label="printLocale('order_form_delivery_checkbox')"
       />
 
       <div v-if="isDelivery" class="space-y-4">
-        <h3 class="text-xl font-bold">Доставка</h3>
-        <UFormField name="address" label="Адрес">
+        <h3 class="text-xl font-bold">{{ printLocale('order_form_delivery_title') }}</h3>
+        <UFormField name="address" :label="printLocale('order_form_address_label')">
           <UInput
             v-model="addressQuery"
             size="xl"
             type="text"
-            placeholder="Введите адрес"
+            :placeholder="printLocale('order_form_address_placeholder')"
             class="w-full"
             @input="
               (e: Event) => fetchAddresses((e.target as HTMLInputElement).value)
@@ -93,49 +93,49 @@
             </div>
           </div>
         </UFormField>
-        <UFormField name="city" label="Город">
+        <UFormField name="city" :label="printLocale('order_form_city_label')">
           <UInput
             v-model="formData.city"
             size="xl"
             type="text"
-            placeholder="Введите город"
+            :placeholder="printLocale('order_form_city_placeholder')"
             class="w-full"
           />
         </UFormField>
-        <UFormField name="recipient" label="Получатель (ФИО полностью)">
+        <UFormField name="recipient" :label="printLocale('order_form_recipient_label')">
           <UInput
             v-model="formData.recipient"
             size="xl"
             type="text"
-            placeholder="Введите ФИО получателя"
+            :placeholder="printLocale('order_form_recipient_placeholder')"
             class="w-full"
           />
         </UFormField>
         <div class="grid grid-cols-3 gap-4">
-          <UFormField name="street" label="Улица">
+          <UFormField name="street" :label="printLocale('order_form_street_label')">
             <UInput
               v-model="formData.street"
               size="xl"
               type="text"
-              placeholder="улица"
+              :placeholder="printLocale('order_form_street_placeholder')"
               class="w-full"
             />
           </UFormField>
-          <UFormField name="house" label="Дом">
+          <UFormField name="house" :label="printLocale('order_form_house_label')">
             <UInput
               v-model="formData.house"
               size="xl"
               type="text"
-              placeholder="дом"
+              :placeholder="printLocale('order_form_house_placeholder')"
               class="w-full"
             />
           </UFormField>
-          <UFormField name="apartment" label="Квартира">
+          <UFormField name="apartment" :label="printLocale('order_form_apartment_label')">
             <UInput
               v-model="formData.apartment"
               size="xl"
               type="text"
-              placeholder="квартира"
+              :placeholder="printLocale('order_form_apartment_placeholder')"
               class="w-full"
             />
           </UFormField>
@@ -152,7 +152,7 @@
         :disabled="!isFormValid"
         @click="submitOrder"
       >
-        {{ isSending ? 'Отправка...' : 'Отправить' }}
+        {{ isSending ? printLocale('order_form_sending') : printLocale('order_form_submit') }}
       </UButton>
     </UForm>
   </article>
@@ -165,6 +165,8 @@
   import { showToast } from '~/helpers/showToast'
   import { orderSchema } from '~/helpers/valibot'
   import type { DaDataSuggestion, Order } from '~/types'
+
+  const { printLocale } = useLocales()
 
   const emit = defineEmits<{
     closeModal: []

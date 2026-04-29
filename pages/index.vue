@@ -5,7 +5,7 @@
     </template>
   </TransitionGroup>
 
-  <AppHeader id="header" />
+  <AppHeader id="header" fixed />
   <AboutHeader />
   <main class="pt-30 pb-10 min-h-[100vh]">
     <AboutHero class="mb-30" />
@@ -86,8 +86,8 @@
     ScrollTrigger.create({
       trigger: 'main',
       start: 'top top',
-      onEnter: () => gsap.to('#header', { opacity: 1, duration: 0.4 }),
-      onLeaveBack: () => gsap.to('#header', { opacity: 0, duration: 0.3 }),
+      onEnter: () => gsap.to('#header', { opacity: 1, duration: 0.2 }),
+      onLeaveBack: () => gsap.to('#header', { opacity: 0, duration: 0.15 }),
     })
 
     const isMobile = window.innerWidth < 768

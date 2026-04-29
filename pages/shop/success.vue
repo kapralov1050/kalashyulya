@@ -2,12 +2,13 @@
   <div class="success-page">
     <div class="loading-container">
       <div class="spinner"></div>
-      <p class="loading-text">Перенаправление на страницу успешной оплаты...</p>
+      <p class="loading-text">{{ printLocale('shop_success_redirect') }}</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+const { printLocale } = useLocales()
 const route = useRoute()
 const router = useRouter()
 

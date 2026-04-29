@@ -1,11 +1,11 @@
 <template>
   <AnimatedBlob>
     <template #heading>
-      Заказ успешно оформлен!
+      {{ printLocale('shop_payment_order_success') }}
     </template>
 
     <template #description>
-      Выберите способ оплаты:
+      {{ printLocale('shop_payment_select_method') }}
     </template>
 
     <template #content>
@@ -16,9 +16,9 @@
           <div class="flex items-center gap-3">
             <UIcon name="i-heroicons-credit-card" class="w-6 h-6 text-primary-600" />
             <div class="text-left">
-              <h2 class="font-semibold text-neutral-900 dark:text-neutral-200">Онлайн оплата</h2>
+              <h2 class="font-semibold text-neutral-900 dark:text-neutral-200">{{ printLocale('shop_payment_online_title') }}</h2>
               <p class="text-sm text-neutral-600 dark:text-neutral-400">
-                Быстрая оплата банковской картой
+                {{ printLocale('shop_payment_online_desc') }}
               </p>
             </div>
           </div>
@@ -30,9 +30,9 @@
           <div class="flex items-center gap-3">
             <UIcon name="i-heroicons-chat-bubble-left-right" class="w-6 h-6 text-neutral-600 dark:text-neutral-400" />
             <div class="text-left">
-              <h2 class="font-semibold text-neutral-900 dark:text-neutral-200">Оплата переводом</h2>
+              <h2 class="font-semibold text-neutral-900 dark:text-neutral-200">{{ printLocale('shop_payment_manual_title') }}</h2>
               <p class="text-sm text-neutral-600 dark:text-neutral-400">
-                С вами свяжутся для оплаты вручную
+                {{ printLocale('shop_payment_manual_desc') }}
               </p>
             </div>
           </div>
@@ -44,6 +44,8 @@
 
 <script setup lang="ts">
   import AnimatedBlob from './AnimatedBlob.vue'
+
+  const { printLocale } = useLocales()
 
   const emit = defineEmits<{
     selectPaymentMethod: [method: 'yookassa' | 'manual']

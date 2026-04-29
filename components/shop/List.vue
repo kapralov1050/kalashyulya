@@ -25,7 +25,7 @@
 
       <template v-else-if="error">
         <UAlert
-          title="Ошибка загрузки товаров"
+          :title="printLocale('shop_list_error_loading')"
           :description="errorMessage"
           icon="i-heroicons-exclamation-triangle"
           color="error"
@@ -68,8 +68,8 @@
       <!-- Order Modal -->
       <UModal
         v-model:open="isOrderModalOpen"
-        title="Оформление заказа"
-        description="Для оформления заказа мне потребуются ваши данные"
+        :title="printLocale('shop_list_order_modal_title')"
+        :description="printLocale('shop_list_order_modal_description')"
         close-icon="heroicons:x-mark-16-solid"
       >
         <template #body>
@@ -110,6 +110,7 @@
   import { useProductModal } from '~/composables/useProductModal'
   import type { Product } from '~/types'
 
+  const { printLocale } = useLocales()
   const route = useRoute()
   const router = useRouter()
 

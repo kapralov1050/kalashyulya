@@ -3,8 +3,8 @@
     <AppSectionHeader
       class="mb-10"
       type="page"
-      heading="Выставки"
-      subheading="Актуальные и прошедшие экспозиции"
+      :heading="printLocale('exhibitions_page_heading')"
+      :subheading="printLocale('exhibitions_page_subheading')"
     />
 
     <section class="container">
@@ -24,6 +24,8 @@
 
 <script setup lang="ts">
   import ExhibitionCard from '~/components/exhibitions/ExhibitionCard.vue'
+
+  const { printLocale } = useLocales()
 
   definePageMeta({
     layout: 'default',

@@ -18,17 +18,19 @@
     </template>
 
     <template #heading>
-      Спасибо! Ваш заказ успешно оформлен
+      {{ printLocale('shop_success_title') }}
     </template>
 
     <template #description>
-      В ближайшее время я свяжусь с вами способом, который вы указали в заявке
+      {{ printLocale('shop_success_desc') }}
     </template>
   </AnimatedBlob>
 </template>
 
 <script setup lang="ts">
   import AnimatedBlob from './AnimatedBlob.vue'
+
+  const { printLocale } = useLocales()
 </script>
 
 <style scoped lang="scss"></style>

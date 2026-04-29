@@ -5,22 +5,22 @@
     class="space-y-3 sm:space-y-5"
     @submit="onSubmit"
   >
-    <UFormField label="Электронная почта" name="email">
+    <UFormField :label="printLocale('login_email_label')" name="email">
       <UInput
         v-model="userData.email"
         size="xl"
         type="email"
-        placeholder="Введите Email"
+        :placeholder="printLocale('login_email_placeholder')"
         class="w-full"
       />
     </UFormField>
 
-    <UFormField label="Пароль" name="password">
+    <UFormField :label="printLocale('login_password_label')" name="password">
       <UInput
         v-model="userData.password"
         size="xl"
         type="text"
-        placeholder="Введите пароль"
+        :placeholder="printLocale('login_password_placeholder')"
         class="w-full"
       />
     </UFormField>
@@ -30,7 +30,7 @@
       icon="heroicons:paper-airplane"
       class="mt-2 sm:mt-1 w-full flex justify-center"
     >
-      Войти
+      {{ printLocale('login_submit') }}
     </UButton>
   </UForm>
 </template>
@@ -41,6 +41,8 @@
   import { showToast } from '~/helpers/showToast'
   import type { loginSchemaType } from '~/helpers/valibot'
   import { loginSchema } from '~/helpers/valibot'
+
+  const { printLocale } = useLocales()
 
   definePageMeta({
     layout: 'auth',

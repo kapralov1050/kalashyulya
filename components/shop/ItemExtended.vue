@@ -37,7 +37,7 @@
       </h1>
       <p class="text-gray-500 dark:text-neutral-200 mb-4">
         {{ subtitleProduct }}
-        <span class="text-secondary-600">Юлии Калашниковой</span>
+        <span class="text-secondary-600">{{ printLocale('shop_item_author') }}</span>
       </p>
 
       <div class="flex items-center mb-6">
@@ -54,11 +54,11 @@
         <UAccordion type="multiple" :items="items">
           <template #content>
             <div class="pb-5">
-              <p>Размер: {{ props.product.size }} см.</p>
-              <p>Материал: {{ props.product.material }}</p>
-              <p>Техника: {{ props.product.tecnic }}</p>
-              <p>Год: {{ props.product.year }}</p>
-              <p v-if="framingLabel">Оформление: {{ framingLabel }}</p>
+              <p>{{ printLocale('shop_item_size') }} {{ props.product.size }} см.</p>
+              <p>{{ printLocale('shop_item_material') }} {{ props.product.material }}</p>
+              <p>{{ printLocale('shop_item_technique') }} {{ props.product.tecnic }}</p>
+              <p>{{ printLocale('shop_item_year') }} {{ props.product.year }}</p>
+              <p v-if="framingLabel">{{ printLocale('shop_item_framing') }} {{ framingLabel }}</p>
             </div>
           </template>
         </UAccordion>
@@ -84,9 +84,9 @@
                 clip-rule="evenodd"
               />
             </svg>
-            <span>Товар забронирован</span>
+            <span>{{ printLocale('shop_item_reserved_detail') }}</span>
           </div>
-          <span v-else class="text-green-600 font-medium">В наличии</span>
+          <span v-else class="text-green-600 font-medium">{{ printLocale('shop_item_available') }}</span>
         </div>
         <UButton
           class="w-full bg-neutral-900 dark:bg-neutral-400 hover:bg-neutral-700
@@ -98,7 +98,7 @@
           @click="addToBasket(props.product)"
         >
           <span>
-            {{ isInBasket ? 'В корзине' : 'Добавить в корзину' }}
+            {{ isInBasket ? printLocale('shop_item_in_basket') : printLocale('shop_item_add_to_basket') }}
           </span>
         </UButton>
       </div>
@@ -120,6 +120,8 @@
   } from '~/constants/products'
   import type { Product } from '~/types'
 
+  const { printLocale } = useLocales()
+
   const props = defineProps<{
     product: Product
   }>()
@@ -136,7 +138,7 @@
 
   const items: AccordionItem[] = [
     {
-      label: 'Дополнительная информация',
+      label: printLocale('shop_item_details'),
       icon: 'heroicons:information-circle',
     },
   ]
@@ -166,7 +168,7 @@
       Array.isArray(props.product.framing) &&
       props.product.framing.length > 1
     ) {
-      return 'В раме и паспарту'
+      return printLocale('shop_item_framing_both')
     } else if (Array.isArray(props.product.framing)) {
       return FramingTypeLabels[props.product.framing[0]]
     }

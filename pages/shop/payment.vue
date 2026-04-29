@@ -1,7 +1,7 @@
 <template>
   <div class="payment-page">
     <div class="max-w-4xl mx-auto p-6">
-      <h1 class="text-2xl font-bold mb-6">Оплата заказа</h1>
+      <h1 class="text-2xl font-bold mb-6">{{ printLocale('payment_page_title') }}</h1>
 
       <div
         v-if="loading"
@@ -11,7 +11,7 @@
           name="i-heroicons-arrow-path"
           class="animate-spin w-12 h-12 mb-4"
         />
-        <p>Создание платежа...</p>
+        <p>{{ printLocale('payment_creating') }}</p>
       </div>
 
       <div
@@ -20,7 +20,7 @@
       >
         <p class="text-red-700">{{ error }}</p>
         <UButton color="secondary" class="mt-4" @click="goBack">
-          Вернуться в магазин
+          {{ printLocale('shop_back_to_shop') }}
         </UButton>
       </div>
 
@@ -32,7 +32,7 @@
           name="i-heroicons-arrow-path"
           class="animate-spin w-12 h-12 mb-4"
         />
-        <p>Перенаправление на страницу оплаты...</p>
+        <p>{{ printLocale('payment_redirecting') }}</p>
       </div>
 
       <div v-else>
@@ -40,11 +40,11 @@
           <h2 class="text-xl font-semibold mb-4">Заказ #{{ orderId }}</h2>
           <div class="space-y-2">
             <div class="flex justify-between">
-              <span>Сумма:</span>
+              <span>{{ printLocale('payment_sum_label') }}</span>
               <span class="font-semibold">{{ amount }} ₽</span>
             </div>
             <div class="flex justify-between">
-              <span>Описание:</span>
+              <span>{{ printLocale('payment_description_label') }}</span>
               <span>{{ description }}</span>
             </div>
           </div>
@@ -55,12 +55,14 @@
 </template>
 
 <script setup lang="ts">
+  const { printLocale } = useLocales()
+
   const route = useRoute()
   const router = useRouter()
 
   const orderId = route.query.orderId as string
   const amount = parseFloat((route.query.amount as string) || '0')
-  const description = (route.query.description as string) || 'Оплата заказа'
+  const description = (route.query.description as string) || printLocale('payment_page_title')
 
   const loading = ref(true)
   const error = ref<string | null>(null)

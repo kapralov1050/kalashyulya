@@ -15,13 +15,16 @@
             class="text-xl font-bold mb-2 text-neutral-900
               dark:text-neutral-100"
           >
-            В корзине уже есть товары
+            {{ printLocale('shop_buy_modal_title') }}
           </h2>
           <p class="text-neutral-600 dark:text-neutral-400">
-            В вашей корзине {{ itemCount }} товар{{
-              itemCount > 1 ? 'а' : ''
-            }}
-            на сумму {{ formatPrice(basketAmount) }} ₽
+            {{ printLocale('shop_buy_modal_basket', {
+              params: {
+                count: itemCount,
+                suffix: itemCount > 1 ? 'а' : '',
+                amount: formatPrice(basketAmount)
+              }
+            }) }}
           </p>
         </div>
 
@@ -29,7 +32,7 @@
         <div class="space-y-3">
           <UButton color="primary" size="lg" block @click="handleBuyOnly">
             <UIcon name="i-heroicons-check" class="w-5 h-5 mr-2" />
-            Оформить `{{ product?.title || '' }}`
+            {{ printLocale('shop_buy_modal_confirm', { params: { title: product?.title || '' } }) }}
           </UButton>
 
           <UButton
@@ -40,7 +43,7 @@
             @click="handleAddToBasket"
           >
             <UIcon name="i-heroicons-plus" class="w-5 h-5 mr-2" />
-            Добавить к существующим
+            {{ printLocale('shop_buy_modal_add') }}
           </UButton>
         </div>
 
@@ -54,8 +57,7 @@
               name="i-heroicons-information-circle"
               class="w-4 h-4 inline mr-1"
             />
-            При выборе `{{ product?.title || '' }}` текущая корзина будет
-            очищена
+            {{ printLocale('shop_buy_modal_warning', { params: { title: product?.title || '' } }) }}
           </p>
         </div>
       </div>
@@ -71,6 +73,8 @@
     basketAmount: number
     product: Product | null
   }>()
+
+  const { printLocale } = useLocales()
 
   const isOpen = defineModel<boolean>('open', { default: false })
 
