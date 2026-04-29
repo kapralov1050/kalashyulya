@@ -63,16 +63,9 @@
       </header>
 
       <footer class="mt-5 relative flex items-center gap-3">
-        <h3
-          v-if="product.stock > 0"
-          class="text-lg font-semibold dark:text-white"
-        >
-          {{ product.price }} ₽
-        </h3>
-
         <!-- Reservation Badge -->
         <div
-          v-else-if="product.stock > 0 && product.isReserved"
+          v-if="product.stock > 0 && product.isReserved"
           class="reservation-badge absolute -top-3.5 right-0 flex items-center
             space-x-1.5 bg-amber-500 text-white px-4 py-1.5 rounded-full text-xs
             font-medium shadow-sm cursor-pointer"
@@ -87,6 +80,13 @@
           <span>{{ printLocale('shop_item_reserved_badge') }}</span>
         </div>
 
+        <h3
+          v-else-if="product.stock > 0"
+          class="text-lg font-semibold dark:text-white"
+        >
+          {{ product.price }} ₽
+        </h3>
+
         <template v-if="product.stock > 0">
           <UButton
             :color="isInBasket ? 'success' : 'secondary'"
@@ -94,7 +94,11 @@
             class="transition-all"
             @click="handleBuy"
           >
-            {{ isInBasket ? printLocale('shop_item_in_basket') : printLocale('shop_item_buy') }}
+            {{
+              isInBasket
+                ? printLocale('shop_item_in_basket')
+                : printLocale('shop_item_buy')
+            }}
           </UButton>
 
           <UButton
