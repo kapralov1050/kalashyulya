@@ -4,9 +4,12 @@ export const useLocalesStore = defineStore('locales', () => {
   const config = useRuntimeConfig()
 
   async function fetchLocales() {
-    const blob = await $fetch<Blob>(`${config.public.locales}?v=${Date.now()}`, {
-      responseType: 'blob',
-    })
+    const blob = await $fetch<Blob>(
+      `${config.public.locales}?v=${Date.now()}`,
+      {
+        responseType: 'blob',
+      },
+    )
 
     const text = await blob.text()
     const data = JSON.parse(text)

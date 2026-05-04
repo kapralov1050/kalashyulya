@@ -51,6 +51,13 @@
         <div class="flex items-start gap-2">
           <span class="text-blue-500 mt-0.5">•</span>
           <span>
+            <b>Цена:</b> измените цену в поле и нажмите «Сохранить» для
+            обновления.
+          </span>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="text-blue-500 mt-0.5">•</span>
+          <span>
             <b>Наличие:</b> измените число в поле и нажмите «Сохранить». Товары
             с количеством 0 и без брони скрываются из магазина.
           </span>
@@ -179,6 +186,47 @@
 
           <!-- Controls -->
           <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <!-- Price Controls -->
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-gray-500 shrink-0">Цена:</span>
+              <input
+                :value="priceInputs[product.id] ?? product.price"
+                type="number"
+                min="0"
+                step="0.01"
+                class="w-24 px-2 py-1 text-sm border border-gray-300 rounded-lg
+                  text-center focus:outline-none focus:ring-2
+                  focus:ring-green-500"
+                @input="onPriceInput(
+                  product.id,
+                  ($event.target as HTMLInputElement).value,
+                )"
+              />
+              <span class="text-xs text-gray-500 shrink-0">₽</span>
+              <button
+                v-if="hasPriceChange(product.id)"
+                class="flex items-center gap-1 px-2.5 py-1 text-green-600 border
+                  border-green-300 rounded-lg hover:bg-green-50
+                  transition-colors duration-200 font-medium text-xs shrink-0"
+                @click="updatePrice(product.id)"
+              >
+                <svg
+                  class="w-3.5 h-3.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Сохранить
+              </button>
+            </div>
+
             <!-- Stock Controls -->
             <div class="flex items-center gap-2">
               <span class="text-xs text-gray-500 shrink-0">Наличие:</span>
@@ -538,6 +586,46 @@
   watch(totalPages, total => {
     if (currentPage.value > total) currentPage.value = total
   })
+
+  // ───────────────── Price editing ─────────────────
+  const priceInputs = ref<Record<number, number | undefined>>({})
+
+  const onPriceInput = (productId: number, value: string): void => {
+    const parsed = parseFloat(value)
+    priceInputs.value[productId] = isNaN(parsed) ? 0 : Math.max(0, parsed)
+  }
+
+  const hasPriceChange = (productId: number): boolean => {
+    if (priceInputs.value[productId] === undefined) return false
+    const product = shopStore.shopData?.products?.[`product_${productId}`]
+    return priceInputs.value[productId] !== (product?.price ?? 0)
+  }
+
+  const updatePrice = async (productId: number): Promise<void> => {
+    const newPrice = priceInputs.value[productId]
+    if (newPrice === undefined) return
+
+    try {
+      await updateDataByPath(
+        { price: newPrice },
+        `shop/products/product_${productId}`,
+      )
+      Reflect.deleteProperty(priceInputs.value, productId)
+      showToast(
+        'Успешно!',
+        `Цена товара обновлена: ${newPrice} ₽`,
+        'heroicons:check-circle',
+      )
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Ошибка при обновлении цены:', error)
+      showToast(
+        'Ошибка',
+        'Не удалось обновить цену. Попробуйте еще раз.',
+        'heroicons:exclamation-circle',
+      )
+    }
+  }
 
   // ───────────────── Stock editing ─────────────────
   const stockInputs = ref<Record<number, number | undefined>>({})
