@@ -2,13 +2,12 @@ import prettier from 'eslint-config-prettier'
 import unusedImports from 'eslint-plugin-unused-imports'
 import withNuxt from './.nuxt/eslint.config.mjs'
 
-export default withNuxt(
-  [
-    {
-      ignores: ['.nuxt/**', 'dist/**', '.output/**', '*.min.js', 'coverage/**'],
-      plugins: {
-        'unused-imports': unusedImports,
-      },
+export default withNuxt([
+  {
+    ignores: ['.nuxt/**', 'dist/**', '.output/**', '*.min.js', 'coverage/**'],
+    plugins: {
+      'unused-imports': unusedImports,
+    },
     languageOptions: {
       parserOptions: {
         ecmaFeatures: {
@@ -20,7 +19,7 @@ export default withNuxt(
     rules: {
       'vue/multi-word-component-names': 'off',
       '@typescript-eslint/no-unused-vars': 'warn',
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-explicit-any': 'error',
       // '@typescript-eslint/consistent-type-imports': 'error',
       // '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
       'vue/html-self-closing': 'error',

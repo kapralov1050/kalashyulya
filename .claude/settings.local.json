@@ -29,7 +29,15 @@
       "Bash(npm run test:run)",
       "Bash(npm test -- showToast.spec.ts --run)",
       "Bash(npx tsc --noEmit helpers/showToast.ts)",
-      "Bash(npx nuxi:*)"
+      "Bash(npx nuxi:*)",
+      "Bash(npm run *)",
+      "Bash(xargs grep *)",
+      "Bash(npx eslint *)",
+      "Bash(npx tsc *)",
+      "Bash(npx vitest *)",
+      "Bash(Get-ChildItem -Path \"d:\\\\Проекты frontend\\\\kalashyulya\\\\pages\" -Recurse -Filter \"*admin*\" -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Get-ChildItem -Path \"d:\\\\Проекты frontend\\\\kalashyulya\\\\components\\\\dashboard\")"
     ]
   }
 }

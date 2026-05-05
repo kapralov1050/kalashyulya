@@ -75,6 +75,10 @@ export interface OrderInBase extends Order {
   id: number
   status: string
   paymentId?: string
+  notificationFailed?: {
+    telegram?: boolean
+    email?: boolean
+  }
 }
 
 export interface DaDataSuggestion {
