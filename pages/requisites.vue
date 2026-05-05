@@ -138,7 +138,4 @@
     scrollTo(0, 0)
   })
 
-  onMounted(async () => {
-    metrics.trackPageView('requisites')
-  })
 </script>

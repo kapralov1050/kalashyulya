@@ -77,38 +77,7 @@ export const useYookassaPayment = () => {
     }
   }
 
-  const openPaymentWidget = (
-    confirmationUrl: string,
-    onSuccess: () => void,
-    onError: (error: string) => void,
-  ) => {
-    // Загружаем YookassaCheckout скрипт динамически
-    const script = document.createElement('script')
-    script.src = 'https://yookassa.ru/sdk/v1/yookassa.js'
-    script.async = true
-
-    script.onload = () => {
-      // @ts-expect-error - YookassaCheckout загружается глобально
-      const checkout = new window.YookassaCheckout({
-        confirmation_token: confirmationUrl,
-        return_url: window.location.href,
-        embedded: true,
-      })
-
-      checkout.on('success', onSuccess)
-      checkout.on('error', onError)
-      checkout.render('payment-widget-container')
-    }
-
-    script.onerror = () => {
-      onError('Не удалось загрузить виджет оплаты')
-    }
-
-    document.body.appendChild(script)
-  }
-
   return {
     createPayment,
-    openPaymentWidget,
   }
 }

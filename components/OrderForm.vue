@@ -149,7 +149,7 @@
         class="self-center"
         variant="outline"
         color="neutral"
-        :disabled="!isFormValid"
+        :disabled="!isFormValid || isSending"
         @click="submitOrder"
       >
         {{ isSending ? printLocale('order_form_sending') : printLocale('order_form_submit') }}
@@ -162,6 +162,7 @@
   import type { CheckboxGroupItem } from '@nuxt/ui'
   import { computed } from 'vue'
   import { useFirebase } from '~/composables/firebase/useFirebase'
+  import { updateDataByPath } from '~/helpers/firebase/manageDatabase'
   import { showToast } from '~/helpers/showToast'
   import { orderSchema } from '~/helpers/valibot'
   import type { DaDataSuggestion, Order } from '~/types'
@@ -176,7 +177,7 @@
   const { suggestions, fetchAddresses } = useDaDataAddress()
   const basketStore = useBasketStore()
   const { sendOrderInfoTelegram, sendOrderInfoEmail } = useShop()
-  const { addNewOrder } = useFirebase()
+  const { addNewOrder, shopData } = useFirebase()
   const { orderInfo } = storeToRefs(useOrdersStore())
 
   const addressQuery = ref('')
@@ -255,7 +256,24 @@
   })
 
   async function submitOrder() {
+    if (isSending.value) return
     try {
+      const products = Object.values(shopData.value?.products ?? {})
+      const soldOut = basketStore.shoppingCart.filter(purchase => {
+        const current = products.find(p => p.id === purchase.item.id)
+        return !current || current.stock === 0 || current.isReserved
+      })
+
+      if (soldOut.length > 0) {
+        metrics.trackButtonClick('stockCheckFailed')
+        showToast(
+          'Товары недоступны',
+          soldOut.map(p => p.item.title).join(', ') + ' — уже нет в наличии',
+          'heroicons:exclamation-circle',
+        )
+        return
+      }
+
       const orderData: Order = {
         customer: {
           name: formData.name,
@@ -286,13 +304,24 @@
 
       const orderId = await addNewOrder(orderInfo.value, 'orders/')
 
-      // Уведомления отправляем параллельно, не блокируем флоу заказа
-      sendOrderInfoTelegram(orderInfo.value)
-      sendOrderInfoEmail(orderInfo.value)
+      const [telegramResult, emailResult] = await Promise.allSettled([
+        sendOrderInfoTelegram(orderInfo.value),
+        sendOrderInfoEmail(orderInfo.value),
+      ])
+
+      const failed: { telegram?: boolean; email?: boolean } = {}
+      if (telegramResult.status === 'rejected' || (telegramResult.status === 'fulfilled' && !telegramResult.value.success))
+        failed.telegram = true
+      if (emailResult.status === 'rejected' || (emailResult.status === 'fulfilled' && !emailResult.value.success))
+        failed.email = true
+      if (Object.keys(failed).length > 0)
+        updateDataByPath({ notificationFailed: failed }, `orders/order_${orderId}`)
 
       basketStore.clearBasket()
+      metrics.trackButtonClick('orderSuccess')
       emit('successOrder', orderId)
     } catch {
+      metrics.trackButtonClick('orderError')
       showToast(
         'Ошибка оформления заказа',
         'Повторите позже',

@@ -11,7 +11,8 @@
     <template #content>
       <div class="flex flex-col gap-4 w-full">
         <!-- Онлайн оплата ЮKassa -->
-        <div class="border-2 border-primary-500 rounded-xl p-4 cursor-pointer hover:bg-primary-50 dark:hover:bg-primary-900 transition-colors"
+        <div
+class="border-2 border-primary-500 rounded-xl p-4 cursor-pointer hover:bg-primary-50 dark:hover:bg-primary-900 transition-colors"
           @click="selectPaymentMethod('yookassa')">
           <div class="flex items-center gap-3">
             <UIcon name="i-heroicons-credit-card" class="w-6 h-6 text-primary-600" />
@@ -25,7 +26,8 @@
         </div>
 
         <!-- Оплата переводом вручную -->
-        <div class="border-2 border-neutral-300 dark:border-neutral-600 rounded-xl p-4 cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
+        <div
+class="border-2 border-neutral-300 dark:border-neutral-600 rounded-xl p-4 cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
           @click="selectPaymentMethod('manual')">
           <div class="flex items-center gap-3">
             <UIcon name="i-heroicons-chat-bubble-left-right" class="w-6 h-6 text-neutral-600 dark:text-neutral-400" />

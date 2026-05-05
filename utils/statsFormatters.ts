@@ -1,11 +1,37 @@
 const EVENT_NAME_MAP: Record<string, string> = {
-  calendar: 'Переходов на страницу календарей',
-  shop: 'Переходов в магазин',
-  productExtendedButton: 'Открывал карточку товара',
-  startOrderButton: 'Начинал оформление заказа',
-  completeOrderButton: 'Закончил оформление заказа',
-  vkButton: 'Переходы во Вконтакте',
-  telegramButton: 'Переходы в Телеграм',
+  // Страницы — старый формат (обратная совместимость со старыми данными)
+  calendar: 'Календарь (старое)',
+  shop: 'Магазин (старое)',
+
+  // Страницы — новый формат (route.path)
+  '/': 'Главная',
+  '/shop': 'Магазин',
+  '/basket': 'Корзина',
+  '/calendar': 'Календарь',
+  '/requisites': 'Реквизиты',
+  '/exhibitions': 'Выставки',
+  '/shop/payment': 'Страница оплаты',
+  '/shop/payment-success': 'Успешная оплата',
+
+  // Кнопки — общие
+  buyButton: 'Нажал «Купить»',
+  addToBasket: 'Добавил в корзину',
+  productExtendedButton: 'Открыл карточку товара',
+  startOrderButton: 'Начал оформление заказа',
+  completeOrderButton: 'Отправил форму заказа',
+  vkButton: 'Перешёл во ВКонтакте',
+  telegramButton: 'Перешёл в Телеграм',
+  requisitesButton: 'Открыл реквизиты',
+  trackingButton: 'Открыл отслеживание',
+
+  // Кнопки — воронка покупки
+  paymentMethod_yookassa: 'Выбрал онлайн оплату',
+  paymentMethod_manual: 'Выбрал перевод вручную',
+  stockCheckFailed: 'Товар недоступен при заказе',
+  orderSuccess: 'Заказ успешно оформлен',
+  orderError: 'Ошибка оформления заказа',
+  paymentRedirect: 'Перешёл на ЮKassa',
+  paymentSuccess: 'Оплата подтверждена',
 }
 
 /**

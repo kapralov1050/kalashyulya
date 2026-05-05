@@ -107,7 +107,7 @@
             icon="heroicons:shopping-cart"
             variant="ghost"
             class="transition-all"
-            @click="emit('addToBasket', product)"
+            @click="handleAddToBasket"
           />
         </template>
       </footer>
@@ -145,6 +145,11 @@
       },
       hash: route.hash,
     })
+  }
+
+  function handleAddToBasket() {
+    metrics.trackButtonClick('addToBasket')
+    emit('addToBasket', props.product)
   }
 
   function handleBuy() {

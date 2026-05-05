@@ -270,9 +270,6 @@
     image: exhibition.value?.coverImage || '/logo.png',
   })
 
-  onMounted(async () => {
-    metrics.trackPageView(`exhibitions-${slug.value}`)
-  })
 
   watch(isMapOpen, open => {
     if (open) {

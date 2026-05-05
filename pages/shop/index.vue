@@ -13,9 +13,7 @@
     image: '/logo.png',
   })
 
-  onMounted(async () => {
-    metrics.trackPageView('shop')
-  })
+
 </script>
 
 <style scoped lang="scss"></style>

@@ -284,6 +284,7 @@
   let loadingTimeout: ReturnType<typeof setTimeout> | null = null
 
   function onOrderFound(found: OrderInBase) {
+    metrics.trackButtonClick('paymentSuccess')
     order.value = found
     loading.value = false
     waitingForWebhook.value = false

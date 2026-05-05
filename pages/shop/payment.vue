@@ -75,7 +75,7 @@
     if (existingPaymentId && existingOrderId === orderId) {
       redirecting.value = true
       loading.value = false
-      window.location.href = `${window.location.origin}/shop/success`
+      window.location.href = `${window.location.origin}/shop/payment-success?paymentId=${existingPaymentId}`
       return
     }
     await createPayment()
@@ -96,7 +96,7 @@
         amount,
         currency: 'RUB',
         description,
-        returnUrl: `${window.location.origin}/shop/success`,
+        returnUrl: `${window.location.origin}/shop/payment-success`,
         customer: {
           email: orderInfo.value?.customer.email || '',
         },
@@ -109,6 +109,7 @@
         }
 
         redirecting.value = true
+        metrics.trackButtonClick('paymentRedirect')
         setTimeout(() => {
           window.location.href = result.confirmationUrl!
         }, 500)
@@ -116,6 +117,8 @@
         throw new Error(result.error || 'Failed to create payment')
       }
     } catch (err) {
+      localStorage.removeItem('pendingPaymentId')
+      localStorage.removeItem('pendingOrderId')
       error.value =
         err instanceof Error ? err.message : 'Ошибка создания платежа'
     } finally {

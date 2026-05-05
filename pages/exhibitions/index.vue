@@ -39,7 +39,4 @@
 
   const { exhibitions } = storeToRefs(useExhibitionsStore())
 
-  onMounted(async () => {
-    metrics.trackPageView('exhibitions')
-  })
 </script>

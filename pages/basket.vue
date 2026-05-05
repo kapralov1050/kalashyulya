@@ -153,6 +153,7 @@
 <script setup lang="ts">
   import OrderForm from '~/components/OrderForm.vue'
   import PaymentMethodSelector from '~/components/shop/PaymentMethodSelector.vue'
+  import { updateDataByPath } from '~/helpers/firebase/manageDatabase'
   import type { PurchaseParams } from '~/types'
 
   const toast = useToast()
@@ -199,6 +200,9 @@
 
   function handlePaymentMethod(method: 'yookassa' | 'manual') {
     isOrderModalOpen.value = false
+
+    updateDataByPath({ paymentMethod: method }, `orders/order_${currentOrderId.value}`)
+    metrics.trackButtonClick(`paymentMethod_${method}`)
 
     if (method === 'yookassa') {
       router.push({
