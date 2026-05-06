@@ -311,9 +311,9 @@
       ])
 
       const failed: { telegram?: boolean; email?: boolean } = {}
-      if (telegramResult.status === 'rejected' || (telegramResult.status === 'fulfilled' && !telegramResult.value.success))
+      if (telegramResult.status === 'rejected' || !telegramResult.value?.success)
         failed.telegram = true
-      if (emailResult.status === 'rejected' || (emailResult.status === 'fulfilled' && !emailResult.value.success))
+      if (emailResult.status === 'rejected' || !emailResult.value?.success)
         failed.email = true
       if (Object.keys(failed).length > 0)
         updateDataByPath({ notificationFailed: failed }, `orders/order_${orderId}`)
