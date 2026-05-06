@@ -77,7 +77,44 @@ export const useYookassaPayment = () => {
     }
   }
 
+  const openPaymentWidget = (
+    confirmationToken: string,
+    onSuccess: () => void,
+    onError: (error: string) => void,
+  ): void => {
+    const scriptUrl = 'https://yoomoney.ru/checkout/button.js'
+
+    const initWidget = () => {
+      try {
+        const checkout = new window.YooMoneyCheckoutWidget({
+          confirmation_token: confirmationToken,
+          return_url: `${window.location.origin}/shop/payment-success`,
+          error_callback: (error: unknown) => onError(String(error)),
+        })
+        checkout.render('payment-widget-container')
+        checkout.on('success', onSuccess)
+        checkout.on('fail', (err: { error: { type: string } }) =>
+          onError(err.error.type),
+        )
+      } catch (err) {
+        onError(String(err))
+      }
+    }
+
+    if (document.querySelector(`script[src="${scriptUrl}"]`)) {
+      initWidget()
+      return
+    }
+
+    const script = document.createElement('script')
+    script.src = scriptUrl
+    script.onload = initWidget
+    script.onerror = () => onError('Failed to load payment widget')
+    document.head.appendChild(script)
+  }
+
   return {
     createPayment,
+    openPaymentWidget,
   }
 }
