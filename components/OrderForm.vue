@@ -217,42 +217,44 @@
     formData.apartment = suggestion.data.flat || ''
   }
 
+  // Поле содержит хотя бы одну букву или цифру (не просто тире/пробелы)
+  const hasContent = (value: string) =>
+    /[a-zA-Zа-яёА-ЯЁ0-9]/.test(value.trim())
+
+  // ФИО — минимум два слова с буквами
+  const hasFullName = (value: string) =>
+    value
+      .trim()
+      .split(/\s+/)
+      .filter(w => /[a-zA-Zа-яёА-ЯЁ]/.test(w)).length >= 2
+
   const isFormValid = computed(() => {
-    // Базовые поля - имя и email всегда обязательны
-    const baseFields = formData.name.trim() && formData.email.trim()
-
-    // Обязателен выбор хотя бы одного способа связи
+    const baseFields = hasContent(formData.name) && formData.email.trim()
     const messengerRequired = messengerType.value.length > 0
-
-    // Телефон обязателен только если выбран "Звонок"
     const phoneRequired = messengerType.value.includes('Звонок')
       ? formData.phone.trim()
       : true
-
-    // Никнейм обязателен если выбран ВК или Телеграм
     const nicknameRequired = ['Вконтакте', 'Телеграм'].some(item =>
       messengerType.value.includes(item),
     )
-      ? formData.nickname.trim()
+      ? hasContent(formData.nickname)
       : true
 
-    // Если доставку не запрашивают, проверяем только базовые поля
     if (!isDelivery.value) {
       return (
         baseFields && messengerRequired && phoneRequired && nicknameRequired
       )
     }
 
-    // Если доставка - проверяем все поля
     return (
       baseFields &&
       messengerRequired &&
       phoneRequired &&
       nicknameRequired &&
-      formData.city.trim() &&
-      formData.recipient.trim() &&
-      formData.street.trim() &&
-      (formData.house.trim() || formData.apartment.trim())
+      hasContent(formData.city) &&
+      hasFullName(formData.recipient) &&
+      hasContent(formData.street) &&
+      (hasContent(formData.house) || hasContent(formData.apartment))
     )
   })
 
@@ -305,18 +307,27 @@
 
       const orderId = await addNewOrder(orderInfo.value, 'orders/')
 
-      const [telegramResult, emailResult] = await Promise.allSettled([
-        sendOrderInfoTelegram(orderInfo.value),
-        sendOrderInfoEmail(orderInfo.value),
-      ])
+      const isTestOrder = ['localhost', '127.0.0.1', 'kalashyulya.vercel.app'].some(
+        host => window.location.href.includes(host),
+      )
 
-      const failed: { telegram?: boolean; email?: boolean } = {}
-      if (telegramResult.status === 'rejected' || !telegramResult.value?.success)
-        failed.telegram = true
-      if (emailResult.status === 'rejected' || !emailResult.value?.success)
-        failed.email = true
-      if (Object.keys(failed).length > 0)
-        updateDataByPath({ notificationFailed: failed }, `orders/order_${orderId}`)
+      if (isTestOrder) {
+        // eslint-disable-next-line no-console
+        console.debug('[order] test environment — notifications skipped')
+      } else {
+        const [telegramResult, emailResult] = await Promise.allSettled([
+          sendOrderInfoTelegram(orderInfo.value),
+          sendOrderInfoEmail(orderInfo.value),
+        ])
+
+        const failed: { telegram?: boolean; email?: boolean } = {}
+        if (telegramResult.status === 'rejected' || !telegramResult.value?.success)
+          failed.telegram = true
+        if (emailResult.status === 'rejected' || !emailResult.value?.success)
+          failed.email = true
+        if (Object.keys(failed).length > 0)
+          updateDataByPath({ notificationFailed: failed }, `orders/order_${orderId}`)
+      }
 
       basketStore.clearBasket()
       metrics.trackButtonClick('orderSuccess')
