@@ -49,10 +49,10 @@
   const iconSlot = ref<Element | null>(null)
 
   defineSlots<{
-    heading?: () => any
-    description?: () => any
-    icon?: () => any
-    content?: () => any
+    heading?: () => void
+    description?: () => void
+    icon?: () => void
+    content?: () => void
   }>()
 
   onMounted(() => {
