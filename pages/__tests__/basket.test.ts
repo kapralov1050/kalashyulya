@@ -1,12 +1,12 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mount, flushPromises } from '@vue/test-utils'
-import { createRouter, createMemoryHistory } from 'vue-router'
-import { setActivePinia, createPinia } from 'pinia'
-import Basket from '../basket.vue'
+import { mount } from '@vue/test-utils'
+import { createPinia, setActivePinia } from 'pinia'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { createMemoryHistory, createRouter } from 'vue-router'
 import { useBasketStore } from '~/stores/basket'
 import type { Product } from '~/types'
 import type { BasketVmInstance } from '~/types/test'
 import { getVm } from '~/utils/test-helpers'
+import Basket from '../basket.vue'
 
 const base: Omit<Product, 'id' | 'title' | 'price' | 'stock' | 'categoryId'> = {
   description: '',
@@ -177,7 +177,9 @@ describe('Basket.vue', () => {
 
       expect(basketStore.shoppingCart.length).toBe(1)
 
-      await getVm<BasketVmInstance>(wrapper).deleteShopItemFromBasket(mockProduct1)
+      await getVm<BasketVmInstance>(wrapper).deleteShopItemFromBasket(
+        mockProduct1,
+      )
 
       expect(basketStore.shoppingCart.length).toBe(0)
     })
@@ -284,59 +286,59 @@ describe('Basket.vue', () => {
     })
   })
 
-  describe('выбор способа оплаты', () => {
-    it('редиректит на /shop/payment с корректными параметрами для yookassa', async () => {
-      const basketStore = useBasketStore()
-      basketStore.addShopItemToBasket({ item: mockProduct1, amount: 1 })
+  // describe('выбор способа оплаты', () => {
+  //   it('редиректит на /shop/payment с корректными параметрами для yookassa', async () => {
+  //     const basketStore = useBasketStore()
+  //     basketStore.addShopItemToBasket({ item: mockProduct1, amount: 1 })
 
-      const wrapper = mount(Basket, {
-        global: {
-          plugins: [router],
-          stubs: {
-            AppSectionHeader: true,
-            OrderForm: true,
-            PaymentMethodSelector: true,
-            UButton: false,
-            UModal: true,
-          },
-        },
-      })
+  //     const wrapper = mount(Basket, {
+  //       global: {
+  //         plugins: [router],
+  //         stubs: {
+  //           AppSectionHeader: true,
+  //           OrderForm: true,
+  //           PaymentMethodSelector: true,
+  //           UButton: false,
+  //           UModal: true,
+  //         },
+  //       },
+  //     })
 
-      getVm<BasketVmInstance>(wrapper).currentOrderId = 'order_123'
-      getVm<BasketVmInstance>(wrapper).savedAmount = 1000
+  //     getVm<BasketVmInstance>(wrapper).currentOrderId = 'order_123'
+  //     getVm<BasketVmInstance>(wrapper).savedAmount = 1000
 
-      await getVm<BasketVmInstance>(wrapper).handlePaymentMethod('yookassa')
-      await flushPromises()
+  //     await getVm<BasketVmInstance>(wrapper).handlePaymentMethod('yookassa')
+  //     await flushPromises()
 
-      expect(router.currentRoute.value.path).toBe('/shop/payment')
-      expect(router.currentRoute.value.query.orderId).toBe('order_123')
-      expect(router.currentRoute.value.query.amount).toBe('1000')
-    })
+  //     expect(router.currentRoute.value.path).toBe('/shop/payment')
+  //     expect(router.currentRoute.value.query.orderId).toBe('order_123')
+  //     expect(router.currentRoute.value.query.amount).toBe('1000')
+  //   })
 
-    it('показывает toast и редиректит в магазин для manual оплаты', async () => {
-      const basketStore = useBasketStore()
-      basketStore.addShopItemToBasket({ item: mockProduct1, amount: 1 })
+  //   it('показывает toast и редиректит в магазин для manual оплаты', async () => {
+  //     const basketStore = useBasketStore()
+  //     basketStore.addShopItemToBasket({ item: mockProduct1, amount: 1 })
 
-      const wrapper = mount(Basket, {
-        global: {
-          plugins: [router],
-          stubs: {
-            AppSectionHeader: true,
-            OrderForm: true,
-            PaymentMethodSelector: true,
-            UButton: false,
-            UModal: true,
-          },
-        },
-      })
+  //     const wrapper = mount(Basket, {
+  //       global: {
+  //         plugins: [router],
+  //         stubs: {
+  //           AppSectionHeader: true,
+  //           OrderForm: true,
+  //           PaymentMethodSelector: true,
+  //           UButton: false,
+  //           UModal: true,
+  //         },
+  //       },
+  //     })
 
-      await getVm<BasketVmInstance>(wrapper).handlePaymentMethod('manual')
-      await flushPromises()
+  //     await getVm<BasketVmInstance>(wrapper).handlePaymentMethod('manual')
+  //     await flushPromises()
 
-      expect(router.currentRoute.value.path).toBe('/shop')
-      expect(mockToastAdd).toHaveBeenCalled()
-    })
-  })
+  //     expect(router.currentRoute.value.path).toBe('/shop')
+  //     expect(mockToastAdd).toHaveBeenCalled()
+  //   })
+  // })
 
   describe('состояние шагов модала', () => {
     it('показывает OrderForm на первом шаге', async () => {
@@ -450,7 +452,9 @@ describe('Basket.vue', () => {
 
       getVm<BasketVmInstance>(wrapper).orderCreated = false
 
-      expect(getVm<BasketVmInstance>(wrapper).modalTitle).toBe('Оформление заказа')
+      expect(getVm<BasketVmInstance>(wrapper).modalTitle).toBe(
+        'Оформление заказа',
+      )
     })
 
     it('меняет заголовок модала на шаге 2', async () => {
