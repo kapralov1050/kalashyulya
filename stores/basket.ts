@@ -4,11 +4,14 @@ export const useBasketStore = defineStore('basket', () => {
   const shoppingCart = ref<Purchase[]>([])
 
   const totalPurchaseAmount = computed(() => {
-    return shoppingCart.value.reduce((acc, purc) => (acc += purc.item.price), 0)
+    return shoppingCart.value.reduce(
+      (acc, purc) => (acc += purc.item.price * purc.amount),
+      0,
+    )
   })
 
   const totalPurchaceQty = computed(() => {
-    return shoppingCart.value.length
+    return shoppingCart.value.reduce((acc, purc) => (acc += purc.amount), 0)
   })
 
   const shortPurchaseInfo = computed<ShortPurchaseInfo[]>(() => {
