@@ -1,119 +1,142 @@
-// Обновленная структура для хранения на сервере
 interface OptimizedMetric {
   t: number // timestamp в секундах
-  c: number // counter
-  n?: string // name (опционально, если нужна дополнительная информация)
+  c: number // counter (для type=time — секунды на странице)
 }
+
+type MetricType = 'button_click' | 'page_view' | 'referrer' | 'device' | 'visitor' | 'time'
 
 export class MetricsTracker {
   private endpoint: string
   private metricsQueue: Map<string, OptimizedMetric> = new Map()
+  private pageStartTime = 0
+  private currentPagePath = ''
 
   constructor(endpoint: string) {
     this.endpoint = endpoint
-    // Фоновое обновление каждые 10 секунд
     setInterval(() => this.flushMetrics(), 10000)
-    // Принудительное обновление перед закрытием страницы
-    window.addEventListener('beforeunload', () => this.flushMetrics())
+    window.addEventListener('beforeunload', () => {
+      this.endPageTimer()
+      this.flushMetrics()
+    })
   }
 
-  // Генерация ключа для Map
   private getMetricKey(date: string, type: string, name: string): string {
     return `${date}|${type}|${name}`
   }
 
-  // Отслеживание просмотра страницы
   trackPageView(pageName: string): void {
     this.trackMetric('page_view', pageName)
   }
 
-  // Отслеживание клика по кнопке
   trackButtonClick(buttonName: string): void {
     this.trackMetric('button_click', buttonName)
   }
 
-  private trackMetric(type: 'button_click' | 'page_view', name: string): void {
+  trackReferrer(): void {
+    if (typeof document === 'undefined') return
+    const ref = document.referrer
+    let source = 'direct'
+    if (ref) {
+      if (ref.includes('vk.com') || ref.includes('vkontakte.ru')) source = 'vk'
+      else if (ref.includes('t.me') || ref.includes('telegram')) source = 'telegram'
+      else if (ref.includes('google.')) source = 'google'
+      else if (ref.includes('yandex.')) source = 'yandex'
+      else if (ref.includes('instagram.com')) source = 'instagram'
+      else source = 'other'
+    }
+    this.trackMetric('referrer', source)
+  }
+
+  trackDevice(): void {
+    if (typeof window === 'undefined') return
+    const ua = navigator.userAgent
+    const w = window.innerWidth
+    let device = 'desktop'
+    if (/mobile/i.test(ua) || w < 768) device = 'mobile'
+    else if (/tablet|ipad/i.test(ua) || w < 1024) device = 'tablet'
+    this.trackMetric('device', device)
+  }
+
+  trackVisitorType(): void {
+    if (typeof localStorage === 'undefined') return
+    const isReturning = !!localStorage.getItem('_v')
+    localStorage.setItem('_v', '1')
+    this.trackMetric('visitor', isReturning ? 'returning' : 'new')
+  }
+
+  startPageTimer(path: string): void {
+    this.pageStartTime = Date.now()
+    this.currentPagePath = path
+  }
+
+  endPageTimer(): void {
+    if (!this.pageStartTime || !this.currentPagePath) return
+    const seconds = Math.floor((Date.now() - this.pageStartTime) / 1000)
+    this.pageStartTime = 0
+    if (seconds < 2) return
+    this.trackTimeDuration(this.currentPagePath, seconds)
+    this.currentPagePath = ''
+  }
+
+  private trackTimeDuration(path: string, seconds: number): void {
     const now = new Date()
     const date = this.formatDate(now)
-    const timestamp = Math.floor(now.getTime() / 1000) // секунды вместо миллисекунд
+    const timestamp = Math.floor(now.getTime() / 1000)
+    const key = this.getMetricKey(date, 'time', path)
+    const existing = this.metricsQueue.get(key)
+    if (existing) {
+      existing.c += seconds
+      existing.t = timestamp
+    } else {
+      this.metricsQueue.set(key, { t: timestamp, c: seconds })
+    }
+  }
 
+  private trackMetric(type: MetricType, name: string): void {
+    const now = new Date()
+    const date = this.formatDate(now)
+    const timestamp = Math.floor(now.getTime() / 1000)
     const key = this.getMetricKey(date, type, name)
-
-    if (this.metricsQueue.has(key)) {
-      // Инкрементируем счетчик, обновляем timestamp на последнее событие
-      const existing = this.metricsQueue.get(key)!
+    const existing = this.metricsQueue.get(key)
+    if (existing) {
       existing.c += 1
       existing.t = timestamp
     } else {
-      // Добавляем новую метрику
-      this.metricsQueue.set(key, {
-        t: timestamp,
-        c: 1,
-        n: name, // Сохраняем имя для отправки, если нужно
-      })
+      this.metricsQueue.set(key, { t: timestamp, c: 1 })
     }
   }
 
-  // Форматируем дату в YYYY-MM-DD
   private formatDate(date: Date): string {
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    return `${year}-${month}-${day}`
+    const y = date.getFullYear()
+    const m = String(date.getMonth() + 1).padStart(2, '0')
+    const d = String(date.getDate()).padStart(2, '0')
+    return `${y}-${m}-${d}`
   }
 
-  // Проверка, следует ли отправлять метрики
   private shouldSendMetrics(): boolean {
     if (typeof window === 'undefined') return false
-
-    const hostname = window.location.hostname
-    const url = window.location.href
-
-    // Исключаем localhost
-    if (hostname === 'localhost' || hostname.startsWith('127.0.0.1')) {
-      return false
-    }
-
-    // Исключаем тестовый стенд Vercel
-    if (url.includes('kalashyulya.vercel.app')) {
-      return false
-    }
-
+    const { hostname, href } = window.location
+    if (hostname === 'localhost' || hostname.startsWith('127.0.0.1')) return false
+    if (href.includes('kalashyulya.vercel.app')) return false
     return true
   }
 
-  // Отправка накопленных метрик
   private flushMetrics(): void {
     if (this.metricsQueue.size === 0) return
-
-    // Преобразуем Map в оптимизированный JSON формат
     const optimizedData: Record<string, Record<string, [number, number]>> = {}
-
     for (const [key, metric] of this.metricsQueue.entries()) {
       const [date, type, name] = key.split('|')
-
       if (!optimizedData[date]) optimizedData[date] = {}
-
-      // Используем составной ключ: type_name для уникальности
-      const compositeKey = `${type}_${name}`
-
-      // [timestamp, counter] - самый компактный формат
-      optimizedData[date][compositeKey] = [metric.t, metric.c]
+      optimizedData[date][`${type}_${name}`] = [metric.t, metric.c]
     }
-
-    // Отправляем оптимизированные данные
     this.sendOptimizedMetrics(optimizedData)
-
-    // Очищаем очередь после отправки
     this.metricsQueue.clear()
   }
 
   private sendOptimizedMetrics(
     data: Record<string, Record<string, [number, number]>>,
   ): void {
-    // Не отправляем метрики на localhost и тестовый стенд
     if (!this.shouldSendMetrics()) return
-
     try {
       fetch(this.endpoint, {
         method: 'POST',
@@ -124,7 +147,6 @@ export class MetricsTracker {
     } catch (error) {
       // eslint-disable-next-line no-console
       console.warn('Failed to send metrics:', error)
-      // Можно добавить повторную попытку или локальное хранение
     }
   }
 }
@@ -136,10 +158,11 @@ export function initMetrics(endpoint: string) {
 }
 
 export const metrics = {
-  trackPageView(pageName: string) {
-    _instance?.trackPageView(pageName)
-  },
-  trackButtonClick(buttonName: string) {
-    _instance?.trackButtonClick(buttonName)
-  },
+  trackPageView: (p: string) => _instance?.trackPageView(p),
+  trackButtonClick: (b: string) => _instance?.trackButtonClick(b),
+  trackReferrer: () => _instance?.trackReferrer(),
+  trackDevice: () => _instance?.trackDevice(),
+  trackVisitorType: () => _instance?.trackVisitorType(),
+  startPageTimer: (p: string) => _instance?.startPageTimer(p),
+  endPageTimer: () => _instance?.endPageTimer(),
 }

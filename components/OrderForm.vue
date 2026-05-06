@@ -5,6 +5,7 @@
       :state="formData"
       class="flex flex-col gap-y-4"
       @submit="submitOrder"
+      @focusin.once="() => metrics.trackButtonClick('checkoutStarted')"
     >
       <div class="space-y-4">
         <UFormField name="name" :label="printLocale('order_form_name_label')">

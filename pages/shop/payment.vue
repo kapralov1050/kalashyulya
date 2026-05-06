@@ -121,6 +121,7 @@
       localStorage.removeItem('pendingOrderId')
       error.value =
         err instanceof Error ? err.message : 'Ошибка создания платежа'
+      metrics.trackButtonClick('paymentCreateError')
     } finally {
       loading.value = false
     }

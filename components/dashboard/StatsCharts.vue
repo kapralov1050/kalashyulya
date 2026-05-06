@@ -162,9 +162,9 @@
 
     Object.entries(filteredStatsData.value).forEach(([dateStr, events]) => {
       const dayIdx = (new Date(dateStr).getDay() + 6) % 7 // Пн=0
-      const total = Object.values(
-        events as Record<string, [number, number]>,
-      ).reduce((sum, [, count]) => sum + count, 0)
+      const total = Object.entries(events as Record<string, [number, number]>)
+        .filter(([key]) => key.startsWith('page_view_') || key.startsWith('button_click_'))
+        .reduce((sum, [, [, count]]) => sum + count, 0)
       counts[dayIdx] += total
     })
 
