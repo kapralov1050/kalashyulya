@@ -1,201 +1,224 @@
 <template>
   <div class="min-h-screen p-4 md:p-6">
     <div class="max-w-7xl mx-auto">
-      <!-- Заголовок -->
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Статистика</h1>
-        <p class="text-gray-600 mt-2">Аналитика переходов и кликов</p>
-      </div>
 
-      <div v-if="statsStore.stats" class="mb-8">
-        <StatsCharts :stats-data="statsStore.stats" />
-      </div>
-
-      <!-- Кнопка обновления -->
-      <div class="mb-6">
+      <!-- Шапка -->
+      <div class="flex items-start justify-between gap-4 mb-6">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Статистика</h1>
+          <p class="text-gray-500 mt-1">Аналитика переходов и кликов</p>
+        </div>
         <button
           :disabled="loading"
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700
-            disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          class="flex-shrink-0 px-4 py-2 bg-blue-600 text-white rounded-lg
+            hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed
+            transition-colors text-sm font-medium"
           @click="fetchStats"
         >
-          <span v-if="loading">Обновление...</span>
-          <span v-else>Обновить статистику</span>
+          {{ loading ? 'Обновление...' : 'Обновить' }}
         </button>
       </div>
 
-      <!-- Состояние загрузки -->
-      <div v-if="loading" class="text-center py-12">
-        <div
-          class="inline-block animate-spin rounded-full h-8 w-8 border-b-2
-            border-blue-600"
-        ></div>
-        <p class="mt-2 text-gray-600">Загрузка статистики...</p>
+      <!-- KPI-карточки -->
+      <div v-if="kpiData" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+          <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Просмотры</p>
+          <p class="text-3xl font-bold text-blue-600 mt-1">{{ kpiData.totalPageViews }}</p>
+          <p class="text-xs text-gray-400 mt-1">за всё время</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+          <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Клики</p>
+          <p class="text-3xl font-bold text-green-600 mt-1">{{ kpiData.totalButtonClicks }}</p>
+          <p class="text-xs text-gray-400 mt-1">за всё время</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+          <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Топ страница</p>
+          <p class="text-xl font-bold text-purple-600 mt-1 truncate">
+            {{ kpiData.topPage ? formatEventName(kpiData.topPage.name) : '—' }}
+          </p>
+          <p class="text-xs text-gray-400 mt-1">
+            {{ kpiData.topPage ? kpiData.topPage.count + ' посещений' : 'нет данных' }}
+          </p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+          <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Конверсия</p>
+          <p class="text-3xl font-bold text-amber-600 mt-1">{{ kpiData.conversion }}%</p>
+          <p class="text-xs text-gray-400 mt-1">
+            корзина → оплата ({{ kpiData.addToBasketCount }} → {{ kpiData.paymentSuccessCount }})
+          </p>
+        </div>
       </div>
 
-      <!-- Состояние ошибки -->
-      <div
-        v-else-if="error"
-        class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6"
-      >
+      <!-- Загрузка -->
+      <div v-if="loading" class="text-center py-16">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+        <p class="mt-3 text-gray-500">Загрузка статистики...</p>
+      </div>
+
+      <!-- Ошибка -->
+      <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
         <p class="text-red-700">{{ error }}</p>
       </div>
 
-      <!-- Контент -->
-      <div v-else-if="processedStats.length > 0" class="space-y-8">
-        <div
-          v-for="yearData in processedStats"
-          :key="yearData.year"
-          class="space-y-6"
-        >
-          <h2 class="text-2xl font-semibold text-gray-800 border-b pb-2">
-            {{ yearData.year }} год
-          </h2>
+      <!-- Основной контент -->
+      <template v-else-if="processedStats.length > 0">
+        <!-- Табы -->
+        <div class="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit mb-6">
+          <button
+            v-for="tab in TABS"
+            :key="tab.key"
+            :class="[
+              'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+              activeTab === tab.key
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700',
+            ]"
+            @click="activeTab = tab.key"
+          >
+            {{ tab.label }}
+          </button>
+        </div>
 
-          <div class="space-y-8">
-            <div
-              v-for="monthData in yearData.months"
-              :key="`${yearData.year}-${monthData.month}`"
-              class="bg-white rounded-xl shadow-md overflow-hidden"
-            >
-              <!-- Заголовок месяца -->
-              <div class="px-6 py-4 border-b">
-                <h3 class="text-xl font-semibold text-gray-800">
-                  {{ getMonthName(monthData.month) }}
-                </h3>
-                <p class="text-gray-600 text-sm mt-1">
-                  Всего событий: {{ monthData.totalEvents }}
-                </p>
-              </div>
+        <!-- Таб: Графики -->
+        <StatsCharts v-if="activeTab === 'charts'" :stats-data="statsStore.stats" />
 
-              <!-- Дни месяца -->
-              <div class="divide-y">
-                <div
-                  v-for="dayData in monthData.days"
-                  :key="dayData.date"
-                  class="px-6 py-4 hover:bg-gray-50 transition-colors"
+        <!-- Таб: По дням -->
+        <div v-else class="space-y-6">
+          <div v-for="yearData in processedStats" :key="yearData.year">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">{{ yearData.year }} год</h2>
+            <div class="space-y-3">
+              <div
+                v-for="monthData in yearData.months"
+                :key="`${yearData.year}-${monthData.month}`"
+                class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
+              >
+                <!-- Заголовок месяца (кликабельный) -->
+                <button
+                  class="w-full flex items-center justify-between px-5 py-4
+                    hover:bg-gray-50 transition-colors"
+                  @click="toggleMonth(yearData.year, monthData.month)"
                 >
-                  <button
-                    class="flex items-center justify-between w-full mb-4
-                      cursor-pointer"
-                    @click="toggleDay(dayData.date)"
-                  >
-                    <span class="text-xl font-medium text-gray-700">
-                      {{ formatDate(dayData.date) }}
+                  <div class="flex items-center gap-3">
+                    <span class="text-lg font-semibold text-gray-800">{{ monthData.monthName }}</span>
+                    <span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
+                      {{ monthData.totalEvents }} событий
                     </span>
-                    <svg
-                      :class="[
-                        'w-5 h-5 text-gray-500 transition-transform',
-                        expandedDays.has(dayData.date) ? 'rotate-180' : '',
-                      ]"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </button>
-
-                  <!-- Статистика по событиям -->
-                  <div
-                    v-show="expandedDays.has(dayData.date)"
-                    class="grid grid-cols-1 md:grid-cols-2 gap-4"
+                  </div>
+                  <svg
+                    :class="['w-5 h-5 text-gray-400 transition-transform', isMonthExpanded(yearData.year, monthData.month) ? 'rotate-180' : '']"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
                   >
-                    <!-- Переходы на страницы -->
-                    <div class="space-y-3">
-                      <h5
-                        class="font-medium text-gray-700 text-sm uppercase
-                          tracking-wide"
-                      >
-                        Переходы на страницы
-                      </h5>
-                      <div class="space-y-2">
-                        <div
-                          v-for="event in getEventsByType(dayData, 'page_view')"
-                          :key="event.name"
-                          class="flex items-center justify-between p-3
-                            bg-blue-50 rounded-lg"
-                        >
-                          <div>
-                            <p class="font-medium text-blue-900">
-                              {{ formatEventName(event.name) }}
-                            </p>
-                            <p class="text-sm text-blue-700">Переход</p>
-                          </div>
-                          <div class="text-right">
-                            <p class="text-2xl font-bold text-blue-900">
-                              {{ event.counter }}
-                            </p>
-                            <p class="text-xs text-blue-600">
-                              {{ formatLastUpdated(event.last_updated) }}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
 
-                    <!-- Клики на кнопки -->
-                    <div class="space-y-3">
-                      <h5
-                        class="font-medium text-gray-700 text-sm uppercase
-                          tracking-wide"
-                      >
-                        Клики на кнопки
-                      </h5>
-                      <div class="space-y-2">
-                        <div
-                          v-for="event in getEventsByType(dayData, 'button_click')"
-                          :key="event.name"
-                          class="flex items-center justify-between p-3
-                            bg-green-50 rounded-lg"
-                        >
-                          <div>
-                            <p class="font-medium text-green-900">
-                              {{ formatEventName(event.name) }}
-                            </p>
-                            <p class="text-sm text-green-700">Клик</p>
-                          </div>
-                          <div class="text-right">
-                            <p class="text-2xl font-bold text-green-900">
-                              {{ event.counter }}
-                            </p>
-                            <p class="text-xs text-green-600">
-                              {{ formatLastUpdated(event.last_updated) }}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                <!-- Дни месяца -->
+                <div v-show="isMonthExpanded(yearData.year, monthData.month)" class="divide-y divide-gray-50">
+                  <div v-for="dayData in monthData.days" :key="dayData.date" class="px-5 py-3">
 
-                    <!-- Общая статистика дня -->
-                    <div class="mt-4 pt-4 border-t">
-                      <div class="flex items-center justify-between text-sm">
-                        <div class="flex items-center space-x-4">
-                          <span class="flex items-center">
-                            <span
-                              class="w-3 h-3 bg-blue-500 rounded-full mr-1"
-                            ></span>
-                            <span class="text-gray-600">
-                              Переходы: {{ dayData.pageViews }}
-                            </span>
-                          </span>
-                          <span class="flex items-center">
-                            <span
-                              class="w-3 h-3 bg-green-500 rounded-full mr-1"
-                            ></span>
-                            <span class="text-gray-600">
-                              Клики: {{ dayData.buttonClicks }}
-                            </span>
-                          </span>
-                        </div>
-                        <span class="font-medium text-gray-900">
-                          Всего: {{ dayData.totalEvents }}
+                    <!-- Кнопка-заголовок дня -->
+                    <button class="w-full flex items-center justify-between" @click="toggleDay(dayData.date)">
+                      <span class="text-sm font-medium text-gray-700 text-left">
+                        {{ formatDate(dayData.date) }}
+                      </span>
+                      <div class="flex items-center gap-2 flex-shrink-0 ml-2">
+                        <span
+                          v-if="getDayTrend(dayData.date)?.pageViews !== null && getDayTrend(dayData.date)?.pageViews !== undefined"
+                          :class="['text-xs font-medium hidden sm:inline', trendClass(getDayTrend(dayData.date)?.pageViews)]"
+                        >
+                          👁 {{ trendText(getDayTrend(dayData.date)?.pageViews) }}
                         </span>
+                        <span
+                          v-if="getDayTrend(dayData.date)?.clicks !== null && getDayTrend(dayData.date)?.clicks !== undefined"
+                          :class="['text-xs font-medium hidden sm:inline', trendClass(getDayTrend(dayData.date)?.clicks)]"
+                        >
+                          🖱 {{ trendText(getDayTrend(dayData.date)?.clicks) }}
+                        </span>
+                        <svg
+                          :class="['w-4 h-4 text-gray-400 transition-transform', expandedDays.has(dayData.date) ? 'rotate-180' : '']"
+                          fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        >
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </button>
+
+                    <!-- Детали дня -->
+                    <div v-show="expandedDays.has(dayData.date)" class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+
+                      <!-- Просмотры страниц -->
+                      <div>
+                        <h5 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Переходы</h5>
+                        <div class="space-y-1.5">
+                          <div
+                            v-for="event in getEventsByType(dayData, 'page_view')"
+                            :key="event.name"
+                            class="flex items-center justify-between p-2.5 bg-blue-50 rounded-lg"
+                          >
+                            <div>
+                              <p class="text-sm font-medium text-blue-900">{{ formatEventName(event.name) }}</p>
+                              <p class="text-xs text-blue-400">{{ formatLastUpdated(event.last_updated) }}</p>
+                            </div>
+                            <p class="text-xl font-bold text-blue-800 ml-2">{{ event.counter }}</p>
+                          </div>
+                          <p v-if="!getEventsByType(dayData, 'page_view').length" class="text-xs text-gray-400 italic px-1">нет данных</p>
+                        </div>
+                      </div>
+
+                      <!-- Клики по кнопкам -->
+                      <div>
+                        <h5 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Клики</h5>
+                        <div class="space-y-1.5">
+                          <div
+                            v-for="event in getEventsByType(dayData, 'button_click')"
+                            :key="event.name"
+                            class="flex items-center justify-between p-2.5 bg-green-50 rounded-lg"
+                          >
+                            <div>
+                              <p class="text-sm font-medium text-green-900">{{ formatEventName(event.name) }}</p>
+                              <p class="text-xs text-green-400">{{ formatLastUpdated(event.last_updated) }}</p>
+                            </div>
+                            <p class="text-xl font-bold text-green-800 ml-2">{{ event.counter }}</p>
+                          </div>
+                          <p v-if="!getEventsByType(dayData, 'button_click').length" class="text-xs text-gray-400 italic px-1">нет данных</p>
+                        </div>
+                      </div>
+
+                      <!-- Дополнительные метрики -->
+                      <div v-if="getAdditionalEvents(dayData).length" class="md:col-span-2">
+                        <h5 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Дополнительно</h5>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1.5">
+                          <div
+                            v-for="event in getAdditionalEvents(dayData)"
+                            :key="`${event.type}-${event.name}`"
+                            class="flex items-center justify-between p-2.5 bg-indigo-50 rounded-lg"
+                          >
+                            <div class="min-w-0 mr-2">
+                              <p class="text-xs font-medium text-indigo-900 truncate">{{ formatEventName(event.name) }}</p>
+                              <p class="text-xs text-indigo-400">{{ EVENT_TYPE_LABEL[event.type] }}</p>
+                            </div>
+                            <p class="text-sm font-bold text-indigo-800 flex-shrink-0">
+                              {{ event.type === 'time' ? formatDuration(event.counter) : event.counter }}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Итог дня -->
+                      <div class="md:col-span-2 pt-2 border-t border-gray-100">
+                        <div class="flex items-center justify-between text-xs text-gray-500">
+                          <div class="flex gap-4">
+                            <span>
+                              <span class="inline-block w-2 h-2 rounded-full bg-blue-400 mr-1" />
+                              Просмотры: <b class="text-gray-700">{{ dayData.pageViews }}</b>
+                            </span>
+                            <span>
+                              <span class="inline-block w-2 h-2 rounded-full bg-green-400 mr-1" />
+                              Клики: <b class="text-gray-700">{{ dayData.buttonClicks }}</b>
+                            </span>
+                          </div>
+                          <span class="font-medium text-gray-700">Итого: {{ dayData.totalEvents }}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -204,32 +227,29 @@
             </div>
           </div>
         </div>
-      </div>
-      <!-- Состояние отсутствия данных -->
-      <div v-else class="text-center py-12">
-        <div class="text-gray-400 mb-4">
-          <svg
-            class="w-16 h-16 mx-auto"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-            />
-          </svg>
-        </div>
-        <p class="text-gray-500 text-lg">Нет данных для отображения</p>
-        <button
-          class="mt-4 px-4 py-2 text-blue-600 hover:text-blue-800 font-medium"
-          @click="fetchStats"
+      </template>
+
+      <!-- Пустое состояние -->
+      <div v-else class="text-center py-16">
+        <svg
+          class="w-14 h-14 mx-auto text-gray-300 mb-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
         >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+          />
+        </svg>
+        <p class="text-gray-400 text-lg mb-3">Нет данных для отображения</p>
+        <button class="text-blue-600 hover:text-blue-800 text-sm font-medium" @click="fetchStats">
           Загрузить статистику
         </button>
       </div>
+
     </div>
   </div>
 </template>
@@ -242,39 +262,79 @@
     formatDate,
     formatEventName,
     formatLastUpdated,
-    getMonthName,
   } from '~/utils/statsFormatters'
   import { useStatsDataProcessing } from '~/composables/useStatsDataProcessing'
+
+  const TABS = [
+    { key: 'charts', label: 'Графики' },
+    { key: 'days', label: 'По дням' },
+  ]
+
+  const EVENT_TYPE_LABEL = {
+    referrer: 'источник',
+    device: 'устройство',
+    visitor: 'посетитель',
+    time: 'время',
+    page_view: 'просмотр',
+    button_click: 'клик',
+  }
 
   const statsStore = useStatsStore()
   const loading = ref(false)
   const error = ref(null)
+  const activeTab = ref('charts')
   const expandedDays = ref(new Set())
 
-  // Используем composable для обработки данных
-  const { processedStats, getEventsByType } = useStatsDataProcessing(
-    computed(() => statsStore.stats),
-  )
+  const now = new Date()
+  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  const expandedMonths = ref(new Set([currentMonthKey]))
 
-  // Функция переключения состояния развернутости дня
+  const { processedStats, kpiData, getEventsByType, getDayTrend } =
+    useStatsDataProcessing(computed(() => statsStore.stats))
+
+  const getAdditionalEvents = day =>
+    day.events.filter(e => ['referrer', 'device', 'visitor', 'time'].includes(e.type))
+
   const toggleDay = date => {
-    if (expandedDays.value.has(date)) {
-      expandedDays.value.delete(date)
-    } else {
-      expandedDays.value.add(date)
-    }
+    if (expandedDays.value.has(date)) expandedDays.value.delete(date)
+    else expandedDays.value.add(date)
   }
 
-  // Функция загрузки данных
+  const toggleMonth = (year, month) => {
+    const key = `${year}-${month}`
+    if (expandedMonths.value.has(key)) expandedMonths.value.delete(key)
+    else expandedMonths.value.add(key)
+  }
+
+  const isMonthExpanded = (year, month) =>
+    expandedMonths.value.has(`${year}-${month}`)
+
+  const trendClass = val => {
+    if (val == null) return 'text-gray-400'
+    if (val > 0) return 'text-green-600'
+    if (val < 0) return 'text-red-500'
+    return 'text-gray-400'
+  }
+
+  const trendText = val => {
+    if (val == null) return ''
+    if (val > 0) return `+${val}%`
+    if (val < 0) return `${val}%`
+    return '0%'
+  }
+
+  const formatDuration = sec => {
+    const m = Math.floor(sec / 60)
+    return m > 0 ? `${m}м ${sec % 60}с` : `${sec}с`
+  }
+
   async function fetchStats() {
     loading.value = true
     error.value = null
-
     try {
       await statsStore.fetchStats()
     } catch (err) {
-      error.value =
-        'Ошибка при загрузке статистики. Пожалуйста, попробуйте позже.'
+      error.value = 'Ошибка при загрузке статистики. Попробуйте позже.'
       // eslint-disable-next-line no-console
       console.error('Error fetching stats:', err)
     } finally {
@@ -282,23 +342,7 @@
     }
   }
 
-  // Загружаем данные при монтировании
   onMounted(() => {
-    if (!statsStore.stats) {
-      fetchStats()
-    }
+    if (!statsStore.stats) fetchStats()
   })
 </script>
-
-<style scoped>
-  /* Анимации */
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.3s ease;
-  }
-
-  .fade-enter-from,
-  .fade-leave-to {
-    opacity: 0;
-  }
-</style>

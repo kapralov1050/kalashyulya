@@ -1,16 +1,21 @@
 import { computed, type Ref } from 'vue'
+import { getMonthName } from '~/utils/statsFormatters'
 
-// Type for the stats data structure from Firebase
 export type StatsData = Record<string, Record<string, [number, number]>>
 
-/**
- * Интерфейс для обработанных данных статистики
- */
+export type ProcessedEventType =
+  | 'page_view'
+  | 'button_click'
+  | 'referrer'
+  | 'device'
+  | 'visitor'
+  | 'time'
+
 export interface ProcessedEvent {
   name: string
   counter: number
   last_updated: string
-  type: 'page_view' | 'button_click'
+  type: ProcessedEventType
 }
 
 export interface ProcessedDay {
@@ -34,36 +39,55 @@ export interface ProcessedYear {
   months: ProcessedMonth[]
 }
 
-/**
- * Composable для обработки сырых данных статистики
- * @param stats - сырые данные статистики из стора
- * @returns объект с обработанными данными и вспомогательными функциями
- */
+export interface KpiData {
+  totalPageViews: number
+  totalButtonClicks: number
+  topPage: { name: string; count: number } | null
+  conversion: number
+  addToBasketCount: number
+  paymentSuccessCount: number
+}
+
+export interface DayTrend {
+  pageViews: number | null
+  clicks: number | null
+}
+
+function parseEventKey(eventKey: string): { type: ProcessedEventType; name: string } {
+  if (eventKey.startsWith('page_view_'))
+    return { type: 'page_view', name: eventKey.slice('page_view_'.length) }
+  if (eventKey.startsWith('button_click_'))
+    return { type: 'button_click', name: eventKey.slice('button_click_'.length) }
+  if (eventKey.startsWith('referrer_'))
+    return { type: 'referrer', name: eventKey.slice('referrer_'.length) }
+  if (eventKey.startsWith('device_'))
+    return { type: 'device', name: eventKey.slice('device_'.length) }
+  if (eventKey.startsWith('visitor_'))
+    return { type: 'visitor', name: eventKey.slice('visitor_'.length) }
+  if (eventKey.startsWith('time_'))
+    return { type: 'time', name: eventKey.slice('time_'.length) }
+
+  // Legacy format: page_view_calendar → type='page', name='view_calendar'
+  const [firstPart] = eventKey.split('_')
+  if (firstPart === 'page') return { type: 'page_view', name: eventKey.slice('page_'.length) }
+  return { type: 'button_click', name: eventKey }
+}
+
 export const useStatsDataProcessing = (stats: Ref<StatsData | null>) => {
-  /**
-   * Обработанные данные, сгруппированные по годам, месяцам и дням
-   */
   const processedStats = computed<ProcessedYear[]>(() => {
     if (!stats.value) return []
 
     const result: ProcessedYear[] = []
 
-    // Проходим по датам (новый формат: "2025-12-07")
     Object.entries(stats.value).forEach(([dateString, events]) => {
-      // Парсим дату из строки "2025-12-07"
-      const [year, month, day] = dateString.split('-')
+      const [year, month] = dateString.split('-')
 
-      // Находим или создаем год
       let yearData = result.find(y => y.year === year)
       if (!yearData) {
-        yearData = {
-          year,
-          months: [],
-        }
+        yearData = { year, months: [] }
         result.push(yearData)
       }
 
-      // Находим или создаем месяц
       let monthData = yearData.months.find(m => m.month === month)
       if (!monthData) {
         monthData = {
@@ -75,9 +99,8 @@ export const useStatsDataProcessing = (stats: Ref<StatsData | null>) => {
         yearData.months.push(monthData)
       }
 
-      // Создаем день
       const dayStats: ProcessedDay = {
-        day,
+        day: dateString.split('-')[2],
         date: dateString,
         events: [],
         totalEvents: 0,
@@ -85,31 +108,28 @@ export const useStatsDataProcessing = (stats: Ref<StatsData | null>) => {
         buttonClicks: 0,
       }
 
-      // Обрабатываем события дня (новый формат: "type_name": [timestamp, counter])
       Object.entries(events).forEach(([eventKey, eventData]) => {
         if (!Array.isArray(eventData) || eventData.length < 2) return
 
-        // Парсим тип и имя из ключа "page_view_calendar"
-        const [type, ...nameParts] = eventKey.split('_')
-        const name = nameParts.join('_')
-
-        // Преобразуем timestamp в миллисекунды
+        const { type, name } = parseEventKey(eventKey)
         const timestamp = eventData[0] * 1000
 
         const event: ProcessedEvent = {
           name,
           counter: eventData[1],
           last_updated: new Date(timestamp).toISOString(),
-          type: type === 'page' ? 'page_view' : 'button_click',
+          type,
         }
 
         dayStats.events.push(event)
-        dayStats.totalEvents += eventData[1]
 
-        if (type === 'page') {
+        // Only page_view and button_click count toward totals
+        if (type === 'page_view') {
           dayStats.pageViews += eventData[1]
-        } else {
+          dayStats.totalEvents += eventData[1]
+        } else if (type === 'button_click') {
           dayStats.buttonClicks += eventData[1]
+          dayStats.totalEvents += eventData[1]
         }
       })
 
@@ -117,52 +137,111 @@ export const useStatsDataProcessing = (stats: Ref<StatsData | null>) => {
       monthData.totalEvents += dayStats.totalEvents
     })
 
-    // Сортируем дни по убыванию даты
     result.forEach(yearData => {
       yearData.months.forEach(monthData => {
-        monthData.days.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        monthData.days.sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+        )
       })
-      // Сортируем месяцы по убыванию
       yearData.months.sort((a, b) => Number(b.month) - Number(a.month))
     })
 
-    // Сортируем годы по убыванию
     result.sort((a, b) => Number(b.year) - Number(a.year))
 
     return result
   })
 
-  /**
-   * Получить отфильтрованные события по типу
-   */
-  const getEventsByType = (day: ProcessedDay, eventType: 'page_view' | 'button_click') => {
-    return day.events.filter(e => e.type === eventType)
+  const dayLookup = computed<Map<string, ProcessedDay>>(() => {
+    const map = new Map<string, ProcessedDay>()
+    processedStats.value.forEach(year =>
+      year.months.forEach(month =>
+        month.days.forEach(day => map.set(day.date, day)),
+      ),
+    )
+    return map
+  })
+
+  const kpiData = computed<KpiData | null>(() => {
+    if (!processedStats.value.length) return null
+
+    let totalPageViews = 0
+    let totalButtonClicks = 0
+    const pageViewCounts: Record<string, number> = {}
+    let addToBasketCount = 0
+    let paymentSuccessCount = 0
+
+    processedStats.value.forEach(year =>
+      year.months.forEach(month =>
+        month.days.forEach(day => {
+          totalPageViews += day.pageViews
+          totalButtonClicks += day.buttonClicks
+
+          day.events.forEach(event => {
+            if (event.type === 'page_view') {
+              pageViewCounts[event.name] =
+                (pageViewCounts[event.name] || 0) + event.counter
+            }
+            if (event.name === 'addToBasket') addToBasketCount += event.counter
+            if (event.name === 'paymentSuccess') paymentSuccessCount += event.counter
+          })
+        }),
+      ),
+    )
+
+    const topPageEntry = Object.entries(pageViewCounts).sort(
+      (a, b) => b[1] - a[1],
+    )[0]
+
+    return {
+      totalPageViews,
+      totalButtonClicks,
+      topPage: topPageEntry
+        ? { name: topPageEntry[0], count: topPageEntry[1] }
+        : null,
+      conversion:
+        addToBasketCount > 0
+          ? Math.round((paymentSuccessCount / addToBasketCount) * 100)
+          : 0,
+      addToBasketCount,
+      paymentSuccessCount,
+    }
+  })
+
+  const getEventsByType = (day: ProcessedDay, eventType: ProcessedEventType) =>
+    day.events.filter(e => e.type === eventType)
+
+  const getDayTrend = (date: string): DayTrend | null => {
+    const current = dayLookup.value.get(date)
+    if (!current) return null
+
+    const prevDate = new Date(date)
+    prevDate.setDate(prevDate.getDate() - 1)
+    const prevStr = prevDate.toISOString().split('T')[0]
+    const prev = dayLookup.value.get(prevStr)
+    if (!prev) return null
+
+    return {
+      pageViews:
+        prev.pageViews === 0
+          ? null
+          : Math.round(
+              ((current.pageViews - prev.pageViews) / prev.pageViews) * 100,
+            ),
+      clicks:
+        prev.buttonClicks === 0
+          ? null
+          : Math.round(
+              ((current.buttonClicks - prev.buttonClicks) /
+                prev.buttonClicks) *
+                100,
+            ),
+    }
   }
 
   return {
     processedStats,
+    kpiData,
     getEventsByType,
+    getDayTrend,
   }
-}
-
-/**
- * Вспомогательная функция для получения названия месяца
- * (вынесена отдельно для возможности переиспользования)
- */
-function getMonthName(monthNumber: string): string {
-  const months = [
-    'Январь',
-    'Февраль',
-    'Март',
-    'Апрель',
-    'Май',
-    'Июнь',
-    'Июль',
-    'Август',
-    'Сентябрь',
-    'Октябрь',
-    'Ноябрь',
-    'Декабрь',
-  ]
-  return months[parseInt(monthNumber) - 1] || monthNumber
 }

@@ -37,7 +37,8 @@
       "Bash(npx vitest *)",
       "Bash(Get-ChildItem -Path \"d:\\\\Проекты frontend\\\\kalashyulya\\\\pages\" -Recurse -Filter \"*admin*\" -ErrorAction SilentlyContinue)",
       "Bash(Select-Object -ExpandProperty FullName)",
-      "Bash(Get-ChildItem -Path \"d:\\\\Проекты frontend\\\\kalashyulya\\\\components\\\\dashboard\")"
+      "Bash(Get-ChildItem -Path \"d:\\\\Проекты frontend\\\\kalashyulya\\\\components\\\\dashboard\")",
+      "Bash(grep -n \"metrics\\\\\\\\.track\" components/shop/Item.vue)"
     ]
   }
 }

@@ -8,12 +8,18 @@ export default defineNuxtPlugin(() => {
 
   onMounted(() => {
     metrics.trackPageView(route.path)
+    metrics.startPageTimer(route.path)
+    metrics.trackReferrer()
+    metrics.trackDevice()
+    metrics.trackVisitorType()
   })
 
   watch(
     () => route.path,
     path => {
+      metrics.endPageTimer()
       metrics.trackPageView(path)
+      metrics.startPageTimer(path)
     },
   )
 })
