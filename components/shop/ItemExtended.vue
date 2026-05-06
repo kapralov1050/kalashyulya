@@ -65,13 +65,34 @@
       </div>
 
       <div class="mt-auto">
-        <div class="flex items-center justify-between mb-6">
+        <!-- Продано: stock=0 && isReserved -->
+        <div
+          v-if="product.stock === 0 && product.isReserved"
+          class="flex items-center gap-2 bg-gray-100 text-gray-600 px-4 py-3
+            rounded-xl mb-6"
+        >
+          <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          <span class="font-medium">{{ printLocale('shop_item_sold') }}</span>
+        </div>
+
+        <!-- Цена + статус: только когда есть в наличии -->
+        <div v-if="product.stock > 0" class="flex items-center justify-between mb-6">
+          <!-- Цена (только если не зарезервировано) -->
           <span
+            v-if="!product.isReserved"
             class="title-font text-3xl font-bold text-gray-900
               dark:text-neutral-100"
           >
             {{ props.product.price }} ₽
           </span>
+
+          <!-- Зарезервировано: stock>0 && isReserved -->
           <div
             v-if="product.isReserved"
             class="flex items-center space-x-1.5 bg-amber-100 text-amber-700
@@ -88,7 +109,10 @@
           </div>
           <span v-else class="text-green-600 font-medium">{{ printLocale('shop_item_available') }}</span>
         </div>
+
+        <!-- Кнопка: только когда есть в наличии -->
         <UButton
+          v-if="product.stock > 0"
           class="w-full bg-neutral-900 dark:bg-neutral-400 hover:bg-neutral-700
             text-white py-3 px-6 rounded-md font-medium transition flex
             items-center justify-center gap-2"
