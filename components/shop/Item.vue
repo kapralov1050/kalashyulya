@@ -35,25 +35,40 @@
           </div>
         </div>
 
-        <h2
-          class="mb-2 text-xl font-semibold leading-snug text-gray-800
-            dark:text-gray-100"
-        >
-          {{ product.title }}
-        </h2>
+        <div class="mb-2 flex items-center justify-between gap-3">
+          <h2
+            class="text-xl font-semibold leading-snug text-gray-800
+              dark:text-gray-100"
+          >
+            {{ product.title }}
+          </h2>
+
+          <!-- Sold Badge (inline with title) -->
+          <div
+            v-if="product.stock === 0 && product.isReserved"
+            class="reservation-badge flex items-center space-x-1.5 bg-gray-500
+              text-white px-3 py-1 rounded-full text-xs font-medium shadow-sm
+              cursor-pointer shrink-0"
+          >
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            <span>{{ printLocale('shop_item_sold') }}</span>
+          </div>
+        </div>
       </header>
 
       <footer class="mt-5 relative flex items-center gap-3">
-        <h3 class="text-lg font-semibold dark:text-white">
-          {{ product.price }} ₽
-        </h3>
-
         <!-- Reservation Badge -->
         <div
-          v-if="product.isReserved"
-          class="reservation-badge absolute -top-3.5 right-0 flex items-center space-x-1.5
-            bg-amber-500 text-white px-4 py-1.5 rounded-full text-xs font-medium
-            shadow-sm cursor-pointer"
+          v-if="product.stock > 0 && product.isReserved"
+          class="reservation-badge absolute -top-3.5 right-0 flex items-center
+            space-x-1.5 bg-amber-500 text-white px-4 py-1.5 rounded-full text-xs
+            font-medium shadow-sm cursor-pointer"
         >
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path
@@ -62,26 +77,39 @@
               clip-rule="evenodd"
             />
           </svg>
-          <span>Бронь</span>
+          <span>{{ printLocale('shop_item_reserved_badge') }}</span>
         </div>
 
-        <UButton
-          :color="isInBasket ? 'success' : 'secondary'"
-          size="sm"
-          class="transition-all"
-          @click="emit('buy', product)"
+        <h3
+          v-else-if="product.stock > 0"
+          class="text-lg font-semibold dark:text-white"
         >
-          {{ isInBasket ? 'В корзине' : 'Купить' }}
-        </UButton>
+          {{ product.price }} ₽
+        </h3>
 
-        <UButton
-          :color="isInBasket ? 'success' : 'secondary'"
-          size="sm"
-          icon="heroicons:shopping-cart"
-          variant="ghost"
-          class="transition-all"
-          @click="emit('addToBasket', product)"
-        />
+        <template v-if="product.stock > 0">
+          <UButton
+            :color="isInBasket ? 'success' : 'secondary'"
+            size="sm"
+            class="transition-all"
+            @click="handleBuy"
+          >
+            {{
+              isInBasket
+                ? printLocale('shop_item_in_basket')
+                : printLocale('shop_item_buy')
+            }}
+          </UButton>
+
+          <UButton
+            :color="isInBasket ? 'success' : 'secondary'"
+            size="sm"
+            icon="heroicons:shopping-cart"
+            variant="ghost"
+            class="transition-all"
+            @click="handleAddToBasket"
+          />
+        </template>
       </footer>
     </section>
   </article>
@@ -95,6 +123,8 @@
     product: Product
     isInBasket: boolean
   }>()
+
+  const { printLocale } = useLocales()
 
   const emit = defineEmits<{
     addToBasket: [product: Product]
@@ -116,6 +146,21 @@
       hash: route.hash,
     })
   }
+
+  function handleAddToBasket() {
+    metrics.trackButtonClick('addToBasket')
+    emit('addToBasket', props.product)
+  }
+
+  function handleBuy() {
+    metrics.trackButtonClick('buyButton')
+
+    if (props.isInBasket) {
+      router.push('/basket')
+    } else {
+      emit('buy', props.product)
+    }
+  }
 </script>
 
 <style scoped>
@@ -128,7 +173,8 @@
   }
 
   @keyframes wiggle {
-    0%, 100% {
+    0%,
+    100% {
       transform: rotate(0deg);
     }
     25% {

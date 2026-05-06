@@ -3,11 +3,10 @@
     <!-- Заголовок раздела -->
     <section class="space-y-4">
       <h3 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-        Добро пожаловать в мой магазин!
+        {{ printLocale('shop_info_welcome_title') }}
       </h3>
       <p class="text-lg text-neutral-700 dark:text-neutral-300 leading-relaxed">
-        Здесь собраны мои авторские работы: от оригинальных картин до печатной
-        продукции. Каждая работа создана с любовью и вниманием к деталям.
+        {{ printLocale('shop_info_welcome_text') }}
       </p>
     </section>
 
@@ -19,16 +18,14 @@
     >
       <div class="flex items-center gap-3 mb-6">
         <h3 class="text-xl font-bold text-neutral-900 dark:text-neutral-100">
-          Картины
+          {{ printLocale('shop_info_pictures_title') }}
         </h3>
       </div>
 
       <div class="space-y-6">
         <div class="space-y-4">
           <p class="text-neutral-700 dark:text-neutral-300 leading-relaxed">
-            Оригинальные акварельные работы, которые существуют в единственном
-            экземпляре. Акварель невозможно повторить точно, поэтому каждая
-            картина уникальна.
+            {{ printLocale('shop_info_pictures_desc') }}
           </p>
 
           <ul class="space-y-3">
@@ -37,7 +34,7 @@
                 class="w-2 h-2 rounded-full bg-amber-400 mt-2.5 flex-shrink-0"
               ></div>
               <span class="text-neutral-700 dark:text-neutral-300">
-                Работы продаются без оформления
+                {{ printLocale('shop_info_pictures_point1') }}
               </span>
             </li>
             <li class="flex items-start gap-3">
@@ -45,7 +42,7 @@
                 class="w-2 h-2 rounded-full bg-amber-400 mt-2.5 flex-shrink-0"
               ></div>
               <span class="text-neutral-700 dark:text-neutral-300">
-                Спереди указаны автор и год создания
+                {{ printLocale('shop_info_pictures_point2') }}
               </span>
             </li>
             <li class="flex items-start gap-3">
@@ -53,7 +50,7 @@
                 class="w-2 h-2 rounded-full bg-amber-400 mt-2.5 flex-shrink-0"
               ></div>
               <span class="text-neutral-700 dark:text-neutral-300">
-                На обороте — полная информация о работе
+                {{ printLocale('shop_info_pictures_point3') }}
               </span>
             </li>
           </ul>
@@ -65,7 +62,7 @@
             border-neutral-200 dark:border-neutral-700"
         >
           <h4 class="font-semibold mb-4 text-neutral-800 dark:text-neutral-200">
-            Чем могу помочь
+            {{ printLocale('shop_info_help_title') }}
           </h4>
           <div class="space-y-3">
             <div class="flex items-start gap-3">
@@ -73,7 +70,7 @@
                 class="w-2 h-2 rounded-full bg-neutral-500 mt-2 flex-shrink-0"
               ></div>
               <span class="text-neutral-700 dark:text-neutral-300">
-                Дополнительные фото и видео работы по вашему запросу
+                {{ printLocale('shop_info_help_point1') }}
               </span>
             </div>
             <div class="flex items-start gap-3">
@@ -81,8 +78,7 @@
                 class="w-2 h-2 rounded-full bg-neutral-500 mt-2 flex-shrink-0"
               ></div>
               <span class="text-neutral-700 dark:text-neutral-300">
-                Помогу с оформлением: подберу раму, паспарту или передам в
-                багетную мастерскую
+                {{ printLocale('shop_info_help_point2') }}
               </span>
             </div>
           </div>
@@ -101,10 +97,10 @@
           class="text-lg font-semibold mb-4 text-neutral-900
             dark:text-neutral-100"
         >
-          Картины в оформлении
+          {{ printLocale('shop_info_framed_title') }}
         </h4>
         <p class="text-neutral-700 dark:text-neutral-300 mb-4">
-          Готовые к размещению работы уже в раме или паспарту.
+          {{ printLocale('shop_info_framed_desc') }}
         </p>
         <ul class="space-y-2.5">
           <li class="flex items-start gap-2">
@@ -112,7 +108,7 @@
               class="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2 flex-shrink-0"
             ></div>
             <span class="text-sm text-neutral-700 dark:text-neutral-300">
-              Можно заказать дополнительное оформление
+              {{ printLocale('shop_info_framed_point1') }}
             </span>
           </li>
           <li class="flex items-start gap-2">
@@ -120,7 +116,7 @@
               class="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2 flex-shrink-0"
             ></div>
             <span class="text-sm text-neutral-700 dark:text-neutral-300">
-              Тщательная упаковка с защитой стекла
+              {{ printLocale('shop_info_framed_point2') }}
             </span>
           </li>
         </ul>
@@ -135,10 +131,10 @@
           class="text-lg font-semibold mb-4 text-neutral-900
             dark:text-neutral-100"
         >
-          Наброски
+          {{ printLocale('shop_info_sketches_title') }}
         </h4>
         <p class="text-neutral-700 dark:text-neutral-300 mb-4">
-          Графические рисунки в разных стилях — каждый уникален.
+          {{ printLocale('shop_info_sketches_desc') }}
         </p>
         <ul class="space-y-2.5">
           <li class="flex items-start gap-2">
@@ -146,7 +142,7 @@
               class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 flex-shrink-0"
             ></div>
             <span class="text-sm text-neutral-700 dark:text-neutral-300">
-              Темы: от портретов до пейзажей
+              {{ printLocale('shop_info_sketches_point1') }}
             </span>
           </li>
           <li class="flex items-start gap-2">
@@ -154,7 +150,7 @@
               class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 flex-shrink-0"
             ></div>
             <span class="text-sm text-neutral-700 dark:text-neutral-300">
-              Существуют в единственном экземпляре
+              {{ printLocale('shop_info_sketches_point2') }}
             </span>
           </li>
         </ul>
@@ -169,11 +165,10 @@
           class="text-lg font-semibold mb-4 text-neutral-900
             dark:text-neutral-100"
         >
-          Постеры
+          {{ printLocale('shop_info_posters_title') }}
         </h4>
         <p class="text-neutral-700 dark:text-neutral-300 mb-4">
-          Печать на качественной бумаге — доступный вариант с авторской
-          подписью.
+          {{ printLocale('shop_info_posters_desc') }}
         </p>
         <ul class="space-y-2.5">
           <li class="flex items-start gap-2">
@@ -181,7 +176,7 @@
               class="w-1.5 h-1.5 rounded-full bg-purple-400 mt-2 flex-shrink-0"
             ></div>
             <span class="text-sm text-neutral-700 dark:text-neutral-300">
-              Высокое качество печати
+              {{ printLocale('shop_info_posters_point1') }}
             </span>
           </li>
           <li class="flex items-start gap-2">
@@ -189,7 +184,7 @@
               class="w-1.5 h-1.5 rounded-full bg-purple-400 mt-2 flex-shrink-0"
             ></div>
             <span class="text-sm text-neutral-700 dark:text-neutral-300">
-              Каждый постер пронумерован и подписан
+              {{ printLocale('shop_info_posters_point2') }}
             </span>
           </li>
         </ul>
@@ -204,26 +199,26 @@
           class="text-lg font-semibold mb-4 text-neutral-900
             dark:text-neutral-100"
         >
-          Открытки и стикеры
+          {{ printLocale('shop_info_postcards_title') }}
         </h4>
         <p class="text-neutral-700 dark:text-neutral-300 mb-4">
-          Небольшие приятные вещицы с элементами моих работ.
+          {{ printLocale('shop_info_postcards_desc') }}
         </p>
         <div class="grid grid-cols-2 gap-4">
           <div class="space-y-2">
             <h5 class="font-medium text-neutral-800 dark:text-neutral-200">
-              Открытки
+              {{ printLocale('shop_info_postcards_subtitle') }}
             </h5>
             <p class="text-sm text-neutral-600 dark:text-neutral-400">
-              Печатные миниатюры акварельных работ
+              {{ printLocale('shop_info_postcards_sub_desc') }}
             </p>
           </div>
           <div class="space-y-2">
             <h5 class="font-medium text-neutral-800 dark:text-neutral-200">
-              Стикеры
+              {{ printLocale('shop_info_stickers_subtitle') }}
             </h5>
             <p class="text-sm text-neutral-600 dark:text-neutral-400">
-              Наклейки с элементами акварелей
+              {{ printLocale('shop_info_stickers_sub_desc') }}
             </p>
           </div>
         </div>
@@ -242,7 +237,7 @@
           class="w-6 h-6 text-neutral-700 dark:text-neutral-300"
         />
         <h3 class="text-xl font-bold text-neutral-900 dark:text-neutral-100">
-          Оплата и доставка
+          {{ printLocale('shop_info_payment_title') }}
         </h3>
       </div>
 
@@ -252,11 +247,10 @@
           <h4
             class="font-semibold text-lg text-neutral-800 dark:text-neutral-200"
           >
-            Способы оплаты
+            {{ printLocale('shop_info_payment_methods_title') }}
           </h4>
           <p class="text-neutral-700 dark:text-neutral-300 leading-relaxed">
-            Ваш заказ можно будет оплатить переводом по номеру карты (Сбербанк)
-            после оформления и обсуждения заказа.
+            {{ printLocale('shop_info_payment_methods_desc') }}
           </p>
 
           <ul class="space-y-3">
@@ -265,8 +259,7 @@
                 class="w-2 h-2 rounded-full bg-green-500 mt-2.5 flex-shrink-0"
               ></div>
               <span class="text-neutral-700 dark:text-neutral-300">
-                Также возможна оплата наличными при получении заказа лично в
-                Петербурге или в Ивановской области (по договоренности)
+                {{ printLocale('shop_info_payment_point1') }}
               </span>
             </li>
             <li class="flex items-start gap-3">
@@ -274,8 +267,7 @@
                 class="w-2 h-2 rounded-full bg-green-500 mt-2.5 flex-shrink-0"
               ></div>
               <span class="text-neutral-700 dark:text-neutral-300">
-                Платеж можно разделить на несколько частей и забронировать
-                работу за собой, оплатив часть
+                {{ printLocale('shop_info_payment_point2') }}
               </span>
             </li>
           </ul>
@@ -286,7 +278,7 @@
           <h4
             class="font-semibold text-lg text-neutral-800 dark:text-neutral-200"
           >
-            Доставка
+            {{ printLocale('shop_info_delivery_title') }}
           </h4>
 
           <ul class="space-y-3">
@@ -295,8 +287,7 @@
                 class="w-2 h-2 rounded-full bg-blue-500 mt-2.5 flex-shrink-0"
               ></div>
               <span class="text-neutral-700 dark:text-neutral-300">
-                Отправляю заказы в основном Почтой России (принты от 300 ₽,
-                оригиналы от 450 ₽ по России)
+                {{ printLocale('shop_info_delivery_point1') }}
               </span>
             </li>
             <li class="flex items-start gap-3">
@@ -304,7 +295,7 @@
                 class="w-2 h-2 rounded-full bg-blue-500 mt-2.5 flex-shrink-0"
               ></div>
               <span class="text-neutral-700 dark:text-neutral-300">
-                По желанию возможна доставка через Озон, СДЭК или другие службы
+                {{ printLocale('shop_info_delivery_point2') }}
               </span>
             </li>
             <li class="flex items-start gap-3">
@@ -312,8 +303,7 @@
                 class="w-2 h-2 rounded-full bg-blue-500 mt-2.5 flex-shrink-0"
               ></div>
               <span class="text-neutral-700 dark:text-neutral-300">
-                В Петербурге и Ивановской области можно получить заказ лично от
-                меня
+                {{ printLocale('shop_info_delivery_point3') }}
               </span>
             </li>
           </ul>
@@ -324,11 +314,12 @@
     <!-- Призыв к действию -->
     <section class="text-center py-8">
       <p class="text-neutral-700 dark:text-neutral-300">
-        Если у вас есть вопросы или нужны дополнительные фотографии — просто
-        напишите, с радостью помогу с выбором!
+        {{ printLocale('shop_info_cta') }}
       </p>
     </section>
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+  const { printLocale } = useLocales()
+</script>

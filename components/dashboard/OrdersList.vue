@@ -49,6 +49,15 @@
           <div class="flex items-center gap-2">
             <span class="material-icons-outlined">attach_money</span>
             <span class="text-lg font-bold">{{ order.totalPrice }} ₽</span>
+            <span
+              v-if="order.paymentMethod"
+              class="text-xs px-2 py-0.5 rounded-full font-medium"
+              :class="order.paymentMethod === 'yookassa'
+                ? 'bg-green-100 text-green-700'
+                : 'bg-blue-100 text-blue-700'"
+            >
+              {{ order.paymentMethod === 'yookassa' ? 'Онлайн' : 'Перевод' }}
+            </span>
           </div>
           <div
             class="flex flex-col md:flex-row items-start md:items-center gap-2
@@ -133,6 +142,24 @@
           </div>
         </div>
       </div>
+      <div
+        v-if="order.notificationFailed"
+        class="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg flex
+          items-start gap-2 text-orange-700 text-sm"
+      >
+        <UIcon
+          name="i-heroicons-exclamation-triangle"
+          class="w-4 h-4 mt-0.5 flex-shrink-0"
+        />
+        <span>
+          Уведомление не отправлено:
+          <strong v-if="order.notificationFailed.telegram">Telegram</strong>
+          <span v-if="order.notificationFailed.telegram && order.notificationFailed.email"> и </span>
+          <strong v-if="order.notificationFailed.email">Email</strong>
+          — свяжитесь с покупателем вручную
+        </span>
+      </div>
+
       <div class="order-items mt-6">
         <h4 class="font-medium mb-3 flex items-center gap-2">Состав заказа:</h4>
         <div class="border rounded-lg overflow-hidden">

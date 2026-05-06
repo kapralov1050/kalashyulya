@@ -5,32 +5,32 @@
     class="space-y-3 sm:space-y-5"
     @submit="onSubmit"
   >
-    <UFormField label="Имя" name="name">
+    <UFormField :label="printLocale('register_name_label')" name="name">
       <UInput
         v-model="userData.name"
         size="xl"
         type="text"
-        placeholder="Введите ваше имя"
+        :placeholder="printLocale('register_name_placeholder')"
         class="w-full"
       />
     </UFormField>
 
-    <UFormField label="Электронная почта" name="email">
+    <UFormField :label="printLocale('login_email_label')" name="email">
       <UInput
         v-model="userData.email"
         size="xl"
         type="password"
-        placeholder="Введите Email"
+        :placeholder="printLocale('login_email_placeholder')"
         class="w-full"
       />
     </UFormField>
 
-    <UFormField label="Пароль" name="password">
+    <UFormField :label="printLocale('login_password_label')" name="password">
       <UInput
         v-model="userData.password"
         size="xl"
         type="password"
-        placeholder="Введите пароль"
+        :placeholder="printLocale('login_password_placeholder')"
         class="w-full"
       />
     </UFormField>
@@ -40,16 +40,16 @@
       icon="heroicons:paper-airplane"
       class="mt-2 sm:mt-1 w-full flex justify-center"
     >
-      Зарегистрироваться
+      {{ printLocale('register_submit') }}
     </UButton>
   </UForm>
   <p class="mt-6 text-center text-sm text-gray-600 sm:mt-8 dark:text-gray-300">
-    Уже есть аккаунт?
+    {{ printLocale('register_has_account') }}
     <NuxtLink
       class="cursor-pointer font-medium text-primary-600 hover:text-primary-700
         dark:text-primary-400 dark:hover:text-primary-300"
     >
-      Войти
+      {{ printLocale('login_submit') }}
     </NuxtLink>
   </p>
 </template>
@@ -60,6 +60,8 @@
   import { registerSchema } from '~/helpers/valibot'
   import type { registerSchemaType } from '~/helpers/valibot'
   import type { FormSubmitEvent } from '@nuxt/ui'
+
+  const { printLocale } = useLocales()
 
   definePageMeta({
     layout: 'auth',

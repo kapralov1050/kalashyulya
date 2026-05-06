@@ -48,9 +48,7 @@ export const appConfig: NuxtConfig['app'] = {
       { name: 'twitter:description', content: defaultDescription },
       { name: 'twitter:image', content: defaultImage },
       // Mobile
-      { name: 'apple-mobile-web-app-capable', content: 'yes' },
-      { name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
-      { name: 'apple-mobile-web-app-title', content: siteName },
+      { name: 'mobile-web-app-capable', content: 'yes' },
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },

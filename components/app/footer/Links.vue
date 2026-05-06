@@ -90,11 +90,40 @@
           </span>
         </div>
       </NuxtLink>
+
+      <!-- Tracking Link -->
+      <NuxtLink
+        to="/shop/tracking"
+        class="group flex items-center justify-center space-x-3 p-3 rounded-lg
+          hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors
+          duration-200 sm:ml-2"
+        @click="metrics.trackButtonClick('trackingButton')"
+      >
+        <div class="flex-shrink-0">
+          <img
+            src="/links/tracking.svg"
+            alt="Отслеживание"
+            class="w-6 h-6 group-hover:scale-110 transition-transform
+              duration-200 invert dark:invert-0"
+          />
+        </div>
+        <div class="flex flex-col text-center sm:text-left">
+          <span
+            class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+          >
+            Отслеживание заказа
+          </span>
+          <span class="text-xs text-neutral-500 dark:text-neutral-400">
+            Найти заказ по ID платежа
+          </span>
+        </div>
+      </NuxtLink>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+  import { metrics } from '~/utils/metrics'
   const { printLocale } = useLocales()
 </script>
 

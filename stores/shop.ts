@@ -70,6 +70,9 @@ export const useShopStore = defineStore('shop', () => {
       )
     }
 
+    // Скрываем товары без наличия, кроме проданных (stock=0, isReserved=true)
+    products = products.filter(prod => prod.stock > 0 || prod.isReserved === true)
+
     // Сортировка
     return sortProducts(products)
   })

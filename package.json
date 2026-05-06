@@ -20,6 +20,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@iconify-json/heroicons": "^1.2.3",
     "@nuxt/eslint": "^1.5.2",
     "@nuxt/icon": "^1.15.0",
     "@nuxt/image": "^1.11.0",
@@ -36,6 +37,7 @@
     "eslint": "^9.0.0",
     "firebase": "^11.10.0",
     "gsap": "^3.13.0",
+    "lenis": "^1.3.23",
     "lodash.throttle": "^4.1.1",
     "nuxt": "^3.17.6",
     "nuxt-vuefire": "^1.0.5",

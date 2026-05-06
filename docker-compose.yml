@@ -1,0 +1,42 @@
+services:
+  nuxt-app:
+    # Development
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    ports:
+      - '3000:3000'
+    healthcheck:
+      test: ['CMD', 'wget', '--spider', 'http://localhost:3000']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    env_file:
+      - .env
+    stop_grace_period: 10s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+    logging:
+      driver: json-file
+      options:
+        max-size: '5m'
+        max-file: '3'
+        compress: 'true'
+
+  # Production
+  nuxt-app-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+      ports:
+        - '3001:3000'
+      env_file:
+        - .env

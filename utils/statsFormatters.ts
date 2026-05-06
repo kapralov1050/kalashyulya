@@ -1,36 +1,91 @@
 const EVENT_NAME_MAP: Record<string, string> = {
+  // Страницы — старый формат (обратная совместимость)
   calendar: 'Переходов на страницу календарей',
-  shop: 'Переходов в магазин',
-  productExtendedButton: 'Открывал карточку товара',
-  startOrderButton: 'Начинал оформление заказа',
-  completeOrderButton: 'Закончил оформление заказа',
-  vkButton: 'Переходы во Вконтакте',
-  telegramButton: 'Переходы в Телеграм',
+  shop: 'Магазин (старое)',
+
+  // Страницы — новый формат (route.path)
+  '/': 'Главная',
+  '/shop': 'Магазин',
+  '/basket': 'Корзина',
+  '/calendar': 'Календарь',
+  '/requisites': 'Реквизиты',
+  '/exhibitions': 'Выставки',
+  '/shop/payment': 'Страница оплаты',
+  '/shop/payment-success': 'Успешная оплата',
+
+  // Кнопки — общие
+  buyButton: 'Нажал «Купить»',
+  addToBasket: 'Добавил в корзину',
+  productExtendedButton: 'Открыл карточку товара',
+  startOrderButton: 'Начал оформление заказа',
+  completeOrderButton: 'Отправил форму заказа',
+  vkButton: 'Перешёл во ВКонтакте',
+  telegramButton: 'Перешёл в Телеграм',
+  requisitesButton: 'Открыл реквизиты',
+  trackingButton: 'Открыл отслеживание',
+
+  // Кнопки — воронка покупки
+  paymentMethod_yookassa: 'Выбрал онлайн оплату',
+  paymentMethod_manual: 'Выбрал перевод вручную',
+  stockCheckFailed: 'Товар недоступен при заказе',
+  orderSuccess: 'Заказ успешно оформлен',
+  orderError: 'Ошибка оформления заказа',
+  paymentRedirect: 'Перешёл на ЮKassa',
+  paymentSuccess: 'Оплата подтверждена',
+  checkoutStarted: 'Начал заполнять форму заказа',
+  paymentCreateError: 'Ошибка создания платежа ЮKassa',
+
+  // Источники перехода (referrer)
+  direct: 'Прямой переход',
+  vk: 'ВКонтакте',
+  telegram: 'Телеграм',
+  google: 'Google',
+  yandex: 'Яндекс',
+  instagram: 'Instagram',
+  other: 'Другой источник',
+
+  // Тип устройства (device)
+  mobile: 'Мобильное',
+  desktop: 'Десктоп',
+  tablet: 'Планшет',
+
+  // Возвращаемость (visitor)
+  new: 'Новый посетитель',
+  returning: 'Вернувшийся посетитель',
 }
 
-/**
- * Форматирует название события для отображения в UI
- * @param eventType - ключ события в формате 'type_action_name'
- * @returns отформатированное название события
- */
-export function formatEventName(eventType: string): string {
-  const [_entity, _action, ...nameParts] = eventType.split('_')
-  const name = nameParts.join('_')
+const KNOWN_PREFIXES = [
+  'page_view_',
+  'button_click_',
+  'referrer_',
+  'device_',
+  'visitor_',
+  'time_',
+] as const
 
-  return (
-    EVENT_NAME_MAP[name] ||
-    eventType
-      .replace('page_view_', 'Просмотр: ')
-      .replace('button_click_', 'Клик: ')
-      .replace(/_/g, ' ')
-  )
+export function formatEventName(input: string): string {
+  // Direct lookup (pure name: '/shop', 'addToBasket', 'mobile')
+  if (EVENT_NAME_MAP[input]) return EVENT_NAME_MAP[input]
+
+  // Strip known prefix and look up pure name
+  for (const prefix of KNOWN_PREFIXES) {
+    if (input.startsWith(prefix)) {
+      const name = input.slice(prefix.length)
+      if (EVENT_NAME_MAP[name]) return EVENT_NAME_MAP[name]
+    }
+  }
+
+  // Fallback: human-readable string
+  return input
+    .replace(/^page_view_/, 'Просмотр: ')
+    .replace(/^button_click_/, 'Клик: ')
+    .replace(/^referrer_/, 'Источник: ')
+    .replace(/^device_/, 'Устройство: ')
+    .replace(/^visitor_/, 'Посетитель: ')
+    .replace(/^time_/, 'Время на: ')
+    .replace(/_/g, ' ')
 }
 
-/**
- * Форматирует дату в локализованный формат
- * @param dateString - строка даты в формате YYYY-MM-DD
- * @returns отформатированная дата
- */
 export function formatDate(dateString: string): string {
   const date = new Date(dateString)
   return date.toLocaleDateString('ru-RU', {
@@ -41,11 +96,6 @@ export function formatDate(dateString: string): string {
   })
 }
 
-/**
- * Форматирует timestamp в строку времени последнего обновления
- * @param timestamp - ISO строка timestamp
- * @returns строка времени в формате 'обновлено: HH:MM'
- */
 export function formatLastUpdated(timestamp: string): string {
   const date = new Date(timestamp)
   return `обновлено: ${date.toLocaleTimeString('ru-RU', {
@@ -54,11 +104,6 @@ export function formatLastUpdated(timestamp: string): string {
   })}`
 }
 
-/**
- * Возвращает название месяца по его номеру
- * @param monthNumber - номер месяца (1-12)
- * @returns название месяца на русском
- */
 export function getMonthName(monthNumber: string): string {
   const months = [
     'Январь',

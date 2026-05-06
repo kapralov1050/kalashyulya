@@ -25,7 +25,7 @@
 
       <template v-else-if="error">
         <UAlert
-          title="Ошибка загрузки товаров"
+          :title="printLocale('shop_list_error_loading')"
           :description="errorMessage"
           icon="i-heroicons-exclamation-triangle"
           color="error"
@@ -40,9 +40,9 @@
           :key="`${item.id}-${currentPage}`"
           :product="item"
           :is-in-basket="checkStatus(item)"
-          @buy="buyNow"
+          @buy="handleBuyClick"
           @add-to-basket="addToBasket"
-          @filter-by-tag="handleTagCLick"
+          @filter-by-tag="handleTagClick"
         />
 
         <div class="flex justify-center mt-8 col-span-full">
@@ -64,21 +64,57 @@
         :is-product-modal-open="isProductModalOpen"
         @close="closeModal"
       />
+
+      <!-- Order Modal -->
+      <UModal
+        v-model:open="isOrderModalOpen"
+        :title="printLocale('shop_list_order_modal_title')"
+        :description="printLocale('shop_list_order_modal_description')"
+        close-icon="heroicons:x-mark-16-solid"
+      >
+        <template #body>
+          <OrderForm
+            @close-modal="isOrderModalOpen = false"
+            @success-order="onOrderSuccess"
+          />
+        </template>
+      </UModal>
+
+      <!-- Payment Method Selector Modal -->
+      <UModal v-model:open="isOrderSuccessModalOpen">
+        <template #content>
+          <PaymentMethodSelector @select-payment-method="handlePaymentMethod" />
+        </template>
+      </UModal>
+
+      <!-- Buy Action Modal -->
+      <BuyActionModal
+        v-model:open="isBuyActionModalOpen"
+        :item-count="totalPurchaceQty"
+        :basket-amount="totalPurchaseAmount"
+        :product="modalProduct"
+        @buy-only="handleBuyOnly"
+        @add-to-basket="handleAddToBasket"
+      />
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
   import { useRoute } from 'vue-router'
+  import OrderForm from '~/components/OrderForm.vue'
+  import BuyActionModal from '~/components/shop/BuyActionModal.vue'
+  import PaymentMethodSelector from '~/components/shop/PaymentMethodSelector.vue'
+  import ProductModal from '~/components/shop/ProductModal.vue'
   import { useFirebase } from '~/composables/firebase/useFirebase'
   import { useProductModal } from '~/composables/useProductModal'
-  import ProductModal from '~/components/shop/ProductModal.vue'
   import type { Product } from '~/types'
 
+  const { printLocale } = useLocales()
   const route = useRoute()
   const router = useRouter()
 
-  const { addShopItemToBasket } = useBasketStore()
+  const { addShopItemToBasket, clearBasket } = useBasketStore()
 
   const shopStore = useShopStore()
   const {
@@ -91,6 +127,53 @@
   const { isLoading } = useFirebase()
 
   const { isProductModalOpen, selectedProduct, closeModal } = useProductModal()
+
+  const isOrderModalOpen = ref(false)
+  const isOrderSuccessModalOpen = ref(false)
+  const isBuyActionModalOpen = ref(false)
+  const lastOrderId = ref<string | null>(null)
+  const modalProduct = ref<Product | null>(null)
+  const basketStore = useBasketStore()
+  const { totalPurchaceQty, totalPurchaseAmount } = storeToRefs(basketStore)
+
+  // Обработчик клика на кнопку "Купить"
+  const handleBuyClick = (product: Product) => {
+    metrics.trackButtonClick('buyButton')
+    modalProduct.value = product
+
+    // Если в корзине уже есть товары, показываем модалку выбора
+    if (totalPurchaceQty.value > 0) {
+      isBuyActionModalOpen.value = true
+    } else {
+      addToBasketAndOrder(product, false)
+    }
+  }
+
+  // Обработчики для модалки выбора действия
+  const handleBuyOnly = async () => {
+    isBuyActionModalOpen.value = false
+    // Очищаем корзину и оформляем
+    await addToBasketAndOrder(modalProduct.value!, true)
+  }
+
+  const handleAddToBasket = async () => {
+    isBuyActionModalOpen.value = false
+    // Добавляем к существующим
+    await addToBasketAndOrder(modalProduct.value!, false)
+  }
+
+  // Добавляем товар в корзину и открываем модалку заказа
+  const addToBasketAndOrder = async (
+    product: Product,
+    shouldClearBasket: boolean = false,
+  ) => {
+    isOrderModalOpen.value = true
+    if (shouldClearBasket) {
+      clearBasket()
+    }
+
+    await addToBasket(product)
+  }
 
   const error = computed(() => {
     if (shopData.value instanceof Error) {
@@ -129,15 +212,40 @@
     addShopItemToBasket(purchase)
   }
 
-  const buyNow = async (product: Product) => {
-    addToBasket(product)
-    await new Promise(resolve => {
-      setTimeout(resolve, 500)
-    })
-    router.push('/basket')
+  const onOrderSuccess = (orderId: string) => {
+    lastOrderId.value = orderId
+    isOrderModalOpen.value = false
+    isOrderSuccessModalOpen.value = true
   }
 
-  function handleTagCLick(tag: string) {
+  const handlePaymentMethod = (method: 'yookassa' | 'manual') => {
+    isOrderSuccessModalOpen.value = false
+
+    if (method === 'yookassa') {
+      // Онлайн оплата → редирект на страницу оплаты
+      const orderId = lastOrderId.value || Date.now().toString()
+      const product = modalProduct.value
+
+      if (product) {
+        const amount = product.price.toString()
+        const description = `Оплата: ${product.title || 'Заказ'}`
+
+        router.push({
+          path: '/shop/payment',
+          query: {
+            orderId,
+            amount,
+            description,
+          },
+        })
+      }
+    } else {
+      // Оплата вручную → сообщение и редирект на магазин
+      router.push('/shop')
+    }
+  }
+
+  function handleTagClick(tag: string) {
     if (shopStore.selectedTags.includes(tag)) {
       shopStore.removeTag(tag)
     } else {
@@ -167,6 +275,21 @@
         isUpdatingPage.value = false
       })
   }
+
+  function onOrderFormClose() {
+    isOrderModalOpen.value = false
+    clearBasket()
+  }
+
+  watch(isOrderModalOpen, (newValue, oldValue) => {
+    if (
+      oldValue === true &&
+      newValue === false &&
+      !isOrderSuccessModalOpen.value
+    ) {
+      onOrderFormClose()
+    }
+  })
 
   onMounted(() => {
     if (route.query.page) {

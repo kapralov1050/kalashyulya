@@ -12,10 +12,10 @@
     />
     <div
       class="header bg-gradient-to-br from-neutral-50 to-neutral-100
-        dark:from-neutral-900 dark:to-neutral-800 absolute z-13 left-0 w-[100%]
-        min-h-[35vh] rounded-2xl"
+        dark:from-neutral-900 dark:to-neutral-800 absolute z-[13] left-0 w-[100%]
+        min-h-[35vh] rounded-2xl pointer-events-none"
     />
-    <div class="menu absolute top-4 left-4 z-14" @click="closeMenu">
+    <div class="menu absolute top-4 left-4 z-[14]" @click="closeMenu">
       <ul class="text-neutral-600 dark:text-neutral-150 hover:text-neutral-400">
         <li>
           <UButton class="text-2xl" color="neutral" variant="link" to="/">

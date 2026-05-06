@@ -42,7 +42,7 @@ describe('setupScrollAnimation', () => {
       getTotalLength: vi.fn(() => 100),
     }
 
-    document.querySelector = vi.fn(() => mockPath as any)
+    document.querySelector = vi.fn(() => mockPath as unknown as Element)
 
     const result = setupScrollAnimation('.test-path')
 

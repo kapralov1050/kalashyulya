@@ -7,10 +7,10 @@
           class="text-3xl md:text-4xl font-bold text-neutral-900 dark:text-white
             mb-4"
         >
-          Реквизиты
+          {{ printLocale('requisites_title') }}
         </h1>
         <p class="text-neutral-600 dark:text-neutral-400 text-lg">
-          Информация о продавце
+          {{ printLocale('requisites_subtitle') }}
         </p>
       </div>
 
@@ -26,7 +26,7 @@
               <h2
                 class="text-xl font-semibold text-neutral-900 dark:text-white"
               >
-                Продавец
+                {{ printLocale('requisites_seller_title') }}
               </h2>
             </div>
             <div class="space-y-3">
@@ -35,10 +35,10 @@
                   class="text-xs text-neutral-500 dark:text-neutral-400
                     uppercase tracking-wide mb-1"
                 >
-                  Имя
+                  {{ printLocale('requisites_name_field') }}
                 </p>
                 <p class="text-neutral-800 dark:text-neutral-200 font-medium">
-                  Юлия Капралова
+                  {{ printLocale('requisites_seller_name') }}
                 </p>
               </div>
               <div>
@@ -46,10 +46,10 @@
                   class="text-xs text-neutral-500 dark:text-neutral-400
                     uppercase tracking-wide mb-1"
                 >
-                  Статус
+                  {{ printLocale('requisites_status_field') }}
                 </p>
                 <p class="text-neutral-800 dark:text-neutral-200 font-medium">
-                  Самозанятая (Налог на профессиональный доход)
+                  {{ printLocale('requisites_seller_status') }}
                 </p>
               </div>
               <div>
@@ -57,13 +57,13 @@
                   class="text-xs text-neutral-500 dark:text-neutral-400
                     uppercase tracking-wide mb-1"
                 >
-                  ИНН
+                  {{ printLocale('requisites_inn_field') }}
                 </p>
                 <p
                   class="text-neutral-800 dark:text-neutral-200 font-medium
                     font-mono"
                 >
-                  370605819158
+                  {{ printLocale('requisites_seller_inn') }}
                 </p>
               </div>
             </div>
@@ -80,7 +80,7 @@
               <h2
                 class="text-xl font-semibold text-neutral-900 dark:text-white"
               >
-                Контакты
+                {{ printLocale('requisites_contacts_title') }}
               </h2>
             </div>
             <div class="space-y-3">
@@ -89,7 +89,7 @@
                   class="text-xs text-neutral-500 dark:text-neutral-400
                     uppercase tracking-wide mb-1"
                 >
-                  Email
+                  {{ printLocale('requisites_email_field') }}
                 </p>
                 <a
                   href="mailto:kalashnikova199979@gmail.com"
@@ -105,7 +105,7 @@
                   class="text-xs text-neutral-500 dark:text-neutral-400
                     uppercase tracking-wide mb-1"
                 >
-                  Телефон
+                  {{ printLocale('requisites_phone_field') }}
                 </p>
                 <a
                   href="tel:+79106868111"
@@ -124,7 +124,7 @@
       <!-- Pseudonym Notice -->
       <div class="mt-8 text-center">
         <p class="text-neutral-600 dark:text-neutral-400 text-base">
-          Калашникова Юлия (kalashyulya) является творческим псевдонимом Капраловой Юлии
+          {{ printLocale('requisites_pseudonym_notice') }}
         </p>
       </div>
     </div>
@@ -132,11 +132,10 @@
 </template>
 
 <script setup lang="ts">
+  const { printLocale } = useLocales()
+
   onMounted(() => {
     scrollTo(0, 0)
   })
 
-  onMounted(async () => {
-    metrics.trackPageView('requisites')
-  })
 </script>
