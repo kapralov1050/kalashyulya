@@ -89,6 +89,7 @@ jobs:
           echo "NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_STATS=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_STATS }}" >> .env
           echo "NUXT_PUBLIC_STATS=${{ secrets.NUXT_PUBLIC_STATS }}" >> .env
           echo "NUXT_PUBLIC_LOCALES=${{ secrets.NUXT_PUBLIC_LOCALES }}" >> .env
+          echo "NUXT_PUBLIC_CLOUD_FUNCTION_YOOKASSA_CREATE_PAYMENT=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_YOOKASSA_CREATE_PAYMENT }}" >> .env
 
       - name: Build application
         run: npm run generate
