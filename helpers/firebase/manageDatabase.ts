@@ -48,7 +48,7 @@ export const updateDataByPath = async (
 ): Promise<void> => {
   try {
     const updatesRef = dbRef(useDatabase(), path)
-    update(updatesRef, updates)
+    await update(updatesRef, updates)
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log('error while updating data:', error)

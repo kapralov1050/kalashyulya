@@ -43,17 +43,16 @@ export const useFirebase = () => {
   }
 
   async function addNewOrder(order: Order, path: string) {
-    const snapshot = await getSnapshotByPath(path)
-    const maxId =
-      Math.max(...Object.keys(snapshot).map(prod => +prod.split('_')[1])) + 1
+    const orderId = Date.now()
+
     const newItemWithId: OrderInBase = {
       ...order,
-      id: maxId,
+      id: orderId,
       status: 'Новый заказ',
     }
 
-    await updateDataByPath(newItemWithId, `${path}order_${maxId}`)
-    return maxId.toString()
+    await set(dbRef(db, `${path}order_${orderId}`), newItemWithId)
+    return orderId.toString()
   }
 
   async function updateOrderStatus(orderId: number, status: string) {
