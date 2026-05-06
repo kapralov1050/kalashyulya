@@ -117,6 +117,133 @@ describe('OrderForm — isFormValid', () => {
     vm.formData.house = '1'
     expect(vm.isFormValid).toBeTruthy()
   })
+
+  it('невалидна если имя состоит только из тире', () => {
+    const wrapper = mountForm()
+    const vm = getVm<OrderFormVmInstance>(wrapper)
+    vm.formData.name = '-'
+    vm.formData.email = 'ivan@test.ru'
+    vm.messengerType = ['Телеграм']
+    vm.formData.nickname = '@ivan'
+    expect(vm.isFormValid).toBeFalsy()
+  })
+
+  it('невалидна если никнейм состоит только из тире', () => {
+    const wrapper = mountForm()
+    const vm = getVm<OrderFormVmInstance>(wrapper)
+    vm.formData.name = 'Иван'
+    vm.formData.email = 'ivan@test.ru'
+    vm.messengerType = ['Телеграм']
+    vm.formData.nickname = '-'
+    expect(vm.isFormValid).toBeFalsy()
+  })
+
+  it('невалидна с доставкой если город состоит только из тире', () => {
+    const wrapper = mountForm()
+    const vm = getVm<OrderFormVmInstance>(wrapper)
+    vm.formData.name = 'Иван'
+    vm.formData.email = 'ivan@test.ru'
+    vm.messengerType = ['Телеграм']
+    vm.formData.nickname = '@ivan'
+    vm.isDelivery = true
+    vm.formData.city = '-'
+    vm.formData.recipient = 'Иван Иванов'
+    vm.formData.street = 'Ленина'
+    vm.formData.house = '1'
+    expect(vm.isFormValid).toBeFalsy()
+  })
+
+  it('невалидна с доставкой если получатель — одно слово', () => {
+    const wrapper = mountForm()
+    const vm = getVm<OrderFormVmInstance>(wrapper)
+    vm.formData.name = 'Иван'
+    vm.formData.email = 'ivan@test.ru'
+    vm.messengerType = ['Телеграм']
+    vm.formData.nickname = '@ivan'
+    vm.isDelivery = true
+    vm.formData.city = 'Москва'
+    vm.formData.recipient = 'Иванов'
+    vm.formData.street = 'Ленина'
+    vm.formData.house = '1'
+    expect(vm.isFormValid).toBeFalsy()
+  })
+
+  it('невалидна с доставкой если получатель состоит только из тире', () => {
+    const wrapper = mountForm()
+    const vm = getVm<OrderFormVmInstance>(wrapper)
+    vm.formData.name = 'Иван'
+    vm.formData.email = 'ivan@test.ru'
+    vm.messengerType = ['Телеграм']
+    vm.formData.nickname = '@ivan'
+    vm.isDelivery = true
+    vm.formData.city = 'Москва'
+    vm.formData.recipient = '-'
+    vm.formData.street = 'Ленина'
+    vm.formData.house = '1'
+    expect(vm.isFormValid).toBeFalsy()
+  })
+
+  it('валидна с доставкой если получатель — три слова (ФИО)', () => {
+    const wrapper = mountForm()
+    const vm = getVm<OrderFormVmInstance>(wrapper)
+    vm.formData.name = 'Иван'
+    vm.formData.email = 'ivan@test.ru'
+    vm.messengerType = ['Телеграм']
+    vm.formData.nickname = '@ivan'
+    vm.isDelivery = true
+    vm.formData.city = 'Москва'
+    vm.formData.recipient = 'Иван Иванович Иванов'
+    vm.formData.street = 'Ленина'
+    vm.formData.house = '1'
+    expect(vm.isFormValid).toBeTruthy()
+  })
+
+  it('невалидна с доставкой если улица состоит только из тире', () => {
+    const wrapper = mountForm()
+    const vm = getVm<OrderFormVmInstance>(wrapper)
+    vm.formData.name = 'Иван'
+    vm.formData.email = 'ivan@test.ru'
+    vm.messengerType = ['Телеграм']
+    vm.formData.nickname = '@ivan'
+    vm.isDelivery = true
+    vm.formData.city = 'Москва'
+    vm.formData.recipient = 'Иван Иванов'
+    vm.formData.street = '-'
+    vm.formData.house = '1'
+    expect(vm.isFormValid).toBeFalsy()
+  })
+
+  it('невалидна с доставкой если дом и квартира состоят только из тире', () => {
+    const wrapper = mountForm()
+    const vm = getVm<OrderFormVmInstance>(wrapper)
+    vm.formData.name = 'Иван'
+    vm.formData.email = 'ivan@test.ru'
+    vm.messengerType = ['Телеграм']
+    vm.formData.nickname = '@ivan'
+    vm.isDelivery = true
+    vm.formData.city = 'Москва'
+    vm.formData.recipient = 'Иван Иванов'
+    vm.formData.street = 'Ленина'
+    vm.formData.house = '-'
+    vm.formData.apartment = '-'
+    expect(vm.isFormValid).toBeFalsy()
+  })
+
+  it('валидна с доставкой если заполнена только квартира без дома', () => {
+    const wrapper = mountForm()
+    const vm = getVm<OrderFormVmInstance>(wrapper)
+    vm.formData.name = 'Иван'
+    vm.formData.email = 'ivan@test.ru'
+    vm.messengerType = ['Телеграм']
+    vm.formData.nickname = '@ivan'
+    vm.isDelivery = true
+    vm.formData.city = 'Москва'
+    vm.formData.recipient = 'Иван Иванов'
+    vm.formData.street = 'Ленина'
+    vm.formData.house = ''
+    vm.formData.apartment = '5'
+    expect(vm.isFormValid).toBeTruthy()
+  })
 })
 
 describe('OrderForm — submitOrder', () => {
