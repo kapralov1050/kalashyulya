@@ -7,12 +7,14 @@ type MetricType = 'button_click' | 'page_view' | 'referrer' | 'device' | 'visito
 
 export class MetricsTracker {
   private endpoint: string
+  private debugMode: boolean
   private metricsQueue: Map<string, OptimizedMetric> = new Map()
   private pageStartTime = 0
   private currentPagePath = ''
 
   constructor(endpoint: string) {
     this.endpoint = endpoint
+    this.debugMode = this.isDebugEnvironment()
     setInterval(() => this.flushMetrics(), 10000)
     window.addEventListener('beforeunload', () => {
       this.endPageTimer()
@@ -90,6 +92,10 @@ export class MetricsTracker {
     } else {
       this.metricsQueue.set(key, { t: timestamp, c: seconds })
     }
+    if (this.debugMode) {
+      // eslint-disable-next-line no-console
+      console.debug(`[metrics] time: ${path} — ${seconds}s`)
+    }
   }
 
   private trackMetric(type: MetricType, name: string): void {
@@ -104,6 +110,10 @@ export class MetricsTracker {
     } else {
       this.metricsQueue.set(key, { t: timestamp, c: 1 })
     }
+    if (this.debugMode) {
+      // eslint-disable-next-line no-console
+      console.debug(`[metrics] ${type}: ${name}`)
+    }
   }
 
   private formatDate(date: Date): string {
@@ -113,12 +123,14 @@ export class MetricsTracker {
     return `${y}-${m}-${d}`
   }
 
-  private shouldSendMetrics(): boolean {
+  private isDebugEnvironment(): boolean {
     if (typeof window === 'undefined') return false
     const { hostname, href } = window.location
-    if (hostname === 'localhost' || hostname.startsWith('127.0.0.1')) return false
-    if (href.includes('kalashyulya.vercel.app')) return false
-    return true
+    return (
+      hostname === 'localhost' ||
+      hostname.startsWith('127.0.0.1') ||
+      href.includes('kalashyulya.vercel.app')
+    )
   }
 
   private flushMetrics(): void {
@@ -129,14 +141,18 @@ export class MetricsTracker {
       if (!optimizedData[date]) optimizedData[date] = {}
       optimizedData[date][`${type}_${name}`] = [metric.t, metric.c]
     }
-    this.sendOptimizedMetrics(optimizedData)
+    if (this.debugMode) {
+      // eslint-disable-next-line no-console
+      console.debug('[metrics] flush (not sent):', optimizedData)
+    } else {
+      this.sendOptimizedMetrics(optimizedData)
+    }
     this.metricsQueue.clear()
   }
 
   private sendOptimizedMetrics(
     data: Record<string, Record<string, [number, number]>>,
   ): void {
-    if (!this.shouldSendMetrics()) return
     try {
       fetch(this.endpoint, {
         method: 'POST',
