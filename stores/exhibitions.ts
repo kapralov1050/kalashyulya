@@ -1,6 +1,10 @@
 import { defineStore } from 'pinia'
 import type { Exhibition, ExhibitionStatus } from '~/types'
 import { useFirebase } from '~/composables/firebase/useFirebase'
+import {
+  getDataByPath,
+  setDataByPath,
+} from '~/helpers/firebase/manageDatabase'
 
 export const useExhibitionsStore = defineStore('exhibitions', () => {
   const { exhibitionsData } = useFirebase()
@@ -60,10 +64,24 @@ export const useExhibitionsStore = defineStore('exhibitions', () => {
     }
   }
 
+  const isLoading = computed(() => exhibitionsData.value === undefined)
+
+  async function addNewExhibition(data: Record<string, unknown>) {
+    const snapshot = await getDataByPath<Record<string, Record<string, unknown>>>('exhibitions')
+    const ids = snapshot
+      ? Object.values(snapshot).map(ex => Number(ex.id) || 0)
+      : []
+    const nextId = ids.length > 0 ? Math.max(...ids) + 1 : 1
+    await setDataByPath({ ...data, id: nextId }, `exhibitions/exhibition_${nextId}`)
+    return nextId
+  }
+
   return {
     exhibitions,
+    isLoading,
     getAll,
     getBySlug,
     getStatusLabel,
+    addNewExhibition,
   }
 })

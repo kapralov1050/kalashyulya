@@ -117,6 +117,9 @@
     CertificateGenerator: defineAsyncComponent(
       () => import('@/components/dashboard/CertificateGenerator.vue'),
     ),
+    NewExhibitionForm: defineAsyncComponent(
+      () => import('@/components/dashboard/NewExhibitionForm.vue'),
+    ),
   }
 
   const getModalDisplayName = (option: string) => {
@@ -127,6 +130,7 @@
       OrdersList: 'Список заказов',
       StatsDashboard: 'Статистика',
       CertificateGenerator: 'Генератор сертификатов',
+      NewExhibitionForm: 'Добавить выставку',
     }
     return names[option] || option
   }

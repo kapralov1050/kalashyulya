@@ -5,7 +5,7 @@
     </template>
   </TransitionGroup>
 
-  <AppHeader id="header" fixed />
+  <AppHeader id="header" fixed class="z-2" />
   <AboutHeader />
   <main class="pt-30 pb-10 min-h-[100vh]">
     <AboutHero class="mb-30" />

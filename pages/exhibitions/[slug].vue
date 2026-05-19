@@ -1,139 +1,164 @@
 <template>
   <div class="pb-16">
-    <!-- Обложка выставки -->
-    <section
-      v-if="exhibition?.coverImage"
-      class="relative mb-10 flex min-h-[60vh] items-end justify-center
-        overflow-hidden sm:min-h-[70vh]"
-    >
-      <div
-        class="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        :style="{
-          backgroundImage: `url(${exhibition.coverImage})`,
-        }"
+    <!-- Skeleton пока данные грузятся из Firebase -->
+    <ExhibitionPageSkeleton v-if="isLoading" />
+
+    <!-- Основной контент -->
+    <template v-else-if="exhibition">
+      <!-- Обложка выставки -->
+      <section
+        v-if="exhibition.coverImage"
+        class="relative mb-10 flex min-h-[60vh] items-end justify-center
+          overflow-hidden sm:min-h-[70vh]"
       >
         <div
-          class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30
-            to-transparent"
-        />
-      </div>
-
-      <div class="container relative z-5 pb-12 pt-20">
-        <div class="mx-auto max-w-4xl space-y-6 text-center text-white">
-          <!-- Статус -->
+          class="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          :style="{
+            backgroundImage: `url(${exhibition.coverImage})`,
+          }"
+        >
           <div
-            class="inline-flex items-center gap-2 rounded-full px-4 py-1.5
-              text-sm font-semibold text-white"
-            :class="statusBadgeClasses"
-          >
-            <span class="inline-block size-2 rounded-full bg-white/90" />
-            <span>{{ statusLabel }}</span>
+            class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30
+              to-transparent"
+          />
+        </div>
+
+        <div class="container relative z-5 pb-12 pt-20">
+          <div class="mx-auto max-w-4xl space-y-6 text-center text-white">
+            <!-- Статус -->
+            <div
+              class="inline-flex items-center gap-2 rounded-full px-4 py-1.5
+                text-sm font-semibold text-white"
+              :class="statusBadgeClasses"
+            >
+              <span class="inline-block size-2 rounded-full bg-white/90" />
+              <span>{{ statusLabel }}</span>
+            </div>
+
+            <!-- Даты -->
+            <p class="text-lg font-medium sm:text-xl">
+              {{ exhibition.dateRange }}
+            </p>
+
+            <!-- Заголовок -->
+            <!-- eslint-disable-next-line vue/no-v-html -->
+            <h1
+              class="text-3xl font-black tracking-tight sm:text-4xl md:text-5xl
+                lg:text-6xl"
+              v-html="printLocale(exhibition.title, { breakLn: true })"
+            />
+          </div>
+        </div>
+      </section>
+
+      <!-- Если нет обложки, показываем обычный заголовок -->
+      <section v-else class="container mb-8 pt-10">
+        <UButton
+          variant="ghost"
+          color="neutral"
+          icon="i-heroicons-arrow-left"
+          class="mb-4 px-0 text-sm text-neutral-600 hover:text-neutral-900
+            dark:text-neutral-300 dark:hover:text-white"
+          to="/exhibitions"
+        >
+          Назад к выставкам
+        </UButton>
+
+        <div
+          class="flex flex-col gap-4 md:flex-row md:items-end
+            md:justify-between"
+        >
+          <div class="space-y-3">
+            <p
+              class="text-xs font-semibold uppercase tracking-[0.18em]
+                text-neutral-500 dark:text-neutral-400"
+            >
+              Выставка
+            </p>
+            <h1
+              class="max-w-3xl text-3xl font-black tracking-tight
+                text-neutral-900 dark:text-white sm:text-4xl"
+            >
+              {{ exhibition.title }}
+            </h1>
+            <p
+              class="text-sm font-medium text-neutral-600 dark:text-neutral-300"
+            >
+              {{ exhibition.dateRange }}
+            </p>
           </div>
 
-          <!-- Даты -->
-          <p class="text-lg font-medium sm:text-xl">
-            {{ exhibition.dateRange }}
-          </p>
-
-          <!-- Заголовок -->
-          <!-- eslint-disable-next-line vue/no-v-html -->
-          <h1
-            class="text-3xl font-black tracking-tight sm:text-4xl md:text-5xl
-              lg:text-6xl"
-            v-html="printLocale(exhibition.title, { breakLn: true })"
-          />
-        </div>
-      </div>
-    </section>
-
-    <!-- Если нет обложки, показываем обычный заголовок -->
-    <section v-else class="container mb-8 pt-10">
-      <UButton
-        variant="ghost"
-        color="neutral"
-        icon="i-heroicons-arrow-left"
-        class="mb-4 px-0 text-sm text-neutral-600 hover:text-neutral-900
-          dark:text-neutral-300 dark:hover:text-white"
-        to="/exhibitions"
-      >
-        Назад к выставкам
-      </UButton>
-
-      <div
-        class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between"
-      >
-        <div class="space-y-3">
-          <p
-            class="text-xs font-semibold uppercase tracking-[0.18em]
-              text-neutral-500 dark:text-neutral-400"
+          <div
+            class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs
+              font-semibold text-white"
+            :class="statusBadgeClasses"
           >
-            Выставка
-          </p>
-          <h1
-            class="max-w-3xl text-3xl font-black tracking-tight text-neutral-900
-              dark:text-white sm:text-4xl"
-          >
-            {{ exhibition?.title }}
-          </h1>
-          <p class="text-sm font-medium text-neutral-600 dark:text-neutral-300">
-            {{ exhibition?.dateRange }}
-          </p>
+            <span class="inline-block size-1.5 rounded-full bg-white/90" />
+            <span>{{ statusLabel }}</span>
+          </div>
         </div>
+      </section>
 
+      <!-- Кнопка "Назад" для страниц с обложкой -->
+      <section v-if="exhibition.coverImage" class="container mb-8">
+        <UButton
+          variant="ghost"
+          color="neutral"
+          icon="i-heroicons-arrow-left"
+          class="px-0 text-sm text-neutral-600 hover:text-neutral-900
+            dark:text-neutral-300 dark:hover:text-white"
+          to="/exhibitions"
+        >
+          Назад к выставкам
+        </UButton>
+      </section>
+
+      <!-- Расписание и адрес -->
+      <ExhibitionScheduleAddress
+        :schedule="exhibition.schedule"
+        :location="exhibition.location"
+        @open-map="isMapOpen = true"
+      />
+
+      <!-- О выставке -->
+      <section class="container mb-14">
         <div
-          v-if="exhibition"
-          class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs
-            font-semibold text-white"
-          :class="statusBadgeClasses"
+          class="rounded-3xl bg-white px-6 py-8 shadow-sm ring-1
+            ring-neutral-100 dark:bg-neutral-900/80 dark:ring-neutral-800"
         >
-          <span class="inline-block size-1.5 rounded-full bg-white/90" />
-          <span>{{ statusLabel }}</span>
+          <h2
+            class="mb-4 text-2xl font-semibold tracking-tight text-neutral-900
+              dark:text-white sm:text-3xl"
+          >
+            О выставке
+          </h2>
+          <div class="space-y-4 text-neutral-700 dark:text-neutral-200">
+            <p>{{ exhibition.descriptionIntro }}</p>
+            <!-- eslint-disable-next-line vue/no-v-html -->
+            <p
+              v-html="
+                printLocale(exhibition.descriptionBody || '', { breakLn: true })
+              "
+            />
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Кнопка "Назад" для страниц с обложкой -->
-    <section v-if="exhibition?.coverImage" class="container mb-8">
-      <UButton
-        variant="ghost"
-        color="neutral"
-        icon="i-heroicons-arrow-left"
-        class="px-0 text-sm text-neutral-600 hover:text-neutral-900
-          dark:text-neutral-300 dark:hover:text-white"
-        to="/exhibitions"
-      >
-        Назад к выставкам
-      </UButton>
-    </section>
+      <!-- Галерея -->
+      <ExhibitionGallery
+        v-if="exhibition.status !== 'planned'"
+        :works="exhibition.works"
+      />
+    </template>
 
-    <!-- Расписание и адрес -->
-    <ExhibitionScheduleAddress
-      v-if="exhibition"
-      :schedule="exhibition.schedule"
-      :location="exhibition.location"
-      @open-map="isMapOpen = true"
-    />
-
-    <!-- О выставке -->
-    <section class="container mb-14">
-      <div
-        class="rounded-3xl bg-white px-6 py-8 shadow-sm ring-1 ring-neutral-100
-          dark:bg-neutral-900/80 dark:ring-neutral-800"
-      >
-        <h2
-          class="mb-4 text-2xl font-semibold tracking-tight text-neutral-900
-            dark:text-white sm:text-3xl"
-        >
-          О выставке
-        </h2>
-        <div class="space-y-4 text-neutral-700 dark:text-neutral-200">
-          <p>{{ exhibition?.descriptionIntro }}</p>
-          <!-- eslint-disable-next-line vue/no-v-html -->
-          <p
-            v-html="printLocale(exhibition?.descriptionBody || '', { breakLn: true })"
-          />
-        </div>
-      </div>
+    <!-- Выставка не найдена (данные пришли, но slug не совпал) -->
+    <section
+      v-else
+      class="container flex min-h-[40vh] items-center justify-center"
+    >
+      <p class="text-neutral-600 dark:text-neutral-300">
+        Выставка не найдена. Проверьте ссылку или вернитесь к списку выставок.
+      </p>
     </section>
 
     <!-- Модалка с картой -->
@@ -184,27 +209,12 @@
         </div>
       </template>
     </UModal>
-
-    <!-- Галерея -->
-    <ExhibitionGallery
-      v-if="exhibition && exhibition.status !== 'planned'"
-      :works="exhibition.works"
-    />
-
-    <section
-      v-if="!exhibition"
-      class="container flex min-h-[40vh] items-center justify-center"
-    >
-      <p class="text-neutral-600 dark:text-neutral-300">
-        Выставка не найдена. Проверьте ссылку или вернитесь к списку выставок.
-      </p>
-    </section>
   </div>
 </template>
 
 <script setup lang="ts">
-   
   import ExhibitionGallery from '~/components/exhibitions/ExhibitionGallery.vue'
+  import ExhibitionPageSkeleton from '~/components/exhibitions/ExhibitionPageSkeleton.vue'
   import ExhibitionScheduleAddress from '~/components/exhibitions/ExhibitionScheduleAddress.vue'
 
   definePageMeta({
@@ -218,6 +228,7 @@
   const slug = computed(() => route.params.slug as string)
   const exhibitionRef = exhibitionsStore.getBySlug(slug.value)
   const exhibition = computed(() => exhibitionRef.value)
+  const isLoading = computed(() => exhibitionsStore.isLoading)
 
   const isMapOpen = ref(false)
   const isMapLoading = ref(true)
@@ -225,12 +236,10 @@
   const mapUrl = computed(() => {
     if (!exhibition.value) return ''
 
-    // 1) Если в данных уже есть готовая ссылка на виджет Яндекс.Карт — используем её
     if (exhibition.value.location.mapLink) {
       return exhibition.value.location.mapLink
     }
 
-    // 2) Иначе формируем URL поиска по адресу
     const parts = [
       exhibition.value.location.city,
       exhibition.value.location.addressLine,
@@ -238,8 +247,6 @@
     ].filter(Boolean)
 
     const query = encodeURIComponent(parts.join(', '))
-
-    // Встраиваемый виджет Яндекс.Карт по текстовому запросу
     return `https://yandex.ru/map-widget/v1/?text=${query}`
   })
 
@@ -269,7 +276,6 @@
     description: exhibition.value?.shortDescription || 'Выставка художника.',
     image: exhibition.value?.coverImage || '/logo.png',
   })
-
 
   watch(isMapOpen, open => {
     if (open) {

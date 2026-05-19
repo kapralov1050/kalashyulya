@@ -103,6 +103,7 @@ export type DashBoardOption =
   | 'OrdersList'
   | 'StatsDashboard'
   | 'CertificateGenerator'
+  | 'NewExhibitionForm'
 
 export interface TimelineItem {
   id: number
