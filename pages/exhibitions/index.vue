@@ -12,11 +12,16 @@
         class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3
           xl:grid-cols-4"
       >
-        <ExhibitionCard
-          v-for="exhibition in exhibitions"
-          :key="exhibition.id"
-          :exhibition="exhibition"
-        />
+        <template v-if="isLoading">
+          <ExhibitionCardSkeleton v-for="i in 4" :key="i" />
+        </template>
+        <template v-else>
+          <ExhibitionCard
+            v-for="exhibition in exhibitions"
+            :key="exhibition.id"
+            :exhibition="exhibition"
+          />
+        </template>
       </div>
     </section>
   </div>
@@ -24,6 +29,7 @@
 
 <script setup lang="ts">
   import ExhibitionCard from '~/components/exhibitions/ExhibitionCard.vue'
+  import ExhibitionCardSkeleton from '~/components/exhibitions/ExhibitionCardSkeleton.vue'
 
   const { printLocale } = useLocales()
 
@@ -37,6 +43,6 @@
     image: '/logo.png',
   })
 
-  const { exhibitions } = storeToRefs(useExhibitionsStore())
+  const { exhibitions, isLoading } = storeToRefs(useExhibitionsStore())
 
 </script>

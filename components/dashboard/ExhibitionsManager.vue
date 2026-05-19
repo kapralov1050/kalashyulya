@@ -141,13 +141,10 @@
   ) {
     savingStatusId.value = exhibition.id
     try {
+      const { addressLine, ...restLocation } = exhibition.location
       await exhibitionsStore.updateExhibition(exhibition.id, {
         ...exhibition,
-        title: exhibition.title,
-        location: {
-          ...exhibition.location,
-          address: exhibition.location.addressLine,
-        },
+        location: { ...restLocation, address: addressLine },
         works: exhibition.works.map(w => ({ title: w.title })),
         status: newStatus,
       })
