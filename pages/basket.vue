@@ -123,27 +123,6 @@
           >
             {{ purchaseButtonText }}
           </UButton>
-
-          <UModal
-            v-model:open="isOrderModalOpen"
-            :title="modalTitle"
-            :description="modalDescription"
-            close-icon="heroicons:x-mark-16-solid"
-          >
-            <template #body>
-              <!-- Шаг 1: форма с данными покупателя -->
-              <OrderForm
-                v-if="!orderCreated"
-                @success-order="handleOrderCreated"
-                @close-modal="isOrderModalOpen = false"
-              />
-              <!-- Шаг 2: выбор способа оплаты -->
-              <PaymentMethodSelector
-                v-else
-                @select-payment-method="handlePaymentMethod"
-              />
-            </template>
-          </UModal>
         </div>
       </section>
     </div>
@@ -151,12 +130,8 @@
 </template>
 
 <script setup lang="ts">
-  import OrderForm from '~/components/OrderForm.vue'
-  import PaymentMethodSelector from '~/components/shop/PaymentMethodSelector.vue'
-  import { updateDataByPath } from '~/helpers/firebase/manageDatabase'
   import type { PurchaseParams } from '~/types'
 
-  const toast = useToast()
   const router = useRouter()
   const { printLocale } = useLocales()
   const { currentUser } = storeToRefs(useAuthStore())
@@ -165,72 +140,14 @@
   const { totalPurchaceQty, totalPurchaseAmount, shoppingCart } =
     storeToRefs(useBasketStore())
 
-  const isOrderModalOpen = shallowRef(false)
-  const orderCreated = shallowRef(false)
-  // Сохраняем сумму и orderId до того как OrderForm очищает корзину
-  const savedAmount = ref(0)
-  const currentOrderId = ref('')
-
   const purchaseButtonText = computed(() =>
     currentUser.value ? 'Заказать' : 'Оформить заказ',
   )
 
-  const modalTitle = computed(() =>
-    orderCreated.value ? 'Способ оплаты' : 'Оформление заказа',
-  )
-
-  const modalDescription = computed(() =>
-    orderCreated.value
-      ? 'Выберите удобный способ оплаты'
-      : 'Для оформления заказа мне потребуются ваши данные',
-  )
-
   function startOrder() {
-    // Фиксируем сумму ДО того как OrderForm очистит корзину
-    savedAmount.value = totalPurchaseAmount.value
     metrics.trackButtonClick('startOrderButton')
-    isOrderModalOpen.value = true
+    router.push('/shop/checkout')
   }
-
-  // OrderForm создал заказ в Firebase и прислал реальный orderId
-  function handleOrderCreated(orderId: string) {
-    currentOrderId.value = orderId
-    orderCreated.value = true
-  }
-
-  function handlePaymentMethod(method: 'yookassa' | 'manual') {
-    isOrderModalOpen.value = false
-
-    updateDataByPath({ paymentMethod: method }, `orders/order_${currentOrderId.value}`)
-    metrics.trackButtonClick(`paymentMethod_${method}`)
-
-    if (method === 'yookassa') {
-      router.push({
-        path: '/shop/payment',
-        query: {
-          orderId: currentOrderId.value,
-          amount: savedAmount.value.toString(),
-          description: `Оплата заказа #${currentOrderId.value}`,
-        },
-      })
-    } else {
-      // Заказ уже создан в Firebase, уведомления уже отправлены в OrderForm
-      toast.add({
-        title: 'Заказ оформлен!',
-        description: 'Мы свяжемся с вами для подтверждения.',
-        color: 'success',
-      })
-      router.push('/shop')
-    }
-  }
-
-  // Сброс шагов при закрытии модала
-  watch(isOrderModalOpen, open => {
-    if (!open) {
-      orderCreated.value = false
-      currentOrderId.value = ''
-    }
-  })
 
   const decreaseAmount = (purchaseItem: PurchaseParams) =>
     changeShopItemQty(-1, purchaseItem)

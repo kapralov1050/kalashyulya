@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <title>SVG Map Inspector</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: monospace; background: #111; color: #eee; display: flex; flex-direction: column; height: 100vh; }
+
+    #toolbar {
+      display: flex; align-items: center; gap: 12px;
+      padding: 8px 14px; background: #1e1e1e; border-bottom: 1px solid #333;
+      flex-shrink: 0;
+    }
+    #toolbar h1 { font-size: 13px; color: #888; font-weight: normal; }
+
+    #info-panel {
+      padding: 8px 14px; background: #181818; border-bottom: 1px solid #2a2a2a;
+      font-size: 12px; min-height: 56px; flex-shrink: 0;
+    }
+    #info-panel .label { color: #666; margin-right: 6px; }
+    #info-panel .val  { color: #7dd3fc; }
+    .row { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 4px; }
+
+    #collected {
+      padding: 8px 14px; background: #141414; border-bottom: 1px solid #2a2a2a;
+      font-size: 11px; min-height: 36px; flex-shrink: 0;
+    }
+    #collected span { color: #86efac; margin-right: 12px; }
+    #collected em { color: #555; }
+
+    #map-wrap {
+      flex: 1; overflow: auto; position: relative; cursor: crosshair;
+    }
+    #map-wrap svg {
+      width: 100%; height: auto; display: block;
+    }
+
+    .highlighted { outline: 3px solid #facc15; }
+
+    /* Toast */
+    #toast {
+      position: fixed; bottom: 20px; right: 20px;
+      background: #16a34a; color: #fff; padding: 8px 14px;
+      border-radius: 6px; font-size: 12px; opacity: 0;
+      transition: opacity 0.3s;
+    }
+    #toast.show { opacity: 1; }
+
+    button {
+      padding: 4px 10px; background: #374151; color: #eee;
+      border: 1px solid #4b5563; border-radius: 4px; cursor: pointer;
+      font-size: 12px;
+    }
+    button:hover { background: #4b5563; }
+    button.danger { background: #7f1d1d; border-color: #991b1b; }
+  </style>
+</head>
+<body>
+
+<div id="toolbar">
+  <h1>🗺 SVG Map Inspector</h1>
+  <button onclick="exportCollected()">📋 Скопировать выбранные</button>
+  <button class="danger" onclick="clearCollected()">✕ Очистить</button>
+  <span style="color:#555;font-size:11px;">Кликай на регионы — увидишь их ID и путь</span>
+</div>
+
+<div id="info-panel">
+  <em style="color:#555">Кликни на любой регион карты...</em>
+</div>
+
+<div id="collected">
+  <em>Выбранные регионы появятся здесь</em>
+</div>
+
+<div id="map-wrap">
+  <!-- SVG загружается скриптом ниже -->
+</div>
+
+<div id="toast">Скопировано!</div>
+
+<script>
+  const collected = {}
+  let lastEl = null
+
+  // Загружаем SVG через fetch чтобы получить доступ к DOM
+  fetch('/map.svg')
+    .then(r => r.text())
+    .then(svgText => {
+      const wrap = document.getElementById('map-wrap')
+      wrap.innerHTML = svgText
+
+      const svg = wrap.querySelector('svg')
+      svg.style.width = '100%'
+      svg.style.height = 'auto'
+
+      // Навешиваем обработчики на все элементы с путями
+      const clickables = svg.querySelectorAll('path, polygon, rect, circle, ellipse')
+      clickables.forEach(el => {
+        el.style.cursor = 'pointer'
+        el.addEventListener('click', e => onElementClick(e, el))
+        el.addEventListener('mouseenter', e => el.style.opacity = '0.7')
+        el.addEventListener('mouseleave', e => el.style.opacity = '')
+      })
+    })
+    .catch(err => {
+      document.getElementById('map-wrap').innerHTML =
+        `<p style="color:#ef4444;padding:20px">Ошибка загрузки map.svg: ${err.message}</p>`
+    })
+
+  function onElementClick(e, el) {
+    e.stopPropagation()
+
+    // Снимаем предыдущее выделение
+    if (lastEl) lastEl.style.outline = ''
+    el.style.outline = '3px solid #facc15'
+    lastEl = el
+
+    // Строим информацию о элементе
+    const id     = el.id || '—'
+    const tag    = el.tagName
+    const fill   = el.getAttribute('fill') || el.style.fill || '—'
+    const dAttr  = el.getAttribute('d') || el.getAttribute('points') || ''
+    const dShort = dAttr.slice(0, 120) + (dAttr.length > 120 ? '…' : '')
+
+    // Путь до предка (группы)
+    const ancestry = []
+    let cur = el.parentElement
+    while (cur && cur.tagName !== 'svg' && ancestry.length < 6) {
+      const gid = cur.id || cur.getAttribute('clip-path') || cur.tagName
+      ancestry.unshift(gid)
+      cur = cur.parentElement
+    }
+
+    // Уникальный ключ: path-у уникальный ID по позиции в DOM
+    const allPaths = Array.from(document.querySelectorAll('path, polygon'))
+    const domIndex = allPaths.indexOf(el)
+
+    document.getElementById('info-panel').innerHTML = `
+      <div class="row">
+        <div><span class="label">tag:</span><span class="val">${tag}</span></div>
+        <div><span class="label">id:</span><span class="val">${id}</span></div>
+        <div><span class="label">domIndex:</span><span class="val">${domIndex}</span></div>
+        <div><span class="label">fill:</span><span class="val">${fill}</span></div>
+      </div>
+      <div class="row" style="margin-top:6px">
+        <div><span class="label">ancestors:</span><span class="val">${ancestry.join(' › ')}</span></div>
+      </div>
+      <div class="row" style="margin-top:4px">
+        <div><span class="label">d/points:</span><span class="val" style="color:#c4b5fd">${dShort}</span></div>
+      </div>
+      <div style="margin-top:6px">
+        <button onclick="addToCollection(${domIndex})">+ Добавить в список</button>
+        <button onclick="copyPath(${domIndex})" style="margin-left:6px">📋 Копировать путь</button>
+      </div>
+    `
+
+    window._lastDomIndex = domIndex
+    window._lastEl = el
+  }
+
+  function addToCollection(domIndex) {
+    const allPaths = Array.from(document.querySelectorAll('path, polygon'))
+    const el = allPaths[domIndex]
+    if (!el) return
+
+    const name = prompt('Название региона (например: ДНР):')
+    if (!name) return
+
+    const d = el.getAttribute('d') || el.getAttribute('points') || ''
+    collected[name] = { domIndex, d: d.slice(0, 60) + '…', el }
+
+    renderCollected()
+  }
+
+  function renderCollected() {
+    const panel = document.getElementById('collected')
+    const keys = Object.keys(collected)
+    if (keys.length === 0) {
+      panel.innerHTML = '<em>Выбранные регионы появятся здесь</em>'
+      return
+    }
+    panel.innerHTML = keys.map(k =>
+      `<span title="domIndex: ${collected[k].domIndex}">✓ ${k} <small style="color:#555">[${collected[k].domIndex}]</small></span>`
+    ).join('')
+  }
+
+  function copyPath(domIndex) {
+    const allPaths = Array.from(document.querySelectorAll('path, polygon'))
+    const el = allPaths[domIndex]
+    if (!el) return
+    const d = el.getAttribute('d') || el.getAttribute('points') || ''
+    navigator.clipboard.writeText(d).then(() => showToast())
+  }
+
+  function exportCollected() {
+    const allPaths = Array.from(document.querySelectorAll('path, polygon'))
+    const result = {}
+    for (const [name, info] of Object.entries(collected)) {
+      const el = allPaths[info.domIndex]
+      result[name] = {
+        domIndex: info.domIndex,
+        tag: el?.tagName,
+        d: el?.getAttribute('d') || el?.getAttribute('points') || '',
+        fill: el?.getAttribute('fill') || el?.style.fill || '',
+      }
+    }
+    navigator.clipboard.writeText(JSON.stringify(result, null, 2)).then(() => showToast())
+    console.log('Collected:', result)
+  }
+
+  function clearCollected() {
+    Object.keys(collected).forEach(k => delete collected[k])
+    renderCollected()
+  }
+
+  function showToast() {
+    const t = document.getElementById('toast')
+    t.classList.add('show')
+    setTimeout(() => t.classList.remove('show'), 1800)
+  }
+</script>
+</body>
+</html>
