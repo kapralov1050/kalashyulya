@@ -1,21 +1,37 @@
 <template>
-  <div class="space-y-8">
+  <div class="space-y-6">
+    <!-- Header -->
     <div class="flex items-center justify-between">
-      <h2 class="text-xl font-bold text-gray-900">Добавить выставку</h2>
+      <div>
+        <h2 class="text-xl font-bold text-gray-900">Редактировать выставку</h2>
+        <p class="mt-0.5 text-sm text-gray-500">
+          ID: exhibition_{{ exhibition.id }} ·
+          <span class="font-mono text-blue-600">/exhibitions/{{ exhibition.slug }}</span>
+        </p>
+      </div>
+      <button
+        type="button"
+        class="flex items-center gap-1.5 rounded-lg border border-gray-300 px-3
+          py-2 text-sm text-gray-600 hover:bg-gray-50"
+        @click="$emit('cancel')"
+      >
+        ← Назад
+      </button>
     </div>
 
     <!-- 1. Основная информация -->
     <ExhibitionFormSection title="Основная информация">
       <div class="grid gap-4 sm:grid-cols-2">
+        <!-- Название -->
         <div class="sm:col-span-2">
           <label
-            for="ex-title"
+            for="edit-title"
             class="mb-1 block text-sm font-medium text-gray-700"
           >
             Название
           </label>
           <textarea
-            id="ex-title"
+            id="edit-title"
             v-model="form.title"
             rows="2"
             placeholder="Выставка «Тихий свет зимы»"
@@ -24,9 +40,8 @@
               focus:ring-1 focus:ring-blue-500"
           />
           <p class="mt-1 text-xs text-gray-500">
-            Нажмите Enter, чтобы перенести часть названия на следующую строку
+            Enter — перенос строки в заголовке
           </p>
-          <!-- Превью заголовка -->
           <div
             v-if="form.title"
             class="mt-3 overflow-hidden rounded-xl bg-neutral-900 px-5 py-4"
@@ -43,85 +58,81 @@
         </div>
 
         <AppFormField
-          id="ex-tab-title"
+          id="edit-tab-title"
           v-model="form.tabTitle"
           label="Заголовок вкладки браузера"
           placeholder="Выставка «Тихий свет зимы»"
         />
 
+        <!-- Slug -->
         <div>
           <AppFormField
-            id="ex-slug"
+            id="edit-slug"
             v-model="form.slug"
             label="Slug (URL)"
             placeholder="tikhij-svet-zimy"
           />
-          <p class="mt-1 text-xs text-gray-500">
-            Используется в адресе страницы:
-            <span class="font-mono text-blue-600">/exhibitions/{{ form.slug || 'slug' }}</span>.
-            Только латинские буквы и дефисы.
+          <p class="mt-1 text-xs text-amber-600">
+            Осторожно: изменение slug сломает существующие ссылки
           </p>
-          <button
-            type="button"
-            class="mt-1 text-xs text-blue-600 hover:underline"
-            @click="generateSlug"
-          >
-            Сгенерировать из названия
-          </button>
+          <p class="mt-0.5 text-xs text-gray-500">
+            Адрес:
+            <span class="font-mono text-blue-600">
+              /exhibitions/{{ form.slug || '…' }}
+            </span>
+          </p>
         </div>
 
+        <!-- Статус -->
         <div>
-          <label class="mb-1 block text-sm font-medium text-gray-700">Статус</label>
+          <label class="mb-1 block text-sm font-medium text-gray-700">
+            Статус
+          </label>
           <select
             v-model="form.status"
-            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5
-              text-sm text-gray-900 focus:border-blue-500 focus:outline-none
-              focus:ring-2 focus:ring-blue-500"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm
+              focus:border-blue-500 focus:outline-none focus:ring-1
+              focus:ring-blue-500"
           >
             <option value="planned">Запланирована</option>
-            <option value="ongoing">Уже идёт</option>
+            <option value="ongoing">Идёт сейчас</option>
             <option value="finished">Завершена</option>
           </select>
         </div>
 
+        <!-- Даты -->
         <AppFormField
-          id="ex-date-range"
+          id="edit-date-range"
           v-model="form.dateRange"
-          label="Период (отображаемый текст)"
+          label="Период (текст)"
           placeholder="1–28 февраля 2026"
         />
-
         <AppFormField
-          id="ex-date-start"
+          id="edit-date-start"
           v-model="form.dateStart"
           type="date"
           label="Дата начала"
         />
-
         <AppFormField
-          id="ex-date-end"
+          id="edit-date-end"
           v-model="form.dateEnd"
           type="date"
           label="Дата окончания"
         />
 
-        <div class="flex flex-col gap-1">
-          <label class="text-sm font-medium text-gray-700">Вход свободный</label>
-          <button
-            type="button"
-            class="flex h-10 w-14 items-center rounded-full px-1 transition-colors"
-            :class="form.isFree ? 'bg-emerald-500' : 'bg-gray-300'"
-            @click="form.isFree = !form.isFree"
-          >
-            <span
-              class="size-8 rounded-full bg-white shadow transition-transform"
-              :class="form.isFree ? 'translate-x-4' : 'translate-x-0'"
-            />
-          </button>
+        <!-- Вход -->
+        <div class="flex items-center gap-3">
+          <label class="flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-700">
+            <input
+              v-model="form.isFree"
+              type="checkbox"
+              class="h-4 w-4 rounded text-blue-500 focus:ring-blue-400"
+            >
+            Вход свободный
+          </label>
         </div>
-
         <AppFormField
-          id="ex-ticket"
+          id="edit-ticket-info"
           v-model="form.ticketInfo"
           label="Информация о билетах"
           placeholder="Вход свободный"
@@ -129,7 +140,7 @@
 
         <div class="sm:col-span-2">
           <AppFormField
-            id="ex-short-desc"
+            id="edit-short-desc"
             v-model="form.shortDescription"
             type="textarea"
             label="Краткое описание (для карточки)"
@@ -144,21 +155,21 @@
       <div class="space-y-3">
         <div class="relative">
           <AppFormField
-            id="ex-cover-search"
+            id="edit-cover-search"
             v-model="coverSearch"
             label="Найти работу из магазина"
             placeholder="Введите название картины..."
           />
-          <!-- Выпадающий список результатов -->
           <ul
             v-if="coverResults.length > 0"
-            class="absolute z-20 mt-1 max-h-64 w-full overflow-y-auto rounded-xl
-              border border-gray-200 bg-white shadow-lg"
+            class="absolute z-20 mt-1 max-h-64 w-full overflow-y-auto
+              rounded-xl border border-gray-200 bg-white shadow-lg"
           >
             <li
               v-for="product in coverResults"
               :key="product.id"
-              class="flex cursor-pointer items-center gap-3 px-3 py-2 hover:bg-gray-50"
+              class="flex cursor-pointer items-center gap-3 px-3 py-2
+                hover:bg-gray-50"
               @click="selectCoverProduct(product)"
             >
               <img
@@ -180,7 +191,7 @@
         </div>
 
         <AppFormField
-          id="ex-cover-url"
+          id="edit-cover-url"
           v-model="form.coverImage"
           label="URL обложки (или введите вручную)"
           placeholder="https://..."
@@ -204,27 +215,27 @@
     <ExhibitionFormSection title="Место проведения">
       <div class="grid gap-4 sm:grid-cols-2">
         <AppFormField
-          id="ex-venue"
+          id="edit-venue"
           v-model="form.location.venue"
           label="Название места"
           placeholder="Библиотека К.А. Тимирязева"
         />
         <AppFormField
-          id="ex-city"
+          id="edit-city"
           v-model="form.location.city"
           label="Город"
           placeholder="Санкт-Петербург"
         />
         <AppFormField
-          id="ex-address"
+          id="edit-address"
           v-model="form.location.address"
           label="Адрес"
           placeholder="ул. Шкапина, д. 6"
         />
         <AppFormField
-          id="ex-map-link"
+          id="edit-map-link"
           v-model="form.location.mapLink"
-          label="Ссылка на Яндекс.Карты (необязательно)"
+          label="Ссылка на Яндекс.Карты"
           placeholder="https://yandex.ru/map-widget/..."
         />
         <div class="sm:col-span-2">
@@ -246,18 +257,23 @@
           :key="day.id"
           class="flex flex-wrap items-center gap-3 px-4 py-3"
         >
-          <span class="w-32 text-sm font-medium text-gray-700">{{ day.label }}</span>
+          <span class="w-32 text-sm font-medium text-gray-700">
+            {{ day.label }}
+          </span>
           <div class="flex flex-1 items-center gap-3">
             <input
               v-model="day.time"
               type="text"
               :disabled="day.isClosed"
               placeholder="09:00–20:00"
-              class="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-sm
-                focus:border-blue-500 focus:outline-none focus:ring-1
+              class="flex-1 rounded-lg border border-gray-300 px-3 py-1.5
+                text-sm focus:border-blue-500 focus:outline-none focus:ring-1
                 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-400"
             >
-            <label class="flex cursor-pointer items-center gap-1.5 text-sm text-gray-600">
+            <label
+              class="flex cursor-pointer items-center gap-1.5 text-sm
+                text-gray-600"
+            >
               <input
                 v-model="day.isClosed"
                 type="checkbox"
@@ -275,20 +291,20 @@
     <ExhibitionFormSection title="Описание">
       <div class="space-y-4">
         <AppFormField
-          id="ex-desc-intro"
+          id="edit-desc-intro"
           v-model="form.descriptionIntro"
           type="textarea"
           label="Вводный абзац"
           placeholder="С 1 февраля 2026 года в библиотеке..."
         />
         <AppFormField
-          id="ex-desc-body"
+          id="edit-desc-body"
           v-model="form.descriptionBody"
           type="textarea"
           label="Основной текст"
           placeholder="«Часть работ создана в Ивановской области...»"
         />
-        <p class="mt-1 text-xs text-gray-500">
+        <p class="text-xs text-gray-500">
           Нажмите Enter дважды, чтобы начать новый абзац
         </p>
       </div>
@@ -297,7 +313,6 @@
     <!-- 6. Работы на выставке -->
     <ExhibitionFormSection title="Работы на выставке">
       <div class="space-y-4">
-        <!-- Выбранные работы -->
         <div v-if="form.works.length > 0">
           <p class="mb-2 text-sm font-medium text-gray-700">
             Добавлено: {{ form.works.length }}
@@ -322,12 +337,11 @@
         </div>
         <p v-else class="text-sm text-gray-400">Работы не добавлены</p>
 
-        <!-- Поиск + раскрывающийся пикер -->
         <div>
           <div class="flex items-center gap-2">
             <div class="relative flex-1">
               <AppFormField
-                id="ex-works-search"
+                id="edit-works-search"
                 v-model="worksSearch"
                 label=""
                 placeholder="Поиск по названию работы..."
@@ -378,9 +392,7 @@
                 >
                   нет фото
                 </div>
-                <div
-                  class="absolute inset-x-0 bottom-0 bg-black/60 px-2 py-1.5"
-                >
+                <div class="absolute inset-x-0 bottom-0 bg-black/60 px-2 py-1.5">
                   <p class="truncate text-xs text-white">{{ product.title }}</p>
                 </div>
                 <div
@@ -403,84 +415,79 @@
       </div>
     </ExhibitionFormSection>
 
-    <!-- Кнопка сохранения -->
-    <div class="flex justify-end pt-2">
+    <!-- Кнопки -->
+    <div class="flex items-center justify-end gap-3 pt-2">
+      <button
+        type="button"
+        class="rounded-lg border border-gray-300 px-5 py-2.5 text-sm
+          text-gray-600 hover:bg-gray-50"
+        @click="$emit('cancel')"
+      >
+        Отмена
+      </button>
       <UButton
         loading-auto
         size="xl"
         :disabled="isSaving"
         @click="submit"
       >
-        {{ isSaving ? 'Сохранение...' : 'Создать выставку' }}
+        {{ isSaving ? 'Сохранение...' : 'Сохранить изменения' }}
       </UButton>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-  import type { ExhibitionStatus, Product } from '~/types'
+  import type { Exhibition, ExhibitionStatus, Product } from '~/types'
   import { showToast } from '~/helpers/showToast'
   import ExhibitionFormSection from './ExhibitionFormSection.vue'
+
+  const props = defineProps<{ exhibition: Exhibition }>()
+  const emit = defineEmits<{ cancel: []; saved: [] }>()
 
   const exhibitionsStore = useExhibitionsStore()
   const shopStore = useShopStore()
 
-  // ─── Transliteration ─────────────────────────────────────────────────────────
+  // ─── Конвертация текста ───────────────────────────────────────────────────────
 
-  const TRANSLIT: Record<string, string> = {
-    а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ё: 'yo',
-    ж: 'zh', з: 'z', и: 'i', й: 'j', к: 'k', л: 'l', м: 'm',
-    н: 'n', о: 'o', п: 'p', р: 'r', с: 's', т: 't', у: 'u',
-    ф: 'f', х: 'kh', ц: 'ts', ч: 'ch', ш: 'sh', щ: 'sch',
-    ъ: '', ы: 'y', ь: '', э: 'e', ю: 'yu', я: 'ya',
-  }
-
-  function toSlug(text: string): string {
-    return text
-      .toLowerCase()
-      .replace(/[а-яёъыь]/g, ch => TRANSLIT[ch] ?? ch)
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
-  }
+  // Firebase хранит буквальные \n (два символа). Для textarea нужны реальные переносы.
+  const fromFirebaseText = (s: string) => s.replace(/\\n/g, '\n')
+  const toFirebaseText = (s: string) => s.replace(/\n/g, '\\n')
 
   // ─── Form state ───────────────────────────────────────────────────────────────
 
-  const defaultSchedule = () => [
-    { id: 'mon', label: 'Понедельник', time: '', isClosed: false },
-    { id: 'tue', label: 'Вторник',     time: '', isClosed: false },
-    { id: 'wed', label: 'Среда',       time: '', isClosed: false },
-    { id: 'thu', label: 'Четверг',     time: '', isClosed: false },
-    { id: 'fri', label: 'Пятница',     time: '', isClosed: false },
-    { id: 'sat', label: 'Суббота',     time: '', isClosed: false },
-    { id: 'sun', label: 'Воскресенье', time: '', isClosed: false },
-  ]
-
   const form = reactive({
-    title: '',
-    tabTitle: '',
-    slug: '',
-    shortDescription: '',
-    dateRange: '',
-    dateStart: '',
-    dateEnd: '',
-    status: 'planned' as ExhibitionStatus,
-    isFree: false,
-    ticketInfo: '',
-    coverImage: '',
+    title: fromFirebaseText(props.exhibition.title),
+    tabTitle: props.exhibition.tabTitle || '',
+    slug: props.exhibition.slug,
+    shortDescription: props.exhibition.shortDescription || '',
+    dateRange: props.exhibition.dateRange || '',
+    dateStart: props.exhibition.dateStart || '',
+    dateEnd: props.exhibition.dateEnd || '',
+    status: props.exhibition.status as ExhibitionStatus,
+    isFree: props.exhibition.isFree ?? false,
+    ticketInfo: props.exhibition.ticketInfo || '',
+    coverImage: props.exhibition.coverImage || '',
     location: {
-      venue: '',
-      city: '',
-      address: '',
-      metro: [] as string[],
-      mapLink: '',
+      venue: props.exhibition.location.venue || '',
+      city: props.exhibition.location.city || '',
+      address: props.exhibition.location.addressLine || '',
+      metro: [...(props.exhibition.location.metro || [])],
+      mapLink: props.exhibition.location.mapLink || '',
     },
-    schedule: defaultSchedule(),
-    descriptionIntro: '',
-    descriptionBody: '',
-    works: [] as { title: string }[],
+    schedule: props.exhibition.schedule.map(d => ({ ...d })),
+    descriptionIntro: props.exhibition.descriptionIntro || '',
+    descriptionBody: fromFirebaseText(props.exhibition.descriptionBody || ''),
+    works: props.exhibition.works.map(w => ({ title: w.title })),
   })
 
-  // Экранирует HTML и заменяет реальные \n на <br> для безопасного превью
+  function onClosedToggle(day: (typeof form.schedule)[number]) {
+    if (day.isClosed) day.time = 'Закрыто'
+    else day.time = ''
+  }
+
+  // ─── Title preview ────────────────────────────────────────────────────────────
+
   const titlePreview = computed(() =>
     form.title
       .replace(/&/g, '&amp;')
@@ -488,18 +495,6 @@
       .replace(/>/g, '&gt;')
       .replace(/\n/g, '<br>'),
   )
-
-  // Конвертирует реальные переносы строк в литеральные \n для Firebase
-  const toFirebaseText = (s: string) => s.replace(/\n/g, '\\n')
-
-  function generateSlug() {
-    form.slug = toSlug(form.title.replace(/\n/g, ' '))
-  }
-
-  function onClosedToggle(day: (typeof form.schedule)[number]) {
-    if (day.isClosed) day.time = 'Закрыто'
-    else day.time = ''
-  }
 
   // ─── Cover image search ───────────────────────────────────────────────────────
 
@@ -556,14 +551,11 @@
       showToast('Ошибка', 'Введите название выставки', 'heroicons:exclamation-circle')
       return
     }
-    if (!form.slug.trim()) {
-      showToast('Ошибка', 'Введите slug', 'heroicons:exclamation-circle')
-      return
-    }
 
     isSaving.value = true
     try {
       const payload = {
+        id: props.exhibition.id,
         title: toFirebaseText(form.title),
         tabTitle: form.tabTitle,
         slug: form.slug,
@@ -582,39 +574,9 @@
         works: form.works.map(w => ({ ...w })),
       }
 
-      const newId = await exhibitionsStore.addNewExhibition(payload)
-      showToast(
-        'Выставка создана',
-        `ID: exhibition_${newId} · slug: ${form.slug}`,
-        'heroicons:check-circle',
-      )
-
-      // Триггерим деплой чтобы новый slug попал в пререндер
-      const deployUrl = useRuntimeConfig().public.cloudFunctionDeploy
-      const deploySecret = useRuntimeConfig().public.cloudFunctionDeploySecret
-      if (deployUrl) {
-        fetch(deployUrl, {
-          method: 'POST',
-          headers: { 'x-secret-key': deploySecret },
-        }).catch(() => {
-          showToast('Деплой', 'Не удалось запустить пересборку', 'heroicons:exclamation-triangle')
-        })
-      }
-
-      // Reset form
-      Object.assign(form, {
-        title: '', tabTitle: '', slug: '', shortDescription: '',
-        dateRange: '', dateStart: '', dateEnd: '',
-        status: 'planned' as ExhibitionStatus,
-        isFree: false, ticketInfo: '', coverImage: '',
-        location: { venue: '', city: '', address: '', metro: [], mapLink: '' },
-        schedule: defaultSchedule(),
-        descriptionIntro: '', descriptionBody: '',
-        works: [],
-      })
-      coverSearch.value = ''
-      worksSearch.value = ''
-      worksOpen.value = false
+      await exhibitionsStore.updateExhibition(props.exhibition.id, payload)
+      showToast('Сохранено', `Выставка «${form.title.replace(/\n/g, ' ')}» обновлена`, 'heroicons:check-circle')
+      emit('saved')
     } catch (err) {
       showToast('Ошибка', String(err), 'heroicons:exclamation-circle')
     } finally {
@@ -622,4 +584,3 @@
     }
   }
 </script>
-

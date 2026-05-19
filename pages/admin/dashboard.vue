@@ -120,6 +120,9 @@
     NewExhibitionForm: defineAsyncComponent(
       () => import('@/components/dashboard/NewExhibitionForm.vue'),
     ),
+    ExhibitionsManager: defineAsyncComponent(
+      () => import('@/components/dashboard/ExhibitionsManager.vue'),
+    ),
   }
 
   const getModalDisplayName = (option: string) => {
@@ -131,6 +134,7 @@
       StatsDashboard: 'Статистика',
       CertificateGenerator: 'Генератор сертификатов',
       NewExhibitionForm: 'Добавить выставку',
+      ExhibitionsManager: 'Управление выставками',
     }
     return names[option] || option
   }

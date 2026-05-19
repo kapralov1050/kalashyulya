@@ -9,6 +9,8 @@ on:
     branches:
       - main
       - prod
+  repository_dispatch:
+    types: [deploy]
 
 jobs:
   # Job для проверки кода (линтеры, тесты, typecheck)
@@ -52,7 +54,7 @@ jobs:
   deploy-prod:
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/prod'
+    if: github.ref == 'refs/heads/prod' || github.event_name == 'repository_dispatch'
     environment: production
     steps:
       - name: Checkout code

@@ -39,6 +39,10 @@ export const useExhibitionsStore = defineStore('exhibitions', () => {
           metro: (item.location as Record<string, unknown>)?.metro as string[] || [],
           mapLink: (item.location as Record<string, unknown>)?.mapLink as string || '',
         },
+        dateStart: (item.dateStart as string) || '',
+        dateEnd: (item.dateEnd as string) || '',
+        isFree: (item.isFree as boolean) ?? false,
+        ticketInfo: (item.ticketInfo as string) || '',
         descriptionIntro: (item.descriptionIntro as string) || '',
         descriptionBody: (item.descriptionBody as string) || '',
         works: (item.works as unknown[]) || [],
@@ -66,6 +70,10 @@ export const useExhibitionsStore = defineStore('exhibitions', () => {
 
   const isLoading = computed(() => exhibitionsData.value === undefined)
 
+  async function updateExhibition(id: number, data: Record<string, unknown>) {
+    await setDataByPath({ ...data, id }, `exhibitions/exhibition_${id}`)
+  }
+
   async function addNewExhibition(data: Record<string, unknown>) {
     const snapshot = await getDataByPath<Record<string, Record<string, unknown>>>('exhibitions')
     const ids = snapshot
@@ -83,5 +91,6 @@ export const useExhibitionsStore = defineStore('exhibitions', () => {
     getBySlug,
     getStatusLabel,
     addNewExhibition,
+    updateExhibition,
   }
 })

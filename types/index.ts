@@ -104,6 +104,7 @@ export type DashBoardOption =
   | 'StatsDashboard'
   | 'CertificateGenerator'
   | 'NewExhibitionForm'
+  | 'ExhibitionsManager'
 
 export interface TimelineItem {
   id: number
@@ -145,6 +146,10 @@ export interface Exhibition {
   shortDescription: string
   status: ExhibitionStatus
   dateRange: string
+  dateStart?: string
+  dateEnd?: string
+  isFree?: boolean
+  ticketInfo?: string
   coverImage: string
   schedule: ExhibitionScheduleDay[]
   location: ExhibitionLocation

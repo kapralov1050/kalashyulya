@@ -21,6 +21,11 @@ const pluralForms: Record<string, PluralForms> = {
     few: 'пользователя',
     many: 'пользователей',
   },
+  exhibitions: {
+    one: 'выставка',
+    few: 'выставки',
+    many: 'выставок',
+  },
 }
 
 export const pluralize = (
