@@ -9,17 +9,19 @@ export const useAuthStore = defineStore('auth', () => {
     if (isAuthReady.value) return Promise.resolve(currentUser.value)
     if (_initPromise) return _initPromise
 
-    _initPromise = import('firebase/auth').then(({ getAuth, onAuthStateChanged }) => {
-      return new Promise<User | null>(resolve => {
-        onAuthStateChanged(getAuth(), user => {
-          currentUser.value = user
-          if (!isAuthReady.value) {
-            isAuthReady.value = true
-            resolve(user)
-          }
+    _initPromise = import('firebase/auth').then(
+      ({ getAuth, onAuthStateChanged }) => {
+        return new Promise<User | null>(resolve => {
+          onAuthStateChanged(getAuth(), user => {
+            currentUser.value = user
+            if (!isAuthReady.value) {
+              isAuthReady.value = true
+              resolve(user)
+            }
+          })
         })
-      })
-    })
+      },
+    )
 
     return _initPromise
   }

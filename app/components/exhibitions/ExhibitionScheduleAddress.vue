@@ -1,6 +1,7 @@
 <template>
   <section
-    class="container mb-10 grid gap-6 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]"
+    class="container mb-10 grid gap-6
+      md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]"
   >
     <!-- Расписание -->
     <div
@@ -99,5 +100,3 @@
     'open-map': []
   }>()
 </script>
-
-

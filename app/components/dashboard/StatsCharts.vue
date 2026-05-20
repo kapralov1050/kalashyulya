@@ -163,7 +163,10 @@
     Object.entries(filteredStatsData.value).forEach(([dateStr, events]) => {
       const dayIdx = (new Date(dateStr).getDay() + 6) % 7 // Пн=0
       const total = Object.entries(events as Record<string, [number, number]>)
-        .filter(([key]) => key.startsWith('page_view_') || key.startsWith('button_click_'))
+        .filter(
+          ([key]) =>
+            key.startsWith('page_view_') || key.startsWith('button_click_'),
+        )
         .reduce((sum, [, [, count]]) => sum + count, 0)
       counts[dayIdx] += total
     })
@@ -330,8 +333,8 @@
       </div>
       <!-- Произвольный диапазон -->
       <div
-        class="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4
-          items-stretch sm:items-center"
+        class="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 items-stretch
+          sm:items-center"
       >
         <div class="flex items-center gap-2">
           <label
@@ -372,8 +375,8 @@
         <button
           v-if="hasFilter"
           type="button"
-          class="w-full sm:w-auto px-4 py-1.5 bg-red-500 text-white
-            rounded-md text-sm font-medium transition-colors hover:bg-red-600
+          class="w-full sm:w-auto px-4 py-1.5 bg-red-500 text-white rounded-md
+            text-sm font-medium transition-colors hover:bg-red-600
             active:bg-red-700"
           @click="resetFilter"
         >
@@ -388,16 +391,10 @@
         h-[280px] sm:h-[400px]"
     >
       <div class="px-4 pt-4 pb-1 flex-shrink-0">
-        <h3 class="text-base font-semibold text-gray-700">
-          Просмотры страниц
-        </h3>
+        <h3 class="text-base font-semibold text-gray-700">Просмотры страниц</h3>
       </div>
       <div class="flex-1 min-h-0 px-2 pb-2">
-        <VChart
-          class="w-full h-full"
-          :option="lineChartOption"
-          autoresize
-        />
+        <VChart class="w-full h-full" :option="lineChartOption" autoresize />
       </div>
     </div>
 
@@ -407,16 +404,10 @@
         h-[280px] sm:h-[400px]"
     >
       <div class="px-4 pt-4 pb-1 flex-shrink-0">
-        <h3 class="text-base font-semibold text-gray-700">
-          Клики по кнопкам
-        </h3>
+        <h3 class="text-base font-semibold text-gray-700">Клики по кнопкам</h3>
       </div>
       <div class="flex-1 min-h-0 px-2 pb-2">
-        <VChart
-          class="w-full h-full"
-          :option="barChartOption"
-          autoresize
-        />
+        <VChart class="w-full h-full" :option="barChartOption" autoresize />
       </div>
     </div>
 
@@ -433,11 +424,7 @@
         </p>
       </div>
       <div class="flex-1 min-h-0 px-2 pb-2">
-        <VChart
-          class="w-full h-full"
-          :option="funnelChartOption"
-          autoresize
-        />
+        <VChart class="w-full h-full" :option="funnelChartOption" autoresize />
       </div>
     </div>
 

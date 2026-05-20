@@ -7,7 +7,9 @@
  * Auto-imported composable from @nuxt/ui
  * @returns {Toast}
  */
-declare function useToast(): { add: (options: { title: string; description: string; icon: string }) => void }
+declare function useToast(): {
+  add: (options: { title: string; description: string; icon: string }) => void
+}
 
 export function showToast(title: string, description: string, icon: string) {
   const toast = useToast()

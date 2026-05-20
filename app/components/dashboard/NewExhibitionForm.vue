@@ -58,8 +58,10 @@
           />
           <p class="mt-1 text-xs text-gray-500">
             Используется в адресе страницы:
-            <span class="font-mono text-blue-600">/exhibitions/{{ form.slug || 'slug' }}</span>.
-            Только латинские буквы и дефисы.
+            <span class="font-mono text-blue-600">
+              /exhibitions/{{ form.slug || 'slug' }}
+            </span>
+            . Только латинские буквы и дефисы.
           </p>
           <button
             type="button"
@@ -71,7 +73,9 @@
         </div>
 
         <div>
-          <label class="mb-1 block text-sm font-medium text-gray-700">Статус</label>
+          <label class="mb-1 block text-sm font-medium text-gray-700">
+            Статус
+          </label>
           <select
             v-model="form.status"
             class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5
@@ -106,10 +110,13 @@
         />
 
         <div class="flex flex-col gap-1">
-          <label class="text-sm font-medium text-gray-700">Вход свободный</label>
+          <label class="text-sm font-medium text-gray-700">
+            Вход свободный
+          </label>
           <button
             type="button"
-            class="flex h-10 w-14 items-center rounded-full px-1 transition-colors"
+            class="flex h-10 w-14 items-center rounded-full px-1
+              transition-colors"
             :class="form.isFree ? 'bg-emerald-500' : 'bg-gray-300'"
             @click="form.isFree = !form.isFree"
           >
@@ -158,7 +165,8 @@
             <li
               v-for="product in coverResults"
               :key="product.id"
-              class="flex cursor-pointer items-center gap-3 px-3 py-2 hover:bg-gray-50"
+              class="flex cursor-pointer items-center gap-3 px-3 py-2
+                hover:bg-gray-50"
               @click="selectCoverProduct(product)"
             >
               <img
@@ -166,7 +174,7 @@
                 :src="product.image[0]"
                 :alt="product.title"
                 class="size-10 rounded-md object-cover"
-              >
+              />
               <div
                 v-else
                 class="flex size-10 items-center justify-center rounded-md
@@ -194,7 +202,7 @@
             :src="form.coverImage"
             alt="Обложка"
             class="h-48 w-full object-cover"
-          >
+          />
         </div>
         <p v-else class="text-sm text-gray-400">Обложка не выбрана</p>
       </div>
@@ -246,24 +254,29 @@
           :key="day.id"
           class="flex flex-wrap items-center gap-3 px-4 py-3"
         >
-          <span class="w-32 text-sm font-medium text-gray-700">{{ day.label }}</span>
+          <span class="w-32 text-sm font-medium text-gray-700">
+            {{ day.label }}
+          </span>
           <div class="flex flex-1 items-center gap-3">
             <input
               v-model="day.time"
               type="text"
               :disabled="day.isClosed"
               placeholder="09:00–20:00"
-              class="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-sm
-                focus:border-blue-500 focus:outline-none focus:ring-1
+              class="flex-1 rounded-lg border border-gray-300 px-3 py-1.5
+                text-sm focus:border-blue-500 focus:outline-none focus:ring-1
                 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-400"
+            />
+            <label
+              class="flex cursor-pointer items-center gap-1.5 text-sm
+                text-gray-600"
             >
-            <label class="flex cursor-pointer items-center gap-1.5 text-sm text-gray-600">
               <input
                 v-model="day.isClosed"
                 type="checkbox"
                 class="h-4 w-4 rounded text-rose-500 focus:ring-rose-400"
                 @change="onClosedToggle(day)"
-              >
+              />
               Закрыто
             </label>
           </div>
@@ -370,7 +383,7 @@
                   :src="product.image[0]"
                   :alt="product.title"
                   class="aspect-square w-full object-cover"
-                >
+                />
                 <div
                   v-else
                   class="flex aspect-square w-full items-center justify-center
@@ -405,12 +418,7 @@
 
     <!-- Кнопка сохранения -->
     <div class="flex justify-end pt-2">
-      <UButton
-        loading-auto
-        size="xl"
-        :disabled="isSaving"
-        @click="submit"
-      >
+      <UButton loading-auto size="xl" :disabled="isSaving" @click="submit">
         {{ isSaving ? 'Сохранение...' : 'Создать выставку' }}
       </UButton>
     </div>
@@ -428,11 +436,39 @@
   // ─── Transliteration ─────────────────────────────────────────────────────────
 
   const TRANSLIT: Record<string, string> = {
-    а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ё: 'yo',
-    ж: 'zh', з: 'z', и: 'i', й: 'j', к: 'k', л: 'l', м: 'm',
-    н: 'n', о: 'o', п: 'p', р: 'r', с: 's', т: 't', у: 'u',
-    ф: 'f', х: 'kh', ц: 'ts', ч: 'ch', ш: 'sh', щ: 'sch',
-    ъ: '', ы: 'y', ь: '', э: 'e', ю: 'yu', я: 'ya',
+    а: 'a',
+    б: 'b',
+    в: 'v',
+    г: 'g',
+    д: 'd',
+    е: 'e',
+    ё: 'yo',
+    ж: 'zh',
+    з: 'z',
+    и: 'i',
+    й: 'j',
+    к: 'k',
+    л: 'l',
+    м: 'm',
+    н: 'n',
+    о: 'o',
+    п: 'p',
+    р: 'r',
+    с: 's',
+    т: 't',
+    у: 'u',
+    ф: 'f',
+    х: 'kh',
+    ц: 'ts',
+    ч: 'ch',
+    ш: 'sh',
+    щ: 'sch',
+    ъ: '',
+    ы: 'y',
+    ь: '',
+    э: 'e',
+    ю: 'yu',
+    я: 'ya',
   }
 
   function toSlug(text: string): string {
@@ -447,11 +483,11 @@
 
   const defaultSchedule = () => [
     { id: 'mon', label: 'Понедельник', time: '', isClosed: false },
-    { id: 'tue', label: 'Вторник',     time: '', isClosed: false },
-    { id: 'wed', label: 'Среда',       time: '', isClosed: false },
-    { id: 'thu', label: 'Четверг',     time: '', isClosed: false },
-    { id: 'fri', label: 'Пятница',     time: '', isClosed: false },
-    { id: 'sat', label: 'Суббота',     time: '', isClosed: false },
+    { id: 'tue', label: 'Вторник', time: '', isClosed: false },
+    { id: 'wed', label: 'Среда', time: '', isClosed: false },
+    { id: 'thu', label: 'Четверг', time: '', isClosed: false },
+    { id: 'fri', label: 'Пятница', time: '', isClosed: false },
+    { id: 'sat', label: 'Суббота', time: '', isClosed: false },
     { id: 'sun', label: 'Воскресенье', time: '', isClosed: false },
   ]
 
@@ -553,7 +589,11 @@
 
   async function submit() {
     if (!form.title.trim()) {
-      showToast('Ошибка', 'Введите название выставки', 'heroicons:exclamation-circle')
+      showToast(
+        'Ошибка',
+        'Введите название выставки',
+        'heroicons:exclamation-circle',
+      )
       return
     }
     if (!form.slug.trim()) {
@@ -597,19 +637,31 @@
           method: 'POST',
           headers: { 'x-secret-key': deploySecret },
         }).catch(() => {
-          showToast('Деплой', 'Не удалось запустить пересборку', 'heroicons:exclamation-triangle')
+          showToast(
+            'Деплой',
+            'Не удалось запустить пересборку',
+            'heroicons:exclamation-triangle',
+          )
         })
       }
 
       // Reset form
       Object.assign(form, {
-        title: '', tabTitle: '', slug: '', shortDescription: '',
-        dateRange: '', dateStart: '', dateEnd: '',
+        title: '',
+        tabTitle: '',
+        slug: '',
+        shortDescription: '',
+        dateRange: '',
+        dateStart: '',
+        dateEnd: '',
         status: 'planned' as ExhibitionStatus,
-        isFree: false, ticketInfo: '', coverImage: '',
+        isFree: false,
+        ticketInfo: '',
+        coverImage: '',
         location: { venue: '', city: '', address: '', metro: [], mapLink: '' },
         schedule: defaultSchedule(),
-        descriptionIntro: '', descriptionBody: '',
+        descriptionIntro: '',
+        descriptionBody: '',
         works: [],
       })
       coverSearch.value = ''
@@ -622,4 +674,3 @@
     }
   }
 </script>
-

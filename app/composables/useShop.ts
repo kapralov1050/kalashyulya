@@ -98,10 +98,23 @@ export const useShop = () => {
           errorMessage = 'Ошибка сервера. Попробуйте позже.'
         }
       }
-      if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string' && error.message.includes('Network Error')) {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'message' in error &&
+        typeof error.message === 'string' &&
+        error.message.includes('Network Error')
+      ) {
         errorMessage = 'Проблемы с соединением. Проверьте интернет.'
       }
-      if (error && typeof error === 'object' && 'data' in error && error.data && typeof error.data === 'object' && 'error' in error.data) {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'data' in error &&
+        error.data &&
+        typeof error.data === 'object' &&
+        'error' in error.data
+      ) {
         errorMessage = String(error.data.error)
       }
 
@@ -143,7 +156,13 @@ export const useShop = () => {
           errorMessage = 'Ошибка email сервера'
         }
       }
-      if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string' && error.message.includes('Network Error')) {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'message' in error &&
+        typeof error.message === 'string' &&
+        error.message.includes('Network Error')
+      ) {
         errorMessage = 'Проблемы с соединением при отправке email'
       }
 

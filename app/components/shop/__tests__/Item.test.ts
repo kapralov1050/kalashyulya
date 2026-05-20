@@ -39,7 +39,10 @@ const mockProductReserved: Product = {
   isReserved: true,
 }
 
-const UButtonStub = { template: '<button v-bind="$attrs"><slot /></button>', inheritAttrs: false }
+const UButtonStub = {
+  template: '<button v-bind="$attrs"><slot /></button>',
+  inheritAttrs: false,
+}
 
 describe('Item.vue', () => {
   let router: ReturnType<typeof createRouter>
@@ -189,7 +192,6 @@ describe('Item.vue', () => {
 
       expect(wrapper.text()).toContain('В корзине')
     })
-
   })
 
   describe('клики и эмиты', () => {

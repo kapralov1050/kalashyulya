@@ -26,6 +26,7 @@ export const runtimeConfig: NuxtConfig['runtimeConfig'] = {
     cloudFunctionYookassaCreatePayment:
       process.env.NUXT_PUBLIC_CLOUD_FUNCTION_YOOKASSA_CREATE_PAYMENT,
     cloudFunctionDeploy: process.env.NUXT_PUBLIC_CLOUD_FUNCTION_DEPLOY,
-    cloudFunctionDeploySecret: process.env.NUXT_PUBLIC_CLOUD_FUNCTION_DEPLOY_SECRET,
+    cloudFunctionDeploySecret:
+      process.env.NUXT_PUBLIC_CLOUD_FUNCTION_DEPLOY_SECRET,
   },
 }

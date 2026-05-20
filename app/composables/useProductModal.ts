@@ -13,13 +13,17 @@ export function useProductModal(products?: MaybeRefOrGetter<Product[]>) {
 
     const productList = toValue(products)
     if (productList) {
-      const found = productList.find(p => p.id.toString() === selectedProductId.value)
+      const found = productList.find(
+        p => p.id.toString() === selectedProductId.value,
+      )
       if (found) return found
     }
 
-    return shopStore.allProducts.find(
-      p => p.id.toString() === selectedProductId.value,
-    ) || null
+    return (
+      shopStore.allProducts.find(
+        p => p.id.toString() === selectedProductId.value,
+      ) || null
+    )
   })
 
   const isProductModalOpen = computed(() => {

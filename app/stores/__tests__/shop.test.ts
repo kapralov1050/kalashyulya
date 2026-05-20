@@ -13,7 +13,10 @@ vi.mock('~/composables/firebase/useFirebase', () => ({
   }),
 }))
 
-const base: Omit<Product, 'id' | 'title' | 'price' | 'stock' | 'categoryId' | 'isReserved'> = {
+const base: Omit<
+  Product,
+  'id' | 'title' | 'price' | 'stock' | 'categoryId' | 'isReserved'
+> = {
   description: '',
   size: '',
   material: '',
@@ -258,7 +261,9 @@ describe('useShopStore', () => {
       store.setFramingFilter('none')
 
       const filtered = store.allProducts
-      expect(filtered.every(p => !p.framing || p.framing.length === 0)).toBe(true)
+      expect(filtered.every(p => !p.framing || p.framing.length === 0)).toBe(
+        true,
+      )
     })
 
     it('фильтрует товары ТОЛЬКО С оформлением', () => {
@@ -342,7 +347,9 @@ describe('useShopStore', () => {
 
       // product_4 (stock=0, isReserved=false) фильтруется allProducts, остаётся 2
       expect(results.length).toBe(2)
-      expect(results.every(p => p.title.toLowerCase().includes('картина'))).toBe(true)
+      expect(
+        results.every(p => p.title.toLowerCase().includes('картина')),
+      ).toBe(true)
     })
 
     it('возвращает пустой массив если ничего не найдено', () => {

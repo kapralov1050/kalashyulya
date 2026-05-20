@@ -44,5 +44,4 @@
   })
 
   const { exhibitions, isLoading } = storeToRefs(useExhibitionsStore())
-
 </script>

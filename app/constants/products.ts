@@ -24,7 +24,10 @@ export const ProductCategoryLabels = {
  * Получить название категории по её ID
  */
 export function getCategoryLabel(categoryId: string): string {
-  return ProductCategoryLabels[categoryId as keyof typeof ProductCategoryLabels] || 'Неизвестная категория'
+  return (
+    ProductCategoryLabels[categoryId as keyof typeof ProductCategoryLabels] ||
+    'Неизвестная категория'
+  )
 }
 
 /**
@@ -49,7 +52,8 @@ export function getProductTypeLabel(categoryId: string): string {
   return labels[categoryId] || ''
 }
 
-export type ProductCategoryId = typeof ProductCategory[keyof typeof ProductCategory]
+export type ProductCategoryId =
+  (typeof ProductCategory)[keyof typeof ProductCategory]
 
 /**
  * Константы оформления картин
@@ -67,4 +71,4 @@ export const FramingTypeLabels = {
   [FramingType.PASSEPARTOUT]: 'В паспарту',
 } as const
 
-export type FramingTypeId = typeof FramingType[keyof typeof FramingType]
+export type FramingTypeId = (typeof FramingType)[keyof typeof FramingType]

@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { formatEventName, formatDate, formatLastUpdated, getMonthName } from '../statsFormatters'
+import {
+  formatEventName,
+  formatDate,
+  formatLastUpdated,
+  getMonthName,
+} from '../statsFormatters'
 
 describe('formatEventName', () => {
   it('should format known event names from map', () => {

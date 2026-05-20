@@ -3,7 +3,10 @@ import { setActivePinia, createPinia } from 'pinia'
 import { useBasketStore } from '../basket'
 import type { Product } from '~/types'
 
-const base: Omit<Product, 'id' | 'title' | 'price' | 'stock' | 'categoryId' | 'isReserved'> = {
+const base: Omit<
+  Product,
+  'id' | 'title' | 'price' | 'stock' | 'categoryId' | 'isReserved'
+> = {
   description: '',
   size: '',
   material: '',

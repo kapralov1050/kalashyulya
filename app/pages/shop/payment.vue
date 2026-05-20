@@ -1,7 +1,9 @@
 <template>
   <div class="payment-page">
     <div class="max-w-4xl mx-auto p-6">
-      <h1 class="text-2xl font-bold mb-6">{{ printLocale('payment_page_title') }}</h1>
+      <h1 class="text-2xl font-bold mb-6">
+        {{ printLocale('payment_page_title') }}
+      </h1>
 
       <div
         v-if="loading"
@@ -62,7 +64,8 @@
 
   const orderId = route.query.orderId as string
   const amount = parseFloat((route.query.amount as string) || '0')
-  const description = (route.query.description as string) || printLocale('payment_page_title')
+  const description =
+    (route.query.description as string) || printLocale('payment_page_title')
 
   const loading = ref(true)
   const error = ref<string | null>(null)

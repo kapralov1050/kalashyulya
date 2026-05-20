@@ -18,13 +18,15 @@
             {{ printLocale('shop_buy_modal_title') }}
           </h2>
           <p class="text-neutral-600 dark:text-neutral-400">
-            {{ printLocale('shop_buy_modal_basket', {
-              params: {
-                count: itemCount,
-                suffix: itemCount > 1 ? 'а' : '',
-                amount: formatPrice(basketAmount)
-              }
-            }) }}
+            {{
+              printLocale('shop_buy_modal_basket', {
+                params: {
+                  count: itemCount,
+                  suffix: itemCount > 1 ? 'а' : '',
+                  amount: formatPrice(basketAmount),
+                },
+              })
+            }}
           </p>
         </div>
 
@@ -32,7 +34,11 @@
         <div class="space-y-3">
           <UButton color="primary" size="lg" block @click="handleBuyOnly">
             <UIcon name="i-heroicons-check" class="w-5 h-5 mr-2" />
-            {{ printLocale('shop_buy_modal_confirm', { params: { title: product?.title || '' } }) }}
+            {{
+              printLocale('shop_buy_modal_confirm', {
+                params: { title: product?.title || '' },
+              })
+            }}
           </UButton>
 
           <UButton
@@ -57,7 +63,11 @@
               name="i-heroicons-information-circle"
               class="w-4 h-4 inline mr-1"
             />
-            {{ printLocale('shop_buy_modal_warning', { params: { title: product?.title || '' } }) }}
+            {{
+              printLocale('shop_buy_modal_warning', {
+                params: { title: product?.title || '' },
+              })
+            }}
           </p>
         </div>
       </div>

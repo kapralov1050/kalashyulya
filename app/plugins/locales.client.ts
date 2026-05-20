@@ -6,12 +6,15 @@ export default defineNuxtPlugin(async () => {
 
   // Проверяем обновления локалей каждые 10 минут
   if (import.meta.client) {
-    setInterval(async () => {
-      try {
-        await fetchLocales()
-      } catch {
-        // Игнорируем ошибки проверки обновлений
-      }
-    }, 10 * 60 * 1000)
+    setInterval(
+      async () => {
+        try {
+          await fetchLocales()
+        } catch {
+          // Игнорируем ошибки проверки обновлений
+        }
+      },
+      10 * 60 * 1000,
+    )
   }
 })

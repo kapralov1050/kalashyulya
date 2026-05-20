@@ -38,7 +38,9 @@
           </div>
 
           <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-            <p class="text-sm font-medium text-neutral-900 dark:text-white mb-1">
+            <p
+              class="text-sm font-medium text-neutral-900 dark:text-white mb-1"
+            >
               Новый статус: {{ newStatus }}
             </p>
             <p class="text-xs text-neutral-600 dark:text-neutral-400">
@@ -49,7 +51,8 @@
 
           <div class="space-y-2">
             <label
-              class="block text-sm font-medium text-neutral-700 dark:text-neutral-300"
+              class="block text-sm font-medium text-neutral-700
+                dark:text-neutral-300"
             >
               Сообщение клиенту
               <span class="text-neutral-400 font-normal">(необязательно)</span>
@@ -67,7 +70,12 @@
             <p class="text-xs text-neutral-500 dark:text-neutral-400 mb-2">
               Предпросмотр письма:
             </p>
-            <div class="text-xs text-neutral-700 dark:text-neutral-300 whitespace-pre-wrap">{{ emailPreview }}</div>
+            <div
+              class="text-xs text-neutral-700 dark:text-neutral-300
+                whitespace-pre-wrap"
+            >
+              {{ emailPreview }}
+            </div>
           </div>
         </div>
 
@@ -98,7 +106,10 @@
 
   interface Emits {
     (e: 'update:open', value: boolean): void
-    (e: 'confirm', data: { orderId: number; status: string; message: string }): void
+    (
+      e: 'confirm',
+      data: { orderId: number; status: string; message: string },
+    ): void
   }
 
   const props = defineProps<Props>()
@@ -106,7 +117,7 @@
 
   const isOpen = computed({
     get: () => props.open,
-    set: (value) => emit('update:open', value),
+    set: value => emit('update:open', value),
   })
 
   const message = ref('')

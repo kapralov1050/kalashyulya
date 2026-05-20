@@ -26,7 +26,10 @@
             class="w-full"
           />
         </UFormField>
-        <UFormField name="messenger" :label="printLocale('order_form_contact_label')">
+        <UFormField
+          name="messenger"
+          :label="printLocale('order_form_contact_label')"
+        >
           <UCheckboxGroup
             v-model="messengerType"
             orientation="horizontal"
@@ -71,8 +74,13 @@
       />
 
       <div v-if="isDelivery" class="space-y-4">
-        <h3 class="text-xl font-bold">{{ printLocale('order_form_delivery_title') }}</h3>
-        <UFormField name="address" :label="printLocale('order_form_address_label')">
+        <h3 class="text-xl font-bold">
+          {{ printLocale('order_form_delivery_title') }}
+        </h3>
+        <UFormField
+          name="address"
+          :label="printLocale('order_form_address_label')"
+        >
           <UInput
             v-model="addressQuery"
             size="xl"
@@ -103,7 +111,10 @@
             class="w-full"
           />
         </UFormField>
-        <UFormField name="recipient" :label="printLocale('order_form_recipient_label')">
+        <UFormField
+          name="recipient"
+          :label="printLocale('order_form_recipient_label')"
+        >
           <UInput
             v-model="formData.recipient"
             size="xl"
@@ -113,7 +124,10 @@
           />
         </UFormField>
         <div class="grid grid-cols-3 gap-4">
-          <UFormField name="street" :label="printLocale('order_form_street_label')">
+          <UFormField
+            name="street"
+            :label="printLocale('order_form_street_label')"
+          >
             <UInput
               v-model="formData.street"
               size="xl"
@@ -122,7 +136,10 @@
               class="w-full"
             />
           </UFormField>
-          <UFormField name="house" :label="printLocale('order_form_house_label')">
+          <UFormField
+            name="house"
+            :label="printLocale('order_form_house_label')"
+          >
             <UInput
               v-model="formData.house"
               size="xl"
@@ -131,7 +148,10 @@
               class="w-full"
             />
           </UFormField>
-          <UFormField name="apartment" :label="printLocale('order_form_apartment_label')">
+          <UFormField
+            name="apartment"
+            :label="printLocale('order_form_apartment_label')"
+          >
             <UInput
               v-model="formData.apartment"
               size="xl"
@@ -153,7 +173,11 @@
         :disabled="!isFormValid || isSending"
         @click="submitOrder"
       >
-        {{ isSending ? printLocale('order_form_sending') : printLocale('order_form_submit') }}
+        {{
+          isSending
+            ? printLocale('order_form_sending')
+            : printLocale('order_form_submit')
+        }}
       </UButton>
     </UForm>
   </article>
@@ -218,8 +242,7 @@
   }
 
   // Поле содержит хотя бы одну букву или цифру (не просто тире/пробелы)
-  const hasContent = (value: string) =>
-    /[a-zA-Zа-яёА-ЯЁ0-9]/.test(value.trim())
+  const hasContent = (value: string) => /[a-zA-Zа-яёА-ЯЁ0-9]/.test(value.trim())
 
   // ФИО — минимум два слова с буквами
   const hasFullName = (value: string) =>
@@ -307,9 +330,11 @@
 
       const orderId = await addNewOrder(orderInfo.value, 'orders/')
 
-      const isTestOrder = ['localhost', '127.0.0.1', 'kalashyulya.vercel.app'].some(
-        host => window.location.href.includes(host),
-      )
+      const isTestOrder = [
+        'localhost',
+        '127.0.0.1',
+        'kalashyulya.vercel.app',
+      ].some(host => window.location.href.includes(host))
 
       if (isTestOrder) {
         // eslint-disable-next-line no-console
@@ -321,12 +346,18 @@
         ])
 
         const failed: { telegram?: boolean; email?: boolean } = {}
-        if (telegramResult.status === 'rejected' || !telegramResult.value?.success)
+        if (
+          telegramResult.status === 'rejected' ||
+          !telegramResult.value?.success
+        )
           failed.telegram = true
         if (emailResult.status === 'rejected' || !emailResult.value?.success)
           failed.email = true
         if (Object.keys(failed).length > 0)
-          updateDataByPath({ notificationFailed: failed }, `orders/order_${orderId}`)
+          updateDataByPath(
+            { notificationFailed: failed },
+            `orders/order_${orderId}`,
+          )
       }
 
       basketStore.clearBasket()

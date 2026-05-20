@@ -9,53 +9,53 @@
 </template>
 
 <script setup lang="ts">
-interface Props {
-  confirmationUrl: string
-}
+  interface Props {
+    confirmationUrl: string
+  }
 
-const props = defineProps<Props>()
+  const props = defineProps<Props>()
 
-const emit = defineEmits<{
-  success: []
-  error: [error: string]
-}>()
+  const emit = defineEmits<{
+    success: []
+    error: [error: string]
+  }>()
 
-const { printLocale } = useLocales()
-const { openPaymentWidget } = useYookassaPayment()
+  const { printLocale } = useLocales()
+  const { openPaymentWidget } = useYookassaPayment()
 
-onMounted(() => {
-  openPaymentWidget(
-    props.confirmationUrl,
-    () => {
-      emit('success')
-    },
-    (error: string) => {
-      emit('error', error)
-    },
-  )
-})
+  onMounted(() => {
+    openPaymentWidget(
+      props.confirmationUrl,
+      () => {
+        emit('success')
+      },
+      (error: string) => {
+        emit('error', error)
+      },
+    )
+  })
 </script>
 
 <style scoped>
-.payment-widget-wrapper {
-  min-height: 600px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+  .payment-widget-wrapper {
+    min-height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-.payment-widget-container {
-  width: 100%;
-  max-width: 600px;
-}
+  .payment-widget-container {
+    width: 100%;
+    max-width: 600px;
+  }
 
-.payment-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  min-height: 400px;
-  color: #6b7280;
-}
+  .payment-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    min-height: 400px;
+    color: #6b7280;
+  }
 </style>

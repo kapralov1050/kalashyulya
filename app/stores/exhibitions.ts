@@ -1,10 +1,7 @@
 import { defineStore } from 'pinia'
 import type { Exhibition, ExhibitionStatus } from '~/types'
 import { useFirebase } from '~/composables/firebase/useFirebase'
-import {
-  getDataByPath,
-  setDataByPath,
-} from '~/helpers/firebase/manageDatabase'
+import { getDataByPath, setDataByPath } from '~/helpers/firebase/manageDatabase'
 
 export const useExhibitionsStore = defineStore('exhibitions', () => {
   const { exhibitionsData } = useFirebase()
@@ -26,18 +23,30 @@ export const useExhibitionsStore = defineStore('exhibitions', () => {
         id: item.id as number,
         slug: item.slug as string,
         title: item.title as string,
-        shortDescription: (item.shortDescription as string) || (item.descriptionIntro as string) || '',
+        shortDescription:
+          (item.shortDescription as string) ||
+          (item.descriptionIntro as string) ||
+          '',
         status,
         dateRange: (item.dateRange as string) || '',
         coverImage: (item.coverImage as string) || '',
         schedule: (item.schedule as unknown[]) || [],
         location: {
-          venue: (item.location as Record<string, unknown>)?.venue as string || '',
-          city: (item.location as Record<string, unknown>)?.city as string || '',
+          venue:
+            ((item.location as Record<string, unknown>)?.venue as string) || '',
+          city:
+            ((item.location as Record<string, unknown>)?.city as string) || '',
           addressLine:
-            (item.location as Record<string, unknown>)?.address as string || (item.location as Record<string, unknown>)?.addressLine as string || '',
-          metro: (item.location as Record<string, unknown>)?.metro as string[] || [],
-          mapLink: (item.location as Record<string, unknown>)?.mapLink as string || '',
+            ((item.location as Record<string, unknown>)?.address as string) ||
+            ((item.location as Record<string, unknown>)
+              ?.addressLine as string) ||
+            '',
+          metro:
+            ((item.location as Record<string, unknown>)?.metro as string[]) ||
+            [],
+          mapLink:
+            ((item.location as Record<string, unknown>)?.mapLink as string) ||
+            '',
         },
         dateStart: (item.dateStart as string) || '',
         dateEnd: (item.dateEnd as string) || '',
@@ -75,12 +84,18 @@ export const useExhibitionsStore = defineStore('exhibitions', () => {
   }
 
   async function addNewExhibition(data: Record<string, unknown>) {
-    const snapshot = await getDataByPath<Record<string, Record<string, unknown>>>('exhibitions')
+    const snapshot =
+      await getDataByPath<Record<string, Record<string, unknown>>>(
+        'exhibitions',
+      )
     const ids = snapshot
       ? Object.values(snapshot).map(ex => Number(ex.id) || 0)
       : []
     const nextId = ids.length > 0 ? Math.max(...ids) + 1 : 1
-    await setDataByPath({ ...data, id: nextId }, `exhibitions/exhibition_${nextId}`)
+    await setDataByPath(
+      { ...data, id: nextId },
+      `exhibitions/exhibition_${nextId}`,
+    )
     return nextId
   }
 

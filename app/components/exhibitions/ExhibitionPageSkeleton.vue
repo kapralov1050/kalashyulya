@@ -33,14 +33,13 @@
 
     <!-- Back button skeleton -->
     <section class="container mb-8">
-      <div
-        class="h-8 w-36 rounded-lg bg-neutral-200 dark:bg-neutral-800"
-      />
+      <div class="h-8 w-36 rounded-lg bg-neutral-200 dark:bg-neutral-800" />
     </section>
 
     <!-- Schedule & Address skeleton -->
     <section
-      class="container mb-10 grid gap-6 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]"
+      class="container mb-10 grid gap-6
+        md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]"
     >
       <!-- Schedule card -->
       <div
@@ -56,35 +55,25 @@
             :key="i"
             class="flex items-center justify-between py-2.5"
           >
-            <div
-              class="h-4 w-24 rounded bg-neutral-200 dark:bg-neutral-700"
-            />
-            <div
-              class="h-4 w-20 rounded bg-neutral-200 dark:bg-neutral-700"
-            />
+            <div class="h-4 w-24 rounded bg-neutral-200 dark:bg-neutral-700" />
+            <div class="h-4 w-20 rounded bg-neutral-200 dark:bg-neutral-700" />
           </div>
         </div>
       </div>
 
       <!-- Address card -->
       <div
-        class="flex flex-col justify-between rounded-2xl border border-neutral-200
-          bg-white px-6 py-5 shadow-sm dark:border-neutral-800
-          dark:bg-neutral-900/70"
+        class="flex flex-col justify-between rounded-2xl border
+          border-neutral-200 bg-white px-6 py-5 shadow-sm
+          dark:border-neutral-800 dark:bg-neutral-900/70"
       >
         <div class="space-y-3">
           <div
             class="mb-1 h-3.5 w-16 rounded bg-neutral-200 dark:bg-neutral-700"
           />
-          <div
-            class="h-4 w-3/4 rounded bg-neutral-200 dark:bg-neutral-700"
-          />
-          <div
-            class="h-4 w-full rounded bg-neutral-200 dark:bg-neutral-700"
-          />
-          <div
-            class="h-4 w-2/3 rounded bg-neutral-200 dark:bg-neutral-700"
-          />
+          <div class="h-4 w-3/4 rounded bg-neutral-200 dark:bg-neutral-700" />
+          <div class="h-4 w-full rounded bg-neutral-200 dark:bg-neutral-700" />
+          <div class="h-4 w-2/3 rounded bg-neutral-200 dark:bg-neutral-700" />
         </div>
         <div
           class="mt-6 h-11 w-full rounded-xl bg-neutral-200 dark:bg-neutral-700"
@@ -103,24 +92,14 @@
             sm:h-8"
         />
         <div class="space-y-3">
-          <div
-            class="h-4 w-full rounded bg-neutral-200 dark:bg-neutral-700"
-          />
-          <div
-            class="h-4 w-full rounded bg-neutral-200 dark:bg-neutral-700"
-          />
-          <div
-            class="h-4 w-5/6 rounded bg-neutral-200 dark:bg-neutral-700"
-          />
+          <div class="h-4 w-full rounded bg-neutral-200 dark:bg-neutral-700" />
+          <div class="h-4 w-full rounded bg-neutral-200 dark:bg-neutral-700" />
+          <div class="h-4 w-5/6 rounded bg-neutral-200 dark:bg-neutral-700" />
           <div
             class="mt-4 h-4 w-full rounded bg-neutral-200 dark:bg-neutral-700"
           />
-          <div
-            class="h-4 w-full rounded bg-neutral-200 dark:bg-neutral-700"
-          />
-          <div
-            class="h-4 w-3/4 rounded bg-neutral-200 dark:bg-neutral-700"
-          />
+          <div class="h-4 w-full rounded bg-neutral-200 dark:bg-neutral-700" />
+          <div class="h-4 w-3/4 rounded bg-neutral-200 dark:bg-neutral-700" />
         </div>
       </div>
     </section>

@@ -21,7 +21,8 @@ describe('PaymentMethodSelector.vue', () => {
 
   const stubs = {
     AnimatedBlob: {
-      template: '<div><slot name="heading" /><slot name="description" /><slot name="content" /></div>',
+      template:
+        '<div><slot name="heading" /><slot name="description" /><slot name="content" /></div>',
     },
     UIcon: true,
   }

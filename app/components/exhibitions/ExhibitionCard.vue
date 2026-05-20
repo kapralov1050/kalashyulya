@@ -55,7 +55,6 @@
 </template>
 
 <script setup lang="ts">
-   
   import type { Exhibition } from '~/types'
 
   const props = defineProps<{

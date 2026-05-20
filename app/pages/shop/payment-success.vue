@@ -32,7 +32,9 @@
             name="i-heroicons-x-circle"
             class="w-16 h-16 text-red-500 mb-4"
           />
-          <h2 class="text-2xl font-bold mb-2">{{ printLocale('tracking_error_title') }}</h2>
+          <h2 class="text-2xl font-bold mb-2">
+            {{ printLocale('tracking_error_title') }}
+          </h2>
           <p class="text-neutral-600 dark:text-neutral-400 mb-6">{{ error }}</p>
           <div class="flex flex-col gap-3 max-w-sm">
             <UButton color="primary" size="lg" block @click="goToShop">
@@ -91,13 +93,18 @@
                 mb-1"
             >
               <UIcon name="i-heroicons-hashtag" class="w-5 h-5" />
-              <span class="font-semibold">{{ printLocale('payment_success_tracking_number_label') }}</span>
+              <span class="font-semibold">
+                {{ printLocale('payment_success_tracking_number_label') }}
+              </span>
             </div>
             <div
               class="text-2xl font-mono font-bold text-green-800
                 dark:text-green-300 mb-2"
             >
-              {{ order.paymentId || printLocale('payment_success_tracking_number_waiting') }}
+              {{
+                order.paymentId ||
+                printLocale('payment_success_tracking_number_waiting')
+              }}
             </div>
             <p class="text-sm text-green-700 dark:text-green-400">
               <UIcon
@@ -260,8 +267,10 @@
   }
 
   const statusTitle = computed(() => {
-    if (order.value?.status === 'Оплачен') return printLocale('payment_success_status_paid')
-    if (order.value?.status === 'Отменен') return printLocale('payment_success_status_cancelled')
+    if (order.value?.status === 'Оплачен')
+      return printLocale('payment_success_status_paid')
+    if (order.value?.status === 'Отменен')
+      return printLocale('payment_success_status_cancelled')
     return printLocale('payment_success_status_pending')
   })
 

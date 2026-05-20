@@ -6,7 +6,9 @@
         <h2 class="text-xl font-bold text-gray-900">Редактировать выставку</h2>
         <p class="mt-0.5 text-sm text-gray-500">
           ID: exhibition_{{ exhibition.id }} ·
-          <span class="font-mono text-blue-600">/exhibitions/{{ exhibition.slug }}</span>
+          <span class="font-mono text-blue-600">
+            /exhibitions/{{ exhibition.slug }}
+          </span>
         </p>
       </div>
       <button
@@ -122,12 +124,15 @@
 
         <!-- Вход -->
         <div class="flex items-center gap-3">
-          <label class="flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-700">
+          <label
+            class="flex cursor-pointer items-center gap-2 text-sm font-medium
+              text-gray-700"
+          >
             <input
               v-model="form.isFree"
               type="checkbox"
               class="h-4 w-4 rounded text-blue-500 focus:ring-blue-400"
-            >
+            />
             Вход свободный
           </label>
         </div>
@@ -162,8 +167,8 @@
           />
           <ul
             v-if="coverResults.length > 0"
-            class="absolute z-20 mt-1 max-h-64 w-full overflow-y-auto
-              rounded-xl border border-gray-200 bg-white shadow-lg"
+            class="absolute z-20 mt-1 max-h-64 w-full overflow-y-auto rounded-xl
+              border border-gray-200 bg-white shadow-lg"
           >
             <li
               v-for="product in coverResults"
@@ -177,7 +182,7 @@
                 :src="product.image[0]"
                 :alt="product.title"
                 class="size-10 rounded-md object-cover"
-              >
+              />
               <div
                 v-else
                 class="flex size-10 items-center justify-center rounded-md
@@ -205,7 +210,7 @@
             :src="form.coverImage"
             alt="Обложка"
             class="h-48 w-full object-cover"
-          >
+          />
         </div>
         <p v-else class="text-sm text-gray-400">Обложка не выбрана</p>
       </div>
@@ -269,7 +274,7 @@
               class="flex-1 rounded-lg border border-gray-300 px-3 py-1.5
                 text-sm focus:border-blue-500 focus:outline-none focus:ring-1
                 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-400"
-            >
+            />
             <label
               class="flex cursor-pointer items-center gap-1.5 text-sm
                 text-gray-600"
@@ -279,7 +284,7 @@
                 type="checkbox"
                 class="h-4 w-4 rounded text-rose-500 focus:ring-rose-400"
                 @change="onClosedToggle(day)"
-              >
+              />
               Закрыто
             </label>
           </div>
@@ -384,7 +389,7 @@
                   :src="product.image[0]"
                   :alt="product.title"
                   class="aspect-square w-full object-cover"
-                >
+                />
                 <div
                   v-else
                   class="flex aspect-square w-full items-center justify-center
@@ -392,7 +397,9 @@
                 >
                   нет фото
                 </div>
-                <div class="absolute inset-x-0 bottom-0 bg-black/60 px-2 py-1.5">
+                <div
+                  class="absolute inset-x-0 bottom-0 bg-black/60 px-2 py-1.5"
+                >
                   <p class="truncate text-xs text-white">{{ product.title }}</p>
                 </div>
                 <div
@@ -425,12 +432,7 @@
       >
         Отмена
       </button>
-      <UButton
-        loading-auto
-        size="xl"
-        :disabled="isSaving"
-        @click="submit"
-      >
+      <UButton loading-auto size="xl" :disabled="isSaving" @click="submit">
         {{ isSaving ? 'Сохранение...' : 'Сохранить изменения' }}
       </UButton>
     </div>
@@ -548,7 +550,11 @@
 
   async function submit() {
     if (!form.title.trim()) {
-      showToast('Ошибка', 'Введите название выставки', 'heroicons:exclamation-circle')
+      showToast(
+        'Ошибка',
+        'Введите название выставки',
+        'heroicons:exclamation-circle',
+      )
       return
     }
 
@@ -575,7 +581,11 @@
       }
 
       await exhibitionsStore.updateExhibition(props.exhibition.id, payload)
-      showToast('Сохранено', `Выставка «${form.title.replace(/\n/g, ' ')}» обновлена`, 'heroicons:check-circle')
+      showToast(
+        'Сохранено',
+        `Выставка «${form.title.replace(/\n/g, ' ')}» обновлена`,
+        'heroicons:check-circle',
+      )
       emit('saved')
     } catch (err) {
       showToast('Ошибка', String(err), 'heroicons:exclamation-circle')

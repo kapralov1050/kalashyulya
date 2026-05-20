@@ -2,10 +2,7 @@
   <AnimatedBlob>
     <template #icon>
       <!-- Минималистичная белая галочка -->
-      <svg
-        class="w-[80px] h-[80px] select-none"
-        viewBox="0 0 52 52"
-      >
+      <svg class="w-[80px] h-[80px] select-none" viewBox="0 0 52 52">
         <path
           d="M14 27l7 7 17-17"
           fill="none"

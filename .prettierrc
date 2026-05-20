@@ -1,7 +1,6 @@
 {
-  "tailwindConfig": "./tailwind.config.js",
   "plugins": ["prettier-plugin-tailwindcss", "prettier-plugin-classnames"],
-  "tailwindStylesheet": "./assets/css/main.css",
+  "tailwindStylesheet": "./app/assets/css/main.css",
   "singleQuote": true,
   "semi": false,
   "jsxSingleQuote": false,

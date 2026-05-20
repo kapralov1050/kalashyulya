@@ -52,7 +52,10 @@ export function getOrderStatusColor(status: string): string {
  * Получить CSS классы для бейджа статуса
  */
 export function getOrderStatusBadgeClasses(status: string): string {
-  return OrderStatusBadgeClasses[status as keyof typeof OrderStatusBadgeClasses] || OrderStatusBadgeClasses[OrderStatus.SHIPPED]
+  return (
+    OrderStatusBadgeClasses[status as keyof typeof OrderStatusBadgeClasses] ||
+    OrderStatusBadgeClasses[OrderStatus.SHIPPED]
+  )
 }
 
-export type OrderStatusType = typeof OrderStatus[keyof typeof OrderStatus]
+export type OrderStatusType = (typeof OrderStatus)[keyof typeof OrderStatus]

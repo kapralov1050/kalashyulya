@@ -53,11 +53,17 @@ export interface DayTrend {
   clicks: number | null
 }
 
-function parseEventKey(eventKey: string): { type: ProcessedEventType; name: string } {
+function parseEventKey(eventKey: string): {
+  type: ProcessedEventType
+  name: string
+} {
   if (eventKey.startsWith('page_view_'))
     return { type: 'page_view', name: eventKey.slice('page_view_'.length) }
   if (eventKey.startsWith('button_click_'))
-    return { type: 'button_click', name: eventKey.slice('button_click_'.length) }
+    return {
+      type: 'button_click',
+      name: eventKey.slice('button_click_'.length),
+    }
   if (eventKey.startsWith('referrer_'))
     return { type: 'referrer', name: eventKey.slice('referrer_'.length) }
   if (eventKey.startsWith('device_'))
@@ -69,7 +75,8 @@ function parseEventKey(eventKey: string): { type: ProcessedEventType; name: stri
 
   // Legacy format: page_view_calendar → type='page', name='view_calendar'
   const [firstPart] = eventKey.split('_')
-  if (firstPart === 'page') return { type: 'page_view', name: eventKey.slice('page_'.length) }
+  if (firstPart === 'page')
+    return { type: 'page_view', name: eventKey.slice('page_'.length) }
   return { type: 'button_click', name: eventKey }
 }
 
@@ -182,7 +189,8 @@ export const useStatsDataProcessing = (stats: Ref<StatsData | null>) => {
                 (pageViewCounts[event.name] || 0) + event.counter
             }
             if (event.name === 'addToBasket') addToBasketCount += event.counter
-            if (event.name === 'paymentSuccess') paymentSuccessCount += event.counter
+            if (event.name === 'paymentSuccess')
+              paymentSuccessCount += event.counter
           })
         }),
       ),
@@ -231,8 +239,7 @@ export const useStatsDataProcessing = (stats: Ref<StatsData | null>) => {
         prev.buttonClicks === 0
           ? null
           : Math.round(
-              ((current.buttonClicks - prev.buttonClicks) /
-                prev.buttonClicks) *
+              ((current.buttonClicks - prev.buttonClicks) / prev.buttonClicks) *
                 100,
             ),
     }

@@ -3,9 +3,7 @@
     <!-- Header -->
     <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
       <h2 class="text-xl font-semibold text-gray-900">Список товаров</h2>
-      <p class="text-sm text-gray-600 mt-1">
-        Управление товарами в магазине
-      </p>
+      <p class="text-sm text-gray-600 mt-1">Управление товарами в магазине</p>
     </div>
 
     <!-- Instruction Memo -->
@@ -51,36 +49,40 @@
         <div class="flex items-start gap-2">
           <span class="text-blue-500 mt-0.5">•</span>
           <span>
-            <b>Цена:</b> измените цену в поле и нажмите «Сохранить» для
-            обновления.
+            <b>Цена:</b>
+            измените цену в поле и нажмите «Сохранить» для обновления.
           </span>
         </div>
         <div class="flex items-start gap-2">
           <span class="text-blue-500 mt-0.5">•</span>
           <span>
-            <b>Наличие:</b> измените число в поле и нажмите «Сохранить». Товары
-            с количеством 0 и без брони скрываются из магазина.
+            <b>Наличие:</b>
+            измените число в поле и нажмите «Сохранить». Товары с количеством 0
+            и без брони скрываются из магазина.
           </span>
         </div>
         <div class="flex items-start gap-2">
           <span class="text-blue-500 mt-0.5">•</span>
           <span>
-            <b>Бронь:</b> переключите тумблер и подтвердите. При брони
-            с количеством 0 товар отображается как «Продано».
+            <b>Бронь:</b>
+            переключите тумблер и подтвердите. При брони с количеством 0 товар
+            отображается как «Продано».
           </span>
         </div>
         <div class="flex items-start gap-2">
           <span class="text-blue-500 mt-0.5">•</span>
           <span>
-            <b>Удаление:</b> удаляет товар и все его файлы безвозвратно.
-            Минимум один товар должен оставаться в магазине.
+            <b>Удаление:</b>
+            удаляет товар и все его файлы безвозвратно. Минимум один товар
+            должен оставаться в магазине.
           </span>
         </div>
         <div class="flex items-start gap-2">
           <span class="text-blue-500 mt-0.5">•</span>
           <span>
-            <b>Фильтры и сортировка:</b> используйте панель ниже для быстрого
-            поиска товаров по статусу, категории или для сортировки.
+            <b>Фильтры и сортировка:</b>
+            используйте панель ниже для быстрого поиска товаров по статусу,
+            категории или для сортировки.
           </span>
         </div>
       </div>
@@ -96,19 +98,21 @@
             :key="option.value"
             class="px-3 py-1 text-xs font-medium rounded-full border
               transition-colors duration-150"
-            :class="statusFilter === option.value
-              ? 'bg-gray-900 text-white border-gray-900'
-              : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'"
+            :class="
+              statusFilter === option.value
+                ? 'bg-gray-900 text-white border-gray-900'
+                : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
+            "
             @click="setStatusFilter(option.value)"
           >
             {{ option.label }}
-            <span class="ml-1 opacity-60">{{ getStatusCount(option.value) }}</span>
+            <span class="ml-1 opacity-60">
+              {{ getStatusCount(option.value) }}
+            </span>
           </button>
         </div>
 
-        <div
-          class="flex flex-col sm:flex-row gap-2 sm:items-center sm:ml-auto"
-        >
+        <div class="flex flex-col sm:flex-row gap-2 sm:items-center sm:ml-auto">
           <!-- Category Filter -->
           <select
             v-model="categoryFilter"
@@ -148,7 +152,8 @@
       <div
         v-for="product in paginatedItems"
         :key="product.id"
-        class="px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors duration-200"
+        class="px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors
+          duration-200"
       >
         <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
           <!-- Product Info -->
@@ -159,8 +164,8 @@
                 {{ product.title }}
               </h3>
               <span
-                class="inline-flex items-center px-2 py-0.5 rounded-full
-                  text-xs font-medium shrink-0"
+                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs
+                  font-medium shrink-0"
                 :class="getStatusChipClass(product)"
               >
                 {{ getStatusChipLabel(product) }}
@@ -197,10 +202,12 @@
                 class="w-24 px-2 py-1 text-sm border border-gray-300 rounded-lg
                   text-center focus:outline-none focus:ring-2
                   focus:ring-green-500"
-                @input="onPriceInput(
-                  product.id,
-                  ($event.target as HTMLInputElement).value,
-                )"
+                @input="
+                  onPriceInput(
+                    product.id,
+                    ($event.target as HTMLInputElement).value,
+                  )
+                "
               />
               <span class="text-xs text-gray-500 shrink-0">₽</span>
               <button
@@ -237,16 +244,18 @@
                 class="w-16 px-2 py-1 text-sm border border-gray-300 rounded-lg
                   text-center focus:outline-none focus:ring-2
                   focus:ring-blue-500"
-                @input="onStockInput(
-                  product.id,
-                  ($event.target as HTMLInputElement).value,
-                )"
+                @input="
+                  onStockInput(
+                    product.id,
+                    ($event.target as HTMLInputElement).value,
+                  )
+                "
               />
               <button
                 v-if="hasStockChange(product.id)"
                 class="flex items-center gap-1 px-2.5 py-1 text-blue-600 border
-                  border-blue-300 rounded-lg hover:bg-blue-50
-                  transition-colors duration-200 font-medium text-xs shrink-0"
+                  border-blue-300 rounded-lg hover:bg-blue-50 transition-colors
+                  duration-200 font-medium text-xs shrink-0"
                 @click="updateStock(product.id)"
               >
                 <svg
@@ -270,9 +279,11 @@
             <div class="flex items-center gap-2">
               <span
                 class="text-xs font-medium"
-                :class="pendingReservations[product.id] !== undefined
-                  ? 'text-amber-600'
-                  : 'text-gray-500'"
+                :class="
+                  pendingReservations[product.id] !== undefined
+                    ? 'text-amber-600'
+                    : 'text-gray-500'
+                "
               >
                 {{ getReservationLabel(product.id) }}
               </span>
@@ -368,10 +379,13 @@
         <button
           v-for="page in visiblePages"
           :key="page"
-          class="px-3 py-1.5 text-sm border rounded-lg transition-colors min-w-9"
-          :class="page === currentPage
-            ? 'bg-gray-900 text-white border-gray-900'
-            : 'border-gray-300 hover:bg-gray-50'"
+          class="px-3 py-1.5 text-sm border rounded-lg transition-colors
+            min-w-9"
+          :class="
+            page === currentPage
+              ? 'bg-gray-900 text-white border-gray-900'
+              : 'border-gray-300 hover:bg-gray-50'
+          "
           @click="currentPage = page"
         >
           {{ page }}
@@ -389,10 +403,7 @@
     </div>
 
     <!-- Empty State -->
-    <div
-      v-if="filteredItems.length === 0"
-      class="px-6 py-12 text-center"
-    >
+    <div v-if="filteredItems.length === 0" class="px-6 py-12 text-center">
       <svg
         class="w-12 h-12 text-gray-400 mx-auto mb-4"
         fill="none"
@@ -431,10 +442,7 @@
     updateDataByPath,
   } from '~/helpers/firebase/manageDatabase'
   import { showToast } from '~/helpers/showToast'
-  import {
-    ProductCategoryLabels,
-    getCategoryLabel,
-  } from '~/constants/products'
+  import { ProductCategoryLabels, getCategoryLabel } from '~/constants/products'
   import type { Product } from '~/types'
 
   type ProductStatus = 'available' | 'reserved' | 'sold' | 'hidden'
@@ -456,7 +464,7 @@
   const currentPage = ref(1)
   const itemsPerPage = 10
 
-  const statusOptions: { value: StatusFilter, label: string }[] = [
+  const statusOptions: { value: StatusFilter; label: string }[] = [
     { value: 'all', label: 'Все' },
     { value: 'available', label: 'Доступны' },
     { value: 'reserved', label: 'Забронированы' },
@@ -499,9 +507,8 @@
 
   const getStatusCount = (status: StatusFilter): number => {
     if (status === 'all') return orderedShopItems.value.length
-    return orderedShopItems.value.filter(
-      p => getProductStatus(p) === status,
-    ).length
+    return orderedShopItems.value.filter(p => getProductStatus(p) === status)
+      .length
   }
 
   const setStatusFilter = (status: StatusFilter): void => {

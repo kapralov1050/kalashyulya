@@ -48,7 +48,11 @@
               name="i-heroicons-arrow-path"
               class="animate-spin w-5 h-5 mr-2"
             />
-            {{ loading ? printLocale('tracking_searching') : printLocale('tracking_find') }}
+            {{
+              loading
+                ? printLocale('tracking_searching')
+                : printLocale('tracking_find')
+            }}
           </UButton>
         </div>
       </div>
@@ -63,7 +67,9 @@
           class="animate-spin w-12 h-12 mb-4 text-neutral-600
             dark:text-neutral-400"
         />
-        <p class="text-neutral-600 dark:text-neutral-400">{{ printLocale('tracking_loading') }}</p>
+        <p class="text-neutral-600 dark:text-neutral-400">
+          {{ printLocale('tracking_loading') }}
+        </p>
       </div>
 
       <!-- Ошибка -->
@@ -228,7 +234,9 @@
             <div class="space-y-3">
               <!-- Имя -->
               <div class="flex justify-between items-start">
-                <span class="text-neutral-600 dark:text-neutral-400">{{ printLocale('tracking_customer_name_label') }}</span>
+                <span class="text-neutral-600 dark:text-neutral-400">
+                  {{ printLocale('tracking_customer_name_label') }}
+                </span>
                 <span
                   class="text-right font-medium text-neutral-900
                     dark:text-neutral-100"
@@ -310,7 +318,9 @@
                 {{ order.customer.delivery.street }}
               </p>
               <p v-if="order.customer?.delivery?.house">
-                <span class="text-neutral-600 dark:text-neutral-400">{{ printLocale('tracking_house_label') }}</span>
+                <span class="text-neutral-600 dark:text-neutral-400">
+                  {{ printLocale('tracking_house_label') }}
+                </span>
                 {{ order.customer.delivery.house }}
               </p>
               <p v-if="order.customer?.delivery?.apartment">
@@ -477,22 +487,27 @@
   }
 
   // Динамическое SEO в зависимости от состояния
-  watch([order, error], () => {
-    if (error.value) {
-      useSeoMeta({
-        title: 'Заказ не найден | Kalashyulya',
-        description: 'Заказ с указанным ID платежа не найден. Проверьте введенный ID или свяжитесь с поддержкой.',
-      })
-    } else if (order.value) {
-      useSeoMeta({
-        title: 'Отслеживание заказа | Kalashyulya',
-        description: 'Отслеживайте статус вашего заказа по ID платежа',
-      })
-    } else {
-      useSeoMeta({
-        title: 'Отслеживание заказа | Kalashyulya',
-        description: 'Отслеживайте статус вашего заказа по ID платежа',
-      })
-    }
-  }, { immediate: true })
+  watch(
+    [order, error],
+    () => {
+      if (error.value) {
+        useSeoMeta({
+          title: 'Заказ не найден | Kalashyulya',
+          description:
+            'Заказ с указанным ID платежа не найден. Проверьте введенный ID или свяжитесь с поддержкой.',
+        })
+      } else if (order.value) {
+        useSeoMeta({
+          title: 'Отслеживание заказа | Kalashyulya',
+          description: 'Отслеживайте статус вашего заказа по ID платежа',
+        })
+      } else {
+        useSeoMeta({
+          title: 'Отслеживание заказа | Kalashyulya',
+          description: 'Отслеживайте статус вашего заказа по ID платежа',
+        })
+      }
+    },
+    { immediate: true },
+  )
 </script>

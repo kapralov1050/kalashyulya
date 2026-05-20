@@ -22,7 +22,8 @@ export const usePdfGenerator = () => {
     (config.public.cloudFunctionPdfGenerator as string) ||
     'https://functions.yandexcloud.net/d4ertp5k9fuh1q4d18ut'
 
-  const { getNextCertificateNumber, saveCertificateIdToProduct } = useCertificateCounter()
+  const { getNextCertificateNumber, saveCertificateIdToProduct } =
+    useCertificateCounter()
 
   /**
    * Генерирует сертификат подлинности для товара
@@ -34,7 +35,8 @@ export const usePdfGenerator = () => {
     manualCertificateNumber?: string,
   ): Promise<Blob> => {
     // Используем ручной номер если указан, иначе генерируем из Firebase
-    const certificateNumber = manualCertificateNumber || (await getNextCertificateNumber())
+    const certificateNumber =
+      manualCertificateNumber || (await getNextCertificateNumber())
 
     const data: CertificateRequest = {
       certificateNumber,
@@ -118,7 +120,8 @@ export const usePdfGenerator = () => {
     manualCertificateNumber?: string,
   ): Promise<void> => {
     // Используем ручной номер если указан, иначе генерируем из Firebase
-    const certificateNumber = manualCertificateNumber || (await getNextCertificateNumber())
+    const certificateNumber =
+      manualCertificateNumber || (await getNextCertificateNumber())
 
     const data: CertificateRequest = {
       certificateNumber,

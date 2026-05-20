@@ -14,7 +14,11 @@
             focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="all">Все заказы</option>
-          <option v-for="status in ORDER_STATUS_OPTIONS" :key="status" :value="status">
+          <option
+            v-for="status in ORDER_STATUS_OPTIONS"
+            :key="status"
+            :value="status"
+          >
             {{ status }}
           </option>
         </select>
@@ -52,9 +56,11 @@
             <span
               v-if="order.paymentMethod"
               class="text-xs px-2 py-0.5 rounded-full font-medium"
-              :class="order.paymentMethod === 'yookassa'
-                ? 'bg-green-100 text-green-700'
-                : 'bg-blue-100 text-blue-700'"
+              :class="
+                order.paymentMethod === 'yookassa'
+                  ? 'bg-green-100 text-green-700'
+                  : 'bg-blue-100 text-blue-700'
+              "
             >
               {{ order.paymentMethod === 'yookassa' ? 'Онлайн' : 'Перевод' }}
             </span>
@@ -68,7 +74,11 @@
               class="px-3 py-2 rounded-md border w-full md:w-48"
               :class="getStatusBgClass(pendingStatuses[order.id])"
             >
-              <option v-for="status in ORDER_STATUS_OPTIONS" :key="status" :value="status">
+              <option
+                v-for="status in ORDER_STATUS_OPTIONS"
+                :key="status"
+                :value="status"
+              >
                 {{ status }}
               </option>
             </select>
@@ -154,7 +164,14 @@
         <span>
           Уведомление не отправлено:
           <strong v-if="order.notificationFailed.telegram">Telegram</strong>
-          <span v-if="order.notificationFailed.telegram && order.notificationFailed.email"> и </span>
+          <span
+            v-if="
+              order.notificationFailed.telegram &&
+              order.notificationFailed.email
+            "
+          >
+            и
+          </span>
           <strong v-if="order.notificationFailed.email">Email</strong>
           — свяжитесь с покупателем вручную
         </span>
@@ -195,10 +212,7 @@
   import { computed, ref, watch } from 'vue'
   import { useFirebase } from '~/composables/firebase/useFirebase'
   import { useOrderEmail } from '~/composables/useOrderEmail'
-  import {
-    ORDER_STATUS_OPTIONS,
-    getOrderStatusColor,
-  } from '~/constants/orders'
+  import { ORDER_STATUS_OPTIONS, getOrderStatusColor } from '~/constants/orders'
   import StatusChangeModal from './StatusChangeModal.vue'
 
   const { allOrders } = storeToRefs(useOrdersStore())

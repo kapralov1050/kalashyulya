@@ -198,7 +198,10 @@
   function handlePaymentMethod(method: 'yookassa' | 'manual') {
     isOrderModalOpen.value = false
 
-    updateDataByPath({ paymentMethod: method }, `orders/order_${currentOrderId.value}`)
+    updateDataByPath(
+      { paymentMethod: method },
+      `orders/order_${currentOrderId.value}`,
+    )
     metrics.trackButtonClick(`paymentMethod_${method}`)
 
     if (method === 'yookassa') {

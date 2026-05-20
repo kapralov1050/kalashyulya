@@ -3,7 +3,13 @@ interface OptimizedMetric {
   c: number // counter (для type=time — секунды на странице)
 }
 
-type MetricType = 'button_click' | 'page_view' | 'referrer' | 'device' | 'visitor' | 'time'
+type MetricType =
+  | 'button_click'
+  | 'page_view'
+  | 'referrer'
+  | 'device'
+  | 'visitor'
+  | 'time'
 
 export class MetricsTracker {
   private endpoint: string
@@ -40,7 +46,8 @@ export class MetricsTracker {
     let source = 'direct'
     if (ref) {
       if (ref.includes('vk.com') || ref.includes('vkontakte.ru')) source = 'vk'
-      else if (ref.includes('t.me') || ref.includes('telegram')) source = 'telegram'
+      else if (ref.includes('t.me') || ref.includes('telegram'))
+        source = 'telegram'
       else if (ref.includes('google.')) source = 'google'
       else if (ref.includes('yandex.')) source = 'yandex'
       else if (ref.includes('instagram.com')) source = 'instagram'

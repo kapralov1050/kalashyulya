@@ -7,19 +7,34 @@
       class="bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-md p-2"
     >
       <option selected value="">{{ printLocale('shop_filtersTitle') }}</option>
-      <option :value="ProductCategory.PICTURES">{{ printLocale('shop_filters_pictures') }}</option>
-      <option :value="ProductCategory.SKETCHES">{{ printLocale('shop_filters_sketches') }}</option>
-      <option :value="ProductCategory.POSTCARDS">{{ printLocale('shop_filters_postcards') }}</option>
-      <option :value="ProductCategory.STICKERS">{{ printLocale('shop_filters_stickers') }}</option>
-      <option :value="ProductCategory.CALENDARS">{{ printLocale('shop_filters_calendar') }}</option>
+      <option :value="ProductCategory.PICTURES">
+        {{ printLocale('shop_filters_pictures') }}
+      </option>
+      <option :value="ProductCategory.SKETCHES">
+        {{ printLocale('shop_filters_sketches') }}
+      </option>
+      <option :value="ProductCategory.POSTCARDS">
+        {{ printLocale('shop_filters_postcards') }}
+      </option>
+      <option :value="ProductCategory.STICKERS">
+        {{ printLocale('shop_filters_stickers') }}
+      </option>
+      <option :value="ProductCategory.CALENDARS">
+        {{ printLocale('shop_filters_calendar') }}
+      </option>
     </select>
 
     <!-- Framing options - only for PICTURES and SKETCHES -->
     <div
-      v-if="formData.category === ProductCategory.PICTURES || formData.category === ProductCategory.SKETCHES"
+      v-if="
+        formData.category === ProductCategory.PICTURES ||
+        formData.category === ProductCategory.SKETCHES
+      "
       class="bg-gray-50 dark:bg-neutral-800/60 rounded-lg p-4"
     >
-      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+      <label
+        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
+      >
         Оформление
       </label>
       <div class="flex flex-col gap-2">
@@ -29,7 +44,7 @@
             type="checkbox"
             :value="FramingType.FRAME"
             class="w-4 h-4 text-primary-600 focus:ring-primary-500 rounded"
-          >
+          />
           <span class="text-gray-700 dark:text-gray-300">В раме</span>
         </label>
         <label class="flex items-center gap-2 cursor-pointer">
@@ -38,7 +53,7 @@
             type="checkbox"
             :value="FramingType.PASSEPARTOUT"
             class="w-4 h-4 text-primary-600 focus:ring-primary-500 rounded"
-          >
+          />
           <span class="text-gray-700 dark:text-gray-300">В паспарту</span>
         </label>
       </div>
