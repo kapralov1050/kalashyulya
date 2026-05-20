@@ -68,7 +68,7 @@
 <script setup lang="ts">
   import type { Product } from '~/types'
 
-  const props = defineProps<{
+  const _props = defineProps<{
     itemCount: number
     basketAmount: number
     product: Product | null

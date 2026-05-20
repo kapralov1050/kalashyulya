@@ -46,7 +46,7 @@ export function useCertificateCounter() {
       const certificateNumber = `${CERTIFICATE_INITIALS}-${currentYear}-${String(nextCount).padStart(3, '0')}`
 
       return certificateNumber
-    } catch (error) {
+    } catch {
       throw new Error('Failed to generate certificate number')
     }
   }
@@ -63,7 +63,7 @@ export function useCertificateCounter() {
       const snapshot = await get(yearRef)
       const count = snapshot.val() as number | null
       return count ?? 0
-    } catch (error) {
+    } catch {
       throw new Error('Failed to get certificate count')
     }
   }
@@ -83,7 +83,7 @@ export function useCertificateCounter() {
 
     try {
       await set(productRef, certificateNumber)
-    } catch (error) {
+    } catch {
       throw new Error('Failed to save certificate ID to product')
     }
   }
@@ -124,7 +124,7 @@ export function useCertificateCounter() {
           }
         }
       }
-    } catch (error) {
+    } catch {
       throw new Error('Failed to remove certificate ID from product')
     }
   }
