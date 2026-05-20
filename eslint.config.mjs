@@ -86,8 +86,8 @@ export default withNuxt([
   },
   {
     files: [
-      'components/exhibitions/ExhibitionCard.vue',
-      'pages/exhibitions/\\[slug\\].vue',
+      'app/components/exhibitions/ExhibitionCard.vue',
+      'app/pages/exhibitions/\\[slug\\].vue',
     ],
     rules: {
       'vue/no-v-html': 'off',
