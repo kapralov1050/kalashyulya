@@ -26,11 +26,6 @@
           {{ printLocale('header_exhibition') }}
         </UButton>
       </li>
-      <!-- <li>
-        <UButton color="neutral" variant="link" to="/lessons">
-          {{ printLocale('header_navLessons') }}
-        </UButton>
-      </li> -->
       <li class="mr-auto">
         <UButton color="neutral" variant="link" to="/shop" :prefetch="false">
           {{ printLocale('header_shop') }}
@@ -41,43 +36,6 @@
           <AppBasketWidget />
         </UButton>
       </li>
-      <!-- <li>
-        <UButton
-          v-if="currentUser && currentUser.uid"
-          color="neutral"
-          variant="link"
-          :to="`/profile/${currentUser.uid}`"
-        >
-          <UIcon name="heroicons:user" size="2rem" />
-        </UButton>
-      </li>
-      <li>
-        <UButton v-if="!currentUser" color="neutral" variant="link" to="/login">
-          {{ $t('header.login') }}
-        </UButton>
-      </li>
-      <li>
-        <UButton
-          v-if="!currentUser"
-          to="/register"
-          size="xl"
-          color="neutral"
-          variant="outline"
-        >
-          {{ $t('header.registration') }}
-        </UButton>
-      </li> -->
-      <!-- <li>
-        <UButton
-          v-for="locale in availableLocales"
-          :key="locale.code"
-          color="neutral"
-          variant="link"
-          :to="switchLocalePath(locale.code)"
-        >
-          {{ locale.name }}
-        </UButton>
-      </li> -->
     </ul>
   </nav>
 </template>

@@ -159,7 +159,6 @@
   const toast = useToast()
   const router = useRouter()
   const { printLocale } = useLocales()
-  const { currentUser } = storeToRefs(useAuthStore())
   const { deleteShopItemFromBasket, loadPurchase, changeShopItemQty } =
     useBasketStore()
   const { totalPurchaceQty, totalPurchaseAmount, shoppingCart } =
@@ -171,9 +170,7 @@
   const savedAmount = ref(0)
   const currentOrderId = ref('')
 
-  const purchaseButtonText = computed(() =>
-    currentUser.value ? 'Заказать' : 'Оформить заказ',
-  )
+  const purchaseButtonText = 'Оформить заказ'
 
   const modalTitle = computed(() =>
     orderCreated.value ? 'Способ оплаты' : 'Оформление заказа',

@@ -9,7 +9,7 @@
   <AboutHeader />
   <main class="pt-30 pb-10 min-h-[100vh]">
     <AboutHero class="mb-30" />
-    <AboutTimeline class="mb-10" />
+    <LazyAboutTimeline class="mb-10" />
     <div class="flex justify-center mb-20">
       <UButton
         class="hover:transform hover:scale-110 transition-transform duration-200
@@ -23,7 +23,7 @@
         {{ printLocale('about_arrow_up') }}
       </UButton>
     </div>
-    <AboutGallery />
+    <LazyAboutGallery />
   </main>
   <AppFooter />
 </template>

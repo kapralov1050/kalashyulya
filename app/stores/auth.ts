@@ -1,36 +1,28 @@
 import type { User } from 'firebase/auth'
-import { getAuth, onAuthStateChanged } from 'firebase/auth'
 
 export const useAuthStore = defineStore('auth', () => {
   const currentUser = ref<User | null>(null)
   const isAuthReady = ref(false)
+  let _initPromise: Promise<User | null> | null = null
 
-  const setUser = (user: User | null) => {
-    currentUser.value = user
-    isAuthReady.value = true
-  }
+  function waitForAuthInit(): Promise<User | null> {
+    if (isAuthReady.value) return Promise.resolve(currentUser.value)
+    if (_initPromise) return _initPromise
 
-  const waitForAuthInit = () => {
-    return new Promise<void>(resolve => {
-      if (isAuthReady.value) {
-        resolve()
-        return
-      }
-
-      const unsubscribe = onAuthStateChanged(getAuth(), user => {
-        setUser(user)
-        unsubscribe()
-        resolve()
+    _initPromise = import('firebase/auth').then(({ getAuth, onAuthStateChanged }) => {
+      return new Promise<User | null>(resolve => {
+        onAuthStateChanged(getAuth(), user => {
+          currentUser.value = user
+          if (!isAuthReady.value) {
+            isAuthReady.value = true
+            resolve(user)
+          }
+        })
       })
     })
+
+    return _initPromise
   }
 
-  onAuthStateChanged(getAuth(), setUser)
-
-  return {
-    currentUser,
-    isAuthReady,
-    waitForAuthInit,
-    setUser,
-  }
+  return { currentUser, isAuthReady, waitForAuthInit }
 })

@@ -54,13 +54,14 @@
   })
 
   const router = useRouter()
-  const { setUser } = useAuthStore()
+  const authStore = useAuthStore()
+
+  authStore.waitForAuthInit()
 
   const onSubmit = async (_event: FormSubmitEvent<loginSchemaType>) => {
     const { user, error } = await loginUser(userData.email, userData.password)
 
     if (user) {
-      setUser(user)
       showToast(
         'Успешно!',
         'User logged in successfully',

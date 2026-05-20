@@ -3,9 +3,7 @@ import { getSnapshotByPath } from '~/helpers/firebase/manageDatabase'
 export default defineNuxtRouteMiddleware(async to => {
   const authStore = useAuthStore()
 
-  await authStore.waitForAuthInit()
-
-  const user = authStore.currentUser
+  const user = await authStore.waitForAuthInit()
   const isLoginPage = to.path === '/login'
   const isAdminRoute = to.path.startsWith('/admin')
 

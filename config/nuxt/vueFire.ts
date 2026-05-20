@@ -1,6 +1,6 @@
-import type { NuxtConfig } from 'nuxt/schema'
+import type { ModuleOptions } from 'nuxt-vuefire'
 
-export const vueFireConfig: NuxtConfig['vuefire'] = {
+export const vueFireConfig: ModuleOptions = {
   config: {
     apiKey: process.env.FIREBASE_API_KEY || '',
     authDomain: process.env.FIREBASE_AUTH_DOMAIN || '',
@@ -11,27 +11,5 @@ export const vueFireConfig: NuxtConfig['vuefire'] = {
     appId: process.env.FIREBASE_APP_ID || '',
     measurementId: process.env.FIREBASE_MEASUREMENT_ID || '',
   },
-  services: {
-    database: true,
-    auth: true,
-    // Добавляем только необходимые сервисы для уменьшения размера бандла
-    firestore: false,
-    storage: false,
-    functions: false,
-    performance: false,
-    analytics: false,
-    remoteConfig: false,
-    appCheck: false,
-  },
-  // Оптимизация производительности
-  // Отключаем ненужные функции для уменьшения размера бандла
-  emulatorHost: {
-    firestore: undefined,
-    auth: undefined,
-    database: undefined,
-    pubsub: undefined,
-    storage: undefined,
-    functions: undefined,
-    hosting: undefined,
-  },
+  auth: false,
 }
