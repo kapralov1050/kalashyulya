@@ -80,9 +80,10 @@
     })
 
     // Появление иконки (если она есть)
-    if (iconSlot.value && (iconSlot.value as Element)?.children?.[0]) {
+    const firstChild = iconSlot.value?.children[0]
+    if (firstChild) {
       tl.from(
-        iconSlot.value.children[0],
+        firstChild,
         {
           scale: 0.3,
           opacity: 0,

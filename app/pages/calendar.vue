@@ -49,7 +49,7 @@
           :key="calendar.id"
           class="flex flex-col items-center gap-10"
         >
-          <AppHeroImage :image-src="calendar.image[0]" />
+          <AppHeroImage :image-src="calendar.image[0] ?? ''" />
           <AppHeroContent>
             <template #title>
               {{ calendar.title }}

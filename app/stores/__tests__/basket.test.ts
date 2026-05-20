@@ -140,7 +140,7 @@ describe('useBasketStore', () => {
       const store = useBasketStore()
       store.addShopItemToBasket({ item: product1, amount: 1 })
       expect(store.shoppingCart).toHaveLength(1)
-      expect(store.shoppingCart[0].item.id).toBe(1)
+      expect(store.shoppingCart[0]?.item.id).toBe(1)
     })
 
     it('не добавляет дубликат если товар уже в корзине', () => {
@@ -148,7 +148,7 @@ describe('useBasketStore', () => {
       store.addShopItemToBasket({ item: product1, amount: 1 })
       store.addShopItemToBasket({ item: product1, amount: 2 })
       expect(store.shoppingCart).toHaveLength(1)
-      expect(store.shoppingCart[0].amount).toBe(1)
+      expect(store.shoppingCart[0]?.amount).toBe(1)
     })
 
     it('сохраняет корзину в localStorage', () => {
@@ -182,7 +182,7 @@ describe('useBasketStore', () => {
       store.addShopItemToBasket({ item: product2, amount: 2 })
       store.deleteShopItemFromBasket(product1)
       expect(store.shoppingCart).toHaveLength(1)
-      expect(store.shoppingCart[0].item.id).toBe(2)
+      expect(store.shoppingCart[0]?.item.id).toBe(2)
     })
 
     it('обновляет localStorage после удаления', () => {
@@ -201,14 +201,14 @@ describe('useBasketStore', () => {
       const store = useBasketStore()
       store.addShopItemToBasket({ item: product1, amount: 1 })
       store.changeShopItemQty(2, product1)
-      expect(store.shoppingCart[0].amount).toBe(3)
+      expect(store.shoppingCart[0]?.amount).toBe(3)
     })
 
     it('уменьшает количество товара', () => {
       const store = useBasketStore()
       store.addShopItemToBasket({ item: product1, amount: 3 })
       store.changeShopItemQty(-1, product1)
-      expect(store.shoppingCart[0].amount).toBe(2)
+      expect(store.shoppingCart[0]?.amount).toBe(2)
     })
 
     it('удаляет товар если количество становится 0', () => {
@@ -231,7 +231,7 @@ describe('useBasketStore', () => {
       store.addShopItemToBasket({ item: product1, amount: 4 })
       store.changeShopItemQty(2, product1)
       // 4+2=6 > stock(5), количество не должно измениться
-      expect(store.shoppingCart[0].amount).toBe(4)
+      expect(store.shoppingCart[0]?.amount).toBe(4)
     })
 
     it('допускает количество равное stock', () => {
@@ -239,7 +239,7 @@ describe('useBasketStore', () => {
       store.addShopItemToBasket({ item: product1, amount: 4 })
       store.changeShopItemQty(1, product1)
       // 4+1=5 === stock(5), должно применить
-      expect(store.shoppingCart[0].amount).toBe(5)
+      expect(store.shoppingCart[0]?.amount).toBe(5)
     })
 
     it('сохраняет изменения в localStorage', () => {
@@ -277,7 +277,7 @@ describe('useBasketStore', () => {
       const store = useBasketStore()
       store.loadPurchase()
       expect(store.shoppingCart).toHaveLength(1)
-      expect(store.shoppingCart[0].amount).toBe(3)
+      expect(store.shoppingCart[0]?.amount).toBe(3)
     })
 
     it('не перезаписывает корзину если она уже заполнена', () => {
@@ -289,7 +289,7 @@ describe('useBasketStore', () => {
       )
       store.loadPurchase()
       expect(store.shoppingCart).toHaveLength(1)
-      expect(store.shoppingCart[0].item.id).toBe(1)
+      expect(store.shoppingCart[0]?.item.id).toBe(1)
     })
 
     it('не падает если в localStorage нет basket', () => {
@@ -329,7 +329,7 @@ describe('useBasketStore', () => {
       const store = useBasketStore()
       store.addShopItemToBasket({ item: product1, amount: 1 })
       const info = store.shortPurchaseInfo[0]
-      expect(Object.keys(info)).toEqual(['amount', 'title', 'price'])
+      expect(Object.keys(info ?? {})).toEqual(['amount', 'title', 'price'])
     })
   })
 })

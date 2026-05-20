@@ -19,29 +19,30 @@ export function useYandexDatabase() {
         canvas.width = img.width
         canvas.height = img.height
 
-        ctx!.drawImage(img, 0, 0)
+        ctx?.drawImage(img, 0, 0)
 
         canvas.toBlob(
           blob => {
+            if (!blob) { reject(new Error('toBlob failed')); return }
             const reader = new FileReader()
             reader.onload = e => {
               const base64 = e.target?.result as string
-              const base64Data = base64.split(',')[1]
+              const base64Data = base64.split(',')[1] ?? ''
 
               // Логирование размера
               // eslint-disable-next-line no-console
               console.log('Original size:', file.size, 'bytes')
               // eslint-disable-next-line no-console
-              console.log('WebP size:', blob!.size, 'bytes')
+              console.log('WebP size:', blob.size, 'bytes')
               // eslint-disable-next-line no-console
               console.log(
                 'Compression ratio:',
-                Math.round((1 - blob!.size / file.size) * 100) + '%',
+                Math.round((1 - blob.size / file.size) * 100) + '%',
               )
 
               resolve(base64Data)
             }
-            reader.readAsDataURL(blob!)
+            reader.readAsDataURL(blob)
           },
           'image/webp',
           0.8,

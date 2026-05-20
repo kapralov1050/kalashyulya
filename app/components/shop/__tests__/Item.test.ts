@@ -264,7 +264,7 @@ describe('Item.vue', () => {
 
       const tags = wrapper.findAll('[class*="primary-500"]')
       if (tags.length > 0) {
-        await tags[0].trigger('click')
+        await tags[0]?.trigger('click')
         expect(wrapper.emitted('filterByTag')).toBeTruthy()
       }
     })

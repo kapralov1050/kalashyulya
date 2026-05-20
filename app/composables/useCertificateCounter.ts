@@ -113,7 +113,7 @@ export function useCertificateCounter() {
         // Извлекаем год из номера (формат: JK-2026-015)
         const yearMatch = certificateId.match(/-(\d{4})-(\d{3})$/)
         if (yearMatch) {
-          const year = parseInt(yearMatch[1], 10)
+          const year = parseInt(yearMatch[1] ?? '0', 10)
           const yearRef = dbRef(db, `certificates/${year}`)
           const yearSnapshot = await get(yearRef)
           const currentCount = yearSnapshot.val() as number | null

@@ -55,6 +55,7 @@ export const useBasketStore = defineStore('basket', () => {
       (prod: Purchase) => item.id === prod.item.id,
     )
     const currentItem = shoppingCart.value[desiredIndex]
+    if (currentItem === undefined) return
     const newAmount = currentItem.amount + changeVal
     if (newAmount <= 0) {
       shoppingCart.value = shoppingCart.value.filter(

@@ -27,7 +27,7 @@ const base: Omit<
   tags: [],
 }
 
-const mockProducts: Record<string, Product> = {
+const mockProducts = {
   product_1: {
     ...base,
     id: 1,
@@ -98,8 +98,8 @@ describe('useShopStore', () => {
       store.setSortBy('title-asc')
       const sorted = store.paginatedProducts
 
-      expect(sorted[0].title).toBe('Акварель пейзаж')
-      expect(sorted[sorted.length - 1].title).toBe('Рисунок карандашом')
+      expect(sorted[0]?.title).toBe('Акварель пейзаж')
+      expect(sorted[sorted.length - 1]?.title).toBe('Рисунок карандашом')
     })
 
     it('сортирует товары по названию (Z-A)', () => {
@@ -108,7 +108,7 @@ describe('useShopStore', () => {
       store.setSortBy('title-desc')
       const sorted = store.paginatedProducts
 
-      expect(sorted[0].title).toBe('Рисунок карандашом')
+      expect(sorted[0]?.title).toBe('Рисунок карандашом')
     })
 
     it('сортирует товары по цене (дешевле→дороже)', () => {
@@ -117,9 +117,9 @@ describe('useShopStore', () => {
       store.setSortBy('price-asc')
       const sorted = store.paginatedProducts
 
-      expect(sorted[0].price).toBe(200)
-      expect(sorted[1].price).toBe(500)
-      expect(sorted[2].price).toBe(1000)
+      expect(sorted[0]?.price).toBe(200)
+      expect(sorted[1]?.price).toBe(500)
+      expect(sorted[2]?.price).toBe(1000)
     })
 
     it('сортирует товары по цене (дороже→дешевле)', () => {
@@ -128,8 +128,8 @@ describe('useShopStore', () => {
       store.setSortBy('price-desc')
       const sorted = store.paginatedProducts
 
-      expect(sorted[0].price).toBe(1200)
-      expect(sorted[sorted.length - 1].price).toBe(200)
+      expect(sorted[0]?.price).toBe(1200)
+      expect(sorted[sorted.length - 1]?.price).toBe(200)
     })
 
     it('сбрасывает страницу на 1 при изменении сортировки', () => {
@@ -219,7 +219,7 @@ describe('useShopStore', () => {
 
       const filtered = store.searchedProducts ?? []
       expect(filtered.length).toBe(1)
-      expect(filtered[0].id).toBe(1)
+      expect(filtered[0]?.id).toBe(1)
     })
 
     it('очищает все теги', () => {
@@ -366,7 +366,7 @@ describe('useShopStore', () => {
       const results = store.findProduct('пей')
 
       expect(results.length).toBe(1)
-      expect(results[0].id).toBe(2)
+      expect(results[0]?.id).toBe(2)
     })
   })
 

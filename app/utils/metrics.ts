@@ -145,6 +145,7 @@ export class MetricsTracker {
     const optimizedData: Record<string, Record<string, [number, number]>> = {}
     for (const [key, metric] of this.metricsQueue.entries()) {
       const [date, type, name] = key.split('|')
+      if (date === undefined || type === undefined || name === undefined) continue
       if (!optimizedData[date]) optimizedData[date] = {}
       optimizedData[date][`${type}_${name}`] = [metric.t, metric.c]
     }

@@ -72,7 +72,7 @@
             <select
               v-model="pendingStatuses[order.id]"
               class="px-3 py-2 rounded-md border w-full md:w-48"
-              :class="getStatusBgClass(pendingStatuses[order.id])"
+              :class="getStatusBgClass(pendingStatuses[order.id] ?? '')"
             >
               <option
                 v-for="status in ORDER_STATUS_OPTIONS"
@@ -202,7 +202,7 @@
     <StatusChangeModal
       v-model:open="isStatusModalOpen"
       :order="selectedOrder"
-      :new-status="pendingStatuses[selectedOrder?.id || 0]"
+      :new-status="pendingStatuses[selectedOrder?.id ?? 0] ?? ''"
       @confirm="handleStatusConfirm"
     />
   </div>

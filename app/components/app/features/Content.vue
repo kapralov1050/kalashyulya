@@ -21,16 +21,19 @@
     'material-symbols:palette-outline',
     'material-symbols:nature-people-outline',
   ].map((icon, i) => {
-    const lesson = getLessonById(playlists[i].lessonIds[0])
+    const playlist = playlists[i]
+    if (!playlist) throw createError({ statusCode: 404, message: 'Playlist not found' })
 
-    if (!lesson) {
-      throw createError({ statusCode: 404, message: 'Lesson not found' })
-    }
+    const firstLessonId = playlist.lessonIds[0]
+    if (firstLessonId === undefined) throw createError({ statusCode: 404, message: 'Lesson not found' })
+
+    const lesson = getLessonById(firstLessonId)
+    if (!lesson) throw createError({ statusCode: 404, message: 'Lesson not found' })
 
     return {
-      title: playlists[i].title,
-      description: playlists[i].description,
-      link: `/playlists/${slugify(playlists[i].title)}/lessons/${slugify(lesson.title)}`,
+      title: playlist.title,
+      description: playlist.description,
+      link: `/playlists/${slugify(playlist.title)}/lessons/${slugify(lesson.title)}`,
       icon,
     }
   })

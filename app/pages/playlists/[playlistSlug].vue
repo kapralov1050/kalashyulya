@@ -15,7 +15,7 @@
 <script setup lang="ts">
   const route = useRoute()
   const playlist = usePlaylistsStore().getPlaylistBySlug(
-    route.params.playlistSlug,
+    route.params.playlistSlug ?? '',
   )
 
   if (playlist) {

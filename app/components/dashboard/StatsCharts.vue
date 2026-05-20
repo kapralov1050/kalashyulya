@@ -44,7 +44,7 @@
   function setPreset(key: string) {
     activePreset.value = key
     const today = new Date()
-    const todayStr = today.toISOString().split('T')[0]
+    const todayStr = today.toISOString().slice(0, 10)
 
     if (key === 'today') {
       startDate.value = todayStr
@@ -52,12 +52,12 @@
     } else if (key === '7d') {
       const d = new Date(today)
       d.setDate(d.getDate() - 6)
-      startDate.value = d.toISOString().split('T')[0]
+      startDate.value = d.toISOString().slice(0, 10)
       endDate.value = todayStr
     } else if (key === '30d') {
       const d = new Date(today)
       d.setDate(d.getDate() - 29)
-      startDate.value = d.toISOString().split('T')[0]
+      startDate.value = d.toISOString().slice(0, 10)
       endDate.value = todayStr
     } else {
       startDate.value = ''
@@ -152,7 +152,7 @@
     ]
   })
 
-  const hasFunnelData = computed(() => funnelData.value[0].value > 0)
+  const hasFunnelData = computed(() => (funnelData.value[0]?.value ?? 0) > 0)
 
   // ─── Активность по дням недели ────────────────────────────────────────────
 
@@ -168,7 +168,7 @@
             key.startsWith('page_view_') || key.startsWith('button_click_'),
         )
         .reduce((sum, [, [, count]]) => sum + count, 0)
-      counts[dayIdx] += total
+      counts[dayIdx] = (counts[dayIdx] ?? 0) + total
     })
 
     return { names, counts }
@@ -286,7 +286,7 @@
       confine: true,
       axisPointer: { type: 'shadow' },
       formatter: (params: { name: string; value: number }[]) =>
-        `${params[0].name}: <b>${params[0].value}</b> событий`,
+        `${params[0]?.name ?? ''}: <b>${params[0]?.value ?? 0}</b> событий`,
     },
     grid: { left: '3%', right: '4%', bottom: '5%', containLabel: true },
     xAxis: {

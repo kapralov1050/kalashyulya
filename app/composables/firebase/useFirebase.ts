@@ -31,7 +31,7 @@ export const useFirebase = () => {
     try {
       const snapshot = await getSnapshotByPath(path)
       const maxId =
-        Math.max(...Object.keys(snapshot).map(prod => +prod.split('_')[1])) + 1
+        Math.max(...Object.keys(snapshot).map(prod => +(prod.split('_')[1] ?? '0'))) + 1
       const newItemWithId: Product = { ...product, id: maxId }
 
       await updateDataByPath(newItemWithId, `${path}product_${maxId}`)

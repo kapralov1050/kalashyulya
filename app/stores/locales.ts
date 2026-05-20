@@ -26,7 +26,7 @@ export const useLocalesStore = defineStore('locales', () => {
     try {
       const newVersion = new Date()
         .toISOString()
-        .split('T')[0]
+        .slice(0, 10)
         .replace(/-/g, '')
 
       const dataWithVersion = {

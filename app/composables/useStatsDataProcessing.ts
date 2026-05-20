@@ -87,7 +87,10 @@ export const useStatsDataProcessing = (stats: Ref<StatsData | null>) => {
     const result: ProcessedYear[] = []
 
     Object.entries(stats.value).forEach(([dateString, events]) => {
-      const [year, month] = dateString.split('-')
+      const dateParts = dateString.split('-')
+      const year = dateParts[0]
+      const month = dateParts[1]
+      if (year === undefined || month === undefined) return
 
       let yearData = result.find(y => y.year === year)
       if (!yearData) {
@@ -107,7 +110,7 @@ export const useStatsDataProcessing = (stats: Ref<StatsData | null>) => {
       }
 
       const dayStats: ProcessedDay = {
-        day: dateString.split('-')[2],
+        day: dateParts[2] ?? '',
         date: dateString,
         events: [],
         totalEvents: 0,
@@ -224,7 +227,7 @@ export const useStatsDataProcessing = (stats: Ref<StatsData | null>) => {
 
     const prevDate = new Date(date)
     prevDate.setDate(prevDate.getDate() - 1)
-    const prevStr = prevDate.toISOString().split('T')[0]
+    const prevStr = prevDate.toISOString().slice(0, 10)
     const prev = dayLookup.value.get(prevStr)
     if (!prev) return null
 

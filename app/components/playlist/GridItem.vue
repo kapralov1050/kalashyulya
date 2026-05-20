@@ -42,7 +42,7 @@
   }>()
 
   const tags = useTagsStore().getTagsById(props.playlist.tagIds)
-  const lesson = useLessonsStore().getLessonById(props.playlist.lessonIds[0])
+  const lesson = useLessonsStore().getLessonById(props.playlist.lessonIds[0] ?? 0)
 
   const playlistSlug = props.playlist.title.toLowerCase().replaceAll(' ', '-')
   const lessonSLug = lesson?.title.toLowerCase().replaceAll(' ', '-')

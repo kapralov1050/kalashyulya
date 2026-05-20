@@ -221,7 +221,8 @@
     ) {
       return printLocale('shop_item_framing_both')
     } else if (Array.isArray(props.product.framing)) {
-      return FramingTypeLabels[props.product.framing[0]]
+      const framingKey = props.product.framing[0]
+      return framingKey !== undefined ? (FramingTypeLabels[framingKey] ?? '') : ''
     }
 
     return ''
@@ -281,7 +282,7 @@
     const config = useRuntimeConfig()
     const siteUrl = config.public.siteUrl || 'https://kalashyulya.ru'
     const productImage = Array.isArray(props.product.image)
-      ? props.product.image[0]
+      ? (props.product.image[0] ?? '')
       : props.product.image
 
     useSeo({

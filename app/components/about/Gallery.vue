@@ -28,7 +28,7 @@
           v-if="item.image"
           :title="item.title"
           :description="item.description"
-          :image="item.image[0]"
+          :image="item.image[0] ?? ''"
         />
       </div>
     </UCarousel>

@@ -33,6 +33,7 @@ export const pluralize = (
   word: keyof typeof pluralForms,
 ): string => {
   const forms = pluralForms[word]
+  if (!forms) return String(count)
 
   const lastDigit = count % 10
   const lastTwoDigits = count % 100

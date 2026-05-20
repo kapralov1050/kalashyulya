@@ -42,7 +42,7 @@ describe('PaymentMethodSelector.vue', () => {
     })
 
     const options = wrapper.findAll('[class*="border-"]')
-    await options[0].trigger('click')
+    await options[0]?.trigger('click')
 
     expect(wrapper.emitted('selectPaymentMethod')).toBeTruthy()
     expect(wrapper.emitted('selectPaymentMethod')?.[0]).toEqual(['yookassa'])
@@ -54,7 +54,7 @@ describe('PaymentMethodSelector.vue', () => {
     })
 
     const options = wrapper.findAll('[class*="border-"]')
-    await options[1].trigger('click')
+    await options[1]?.trigger('click')
 
     expect(wrapper.emitted('selectPaymentMethod')).toBeTruthy()
     expect(wrapper.emitted('selectPaymentMethod')?.[0]).toEqual(['manual'])

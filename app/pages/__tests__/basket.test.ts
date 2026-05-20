@@ -201,10 +201,10 @@ describe('Basket.vue', () => {
         },
       })
 
-      const initialAmount = basketStore.shoppingCart[0].amount
+      const initialAmount = basketStore.shoppingCart[0]?.amount ?? 0
       await getVm<BasketVmInstance>(wrapper).decreaseAmount(mockProduct1)
 
-      expect(basketStore.shoppingCart[0].amount).toBe(initialAmount - 1)
+      expect(basketStore.shoppingCart[0]?.amount).toBe(initialAmount - 1)
     })
 
     it('увеличивает количество товара при клике плюс', async () => {
@@ -224,10 +224,10 @@ describe('Basket.vue', () => {
         },
       })
 
-      const initialAmount = basketStore.shoppingCart[0].amount
+      const initialAmount = basketStore.shoppingCart[0]?.amount ?? 0
       await getVm<BasketVmInstance>(wrapper).increaseAmount(mockProduct1)
 
-      expect(basketStore.shoppingCart[0].amount).toBe(initialAmount + 1)
+      expect(basketStore.shoppingCart[0]?.amount).toBe(initialAmount + 1)
     })
   })
 
