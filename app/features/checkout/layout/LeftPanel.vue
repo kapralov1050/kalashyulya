@@ -166,21 +166,21 @@
         <div
           v-else-if="currentStepId === 'summary'"
           key="summary-preview"
-          class="w-full h-full flex flex-col bg-neutral-50 dark:bg-neutral-800 px-14 py-16 overflow-y-auto"
+          class="w-full h-full flex flex-col items-center bg-neutral-50 dark:bg-neutral-800 px-14 py-16 overflow-y-auto"
         >
-          <p class="text-xs font-semibold tracking-[0.2em] uppercase text-neutral-400 mb-2">
+          <p class="w-full text-xs font-semibold tracking-[0.2em] uppercase text-neutral-400 mb-2">
             Ваш заказ
           </p>
-          <h3 class="text-3xl font-bold text-neutral-900 dark:text-white mb-8">Ещё раз взгляните</h3>
+          <h3 class="w-full text-3xl font-bold text-neutral-900 dark:text-white mb-8">Ещё раз взгляните</h3>
 
-          <div class="grid gap-4" :class="shoppingCart.length === 1 ? 'grid-cols-1' : 'grid-cols-2'">
+          <div class="w-full grid gap-4" :class="shoppingCart.length === 1 ? 'grid-cols-1' : 'grid-cols-2'">
             <div
               v-for="el in shoppingCart"
               :key="el.item.id"
               class="bg-white dark:bg-neutral-900 rounded-2xl overflow-hidden shadow-sm"
             >
-              <div class="aspect-square overflow-hidden bg-neutral-100 dark:bg-neutral-800">
-                <img :src="el.item.image[0]" :alt="el.item.title" class="w-full h-full object-cover" />
+              <div class="overflow-hidden bg-neutral-100 dark:bg-neutral-800">
+                <img :src="el.item.image[0]" :alt="el.item.title" class="w-full max-h-56 object-contain" />
               </div>
               <div class="p-4">
                 <p class="font-semibold text-sm dark:text-white truncate">{{ el.item.title }}</p>
@@ -192,7 +192,7 @@
             </div>
           </div>
 
-          <div class="mt-6 flex items-center gap-4 p-5 rounded-2xl bg-white dark:bg-neutral-900 shadow-sm">
+          <div class="w-full mt-6 flex items-center gap-4 p-5 rounded-2xl bg-white dark:bg-neutral-900 shadow-sm">
             <div class="w-12 h-12 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center shrink-0">
               <UIcon
                 :name="selectedFraming?.icon || 'heroicons:photo'"
@@ -208,9 +208,9 @@
           </div>
         </div>
 
-        <!-- Step 4: Trust signals -->
+        <!-- Step 4: Оплата онлайн — Trust signals -->
         <div
-          v-else-if="currentStepId === 'payment'"
+          v-else-if="currentStepId === 'payment' && form.payment !== 'manual'"
           key="payment-trust"
           class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-neutral-50 to-white dark:from-neutral-900 dark:to-neutral-800 px-14 py-16"
         >
@@ -252,6 +252,52 @@
           </div>
         </div>
 
+        <!-- Step 4: Перевод вручную — памятка -->
+        <div
+          v-else-if="currentStepId === 'payment' && form.payment === 'manual'"
+          key="payment-manual"
+          class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-neutral-50 to-white dark:from-neutral-900 dark:to-neutral-800 px-14 py-16"
+        >
+          <div class="w-16 h-16 rounded-full bg-primary-50 dark:bg-primary-950 flex items-center justify-center mb-6">
+            <UIcon name="heroicons:chat-bubble-left-right" class="w-8 h-8 text-primary-500" />
+          </div>
+          <p class="text-xs font-semibold tracking-[0.2em] uppercase text-neutral-400 mb-2">
+            Перевод вручную
+          </p>
+          <h3 class="text-3xl font-bold text-neutral-900 dark:text-white mb-2">
+            Как это работает
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-10 leading-relaxed">
+            Всё просто — никаких лишних шагов
+          </p>
+
+          <div class="space-y-6 w-full max-w-sm">
+            <div
+              v-for="step in MANUAL_PAYMENT_STEPS"
+              :key="step.title"
+              class="flex items-start gap-4"
+            >
+              <div class="w-9 h-9 rounded-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 shadow-sm flex items-center justify-center shrink-0">
+                <UIcon :name="step.icon" class="w-4 h-4 text-primary-500" />
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">{{ step.title }}</p>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 leading-relaxed">{{ step.text }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-10 w-full max-w-sm p-4 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 flex items-start gap-3">
+            <UIcon name="heroicons:arrow-path" class="w-5 h-5 text-neutral-400 shrink-0 mt-0.5" />
+            <div>
+              <p class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">Передумали?</p>
+              <p class="text-xs text-neutral-500 mt-1 leading-relaxed">
+                Если что-то пойдёт не так до отправки — вернём деньги без вопросов
+              </p>
+            </div>
+          </div>
+        </div>
+
       </Transition>
     </div>
   </div>
@@ -279,6 +325,24 @@ const TIMELINE_STEPS = [
 ]
 
 const PAYMENT_METHODS = ['VISA', 'MasterCard', 'МИР', 'СБП', 'ЮMoney']
+
+const MANUAL_PAYMENT_STEPS = [
+  {
+    icon: 'heroicons:envelope',
+    title: 'Получите реквизиты',
+    text: 'После оформления я напишу вам номер карты или СБП для перевода',
+  },
+  {
+    icon: 'heroicons:banknotes',
+    title: 'Переведите сумму',
+    text: 'Переводите точную сумму заказа и пришлите скриншот подтверждения',
+  },
+  {
+    icon: 'heroicons:gift',
+    title: 'Начну упаковку',
+    text: 'Как только получу оплату — аккуратно упакую работу и согласуем доставку',
+  },
+]
 
 const activeTimelineStep = ref(0)
 let timelineInterval: ReturnType<typeof setInterval> | null = null
