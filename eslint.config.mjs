@@ -85,9 +85,19 @@ export default withNuxt([
     },
   },
   {
+    files: ['nuxt.config.ts', 'vitest.config.ts', 'vitest.setup.ts'],
+    languageOptions: {
+      parserOptions: {
+        project: false,
+      },
+    },
+  },
+  {
     files: [
-      'components/exhibitions/ExhibitionCard.vue',
-      'pages/exhibitions/\\[slug\\].vue',
+      'app/components/exhibitions/ExhibitionCard.vue',
+      'app/pages/exhibitions/\\[slug\\].vue',
+      'app/components/dashboard/ExhibitionEditForm.vue',
+      'app/components/dashboard/NewExhibitionForm.vue',
     ],
     rules: {
       'vue/no-v-html': 'off',

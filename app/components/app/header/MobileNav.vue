@@ -1,0 +1,126 @@
+<template>
+  <div class="justify-end flex lg:hidden">
+    <UButton color="neutral" variant="link" to="/basket">
+      <AppBasketWidget />
+    </UButton>
+    <UButton
+      class="z-20 text-3xl"
+      variant="link"
+      color="neutral"
+      :icon="isOpen ? 'heroicons:x-mark-16-solid' : 'heroicons:bars-3-16-solid'"
+      @click="handleClick"
+    />
+    <div
+      class="header bg-gradient-to-br from-neutral-50 to-neutral-100
+        dark:from-neutral-900 dark:to-neutral-800 absolute z-[13] left-0
+        w-[100%] min-h-[35vh] rounded-2xl pointer-events-none"
+    />
+    <div class="menu absolute top-4 left-4 z-[14]" @click="closeMenu">
+      <ul class="text-neutral-600 dark:text-neutral-150 hover:text-neutral-400">
+        <li>
+          <UButton class="text-2xl" color="neutral" variant="link" to="/">
+            {{ printLocale('header_about') }}
+          </UButton>
+        </li>
+        <li>
+          <UButton
+            class="text-2xl"
+            color="neutral"
+            variant="link"
+            to="/calendar"
+            :prefetch="false"
+          >
+            {{ printLocale('header_calendar') }}
+          </UButton>
+        </li>
+        <li>
+          <UButton
+            class="text-2xl"
+            color="neutral"
+            variant="link"
+            to="/shop"
+            :prefetch="false"
+          >
+            {{ printLocale('header_shop') }}
+          </UButton>
+        </li>
+        <li>
+          <UButton
+            class="text-2xl"
+            color="neutral"
+            variant="link"
+            to="/exhibitions"
+            :prefetch="false"
+          >
+            {{ printLocale('header_exhibition') }}
+          </UButton>
+        </li>
+        <!-- <li>
+          <UButton
+            v-for="locale in availableLocales"
+            :key="locale.code"
+            class="text-2xl text-neutral-200 hover:text-white ml-2 mt-10"
+            variant="outline"
+            :to="switchLocalePath(locale.code)"
+          >
+            {{ locale.name }}
+          </UButton>
+        </li> -->
+      </ul>
+    </div>
+  </div>
+</template>
+
+<script setup>
+  import gsap from 'gsap'
+
+  const { printLocale } = useLocales()
+
+  let tl
+  const isOpen = shallowRef(false)
+  const handleClick = () => {
+    isOpen.value = !isOpen.value
+
+    if (isOpen.value) {
+      tl.play()
+    } else {
+      tl.reverse()
+    }
+  }
+
+  const closeMenu = () => {
+    if (isOpen.value) {
+      isOpen.value = false
+      tl.reverse()
+    }
+  }
+
+  onMounted(() => {
+    tl = gsap.timeline({ paused: true, reversed: true })
+
+    tl.fromTo(
+      '.header',
+      {
+        opacity: 0,
+        rotation: 90,
+        y: -50,
+        transformOrigin: '100% 0%',
+      },
+      {
+        opacity: 1,
+        rotation: 0,
+        y: -50,
+        transformOrigin: '100% 0%',
+        ease: 'power3.out',
+      },
+    ).fromTo(
+      '.menu',
+      {
+        x: -300,
+      },
+      { x: 0, ease: 'power3.out', duration: 0.2 },
+    )
+  })
+</script>
+
+<style></style>

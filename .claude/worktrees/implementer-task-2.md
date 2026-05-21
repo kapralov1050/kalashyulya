@@ -1,9 +1,11 @@
 # Implementer Subagent - Task 2: Создать страницу отслеживания заказа OrderTracking.vue
 
 ## Задача
+
 Создать страницу `/shop/tracking` которая позволяет искать заказы по ID платежа.
 
 ## Технологии
+
 - Nuxt 3
 - Vue 3
 - TypeScript
@@ -13,6 +15,7 @@
 ## Требования к реализации
 
 ### Функциональные требования
+
 1. Поле ввода для ID платежа с плейсхолдером
 2. Кнопка "Найти заказ" (disabled при пустом вводе)
 3. Поиск заказа в Firebase по `paymentId` (как в PaymentSuccess.vue)
@@ -36,6 +39,7 @@
 8. Состояния: loading (спиннер), error (ошибка), order (успешный поиск)
 
 ### UI/UX требования
+
 1. Форма поиска по центру страницы
 2. Карточка заказа с белым фоном и тенью
 3. Адаптивность для мобильных устройств
@@ -44,6 +48,7 @@
 6. Чистый и понятный интерфейс
 
 ### Технические требования
+
 1. Поиск заказа по `paymentId` (как в PaymentSuccess)
 2. Хелпер функции: `formatDate`, `getDeliveryMethod`, `getStatusClass`
 3. Валидация перед поиском (проверка на пустой ввод)
@@ -53,6 +58,7 @@
 ## Дополнительный контекст
 
 ### Цветовая схема статусов
+
 ```css
 .status-paid { color: #10b981; }      // Оплачен
 .status-processing { color: #f59e0b; } // В обработке
@@ -61,6 +67,7 @@
 ```
 
 ### Хелпер функции
+
 ```typescript
 const formatOrderDate = (date: string) => {
   return new Date(date).toLocaleString('ru-RU')
@@ -75,11 +82,16 @@ const getDeliveryMethod = (delivery: any) => {
 
 const getStatusClass = (status: string) => {
   switch (status) {
-    case 'Оплачен': return 'status-paid'
-    case 'В обработке': return 'status-processing'
-    case 'Отменен': return 'status-canceled'
-    case 'Новый заказ': return 'status-new'
-    default: return ''
+    case 'Оплачен':
+      return 'status-paid'
+    case 'В обработке':
+      return 'status-processing'
+    case 'Отменен':
+      return 'status-canceled'
+    case 'Новый заказ':
+      return 'status-new'
+    default:
+      return ''
   }
 }
 ```
@@ -102,6 +114,7 @@ git commit -m "feat: add order tracking page"
 ## Вопросы к разработчику
 
 Если есть вопросы во время реализации:
+
 1. Какое максимальное количество попыток поиска?
 2. Нужно ли добавить CAPTCHA или rate limiting?
 3. Нужно ли показывать историю всех заказов если есть аутентификация?

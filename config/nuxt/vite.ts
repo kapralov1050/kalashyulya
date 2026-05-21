@@ -47,6 +47,7 @@ export const viteConfig: NuxtConfig['vite'] = {
           vendor: ['vue', 'vue-router', 'pinia'],
           gsap: ['gsap'],
           firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+          echarts: ['echarts', 'vue-echarts'],
         },
       },
     },

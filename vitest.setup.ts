@@ -63,29 +63,23 @@ const useAuthStore = defineStore('auth', () => {
   return { currentUser, isAuthReady }
 })
 ;(globalThis as Record<string, unknown>).useAuthStore = useAuthStore
-
 ;(globalThis as Record<string, unknown>).useLocales = vi.fn(() => ({
   printLocale: vi.fn((key: string) => key),
 }))
-
 ;(globalThis as Record<string, unknown>).useFirebase = vi.fn(() => ({
   isLoading: { value: false },
   shopData: { value: { products: {} } },
 }))
-
 ;(globalThis as Record<string, unknown>).metrics = {
   trackButtonClick: vi.fn(),
 }
-
 ;(globalThis as Record<string, unknown>).useToast = vi.fn(() => ({
   add: vi.fn(),
 }))
-
 ;(globalThis as Record<string, unknown>).useDaDataAddress = vi.fn(() => ({
   suggestions: ref([]),
   fetchAddresses: vi.fn(),
 }))
-
 ;(globalThis as Record<string, unknown>).useShop = vi.fn(() => ({
   sendOrderInfoTelegram: vi.fn(),
   sendOrderInfoEmail: vi.fn(),
