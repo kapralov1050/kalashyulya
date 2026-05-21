@@ -308,6 +308,7 @@
           userMessenger: messengerType.value.join(', '),
           userNickname: formData.nickname,
           delivery: {
+            type: isDelivery.value ? 'delivery' : 'pickup',
             city: formData.city,
             recipient: formData.recipient,
             street: formData.street,

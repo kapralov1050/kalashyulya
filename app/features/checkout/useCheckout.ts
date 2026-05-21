@@ -115,6 +115,7 @@ export function useCheckout() {
         },
         totalPrice: savedAmount,
         framing: skipFraming.value ? undefined : (form.framing || undefined),
+        paymentMethod: form.payment || undefined,
       }
 
       metrics.trackButtonClick('completeOrderButton')
@@ -138,8 +139,6 @@ export function useCheckout() {
         if (Object.keys(failed).length > 0)
           updateDataByPath({ notificationFailed: failed }, `orders/order_${orderId}`)
       }
-
-      await updateDataByPath({ paymentMethod: form.payment }, `orders/order_${orderId}`)
 
       basketStore.clearBasket()
       metrics.trackButtonClick('orderSuccess')

@@ -325,17 +325,17 @@
               :key="`label-${currentStep}`"
               class="text-xs font-bold tracking-[0.2em] uppercase text-primary-500 mb-2"
             >
-              {{ steps[currentStep].label }}
+              {{ steps[currentStep]?.label }}
             </p>
           </Transition>
 
           <Transition name="slide-up" mode="out-in">
             <div :key="`heading-${currentStep}`" class="mb-8">
               <h1 class="text-3xl sm:text-4xl font-bold text-neutral-900 dark:text-white leading-tight mb-2">
-                {{ steps[currentStep].title }}
+                {{ steps[currentStep]?.title }}
               </h1>
               <p class="text-neutral-500 dark:text-neutral-400 text-sm">
-                {{ steps[currentStep].description }}
+                {{ steps[currentStep]?.description }}
               </p>
             </div>
           </Transition>

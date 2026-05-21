@@ -68,8 +68,8 @@
       </div>
     </div>
 
-    <!-- Оформление -->
-    <div class="rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden">
+    <!-- Оформление (скрываем если товары уже с встроенным оформлением) -->
+    <div v-if="!skipFraming" class="rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden">
       <div class="flex items-center justify-between px-4 py-3 bg-neutral-50 dark:bg-neutral-800">
         <p class="text-xs font-bold tracking-widest uppercase text-neutral-400">Оформление</p>
         <button class="text-xs text-primary-500 hover:text-primary-600" @click="emit('go-to-id', 'framing')">
@@ -121,6 +121,11 @@ const emit = defineEmits<{ 'go-to-id': [id: string] }>()
 const { form } = useCheckoutStore()
 const { shoppingCart, totalPurchaseAmount } = storeToRefs(useBasketStore())
 const { getZone, ZONE_CONFIG } = useDeliveryZone()
+
+const skipFraming = computed(() =>
+  shoppingCart.value.length > 0 &&
+  shoppingCart.value.every(p => p.item.framing && p.item.framing.length > 0),
+)
 
 const messengerMap: Record<string, string> = { vk: 'ВКонтакте', tg: 'Телеграм', phone: 'Звонок' }
 const messengerLabel = computed(() =>

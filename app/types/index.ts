@@ -74,6 +74,7 @@ export interface Order {
   }
   totalPrice: number
   framing?: 'none' | 'simple' | 'premium'
+  paymentMethod?: 'yookassa' | 'manual'
 }
 
 export interface OrderInBase extends Order {
