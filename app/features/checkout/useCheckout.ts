@@ -5,6 +5,7 @@ import type { Order } from '~/types'
 import { CHECKOUT_STEPS } from './steps/config'
 import { useCheckoutStore } from './store'
 import { useStepper } from './useStepper'
+import { hasContent, hasFullName } from './validation'
 
 export function useCheckout() {
   const store = useCheckoutStore()
@@ -52,9 +53,12 @@ export function useCheckout() {
       )
     }
     if (id === 'delivery') {
+      if (form.deliveryType === 'pickup') return true
       return (
-        form.deliveryType === 'pickup' ||
-        (form.address.trim().length > 3 && form.recipient.trim().length > 3)
+        hasContent(form.city) &&
+        hasFullName(form.recipient) &&
+        hasContent(form.street) &&
+        (hasContent(form.house) || hasContent(form.apartment))
       )
     }
     if (id === 'framing') return form.framing !== ''
@@ -107,6 +111,9 @@ export function useCheckout() {
             city: form.city || undefined,
             recipient: form.recipient || undefined,
             address: form.address || undefined,
+            street: form.street || undefined,
+            house: form.house || undefined,
+            apartment: form.apartment || undefined,
           },
         },
         purchase: {

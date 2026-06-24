@@ -48,9 +48,15 @@
           </span>
         </div>
         <template v-if="form.deliveryType === 'delivery'">
-          <div v-if="form.address" class="flex justify-between">
+          <div v-if="form.city" class="flex justify-between">
+            <span class="text-neutral-500">Город</span>
+            <span class="font-medium dark:text-white text-right max-w-48">{{ form.city }}</span>
+          </div>
+          <div v-if="form.street || form.house" class="flex justify-between">
             <span class="text-neutral-500">Адрес</span>
-            <span class="font-medium dark:text-white text-right max-w-48">{{ form.address }}</span>
+            <span class="font-medium dark:text-white text-right max-w-48">
+              {{ form.street }}{{ form.house ? `, д. ${form.house}` : '' }}{{ form.apartment ? `, кв. ${form.apartment}` : '' }}
+            </span>
           </div>
           <div v-if="form.recipient" class="flex justify-between">
             <span class="text-neutral-500">Получатель</span>

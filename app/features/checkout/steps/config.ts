@@ -15,7 +15,7 @@ export const CHECKOUT_STEPS = [
     id: 'framing',
     label: 'Шаг третий',
     title: 'Оформление',
-    description: 'Добавьте рамку или другое оформление для вашей работы',
+    description: 'Выберите ваш вариант оформления',
   },
   {
     id: 'summary',

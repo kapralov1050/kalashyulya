@@ -35,9 +35,6 @@
 
               <!-- Все иллюстрации в линию -->
               <div class="w-full">
-                <p class="text-xs font-semibold tracking-[0.2em] uppercase text-neutral-400 text-center mb-4">
-                  Как происходит покупка
-                </p>
                 <div class="flex gap-2">
                   <button
                     v-for="(s, i) in timelineSteps"

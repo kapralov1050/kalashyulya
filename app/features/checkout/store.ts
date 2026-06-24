@@ -12,6 +12,9 @@ export const useCheckoutStore = defineStore('checkout', () => {
     address: '',
     region: '',
     city: '',
+    street: '',
+    house: '',
+    apartment: '',
     framing: '' as '' | 'none' | 'simple' | 'premium',
     payment: '' as '' | 'yookassa' | 'manual',
   })
@@ -27,6 +30,9 @@ export const useCheckoutStore = defineStore('checkout', () => {
     form.address = ''
     form.region = ''
     form.city = ''
+    form.street = ''
+    form.house = ''
+    form.apartment = ''
     form.framing = ''
     form.payment = ''
   }

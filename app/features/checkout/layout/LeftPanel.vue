@@ -11,25 +11,18 @@
         >
           <div class="flex flex-col items-center text-center">
             <div class="relative">
-              <img
-                src="/timeline/1.webp"
-                alt="Юля Калашникова"
-                class="w-24 h-24 rounded-full object-cover ring-4 ring-white dark:ring-neutral-900 shadow-xl"
-              />
+              <ShopProductAvatarStack :items="cartAvatarItems" />
               <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 ring-4 ring-white dark:ring-neutral-900 flex items-center justify-center">
                 <UIcon name="heroicons:check-16-solid" class="w-3.5 h-3.5 text-white" />
               </div>
             </div>
-            <h3 class="text-2xl font-bold text-neutral-900 dark:text-white mt-4">Меня зовут Юля</h3>
-            <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1.5 leading-relaxed max-w-xs">
-              Я лично свяжусь с вами в течение часа, чтобы согласовать детали заказа
+            <h3 class="text-2xl font-bold text-neutral-900 dark:text-white mt-4">Спасибо за ваш выбор!</h3>
+            <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1.5 leading-relaxed">
+              Процесс заказа состоит из нескольких шагов:
             </p>
           </div>
 
           <div class="w-full">
-            <p class="text-xs font-semibold tracking-[0.2em] uppercase text-neutral-400 text-center mb-4">
-              Как происходит покупка
-            </p>
             <div class="flex gap-2">
               <button
                 v-for="(s, i) in TIMELINE_STEPS"
@@ -77,21 +70,8 @@
                 <p class="text-[10px] font-semibold mt-2 text-center text-neutral-600 dark:text-neutral-300 leading-tight">
                   {{ s.title }}
                 </p>
-                <Transition name="slide-up">
-                  <p
-                    v-if="i === activeTimelineStep"
-                    class="text-[10px] text-center text-primary-500 mt-0.5 leading-tight max-w-16"
-                  >
-                    {{ s.caption }}
-                  </p>
-                </Transition>
               </button>
             </div>
-          </div>
-
-          <div class="flex items-center gap-2 text-xs text-neutral-400">
-            <UIcon name="heroicons:shield-check" class="w-3.5 h-3.5 text-emerald-500" />
-            <span>Ваши данные защищены</span>
           </div>
         </div>
 
@@ -220,12 +200,6 @@
           <p class="text-xs font-semibold tracking-[0.2em] uppercase text-neutral-400 mb-2">
             Безопасный платёж
           </p>
-          <h3 class="text-3xl font-bold text-neutral-900 dark:text-white mb-3 text-center">
-            Защищённая оплата
-          </h3>
-          <p class="text-neutral-500 dark:text-neutral-400 text-center max-w-md leading-relaxed">
-            Данные карты обрабатываются банком напрямую — мы не видим и не сохраняем их у себя
-          </p>
           <div class="flex items-center gap-3 mt-10 flex-wrap justify-center">
             <div
               v-for="m in PAYMENT_METHODS"
@@ -237,18 +211,7 @@
           </div>
           <div class="mt-6 flex items-center gap-2 text-sm text-neutral-500">
             <UIcon name="heroicons:shield-check" class="w-4 h-4 text-emerald-500" />
-            <span>Платёжный сервис ЮKassa · сертифицирован PCI DSS</span>
-          </div>
-          <div class="mt-10 max-w-md p-4 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700">
-            <div class="flex items-start gap-3">
-              <UIcon name="heroicons:arrow-path" class="w-5 h-5 text-neutral-400 shrink-0 mt-0.5" />
-              <div>
-                <p class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">Что если не подойдёт?</p>
-                <p class="text-xs text-neutral-500 mt-1 leading-relaxed">
-                  Возврат в течение 7 дней — мы согласуем все детали индивидуально
-                </p>
-              </div>
-            </div>
+            <span>Платёжный сервис ЮKassa</span>
           </div>
         </div>
 
@@ -286,16 +249,6 @@
               </div>
             </div>
           </div>
-
-          <div class="mt-10 w-full max-w-sm p-4 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 flex items-start gap-3">
-            <UIcon name="heroicons:arrow-path" class="w-5 h-5 text-neutral-400 shrink-0 mt-0.5" />
-            <div>
-              <p class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">Передумали?</p>
-              <p class="text-xs text-neutral-500 mt-1 leading-relaxed">
-                Если что-то пойдёт не так до отправки — вернём деньги без вопросов
-              </p>
-            </div>
-          </div>
         </div>
 
       </Transition>
@@ -316,21 +269,29 @@ const props = defineProps<{
 const { shoppingCart } = storeToRefs(useBasketStore())
 const { getZone, ZONE_CONFIG } = useDeliveryZone()
 
+const cartAvatarItems = computed(() => {
+  const items = shoppingCart.value
+    .map(p => ({ src: p.item.image[0], alt: p.item.title }))
+    .filter((it): it is { src: string; alt: string } => Boolean(it.src))
+
+  return items.length > 0 ? items : [{ src: '/timeline/1.webp', alt: 'Юля Калашникова' }]
+})
+
 const TIMELINE_STEPS = [
-  { icon: 'heroicons:shopping-bag', title: 'Заказ', caption: 'Новый заказ — уже вижу его!' },
-  { icon: 'heroicons:chat-bubble-left-right', title: 'Я свяжусь', caption: 'Пишу вам, согласуем детали' },
-  { icon: 'heroicons:gift', title: 'Упакую работу', caption: 'Бережно упаковываю с любовью' },
-  { icon: 'heroicons:truck', title: 'Доставка', caption: 'Передаю курьеру, отправляю!' },
-  { icon: 'heroicons:home-modern', title: 'У вас', caption: 'Картина нашла свой дом' },
+  { icon: 'heroicons:shopping-bag', title: 'Получаю заказ'},
+  { icon: 'heroicons:chat-bubble-left-right', title: 'Уточняю у вас детали'},
+  { icon: 'heroicons:gift', title: 'Упаковываю работу'},
+  { icon: 'heroicons:truck', title: 'Передаю в доставку'},
+  { icon: 'heroicons:home-modern', title: 'Картина нашла свой дом'},
 ]
 
-const PAYMENT_METHODS = ['VISA', 'MasterCard', 'МИР', 'СБП', 'ЮMoney']
+const PAYMENT_METHODS = ['МИР', 'СБП', 'ЮMoney']
 
 const MANUAL_PAYMENT_STEPS = [
   {
     icon: 'heroicons:envelope',
     title: 'Получите реквизиты',
-    text: 'После оформления я напишу вам номер карты или СБП для перевода',
+    text: 'После оформления согласуем детали доставки и я пришлю вам номер карты для перевода',
   },
   {
     icon: 'heroicons:banknotes',
@@ -339,8 +300,8 @@ const MANUAL_PAYMENT_STEPS = [
   },
   {
     icon: 'heroicons:gift',
-    title: 'Начну упаковку',
-    text: 'Как только получу оплату — аккуратно упакую работу и согласуем доставку',
+    title: 'Отправляю покупки',
+    text: 'Как только получу оплату — аккуратно упакую работу и отправлю по вашему адресу',
   },
 ]
 

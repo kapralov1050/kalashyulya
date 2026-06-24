@@ -61,6 +61,20 @@
             class="w-full"
           />
         </div>
+        <div class="grid grid-cols-3 gap-3">
+          <div class="space-y-1.5">
+            <label class="text-sm font-medium text-neutral-600 dark:text-neutral-300">Улица</label>
+            <UInput v-model="form.street" size="xl" placeholder="Невский пр." class="w-full" />
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-sm font-medium text-neutral-600 dark:text-neutral-300">Дом</label>
+            <UInput v-model="form.house" size="xl" placeholder="10" class="w-full" />
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-sm font-medium text-neutral-600 dark:text-neutral-300">Квартира</label>
+            <UInput v-model="form.apartment" size="xl" placeholder="5" class="w-full" />
+          </div>
+        </div>
       </div>
     </Transition>
   </div>
@@ -80,6 +94,9 @@ function selectSuggestion(s: DaDataSuggestion) {
   form.address = s.value
   form.region = s.data.region ?? s.data.city ?? ''
   form.city = s.data.city ?? s.data.settlement ?? s.data.region ?? ''
+  form.street = s.data.street ?? ''
+  form.house = s.data.house ?? ''
+  form.apartment = s.data.flat ?? ''
   suggestions.value = []
 }
 </script>
