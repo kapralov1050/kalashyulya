@@ -27,6 +27,7 @@
               v-model="paymentId"
               type="text"
               :placeholder="printLocale('tracking_payment_id_placeholder')"
+              :disabled="isBlocked"
               class="w-full px-4 py-3 rounded-lg border border-neutral-300
                 dark:border-neutral-600 bg-white dark:bg-neutral-700
                 text-neutral-900 dark:text-neutral-100 focus:outline-none
@@ -40,7 +41,7 @@
             color="primary"
             size="lg"
             block
-            :disabled="!paymentId.trim() || loading"
+            :disabled="!paymentId.trim() || loading || isBlocked"
             @click="searchOrder"
           >
             <UIcon
@@ -54,6 +55,23 @@
                 : printLocale('tracking_find')
             }}
           </UButton>
+
+          <UAlert
+            v-if="isBlocked"
+            color="warning"
+            variant="soft"
+            title="Поиск временно заблокирован"
+          >
+            <template #description>
+              Превышено количество попыток. Повторите {{ formatRemainingTime(remainingTimeMs) }}.
+            </template>
+          </UAlert>
+          <p
+            v-else-if="attempts < 5"
+            class="text-sm text-neutral-500 dark:text-neutral-400"
+          >
+            Осталось попыток: {{ 5 - attempts }}
+          </p>
         </div>
       </div>
 
@@ -241,7 +259,7 @@
                   class="text-right font-medium text-neutral-900
                     dark:text-neutral-100"
                 >
-                  {{ order.customer?.name || 'Не указано' }}
+                  {{ maskName(order.customer?.name) || 'Не указано' }}
                 </span>
               </div>
 
@@ -254,7 +272,7 @@
                   class="text-right font-medium text-neutral-900
                     dark:text-neutral-100"
                 >
-                  {{ order.customer?.email || 'Не указан' }}
+                  {{ maskEmail(order.customer?.email) || 'Не указан' }}
                 </span>
               </div>
 
@@ -267,7 +285,7 @@
                   class="text-right font-medium text-neutral-900
                     dark:text-neutral-100"
                 >
-                  {{ order.customer?.phone || 'Не указан' }}
+                  {{ maskPhone(order.customer?.phone) || 'Не указан' }}
                 </span>
               </div>
 
@@ -285,7 +303,7 @@
                     v-if="order.customer?.userNickname"
                     class="text-neutral-500 dark:text-neutral-400"
                   >
-                    (@{{ order.customer.userNickname }})
+                    ({{ maskNickname(order.customer.userNickname) }})
                   </span>
                 </span>
               </div>
@@ -315,7 +333,7 @@
                 <span class="text-neutral-600 dark:text-neutral-400">
                   {{ printLocale('tracking_street_label') }}
                 </span>
-                {{ order.customer.delivery.street }}
+                {{ maskStreet(order.customer.delivery.street) }}
               </p>
               <p v-if="order.customer?.delivery?.house">
                 <span class="text-neutral-600 dark:text-neutral-400">
@@ -327,18 +345,24 @@
                 <span class="text-neutral-600 dark:text-neutral-400">
                   {{ printLocale('tracking_apartment_label') }}
                 </span>
-                {{ order.customer.delivery.apartment }}
+                ***
               </p>
               <p v-if="order.customer?.delivery?.recipient">
                 <span class="text-neutral-600 dark:text-neutral-400">
                   {{ printLocale('tracking_recipient_label') }}
                 </span>
-                {{ order.customer.delivery.recipient }}
+                {{ maskRecipient(order.customer.delivery.recipient) }}
               </p>
             </div>
           </div>
 
+          <p class="text-xs text-neutral-500 dark:text-neutral-400">
+            Полные контактные данные доступны только продавцу. Если вам нужно
+            уточнить информацию, напишите на kalashnikova199979@gmail.com
+          </p>
+
           <!-- Кнопка "Новый поиск" -->
+
           <div class="pt-4">
             <UButton
               color="neutral"
@@ -369,10 +393,23 @@
 
 <script setup lang="ts">
   import type { OrderInBase } from '~/types'
+  import {
+    maskEmail,
+    maskName,
+    maskNickname,
+    maskPhone,
+    maskRecipient,
+    maskStreet,
+  } from '~/utils/mask'
 
   const { printLocale } = useLocales()
   const toast = useToast()
   const { allOrders } = storeToRefs(useOrdersStore())
+  const { attempts, isBlocked, remainingTimeMs, recordAttempt } = useRateLimit({
+    key: 'tracking-search',
+    maxAttempts: 5,
+    windowMs: 15 * 60 * 1000,
+  })
 
   // Состояния
   const paymentId = ref('')
@@ -380,9 +417,32 @@
   const error = ref<string | null>(null)
   const order = ref<OrderInBase | null>(null)
 
+  let tickInterval: ReturnType<typeof setInterval> | undefined
+  onMounted(() => {
+    if (isBlocked.value) {
+      tickInterval = setInterval(() => {
+        if (!isBlocked.value && tickInterval) {
+          clearInterval(tickInterval)
+          tickInterval = undefined
+        }
+      }, 1000)
+    }
+  })
+  onBeforeUnmount(() => {
+    if (tickInterval) clearInterval(tickInterval)
+  })
+
+  function formatRemainingTime(timeMs: number): string {
+    const totalSeconds = Math.ceil(timeMs / 1000)
+    const minutes = Math.floor(totalSeconds / 60)
+    const seconds = totalSeconds % 60
+    return `через ${minutes} мин ${seconds} сек`
+  }
+
   /**
    * Форматирование цены
    */
+
   function formatPrice(price: number): string {
     return new Intl.NumberFormat('ru-RU').format(price)
   }
@@ -440,7 +500,19 @@
         return
       }
 
+      if (isBlocked.value) {
+        error.value = `Превышено количество попыток. Повторите ${formatRemainingTime(remainingTimeMs.value)}.`
+        return
+      }
+
+      recordAttempt()
+      if (isBlocked.value) {
+        error.value = `Превышено количество попыток. Повторите ${formatRemainingTime(remainingTimeMs.value)}.`
+        return
+      }
+
       // Сброс состояния
+
       loading.value = true
       error.value = null
       order.value = null
