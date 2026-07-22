@@ -6,7 +6,7 @@
         :class="form.deliveryType === 'pickup'
           ? 'border-primary-500 bg-primary-50 dark:bg-primary-950'
           : 'border-neutral-200 dark:border-neutral-700 hover:border-neutral-400'"
-        @click="form.deliveryType = 'pickup'"
+        @click="setDeliveryType('pickup')"
       >
         <UIcon name="heroicons:building-storefront" class="w-6 h-6 mb-2 text-primary-500" />
         <p class="font-semibold text-sm text-neutral-900 dark:text-white">Самовывоз</p>
@@ -17,7 +17,7 @@
         :class="form.deliveryType === 'delivery'
           ? 'border-primary-500 bg-primary-50 dark:bg-primary-950'
           : 'border-neutral-200 dark:border-neutral-700 hover:border-neutral-400'"
-        @click="form.deliveryType = 'delivery'"
+        @click="setDeliveryType('delivery')"
       >
         <UIcon name="heroicons:truck" class="w-6 h-6 mb-2 text-primary-500" />
         <p class="font-semibold text-sm text-neutral-900 dark:text-white">Доставка СДЭК</p>
@@ -34,6 +34,7 @@
             placeholder="Начните вводить город..."
             class="w-full"
             @input="(e: Event) => fetchAddresses((e.target as HTMLInputElement).value)"
+            @blur="touchField('city')"
           />
           <div
             v-if="suggestions.length"
@@ -50,17 +51,41 @@
           </div>
         </UFormField>
         <UFormField label="Получатель" :error="errors.recipient">
-          <UInput v-model="form.recipient" size="xl" placeholder="Иванов Иван Иванович" class="w-full" />
+          <UInput
+            v-model="form.recipient"
+            size="xl"
+            placeholder="Иванов Иван Иванович"
+            class="w-full"
+            @blur="touchField('recipient')"
+          />
         </UFormField>
         <div class="grid grid-cols-3 gap-3">
           <UFormField label="Улица" :error="errors.street">
-            <UInput v-model="form.street" size="xl" placeholder="Невский пр." class="w-full" />
+            <UInput
+              v-model="form.street"
+              size="xl"
+              placeholder="Невский пр."
+              class="w-full"
+              @blur="touchField('street')"
+            />
           </UFormField>
           <UFormField label="Дом" :error="errors.house">
-            <UInput v-model="form.house" size="xl" placeholder="10" class="w-full" />
+            <UInput
+              v-model="form.house"
+              size="xl"
+              placeholder="10"
+              class="w-full"
+              @blur="touchField('house')"
+            />
           </UFormField>
           <UFormField label="Квартира">
-            <UInput v-model="form.apartment" size="xl" placeholder="5" class="w-full" />
+            <UInput
+              v-model="form.apartment"
+              size="xl"
+              placeholder="5"
+              class="w-full"
+              @blur="touchField('apartment')"
+            />
           </UFormField>
         </div>
       </div>
@@ -77,8 +102,14 @@ defineProps<{
 }>()
 
 const { form } = useCheckoutStore()
+const { touchField } = useCheckout()
 const { suggestions, fetchAddresses } = useDaDataAddress()
 const addressQuery = ref(form.address)
+
+function setDeliveryType(type: 'pickup' | 'delivery') {
+  form.deliveryType = type
+  touchField('deliveryType')
+}
 
 function selectSuggestion(s: DaDataSuggestion) {
   addressQuery.value = s.value
@@ -89,5 +120,8 @@ function selectSuggestion(s: DaDataSuggestion) {
   form.house = s.data.house ?? ''
   form.apartment = s.data.flat ?? ''
   suggestions.value = []
+  touchField('city')
+  touchField('street')
+  touchField('house')
 }
 </script>

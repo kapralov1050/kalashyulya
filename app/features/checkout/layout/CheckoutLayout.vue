@@ -65,11 +65,11 @@
               <div :key="`step-${currentStepId}`">
                 <CheckoutContactsStep
                   v-if="currentStepId === 'contacts'"
-                  :errors="validationErrors"
+                  :errors="visibleErrors"
                 />
                 <CheckoutDeliveryStep
                   v-else-if="currentStepId === 'delivery'"
-                  :errors="validationErrors"
+                  :errors="visibleErrors"
                 />
                 <CheckoutFramingStep v-else-if="currentStepId === 'framing'" />
                 <CheckoutSummaryStep v-else-if="currentStepId === 'summary'" @go-to-id="goToById" />
@@ -141,7 +141,7 @@ const {
   goToById,
   advance,
   canProceed,
-  validationErrors,
+  visibleErrors,
   firstValidationError,
   activeSteps,
   currentStep,

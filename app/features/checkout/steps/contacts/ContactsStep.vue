@@ -1,11 +1,24 @@
 <template>
   <div class="space-y-5">
     <UFormField label="Имя" :error="errors.name">
-      <UInput v-model="form.name" size="xl" placeholder="Иван Иванов" class="w-full" />
+      <UInput
+        v-model="form.name"
+        size="xl"
+        placeholder="Иван Иванов"
+        class="w-full"
+        @blur="touchField('name')"
+      />
     </UFormField>
 
     <UFormField label="Email" :error="errors.email">
-      <UInput v-model="form.email" size="xl" type="email" placeholder="ivan@mail.ru" class="w-full" />
+      <UInput
+        v-model="form.email"
+        size="xl"
+        type="email"
+        placeholder="ivan@mail.ru"
+        class="w-full"
+        @blur="touchField('email')"
+      />
     </UFormField>
 
     <div class="space-y-2">
@@ -28,7 +41,13 @@
 
     <Transition name="slide-up">
       <UFormField v-if="form.messengers.includes('phone')" label="Телефон" :error="errors.phone">
-        <UInput v-model="form.phone" size="xl" placeholder="+79999999999" class="w-full" />
+        <UInput
+          v-model="form.phone"
+          size="xl"
+          placeholder="+79999999999"
+          class="w-full"
+          @blur="touchField('phone')"
+        />
       </UFormField>
     </Transition>
 
@@ -38,7 +57,13 @@
         label="Никнейм"
         :error="errors.nickname"
       >
-        <UInput v-model="form.nickname" size="xl" placeholder="@username" class="w-full" />
+        <UInput
+          v-model="form.nickname"
+          size="xl"
+          placeholder="@username"
+          class="w-full"
+          @blur="touchField('nickname')"
+        />
       </UFormField>
     </Transition>
   </div>
@@ -58,10 +83,12 @@ const MESSENGER_OPTIONS = [
 ]
 
 const { form } = useCheckoutStore()
+const { touchField } = useCheckout()
 
 function toggleMessenger(value: string) {
   const idx = form.messengers.indexOf(value)
   if (idx === -1) form.messengers.push(value)
   else form.messengers.splice(idx, 1)
+  touchField('messengers')
 }
 </script>

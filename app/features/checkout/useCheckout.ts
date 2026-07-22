@@ -68,7 +68,28 @@ export function useCheckout() {
     return errors
   })
 
-  const firstValidationError = computed(() => Object.values(validationErrors.value)[0] ?? '')
+  const touchedFields = reactive(new Set<string>())
+  const submitAttempted = ref(false)
+
+  function touchField(field: string) {
+    touchedFields.add(field)
+  }
+
+  const visibleErrors = computed<Record<string, string>>(() => {
+    if (submitAttempted.value) return validationErrors.value
+    const out: Record<string, string> = {}
+    for (const [key, msg] of Object.entries(validationErrors.value)) {
+      if (touchedFields.has(key)) out[key] = msg
+    }
+    return out
+  })
+
+  const firstValidationError = computed(() => Object.values(visibleErrors.value)[0] ?? '')
+
+  watch(currentStepId, () => {
+    touchedFields.clear()
+    submitAttempted.value = false
+  })
 
   const canProceed = computed(() => {
     const { form } = store
@@ -89,6 +110,7 @@ export function useCheckout() {
 
   async function submit() {
     if (isSubmitting.value) return
+    submitAttempted.value = true
     const { hasValidConsent } = useConsent()
     if (!hasValidConsent()) {
       showToast(
@@ -215,6 +237,8 @@ export function useCheckout() {
       submit()
     } else if (canProceed.value) {
       next()
+    } else {
+      submitAttempted.value = true
     }
   }
 
@@ -229,11 +253,15 @@ export function useCheckout() {
     goToById,
     canProceed,
     validationErrors,
+    visibleErrors,
     firstValidationError,
     advance,
     activeSteps,
     currentStep,
     currentStepId,
     store,
+    touchField,
+    touchedFields,
+    submitAttempted,
   }
 }
