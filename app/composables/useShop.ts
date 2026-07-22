@@ -1,8 +1,3 @@
-import {
-  getSnapshotByPath,
-  pushDataByPath,
-  updateDataByPath,
-} from '~/helpers/firebase/manageDatabase'
 import type { Order } from '~/types'
 
 interface ApiResponse {
@@ -11,64 +6,8 @@ interface ApiResponse {
   error?: unknown
 }
 
-export interface newOrderInUserProfile {
-  title: string
-  price: number
-  status:
-    | 'новый заказ'
-    | 'в работе'
-    | 'ожидает отправки'
-    | 'отправлен'
-    | 'закрыт'
-    | 'отменен'
-}
-
 export const useShop = () => {
   const config = useRuntimeConfig()
-
-  const createOrder = async (userId: string, newOrder: Order) => {
-    try {
-      await pushDataByPath(newOrder, `orders`)
-
-      const newOrderToProfile: newOrderInUserProfile[] =
-        newOrder.purchase.order.map(item => {
-          return {
-            title: item.title,
-            price: item.price,
-            status: 'новый заказ',
-          }
-        })
-
-      addOrderToUser(userId, newOrderToProfile)
-    } catch (error) {
-      return { order: null, error }
-    }
-  }
-
-  const addOrderToUser = async (
-    userId: string,
-    newOrder: newOrderInUserProfile[],
-  ) => {
-    try {
-      const snapshot = await getSnapshotByPath(`users/${userId}/orders`)
-      const currentOrders = snapshot ? Object.values(snapshot) : []
-
-      // Добавляем новый заказ
-      const updatedOrders = [...currentOrders, ...newOrder]
-
-      // Обновляем массив заказов
-      await updateDataByPath(
-        {
-          orders: updatedOrders,
-        },
-        `users/${userId}`,
-      )
-
-      return { success: true, error: null }
-    } catch (error) {
-      return { success: false, error }
-    }
-  }
 
   const sendOrderInfoTelegram = async (
     orderData: Order,
@@ -180,7 +119,5 @@ export const useShop = () => {
   return {
     sendOrderInfoTelegram,
     sendOrderInfoEmail,
-    addOrderToUser,
-    createOrder,
   }
 }
