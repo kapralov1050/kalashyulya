@@ -27,7 +27,7 @@
 
     <Transition name="slide-up">
       <div v-if="form.deliveryType === 'delivery'" class="space-y-4">
-        <UFormField label="Город" :error="errors.city">
+        <UFormField label="Город" required :error="errors.city">
           <UInput
             v-model="addressQuery"
             size="xl"
@@ -50,7 +50,7 @@
             </div>
           </div>
         </UFormField>
-        <UFormField label="Получатель" :error="errors.recipient">
+        <UFormField label="Получатель" required :error="errors.recipient">
           <UInput
             v-model="form.recipient"
             size="xl"
@@ -60,7 +60,7 @@
           />
         </UFormField>
         <div class="grid grid-cols-3 gap-3">
-          <UFormField label="Улица" :error="errors.street">
+          <UFormField label="Улица" required :error="errors.street">
             <UInput
               v-model="form.street"
               size="xl"
@@ -69,7 +69,7 @@
               @blur="touchField('street')"
             />
           </UFormField>
-          <UFormField label="Дом" :error="errors.house">
+          <UFormField label="Дом" required :error="errors.house">
             <UInput
               v-model="form.house"
               size="xl"

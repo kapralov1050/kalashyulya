@@ -40,7 +40,12 @@
     </div>
 
     <Transition name="slide-up">
-      <UFormField v-if="form.messengers.includes('phone')" label="Телефон" :error="errors.phone">
+      <UFormField
+        v-if="form.messengers.includes('phone')"
+        label="Телефон"
+        required
+        :error="errors.phone"
+      >
         <UInput
           v-model="form.phone"
           size="xl"
@@ -55,6 +60,7 @@
       <UFormField
         v-if="form.messengers.some(m => ['vk', 'tg'].includes(m))"
         label="Никнейм"
+        required
         :error="errors.nickname"
       >
         <UInput

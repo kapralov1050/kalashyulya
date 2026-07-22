@@ -16,7 +16,7 @@ const phoneSchema = v.pipe(
 const nicknameSchema = v.pipe(
   v.string(),
   v.trim(),
-  v.minLength(2, 'Введите никнейм'),
+  v.minLength(1, 'Введите никнейм'),
 )
 const recipientSchema = v.pipe(
   v.string(),
