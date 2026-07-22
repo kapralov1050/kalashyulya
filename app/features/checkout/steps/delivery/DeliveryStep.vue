@@ -96,6 +96,7 @@
 <script setup lang="ts">
 import type { DaDataSuggestion } from '~/types'
 import { useCheckoutStore } from '../../store'
+import { useCheckout } from '../../useCheckout'
 
 defineProps<{
   errors: Record<string, string>

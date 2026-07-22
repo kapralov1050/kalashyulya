@@ -71,6 +71,7 @@
 
 <script setup lang="ts">
 import { useCheckoutStore } from '../../store'
+import { useCheckout } from '../../useCheckout'
 
 defineProps<{
   errors: Record<string, string>
