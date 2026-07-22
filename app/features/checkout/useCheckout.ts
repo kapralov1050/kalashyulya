@@ -76,6 +76,13 @@ export function useCheckout() {
   }
 
   const visibleErrors = computed<Record<string, string>>(() => {
+    if (
+      currentStepId.value === 'framing'
+      && submitAttempted.value
+      && !store.form.framing
+    ) {
+      return { framing: 'Пожалуйста, выберите вариант оформления' }
+    }
     if (submitAttempted.value) return validationErrors.value
     const out: Record<string, string> = {}
     for (const [key, msg] of Object.entries(validationErrors.value)) {

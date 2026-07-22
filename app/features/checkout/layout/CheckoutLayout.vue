@@ -102,7 +102,7 @@
                 size="xl"
                 class="flex-1"
                 color="primary"
-                :disabled="!canProceed || isSubmitting"
+                :disabled="isSubmitting"
                 :loading="isSubmitting"
                 @click="advance"
               >
@@ -140,7 +140,6 @@ const {
   prev,
   goToById,
   advance,
-  canProceed,
   visibleErrors,
   firstValidationError,
   activeSteps,
