@@ -1,5 +1,4 @@
 import { appConfig } from './config/nuxt/app'
-import { googleFontsConfig } from './config/nuxt/googleFonts'
 import { iconConfig } from './config/nuxt/icon'
 import { modulesConfig } from './config/nuxt/modules'
 import { runtimeConfig } from './config/nuxt/runtimeConfig'
@@ -15,12 +14,11 @@ export default defineNuxtConfig({
   runtimeConfig: runtimeConfig,
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
-  css: ['~/assets/css/main.css'],
+  css: ['~/assets/css/fonts.css', '~/assets/css/main.css'],
   modules: modulesConfig,
   vuefire: vueFireConfig,
   vite: viteConfig,
   app: appConfig,
-  googleFonts: googleFontsConfig,
   icon: iconConfig,
   features: {
     inlineStyles: false,
