@@ -60,6 +60,18 @@
               </div>
             </Transition>
 
+            <!-- Сводная ошибка над формой (для шагов без inline-ошибок) -->
+            <Transition name="slide-up">
+              <UAlert
+                v-if="firstValidationError && currentStepId === 'framing'"
+                color="error"
+                variant="soft"
+                icon="heroicons:exclamation-circle"
+                :description="firstValidationError"
+                class="mb-4"
+              />
+            </Transition>
+
             <!-- Step content — рендер по ID -->
             <Transition name="slide-up" mode="out-in">
               <div :key="`step-${currentStepId}`">
@@ -76,10 +88,6 @@
                 <CheckoutPaymentStep v-else-if="currentStepId === 'payment'" />
               </div>
             </Transition>
-
-            <p v-if="firstValidationError" class="mt-4 text-sm text-error">
-              {{ firstValidationError }}
-            </p>
 
             <!-- Consent -->
             <div class="mt-8 p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50">
