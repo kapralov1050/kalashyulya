@@ -71,6 +71,9 @@
           <span class="text-neutral-500">Стоимость</span>
           <span class="font-medium text-emerald-600">Бесплатно</span>
         </div>
+        <p class="text-xs text-neutral-400 dark:text-neutral-500 pt-1">
+          Доставка оплачивается отдельно
+        </p>
       </div>
     </div>
 
@@ -93,6 +96,9 @@
             от {{ selectedFraming.price.toLocaleString('ru') }} ₽
           </span>
         </div>
+        <p class="text-xs text-neutral-400 dark:text-neutral-500 pt-1">
+          Оформление оплачивается отдельно
+        </p>
       </div>
     </div>
 
@@ -109,7 +115,7 @@
           <span class="font-medium dark:text-white">₽{{ item.item.price * item.amount }}</span>
         </div>
         <div class="border-t border-neutral-200 dark:border-neutral-700 pt-2 flex justify-between font-bold">
-          <span class="dark:text-white">Итого</span>
+          <span class="dark:text-white">К оплате сейчас</span>
           <span class="text-primary-600 dark:text-primary-400">₽{{ totalPurchaseAmount }}</span>
         </div>
       </div>

@@ -62,9 +62,12 @@
         <span class="font-medium text-neutral-700 dark:text-neutral-300">{{ deliveryCost }}</span>
       </div>
       <div class="border-t border-neutral-200 dark:border-neutral-700 pt-3 flex justify-between font-bold">
-        <span class="text-neutral-900 dark:text-white">Итого</span>
+        <span class="text-neutral-900 dark:text-white">К оплате сейчас</span>
         <span class="text-primary-600 dark:text-primary-400">₽{{ totalPurchaseAmount }}</span>
       </div>
+      <p class="text-xs text-neutral-400 dark:text-neutral-500 pt-2 text-center">
+        Доставка и оформление согласовываются и оплачиваются отдельно.
+      </p>
     </div>
   </div>
 </template>
