@@ -257,7 +257,7 @@
 </template>
 
 <script setup lang="ts">
-import { useCheckoutStore } from '../store'
+import type { useCheckoutStore } from '../store'
 import { FRAMING_OPTIONS, FRAMING_IMAGES, FRAMING_ALTS } from '../steps/framing/config'
 import { useDeliveryZone } from '~/composables/useDeliveryZone'
 

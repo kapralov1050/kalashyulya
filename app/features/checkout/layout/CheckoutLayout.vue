@@ -36,21 +36,6 @@
                 />
                 Корзина
               </NuxtLink>
-
-              <!-- Dev: быстрый переход по шагам -->
-              <div class="flex gap-1">
-                <button
-                  v-for="(_step, i) in activeSteps"
-                  :key="i"
-                  class="px-2.5 py-1 rounded-lg text-xs font-medium transition-all"
-                  :class="current === i
-                    ? 'bg-primary-500 text-white'
-                    : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700'"
-                  @click="goTo(i)"
-                >
-                  {{ i + 1 }}
-                </button>
-              </div>
             </div>
 
             <!-- Step label -->
@@ -137,7 +122,6 @@ const {
   isLast,
   isSubmitting,
   prev,
-  goTo,
   goToById,
   advance,
   canProceed,
