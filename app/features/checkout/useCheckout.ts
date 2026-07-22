@@ -1,11 +1,17 @@
+import * as v from 'valibot'
 import { useFirebase } from '~/composables/firebase/useFirebase'
 import { updateDataByPath } from '~/helpers/firebase/manageDatabase'
 import { showToast } from '~/helpers/showToast'
+import {
+  checkoutSchema,
+  contactsSchema,
+  deliverySchema,
+  paymentSchema,
+} from '~/helpers/valibot'
 import type { Order } from '~/types'
 import { CHECKOUT_STEPS } from './steps/config'
 import { useCheckoutStore } from './store'
 import { useStepper } from './useStepper'
-import { hasContent, hasFullName } from './validation'
 
 export function useCheckout() {
   const store = useCheckoutStore()
@@ -41,30 +47,41 @@ export function useCheckout() {
     if (idx !== -1) stepper.goTo(idx)
   }
 
+  const validationErrors = computed<Record<string, string>>(() => {
+    const { form } = store
+    const id = currentStepId.value
+    const schema = id === 'contacts'
+      ? contactsSchema
+      : id === 'delivery'
+        ? deliverySchema
+        : id === 'payment'
+          ? paymentSchema
+          : undefined
+    if (!schema) return {}
+    const result = v.safeParse(schema, form)
+    if (result.success) return {}
+    const errors: Record<string, string> = {}
+    for (const issue of result.issues) {
+      const key = issue.path?.[0]?.key
+      if (typeof key === 'string' && !errors[key]) errors[key] = issue.message
+    }
+    return errors
+  })
+
+  const firstValidationError = computed(() => Object.values(validationErrors.value)[0] ?? '')
+
   const canProceed = computed(() => {
     const { form } = store
     const id = currentStepId.value
-    if (id === 'contacts') {
-      return (
-        form.name.trim().length > 1 &&
-        form.email.includes('@') &&
-        form.messengers.length > 0 &&
-        (!form.messengers.includes('phone') || form.phone.trim().length > 5) &&
-        (!form.messengers.some(m => ['vk', 'tg'].includes(m)) || form.nickname.trim().length > 1)
-      )
+    if (id === 'contacts' || id === 'delivery') {
+      return Object.keys(validationErrors.value).length === 0
     }
-    if (id === 'delivery') {
-      if (form.deliveryType === 'pickup') return true
-      return (
-        hasContent(form.city) &&
-        hasFullName(form.recipient) &&
-        hasContent(form.street) &&
-        (hasContent(form.house) || hasContent(form.apartment))
-      )
+    if (id === 'payment') {
+      const { hasValidConsent } = useConsent()
+      return Object.keys(validationErrors.value).length === 0 && hasValidConsent()
     }
     if (id === 'framing') return form.framing !== ''
     if (id === 'summary') return true
-    if (id === 'payment') return form.payment !== ''
     return false
   })
 
@@ -72,7 +89,25 @@ export function useCheckout() {
 
   async function submit() {
     if (isSubmitting.value) return
+    const { hasValidConsent } = useConsent()
+    if (!hasValidConsent()) {
+      showToast(
+        'Подтвердите согласие',
+        'Подтвердите согласие на обработку персональных данных',
+        'heroicons:exclamation-circle',
+      )
+      return
+    }
     const { form } = store
+    const validation = v.safeParse(checkoutSchema, form)
+    if (!validation.success) {
+      showToast(
+        'Проверьте данные',
+        validation.issues[0]?.message ?? 'Форма заполнена некорректно',
+        'heroicons:exclamation-circle',
+      )
+      return
+    }
 
     try {
       // Проверка наличия
@@ -193,6 +228,8 @@ export function useCheckout() {
     goTo,
     goToById,
     canProceed,
+    validationErrors,
+    firstValidationError,
     advance,
     activeSteps,
     currentStep,

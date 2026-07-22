@@ -27,8 +27,7 @@
 
     <Transition name="slide-up">
       <div v-if="form.deliveryType === 'delivery'" class="space-y-4">
-        <div class="space-y-1.5">
-          <label class="text-sm font-medium text-neutral-600 dark:text-neutral-300">Город</label>
+        <UFormField label="Город" :error="errors.city">
           <UInput
             v-model="addressQuery"
             size="xl"
@@ -43,37 +42,26 @@
             <div
               v-for="s in suggestions"
               :key="s.value"
-              class="p-3 text-sm hover:bg-neutral-50 dark:hover:bg-neutral-800 cursor-pointer
-                border-b border-neutral-100 dark:border-neutral-800 last:border-0
-                text-neutral-700 dark:text-neutral-300"
+              class="p-3 text-sm hover:bg-neutral-50 dark:hover:bg-neutral-800 cursor-pointer border-b border-neutral-100 dark:border-neutral-800 last:border-0 text-neutral-700 dark:text-neutral-300"
               @click="selectSuggestion(s)"
             >
               {{ s.value }}
             </div>
           </div>
-        </div>
-        <div class="space-y-1.5">
-          <label class="text-sm font-medium text-neutral-600 dark:text-neutral-300">Получатель</label>
-          <UInput
-            v-model="form.recipient"
-            size="xl"
-            placeholder="Иванов Иван Иванович"
-            class="w-full"
-          />
-        </div>
+        </UFormField>
+        <UFormField label="Получатель" :error="errors.recipient">
+          <UInput v-model="form.recipient" size="xl" placeholder="Иванов Иван Иванович" class="w-full" />
+        </UFormField>
         <div class="grid grid-cols-3 gap-3">
-          <div class="space-y-1.5">
-            <label class="text-sm font-medium text-neutral-600 dark:text-neutral-300">Улица</label>
+          <UFormField label="Улица" :error="errors.street">
             <UInput v-model="form.street" size="xl" placeholder="Невский пр." class="w-full" />
-          </div>
-          <div class="space-y-1.5">
-            <label class="text-sm font-medium text-neutral-600 dark:text-neutral-300">Дом</label>
+          </UFormField>
+          <UFormField label="Дом" :error="errors.house">
             <UInput v-model="form.house" size="xl" placeholder="10" class="w-full" />
-          </div>
-          <div class="space-y-1.5">
-            <label class="text-sm font-medium text-neutral-600 dark:text-neutral-300">Квартира</label>
+          </UFormField>
+          <UFormField label="Квартира">
             <UInput v-model="form.apartment" size="xl" placeholder="5" class="w-full" />
-          </div>
+          </UFormField>
         </div>
       </div>
     </Transition>
@@ -84,9 +72,12 @@
 import type { DaDataSuggestion } from '~/types'
 import { useCheckoutStore } from '../../store'
 
+defineProps<{
+  errors: Record<string, string>
+}>()
+
 const { form } = useCheckoutStore()
 const { suggestions, fetchAddresses } = useDaDataAddress()
-
 const addressQuery = ref(form.address)
 
 function selectSuggestion(s: DaDataSuggestion) {

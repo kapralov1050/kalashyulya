@@ -1,14 +1,12 @@
 <template>
   <div class="space-y-5">
-    <div class="space-y-1.5">
-      <label class="text-sm font-medium text-neutral-600 dark:text-neutral-300">Имя</label>
+    <UFormField label="Имя" :error="errors.name">
       <UInput v-model="form.name" size="xl" placeholder="Иван Иванов" class="w-full" />
-    </div>
+    </UFormField>
 
-    <div class="space-y-1.5">
-      <label class="text-sm font-medium text-neutral-600 dark:text-neutral-300">Email</label>
+    <UFormField label="Email" :error="errors.email">
       <UInput v-model="form.email" size="xl" type="email" placeholder="ivan@mail.ru" class="w-full" />
-    </div>
+    </UFormField>
 
     <div class="space-y-2">
       <label class="text-sm font-medium text-neutral-600 dark:text-neutral-300">Способ связи</label>
@@ -25,26 +23,33 @@
           {{ m.label }}
         </button>
       </div>
+      <p v-if="errors.messengers" class="text-sm text-error">{{ errors.messengers }}</p>
     </div>
 
     <Transition name="slide-up">
-      <div v-if="form.messengers.includes('phone')" class="space-y-1.5">
-        <label class="text-sm font-medium text-neutral-600 dark:text-neutral-300">Телефон</label>
-        <UInput v-model="form.phone" size="xl" placeholder="+7 999 999-99-99" class="w-full" />
-      </div>
+      <UFormField v-if="form.messengers.includes('phone')" label="Телефон" :error="errors.phone">
+        <UInput v-model="form.phone" size="xl" placeholder="+79999999999" class="w-full" />
+      </UFormField>
     </Transition>
 
     <Transition name="slide-up">
-      <div v-if="form.messengers.some(m => ['vk', 'tg'].includes(m))" class="space-y-1.5">
-        <label class="text-sm font-medium text-neutral-600 dark:text-neutral-300">Никнейм</label>
+      <UFormField
+        v-if="form.messengers.some(m => ['vk', 'tg'].includes(m))"
+        label="Никнейм"
+        :error="errors.nickname"
+      >
         <UInput v-model="form.nickname" size="xl" placeholder="@username" class="w-full" />
-      </div>
+      </UFormField>
     </Transition>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useCheckoutStore } from '../../store'
+
+defineProps<{
+  errors: Record<string, string>
+}>()
 
 const MESSENGER_OPTIONS = [
   { value: 'vk', label: 'ВКонтакте' },
