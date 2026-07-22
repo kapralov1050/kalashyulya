@@ -14,6 +14,7 @@ export function useCheckout() {
   const { shoppingCart } = storeToRefs(basketStore)
   const { addNewOrder, shopData } = useFirebase()
   const { sendOrderInfoTelegram, sendOrderInfoEmail } = useShop()
+  const ordersStore = useOrdersStore()
 
   // Пропускаем шаг оформления, если все товары уже имеют оформление
   const skipFraming = computed(() =>
@@ -126,6 +127,8 @@ export function useCheckout() {
       }
 
       metrics.trackButtonClick('completeOrderButton')
+
+      ordersStore.orderInfo = orderData
 
       const orderId = await addNewOrder(orderData, 'orders/')
 
