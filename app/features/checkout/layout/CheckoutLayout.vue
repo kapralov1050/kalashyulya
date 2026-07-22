@@ -63,13 +63,28 @@
             <!-- Step content — рендер по ID -->
             <Transition name="slide-up" mode="out-in">
               <div :key="`step-${currentStepId}`">
-                <CheckoutContactsStep v-if="currentStepId === 'contacts'" />
-                <CheckoutDeliveryStep v-else-if="currentStepId === 'delivery'" />
+                <CheckoutContactsStep
+                  v-if="currentStepId === 'contacts'"
+                  :errors="validationErrors"
+                />
+                <CheckoutDeliveryStep
+                  v-else-if="currentStepId === 'delivery'"
+                  :errors="validationErrors"
+                />
                 <CheckoutFramingStep v-else-if="currentStepId === 'framing'" />
                 <CheckoutSummaryStep v-else-if="currentStepId === 'summary'" @go-to-id="goToById" />
                 <CheckoutPaymentStep v-else-if="currentStepId === 'payment'" />
               </div>
             </Transition>
+
+            <p v-if="firstValidationError" class="mt-4 text-sm text-error">
+              {{ firstValidationError }}
+            </p>
+
+            <!-- Consent -->
+            <div class="mt-8 p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50">
+              <AppConsentCheckbox v-model="pdAgreed" />
+            </div>
 
             <!-- Navigation -->
             <div class="flex gap-3 mt-10">
@@ -102,6 +117,7 @@
 
       </div>
     </div>
+    <AppCookieBanner />
   </UApp>
 </template>
 
@@ -125,11 +141,19 @@ const {
   goToById,
   advance,
   canProceed,
+  validationErrors,
+  firstValidationError,
   activeSteps,
   currentStep,
   currentStepId,
   store,
 } = useCheckout()
+
+const { consents } = useConsent()
+const pdAgreed = computed({
+  get: () => consents.pdAgreed,
+  set: value => (consents.pdAgreed = value),
+})
 
 const showIntro = ref(true)
 </script>
