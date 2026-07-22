@@ -33,7 +33,6 @@
       <AppHeroImage image-src="/editor.jpg" />
     </AppHero>
     <AppFeatures />
-    <!-- <AppNewsletter /> -->
   </div>
 </template>
 
