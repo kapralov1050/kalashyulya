@@ -14,8 +14,7 @@ export function maskEmail(value?: string | null): string {
 
   const domainParts = domain.split('.')
   const suffix = domainParts.length > 1 ? `.${domainParts.at(-1)}` : ''
-  const maskedDomain =
-    suffix && domainParts.at(-1)!.length >= 2 ? `***${suffix}` : '***'
+  const maskedDomain = suffix ? `***${suffix}` : '***'
 
   return `${localPart.charAt(0)}***@${maskedDomain}`
 }
@@ -24,10 +23,18 @@ export function maskPhone(value?: string | null): string {
   if (!value) return ''
   const digits = value.match(/\d/g) || []
   let digitIndex = 0
+  let firstDigitKept = false
 
   return value.replace(/\d/g, digit => {
     const currentIndex = digitIndex++
-    return digits.length < 4 || currentIndex < digits.length - 2 ? '*' : digit
+    const isLastTwo = currentIndex >= digits.length - 2
+    if (digits.length < 4) return '*'
+    if (isLastTwo) return digit
+    if (!firstDigitKept) {
+      firstDigitKept = true
+      return digit
+    }
+    return '*'
   })
 }
 
