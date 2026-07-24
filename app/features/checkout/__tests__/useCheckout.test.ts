@@ -4,21 +4,42 @@ import { setActivePinia, createPinia } from 'pinia'
 import { useCheckout } from '../useCheckout'
 import { useCheckoutStore } from '../store'
 import { showToast } from '~/helpers/showToast'
+import type { Product } from '~/types'
+
+const mocks = vi.hoisted(() => ({
+  addNewOrder: vi.fn().mockResolvedValue('order-id-123'),
+  routerPush: vi.fn(),
+  sendOrderInfoTelegram: vi.fn().mockResolvedValue({ success: true }),
+  sendOrderInfoEmail: vi.fn().mockResolvedValue({ success: true }),
+  updateDataByPath: vi.fn().mockResolvedValue(undefined),
+}))
 
 const consentState = { pdAgreed: true, hasConsent: true }
-const addNewOrderMock = vi.fn().mockResolvedValue('order-id-123')
-const routerPushMock = vi.fn()
+const mockShopDataRef = ref<{ products: Record<string, Product> }>({ products: {} })
 
 vi.mock('~/composables/firebase/useFirebase', () => ({
   useFirebase: () => ({
-    addNewOrder: addNewOrderMock,
-    shopData: ref({ products: {} }),
+    addNewOrder: mocks.addNewOrder,
+    shopData: mockShopDataRef,
     ordersData: ref(null),
   }),
 }))
 
 vi.mock('~/helpers/showToast', () => ({
   showToast: vi.fn(),
+}))
+
+vi.mock('~/composables/useShop', () => ({
+  useShop: () => ({
+    sendOrderInfoTelegram: mocks.sendOrderInfoTelegram,
+    sendOrderInfoEmail: mocks.sendOrderInfoEmail,
+    addOrderToUser: vi.fn(),
+    createOrder: vi.fn(),
+  }),
+}))
+
+vi.mock('~/helpers/firebase/manageDatabase', () => ({
+  updateDataByPath: mocks.updateDataByPath,
 }))
 
 ;(globalThis as Record<string, unknown>).useConsent = () => ({
@@ -28,11 +49,13 @@ vi.mock('~/helpers/showToast', () => ({
 })
 
 ;(globalThis as Record<string, unknown>).useShop = () => ({
-  sendOrderInfoTelegram: vi.fn().mockResolvedValue({ success: true }),
-  sendOrderInfoEmail: vi.fn().mockResolvedValue({ success: true }),
+  sendOrderInfoTelegram: mocks.sendOrderInfoTelegram,
+  sendOrderInfoEmail: mocks.sendOrderInfoEmail,
+  addOrderToUser: vi.fn(),
+  createOrder: vi.fn(),
 })
 
-vi.stubGlobal('useRouter', () => ({ push: routerPushMock }))
+vi.stubGlobal('useRouter', () => ({ push: mocks.routerPush }))
 
 function fillValidContacts(store: ReturnType<typeof useCheckoutStore>) {
   store.form.name = 'Иван Иванов'
@@ -48,13 +71,70 @@ function fillValidCheckoutForm(store: ReturnType<typeof useCheckoutStore>) {
   store.form.framing = 'none'
 }
 
+function makeProduct(overrides: Partial<Product> = {}): Product {
+  return {
+    id: 1,
+    title: 'Акварель "Море"',
+    description: '',
+    size: '30x40',
+    material: 'paper',
+    tecnic: 'watercolor',
+    year: '2024',
+    categoryId: 'paintings',
+    image: [],
+    file: [],
+    price: 1000,
+    stock: 5,
+    tags: [],
+    ...overrides,
+  }
+}
+
+function setupBasketWithItem(basket: ReturnType<typeof useBasketStore>, product: Product) {
+  basket.addShopItemToBasket({ amount: 1, item: product })
+}
+
+function setupShopDataWithProduct(product: Product) {
+  mockShopDataRef.value = { products: { [String(product.id)]: product } }
+}
+
+function setProductionLocation() {
+  try {
+    Object.defineProperty(window, 'location', {
+      value: { href: 'https://kalashyulya.ru/checkout' },
+      writable: true,
+      configurable: true,
+    })
+  } catch {
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      get: () => ({ href: 'https://kalashyulya.ru/checkout' }),
+      set: () => {},
+    })
+  }
+}
+
 describe('useCheckout', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     consentState.hasConsent = true
     consentState.pdAgreed = true
     vi.clearAllMocks()
-    routerPushMock.mockReset()
+    mocks.routerPush.mockReset()
+    mockShopDataRef.value = { products: {} }
+    try {
+      Object.defineProperty(window, 'location', {
+        value: { href: 'http://localhost:3000/' },
+        writable: true,
+        configurable: true,
+      })
+    } catch {
+      Object.defineProperty(window, 'location', {
+        configurable: true,
+        get: () => ({ href: 'http://localhost:3000/' }),
+        set: () => {},
+      })
+    }
   })
 
   describe('visibleErrors', () => {
@@ -243,9 +323,9 @@ describe('useCheckout', () => {
 
       advance()
 
-      await vi.waitFor(() => expect(addNewOrderMock).toHaveBeenCalled())
+      await vi.waitFor(() => expect(mocks.addNewOrder).toHaveBeenCalled())
       await vi.waitFor(() =>
-        expect(routerPushMock).toHaveBeenCalledWith('/shop'),
+        expect(mocks.routerPush).toHaveBeenCalledWith('/shop'),
       )
     })
   })
@@ -263,7 +343,7 @@ describe('useCheckout', () => {
       await nextTick()
       await nextTick()
 
-      expect(addNewOrderMock).not.toHaveBeenCalled()
+      expect(mocks.addNewOrder).not.toHaveBeenCalled()
       expect(showToast).toHaveBeenCalledWith(
         'Подтвердите согласие',
         'Подтвердите согласие на обработку персональных данных',
@@ -285,12 +365,235 @@ describe('useCheckout', () => {
       await nextTick()
       await nextTick()
 
-      expect(addNewOrderMock).not.toHaveBeenCalled()
+      expect(mocks.addNewOrder).not.toHaveBeenCalled()
       expect(showToast).toHaveBeenCalledWith(
         'Проверьте данные',
         expect.any(String),
         'heroicons:exclamation-circle',
       )
+    })
+  })
+
+  describe('submit - full flow', () => {
+    it('creates order, redirects to /shop and clears basket on payment=manual', async () => {
+      const store = useCheckoutStore()
+      const basket = useBasketStore()
+      fillValidCheckoutForm(store)
+      store.form.payment = 'manual'
+
+      const product = makeProduct()
+      setupBasketWithItem(basket, product)
+      setupShopDataWithProduct(product)
+
+      const { advance, goTo } = useCheckout()
+      goTo(4)
+
+      advance()
+      await vi.waitFor(() => expect(mocks.addNewOrder).toHaveBeenCalled())
+
+      expect(mocks.addNewOrder).toHaveBeenCalledTimes(1)
+      const [orderData, path] = mocks.addNewOrder.mock.calls[0]
+      expect(orderData.customer.email).toBe('test@example.com')
+      expect(orderData.paymentMethod).toBe('manual')
+      expect(orderData.totalPrice).toBe(1000)
+      expect(path).toBe('orders/')
+
+      expect(mocks.routerPush).toHaveBeenCalledWith('/shop')
+      expect(basket.shoppingCart).toEqual([])
+      expect(showToast).toHaveBeenCalledWith(
+        'Заказ оформлен!',
+        'Мы свяжемся с вами для подтверждения.',
+        'heroicons:check-circle',
+      )
+    })
+
+    it('creates order and redirects to /shop/payment with query on payment=yookassa', async () => {
+      const store = useCheckoutStore()
+      const basket = useBasketStore()
+      fillValidCheckoutForm(store)
+      store.form.payment = 'yookassa'
+
+      const product = makeProduct({ price: 2500 })
+      setupBasketWithItem(basket, product)
+      setupShopDataWithProduct(product)
+
+      const { advance, goTo } = useCheckout()
+      goTo(4)
+
+      advance()
+      await vi.waitFor(() => expect(mocks.addNewOrder).toHaveBeenCalled())
+
+      expect(mocks.addNewOrder).toHaveBeenCalledTimes(1)
+      expect(mocks.addNewOrder.mock.calls[0][0].paymentMethod).toBe('yookassa')
+      expect(mocks.routerPush).toHaveBeenCalledWith({
+        path: '/shop/payment',
+        query: {
+          orderId: 'order-id-123',
+          amount: '2500',
+          description: 'Оплата заказа #order-id-123',
+        },
+      })
+    })
+
+    it('blocks submit and shows toast when basket items are sold out', async () => {
+      const store = useCheckoutStore()
+      const basket = useBasketStore()
+      fillValidCheckoutForm(store)
+
+      const inBasket = makeProduct({ stock: 1 })
+      const soldOutProduct = makeProduct({ id: 2, title: 'Проданный', stock: 0 })
+      setupBasketWithItem(basket, soldOutProduct)
+      setupShopDataWithProduct(inBasket)
+
+      const { advance, goTo } = useCheckout()
+      goTo(4)
+
+      advance()
+      await vi.waitFor(() => expect(showToast).toHaveBeenCalled())
+
+      expect(mocks.addNewOrder).not.toHaveBeenCalled()
+      expect(mocks.routerPush).not.toHaveBeenCalled()
+      expect(showToast).toHaveBeenCalledWith(
+        'Товары недоступны',
+        'Проданный — уже нет в наличии',
+        'heroicons:exclamation-circle',
+      )
+    })
+
+    it('blocks submit when product is missing from shopData', async () => {
+      const store = useCheckoutStore()
+      const basket = useBasketStore()
+      fillValidCheckoutForm(store)
+
+      const orphanProduct = makeProduct({ id: 99, title: 'Призрак' })
+      setupBasketWithItem(basket, orphanProduct)
+      setupShopDataWithProduct(makeProduct({ id: 1 }))
+
+      const { advance, goTo } = useCheckout()
+      goTo(4)
+
+      advance()
+      await vi.waitFor(() => expect(showToast).toHaveBeenCalled())
+
+      expect(mocks.addNewOrder).not.toHaveBeenCalled()
+      expect(showToast).toHaveBeenCalledWith(
+        'Товары недоступны',
+        expect.stringContaining('Призрак'),
+        'heroicons:exclamation-circle',
+      )
+    })
+
+    it('blocks submit when product is reserved', async () => {
+      const store = useCheckoutStore()
+      const basket = useBasketStore()
+      fillValidCheckoutForm(store)
+
+      const reservedProduct = makeProduct({ id: 5, title: 'Зарезервированный', isReserved: true })
+      setupBasketWithItem(basket, reservedProduct)
+      setupShopDataWithProduct(reservedProduct)
+
+      const { advance, goTo } = useCheckout()
+      goTo(4)
+
+      advance()
+      await vi.waitFor(() => expect(showToast).toHaveBeenCalled())
+
+      expect(mocks.addNewOrder).not.toHaveBeenCalled()
+      expect(showToast).toHaveBeenCalledWith(
+        'Товары недоступны',
+        'Зарезервированный — уже нет в наличии',
+        'heroicons:exclamation-circle',
+      )
+    })
+
+    it('sends telegram and email notifications when not on test host', async () => {
+      setProductionLocation()
+      const store = useCheckoutStore()
+      const basket = useBasketStore()
+      fillValidCheckoutForm(store)
+
+      const product = makeProduct()
+      setupBasketWithItem(basket, product)
+      setupShopDataWithProduct(product)
+
+      const { advance, goTo } = useCheckout()
+      goTo(4)
+
+      advance()
+      await vi.waitFor(() => expect(mocks.sendOrderInfoTelegram).toHaveBeenCalled())
+
+      expect(mocks.sendOrderInfoTelegram).toHaveBeenCalledTimes(1)
+      expect(mocks.sendOrderInfoEmail).toHaveBeenCalledTimes(1)
+      expect(mocks.sendOrderInfoTelegram.mock.calls[0][0].customer.email).toBe('test@example.com')
+      expect(mocks.updateDataByPath).not.toHaveBeenCalled()
+    })
+
+    it('writes notificationFailed to firebase when notifications fail', async () => {
+      setProductionLocation()
+      mocks.sendOrderInfoTelegram.mockResolvedValueOnce({ success: false })
+      mocks.sendOrderInfoEmail.mockResolvedValueOnce({ success: false })
+
+      const store = useCheckoutStore()
+      const basket = useBasketStore()
+      fillValidCheckoutForm(store)
+
+      const product = makeProduct()
+      setupBasketWithItem(basket, product)
+      setupShopDataWithProduct(product)
+
+      const { advance, goTo } = useCheckout()
+      goTo(4)
+
+      advance()
+      await vi.waitFor(() => expect(mocks.updateDataByPath).toHaveBeenCalled())
+
+      expect(mocks.addNewOrder).toHaveBeenCalledTimes(1)
+      expect(mocks.updateDataByPath).toHaveBeenCalledWith(
+        { notificationFailed: { telegram: true, email: true } },
+        'orders/order_order-id-123',
+      )
+    })
+
+    it('sets orderInfo on ordersStore before addNewOrder', async () => {
+      const store = useCheckoutStore()
+      const basket = useBasketStore()
+      const orders = useOrdersStore()
+      fillValidCheckoutForm(store)
+
+      const product = makeProduct()
+      setupBasketWithItem(basket, product)
+      setupShopDataWithProduct(product)
+
+      const { advance, goTo } = useCheckout()
+      goTo(4)
+
+      advance()
+      await vi.waitFor(() => expect(mocks.addNewOrder).toHaveBeenCalled())
+
+      expect(orders.orderInfo).not.toBeNull()
+      expect(orders.orderInfo?.customer.email).toBe('test@example.com')
+      expect(orders.orderInfo?.totalPrice).toBe(1000)
+    })
+
+    it('resets checkout store on success', async () => {
+      const store = useCheckoutStore()
+      const basket = useBasketStore()
+      fillValidCheckoutForm(store)
+
+      const product = makeProduct()
+      setupBasketWithItem(basket, product)
+      setupShopDataWithProduct(product)
+
+      const { advance, goTo } = useCheckout()
+      goTo(4)
+
+      advance()
+      await vi.waitFor(() => expect(mocks.addNewOrder).toHaveBeenCalled())
+
+      expect(store.form.name).toBe('')
+      expect(store.form.email).toBe('')
+      expect(store.form.payment).toBe('')
+      expect(store.form.framing).toBe('')
     })
   })
 })

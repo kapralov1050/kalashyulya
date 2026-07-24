@@ -216,9 +216,11 @@ export function useCheckout() {
 
       basketStore.clearBasket()
       metrics.trackButtonClick('orderSuccess')
+
+      const paymentMethod = form.payment
       store.reset()
 
-      if (form.payment === 'yookassa') {
+      if (paymentMethod === 'yookassa') {
         router.push({
           path: '/shop/payment',
           query: {
