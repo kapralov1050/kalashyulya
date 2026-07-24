@@ -3,7 +3,18 @@ import vue from '@vitejs/plugin-vue'
 import { fileURLToPath } from 'node:url'
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    {
+      name: 'mock-import-meta-client',
+      enforce: 'pre',
+      transform(code: string) {
+        if (code.includes('import.meta.client')) {
+          return { code: code.replaceAll('import.meta.client', 'true'), map: null }
+        }
+      },
+    },
+  ],
   resolve: {
     alias: {
       '~': fileURLToPath(new URL('./app/', import.meta.url)),

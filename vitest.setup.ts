@@ -16,6 +16,7 @@ import {
   onBeforeMount,
   onBeforeUnmount,
   onUpdated,
+  effectScope,
 } from 'vue'
 import { defineStore, storeToRefs } from 'pinia'
 import { useRouter, useRoute } from 'vue-router'
@@ -38,6 +39,7 @@ Object.assign(globalThis, {
   onBeforeMount,
   onBeforeUnmount,
   onUpdated,
+  effectScope,
   defineStore,
   storeToRefs,
   useRouter,
