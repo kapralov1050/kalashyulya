@@ -9,7 +9,7 @@
           Публичная оферта
         </h1>
         <p class="text-neutral-600 dark:text-neutral-400 text-sm">
-          Дата обновления: 22 июля 2026 г. · Версия v1.0
+          Дата обновления: 26 июля 2026 г. · Версия v1.0
         </p>
       </div>
 
@@ -29,6 +29,22 @@
         class="prose prose-neutral dark:prose-invert max-w-none mb-10
           text-neutral-700 dark:text-neutral-300"
       >
+        <p>
+          Исполнитель: Капралова Юлия, применяющая специальный налоговый режим
+          «Налог на профессиональный доход» (далее — Исполнитель). ИНН:
+          370605819158. Адрес: [адрес — указать]. Адрес электронной почты:
+          <a
+            href="mailto:kalashnikova199979@gmail.com"
+            class="text-primary-500 hover:underline"
+          >
+            kalashnikova199979@gmail.com
+          </a>. Телефон: +7 (910)-68-68-111.
+        </p>
+        <p>
+          Бренд «kalashyulya» и творческий псевдоним «Калашникова Юлия»
+          используются Исполнителем как творческое имя и тождественны
+          указанному выше юридическому лицу.
+        </p>
         <p>
           Настоящий документ является публичной офертой (предложением)
           интернет-магазина kalashyulya.ru (далее — «Оферта») в соответствии со
@@ -316,16 +332,8 @@
             >
               Статус
             </p>
-            <UAlert
-              class="my-2"
-              icon="heroicons:exclamation-triangle"
-              color="warning"
-              variant="subtle"
-              title="Заполнить юристу"
-              description="Уточнить статус продавца: самозанятая или ИП — от этого зависят реквизиты и порядок расчётов."
-            />
             <p class="text-neutral-800 dark:text-neutral-200 font-medium">
-              [самозанятая / ИП — указать]
+              Самозанятая (НПД)
             </p>
           </div>
           <div>
@@ -335,16 +343,19 @@
             >
               ФИО
             </p>
-            <UAlert
-              class="my-2"
-              icon="heroicons:exclamation-triangle"
-              color="warning"
-              variant="subtle"
-              title="Заполнить юристу"
-              description="Указать полные ФИО Исполнителя в соответствии с документами."
-            />
             <p class="text-neutral-800 dark:text-neutral-200 font-medium">
-              [ФИО — указать]
+              Капралова Юлия
+            </p>
+          </div>
+          <div>
+            <p
+              class="text-xs text-neutral-500 dark:text-neutral-400 uppercase
+                tracking-wide mb-1"
+            >
+              Творческий псевдоним
+            </p>
+            <p class="text-neutral-800 dark:text-neutral-200 font-medium">
+              Калашникова Юлия (kalashyulya)
             </p>
           </div>
           <div>
@@ -354,19 +365,11 @@
             >
               ИНН
             </p>
-            <UAlert
-              class="my-2"
-              icon="heroicons:exclamation-triangle"
-              color="warning"
-              variant="subtle"
-              title="Заполнить юристу"
-              description="Указать ИНН Исполнителя."
-            />
             <p
               class="text-neutral-800 dark:text-neutral-200 font-medium
                 font-mono"
             >
-              [ИНН — указать]
+              370605819158
             </p>
           </div>
           <div>
@@ -434,16 +437,8 @@
             >
               Телефон
             </p>
-            <UAlert
-              class="my-2"
-              icon="heroicons:exclamation-triangle"
-              color="warning"
-              variant="subtle"
-              title="Заполнить юристу"
-              description="Указать актуальный контактный телефон Исполнителя."
-            />
             <p class="text-neutral-800 dark:text-neutral-200 font-medium">
-              [телефон — указать]
+              +7 (910)-68-68-111
             </p>
           </div>
         </div>

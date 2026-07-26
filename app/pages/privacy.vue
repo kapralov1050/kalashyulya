@@ -9,7 +9,7 @@
           Политика обработки персональных данных
         </h1>
         <p class="text-neutral-600 dark:text-neutral-400 text-sm">
-          Дата обновления: 22 июля 2026 г. · Версия v1.1
+          Дата обновления: 26 июля 2026 г. · Версия v1.1
         </p>
       </div>
 
@@ -35,6 +35,13 @@
           «О персональных данных» (далее — ФЗ-152) и Приказом Роскомнадзора от
           24.02.2021 № 18 «Об утверждении требований к содержанию политики
           обработки персональных данных, осуществляемой оператором».
+        </p>
+        <p>
+          Оператором персональных данных является самозанятая Капралова Юлия
+          (ИНН 370605819158), применяющая специальный налоговый режим «Налог
+          на профессиональный доход». Творческий псевдоним «Калашникова Юлия»
+          и бренд «kalashyulya» используются Оператором как творческое имя и
+          тождественны юридическому лицу Оператора.
         </p>
         <p>
           Политика действует в отношении всех персональных данных, которые
@@ -133,16 +140,13 @@
             >
               ФИО / статус
             </p>
-            <UAlert
-              class="my-2"
-              icon="heroicons:exclamation-triangle"
-              color="warning"
-              variant="subtle"
-              title="Заполнить юристу"
-              description="Уточнить статус продавца: самозанятая или ИП — от этого зависят правовые основания и формат согласия."
-            />
             <p class="text-neutral-800 dark:text-neutral-200 font-medium">
-              Калашникова Юлия Сергеевна
+              Капралова Юлия · Самозанятая (НПД)
+            </p>
+            <p
+              class="text-xs text-neutral-500 dark:text-neutral-400 mt-1"
+            >
+              Творческий псевдоним: Калашникова Юлия (kalashyulya)
             </p>
           </div>
           <div>
@@ -152,19 +156,11 @@
             >
               ИНН
             </p>
-            <UAlert
-              class="my-2"
-              icon="heroicons:exclamation-triangle"
-              color="warning"
-              variant="subtle"
-              title="Заполнить юристу"
-              description="Указать реальный ИНН продавца."
-            />
             <p
               class="text-neutral-800 dark:text-neutral-200 font-medium
                 font-mono"
             >
-              [ИНН — указать]
+              370605819158
             </p>
           </div>
           <div>
@@ -201,6 +197,17 @@
             >
               kalashnikova199979@gmail.com
             </a>
+          </div>
+          <div>
+            <p
+              class="text-xs text-neutral-500 dark:text-neutral-400 uppercase
+                tracking-wide mb-1"
+            >
+              Контактное лицо
+            </p>
+            <p class="text-neutral-800 dark:text-neutral-200 font-medium">
+              Капралова Юлия (она же)
+            </p>
           </div>
         </div>
       </UCard>
@@ -478,9 +485,39 @@
           class="text-primary-500 hover:underline"
         >
           kalashnikova199979@gmail.com
-        </a>. Полные реквизиты Оператора приведены в разделе 3 настоящей
-        Политики.
+        </a>. Указанный адрес электронной почты является основным и
+        предпочтительным каналом обращений по вопросам обработки
+        персональных данных. Полные реквизиты Оператора приведены в разделе 3
+        настоящей Политики.
       </p>
+      <ul
+        class="list-none pl-0 mb-10 space-y-1 text-neutral-700
+          dark:text-neutral-300 text-sm"
+      >
+        <li>
+          <span class="text-neutral-500 dark:text-neutral-400">ФИО: </span>
+          Капралова Юлия
+        </li>
+        <li>
+          <span class="text-neutral-500 dark:text-neutral-400">Статус: </span>
+          Самозанятая (НПД)
+        </li>
+        <li>
+          <span class="text-neutral-500 dark:text-neutral-400">ИНН: </span>
+          <span class="font-mono">370605819158</span>
+        </li>
+        <li>
+          <span class="text-neutral-500 dark:text-neutral-400">
+            Адрес обращений:
+          </span>
+          <a
+            href="mailto:kalashnikova199979@gmail.com"
+            class="text-primary-500 hover:underline"
+          >
+            kalashnikova199979@gmail.com
+          </a>
+        </li>
+      </ul>
       <p class="text-xs text-neutral-500 dark:text-neutral-400 mb-10">
         Сайт использует Firebase Authentication для технической аутентификации
         администратора (хранение сессии в IndexedDB браузера); cookie-файлы
