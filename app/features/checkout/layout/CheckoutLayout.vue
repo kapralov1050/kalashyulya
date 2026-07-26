@@ -89,10 +89,7 @@
               </div>
             </Transition>
 
-            <!-- Consent -->
-            <div class="mt-8 p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50">
-              <AppConsentCheckbox v-model="pdAgreed" />
-            </div>
+            <!-- Consent перенесён в PaymentStep -->
 
             <!-- Navigation -->
             <div class="flex gap-3 mt-10">
@@ -155,12 +152,6 @@ const {
   currentStepId,
   store,
 } = useCheckout()
-
-const { consents } = useConsent()
-const pdAgreed = computed({
-  get: () => consents.pdAgreed,
-  set: value => (consents.pdAgreed = value),
-})
 
 const showIntro = ref(true)
 </script>

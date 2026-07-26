@@ -69,6 +69,10 @@
         Доставка и оформление согласовываются и оплачиваются отдельно.
       </p>
     </div>
+
+    <div class="p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50">
+      <AppConsentCheckbox v-model="pdAgreed" />
+    </div>
   </div>
 </template>
 
@@ -79,6 +83,12 @@ import { useDeliveryZone } from '~/composables/useDeliveryZone'
 const { form } = useCheckoutStore()
 const { shoppingCart, totalPurchaseAmount } = storeToRefs(useBasketStore())
 const { getZone, ZONE_CONFIG } = useDeliveryZone()
+
+const { consents } = useConsent()
+const pdAgreed = computed({
+  get: () => consents.pdAgreed,
+  set: value => (consents.pdAgreed = value),
+})
 
 const deliveryCost = computed(() => {
   if (form.deliveryType === 'pickup') return 'Бесплатно'
