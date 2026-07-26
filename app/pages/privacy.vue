@@ -9,7 +9,7 @@
           Политика обработки персональных данных
         </h1>
         <p class="text-neutral-600 dark:text-neutral-400 text-sm">
-          Дата обновления: 22 июля 2026 г. · Версия v1.0
+          Дата обновления: 22 июля 2026 г. · Версия v1.1
         </p>
       </div>
 
@@ -50,10 +50,76 @@
       </div>
 
       <h2 class="text-2xl font-semibold text-neutral-900 dark:text-white mb-4">
-        2. Оператор персональных данных
+        2. Термины и определения
+      </h2>
+      <div
+        class="prose prose-neutral dark:prose-invert max-w-none mb-10
+          text-neutral-700 dark:text-neutral-300"
+      >
+        <dl class="space-y-3">
+          <div>
+            <dt class="font-semibold text-neutral-900 dark:text-white">
+              Персональные данные (ПДн)
+            </dt>
+            <dd>
+              любая информация, относящаяся к прямо или косвенно определённому
+              либо определяемому физическому лицу (субъекту персональных
+              данных).
+            </dd>
+          </div>
+          <div>
+            <dt class="font-semibold text-neutral-900 dark:text-white">
+              Обработка персональных данных
+            </dt>
+            <dd>
+              любое действие (операция) или совокупность действий (операций),
+              совершаемых с использованием средств автоматизации или без них, с
+              персональными данными, включая сбор, запись, систематизацию,
+              накопление, хранение, уточнение (обновление, изменение),
+              извлечение, использование, передачу (распространение,
+              предоставление, доступ), обезличивание, блокирование, удаление,
+              уничтожение.
+            </dd>
+          </div>
+          <div>
+            <dt class="font-semibold text-neutral-900 dark:text-white">
+              Субъект персональных данных
+            </dt>
+            <dd>
+              посетитель сайта kalashyulya.ru и/или покупатель, чьи
+              персональные данные обрабатываются Оператором.
+            </dd>
+          </div>
+          <div>
+            <dt class="font-semibold text-neutral-900 dark:text-white">
+              Оператор
+            </dt>
+            <dd>
+              лицо, самостоятельно или совместно с другими лицами
+              организующее и/или осуществляющее обработку персональных данных,
+              определяющее цели обработки, состав персональных данных,
+              подлежащих обработке, и действия (операции), совершаемые с
+              персональными данными. Реквизиты Оператора приведены в разделе 3
+              настоящей Политики.
+            </dd>
+          </div>
+          <div>
+            <dt class="font-semibold text-neutral-900 dark:text-white">
+              Предоставление персональных данных
+            </dt>
+            <dd>
+              действия, направленные на раскрытие персональных данных
+              определённому лицу или определённому кругу лиц.
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <h2 class="text-2xl font-semibold text-neutral-900 dark:text-white mb-4">
+        3. Оператор персональных данных
       </h2>
       <UCard
-        class="mb-6"
+        class="mb-10"
         :ui="{
           root: 'ring-0',
           body: 'p-0 sm:p-0',
@@ -136,19 +202,22 @@
               kalashnikova199979@gmail.com
             </a>
           </div>
-          <div>
-            <p
-              class="text-xs text-neutral-500 dark:text-neutral-400 uppercase
-                tracking-wide mb-1"
-            >
-              Контактное лицо
-            </p>
-            <p class="text-neutral-800 dark:text-neutral-200 font-medium">
-              Калашникова Ю.С. (она же)
-            </p>
-          </div>
         </div>
       </UCard>
+
+      <h2 class="text-2xl font-semibold text-neutral-900 dark:text-white mb-4">
+        4. Перечень обрабатываемых данных
+      </h2>
+      <ul
+        class="list-disc pl-6 mb-10 space-y-2 text-neutral-700
+          dark:text-neutral-300"
+      >
+        <li>Имя.</li>
+        <li>Email.</li>
+        <li>Телефон.</li>
+        <li>Адрес доставки.</li>
+        <li>Никнейм в мессенджере (VK / Telegram).</li>
+      </ul>
 
       <UAccordion
         type="multiple"
@@ -363,15 +432,6 @@
             </div>
             <div>
               <h4 class="font-semibold text-neutral-900 dark:text-white">
-                Право на отзыв согласия
-              </h4>
-              <p>
-                Согласие на обработку ПДн может быть отозвано в любой момент
-                (см. раздел 9).
-              </p>
-            </div>
-            <div>
-              <h4 class="font-semibold text-neutral-900 dark:text-white">
                 Право на обжалование в Роскомнадзоре
               </h4>
               <p>
@@ -379,6 +439,24 @@
                 уполномоченный орган по защите прав субъектов ПДн —
                 Федеральную службу по надзору в сфере связи, информационных
                 технологий и массовых коммуникаций (Роскомнадзор).
+              </p>
+            </div>
+            <div>
+              <h4 class="font-semibold text-neutral-900 dark:text-white">
+                Порядок отзыва согласия
+              </h4>
+              <p>
+                Согласие на обработку персональных данных может быть отозвано в
+                любой момент путём направления запроса на адрес электронной почты
+                <a
+                  href="mailto:kalashnikova199979@gmail.com"
+                  class="text-primary-500 hover:underline"
+                >
+                  kalashnikova199979@gmail.com
+                </a>. После получения отзыва Оператор прекращает обработку ПДн
+                и уничтожает их в течение 30 (тридцати) календарных дней, за
+                исключением данных, хранение которых предусмотрено требованиями
+                законодательства.
               </p>
             </div>
             <p class="text-sm text-neutral-600 dark:text-neutral-400">
@@ -390,69 +468,26 @@
       </UAccordion>
 
       <h2 class="text-2xl font-semibold text-neutral-900 dark:text-white mb-4">
-        5. Перечень обрабатываемых ПДн
+        10. Реквизиты оператора и контакты для обращений
       </h2>
-      <ul
-        class="list-disc pl-6 mb-10 space-y-2 text-neutral-700
-          dark:text-neutral-300"
-      >
-        <li>Имя.</li>
-        <li>Email.</li>
-        <li>Телефон.</li>
-        <li>Адрес доставки.</li>
-        <li>Никнейм в мессенджере (VK / Telegram).</li>
-      </ul>
-
-      <h2 class="text-2xl font-semibold text-neutral-900 dark:text-white mb-4">
-        9. Порядок отзыва согласия
-      </h2>
-      <p class="text-neutral-700 dark:text-neutral-300 mb-10">
-        Согласие на обработку персональных данных может быть отозвано путём
-        направления запроса на адрес электронной почты
+      <p class="text-neutral-700 dark:text-neutral-300 mb-2">
+        По всем вопросам, связанным с обработкой персональных данных, субъект
+        вправе обратиться к Оператору по адресу электронной почты
         <a
           href="mailto:kalashnikova199979@gmail.com"
           class="text-primary-500 hover:underline"
         >
           kalashnikova199979@gmail.com
-        </a>. После получения отзыва Оператор прекращает обработку ПДн и
-        уничтожает их в течение 30 (тридцати) календарных дней, за исключением
-        данных, хранение которых предусмотрено требованиями законодательства.
+        </a>. Полные реквизиты Оператора приведены в разделе 3 настоящей
+        Политики.
       </p>
-
-      <h2 class="text-2xl font-semibold text-neutral-900 dark:text-white mb-4">
-        10. Cookies и технические данные
-      </h2>
-      <div class="text-neutral-700 dark:text-neutral-300 mb-10 space-y-3">
-        <p>
-          Сайт использует Firebase Authentication для технической
-          аутентификации администратора (хранение сессии в IndexedDB браузера).
-        </p>
-        <p>
-          Сайт <strong>не использует</strong> Яндекс.Метрику, Google Analytics
-          и иные системы веб-аналитики, не устанавливает маркетинговые и
-          рекламные cookie.
-        </p>
-        <p>
-          При входе в административную панель используются технические
-          cookie-подобные данные Firebase, необходимые для поддержания
-          авторизованной сессии.
-        </p>
-      </div>
-
-      <h2 class="text-2xl font-semibold text-neutral-900 dark:text-white mb-4">
-        11. Изменения в политике
-      </h2>
-      <p class="text-neutral-700 dark:text-neutral-300 mb-10">
-        Оператор вправе вносить изменения в настоящую Политику. Новая редакция
-        вступает в силу с момента её размещения на данной странице. Дата
-        последнего обновления указана в начале документа.
-      </p>
-
-      <h2 class="text-2xl font-semibold text-neutral-900 dark:text-white mb-4">
-        12. Реквизиты оператора
-      </h2>
-      <p class="text-neutral-700 dark:text-neutral-300 mb-10">
-        Полные реквизиты оператора приведены в разделе 2 настоящей Политики.
+      <p class="text-xs text-neutral-500 dark:text-neutral-400 mb-10">
+        Сайт использует Firebase Authentication для технической аутентификации
+        администратора (хранение сессии в IndexedDB браузера); cookie-файлы
+        маркетинговых и аналитических сервисов (Яндекс.Метрика, Google Analytics
+        и т. п.) не применяются. Оператор вправе вносить изменения в настоящую
+        Политику; новая редакция вступает в силу с момента её размещения на
+        данной странице, дата обновления указана в начале документа.
       </p>
 
       <div class="text-center mt-12 mb-6">
@@ -476,27 +511,27 @@
 
   const accordionItems: AccordionItem[] = [
     {
-      label: '3. Цели обработки персональных данных',
+      label: '5. Цели обработки персональных данных',
       icon: 'heroicons:target',
       slot: 'purpose',
     },
     {
-      label: '4. Правовое основание обработки',
+      label: '6. Правовое основание обработки',
       icon: 'heroicons:scale',
       slot: 'legal-basis',
     },
     {
-      label: '6. Перечень третьих лиц, которым передаются ПДн',
+      label: '7. Передача ПДн третьим лицам',
       icon: 'heroicons:share',
       slot: 'third-parties',
     },
     {
-      label: '7. Сроки обработки и хранения ПДн',
+      label: '8. Сроки обработки и хранения ПДн',
       icon: 'heroicons:clock',
       slot: 'retention',
     },
     {
-      label: '8. Права субъекта персональных данных',
+      label: '9. Права субъекта и порядок отзыва согласия',
       icon: 'heroicons:user-circle',
       slot: 'subject-rights',
     },
