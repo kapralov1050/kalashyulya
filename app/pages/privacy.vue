@@ -13,15 +13,6 @@
         </p>
       </div>
 
-      <UAlert
-        class="mb-10"
-        icon="heroicons:exclamation-triangle"
-        color="warning"
-        variant="subtle"
-        title="Документ в черновике"
-        description="Часть полей содержит плейсхолдеры, которые необходимо заполнить или подтвердить юристу с учётом актуального статуса продавца (самозанятая / ИП)."
-      />
-
       <h2 class="text-2xl font-semibold text-neutral-900 dark:text-white mb-4">
         1. Общие положения
       </h2>
@@ -170,16 +161,8 @@
             >
               Адрес
             </p>
-            <UAlert
-              class="my-2"
-              icon="heroicons:exclamation-triangle"
-              color="warning"
-              variant="subtle"
-              title="Заполнить юристу"
-              description="Указать адрес регистрации / фактического проживания продавца."
-            />
             <p class="text-neutral-800 dark:text-neutral-200 font-medium">
-              [адрес — указать]
+              Ивановская область, г. Южа, ул. Мира 12
             </p>
           </div>
           <div>
@@ -306,21 +289,11 @@
                   <td class="py-3 pr-4">ОАЭ / международный сервис</td>
                 </tr>
                 <tr>
-                  <td class="py-3 pr-4 font-medium">[email-провайдер]</td>
+                  <td class="py-3 pr-4 font-medium">Mail.ru (АО «ВК», Mail.ru Group)</td>
                   <td class="py-3 pr-4">
                     Уведомления покупателю о статусе заказа.
                   </td>
-                  <td class="py-3 pr-4">
-                    <UAlert
-                      class="my-1"
-                      icon="heroicons:exclamation-triangle"
-                      color="warning"
-                      variant="subtle"
-                      title="Заполнить юристу"
-                      description="Указать фактического email-провайдера (например, Yandex, Mail.ru, SendGrid, Firebase Cloud Functions + SMTP) и страну хранения."
-                    />
-                    <span>[используется провайдер X — уточнить]</span>
-                  </td>
+                  <td class="py-3 pr-4">РФ</td>
                 </tr>
                 <tr>
                   <td class="py-3 pr-4 font-medium">ООО НКО «ЮМани» (ЮKassa)</td>
@@ -366,17 +339,7 @@
                   </tr>
                   <tr>
                     <td class="py-3 pr-4">Бухгалтерские документы</td>
-                    <td class="py-3 pr-4">
-                      <UAlert
-                        class="my-1"
-                        icon="heroicons:exclamation-triangle"
-                        color="warning"
-                        variant="subtle"
-                        title="Заполнить юристу"
-                        description="Уточнить срок хранения бухгалтерских документов по ФЗ-54 / НК РФ (стандартно — 5 лет)."
-                      />
-                      <span>5 лет</span>
-                    </td>
+                    <td class="py-3 pr-4">5 лет</td>
                     <td class="py-3 pr-4">ФЗ-54 / НК РФ</td>
                   </tr>
                 </tbody>
