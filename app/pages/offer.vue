@@ -13,15 +13,6 @@
         </p>
       </div>
 
-      <UAlert
-        class="mb-10"
-        icon="heroicons:exclamation-triangle"
-        color="warning"
-        variant="subtle"
-        title="Документ в черновике"
-        description="Часть полей содержит плейсхолдеры, которые необходимо заполнить или подтвердить юристу с учётом актуального статуса продавца (самозанятая / ИП)."
-      />
-
       <h2 class="text-2xl font-semibold text-neutral-900 dark:text-white mb-4">
         1. Общие положения
       </h2>
@@ -30,7 +21,7 @@
           text-neutral-700 dark:text-neutral-300"
       >
         <p>
-          Исполнитель: Капралова Юлия, применяющая специальный налоговый режим
+          Исполнитель: Капралова Юлия Михайловна, применяющая специальный налоговый режим
           «Налог на профессиональный доход» (далее — Исполнитель). ИНН:
           370605819158. Адрес: Ивановская область, г. Южа, ул. Мира 12. Адрес электронной почты:
           <a
@@ -344,7 +335,7 @@
               ФИО
             </p>
             <p class="text-neutral-800 dark:text-neutral-200 font-medium">
-              Капралова Юлия
+              Капралова Юлия Михайловна
             </p>
           </div>
           <div>
@@ -390,20 +381,32 @@
             >
               Банковские реквизиты
             </p>
-            <UAlert
-              class="my-2"
-              icon="heroicons:exclamation-triangle"
-              color="warning"
-              variant="subtle"
-              title="Заполнить юристу"
-              description="Указать расчётный счёт, наименование банка, БИК и корреспондентский счёт."
-            />
+            <p class="text-neutral-800 dark:text-neutral-200 font-medium">
+              Получатель: КАПРАЛОВА ЮЛИЯ МИХАЙЛОВНА
+            </p>
+            <p
+              class="text-neutral-800 dark:text-neutral-200 font-medium
+                font-mono mt-1"
+            >
+              р/с: 40817810155176997889
+            </p>
+            <p class="text-neutral-800 dark:text-neutral-200 font-medium">
+              Банк: СЕВЕРО-ЗАПАДНЫЙ БАНК ПАО СБЕРБАНК
+            </p>
             <p
               class="text-neutral-800 dark:text-neutral-200 font-medium
                 font-mono"
             >
-              р/с: [указать] · банк: [указать] · БИК: [указать] · к/с:
-              [указать]
+              БИК: 044030653
+            </p>
+            <p
+              class="text-neutral-800 dark:text-neutral-200 font-medium
+                font-mono"
+            >
+              к/с: 30101810500000000653
+            </p>
+            <p class="text-neutral-500 dark:text-neutral-400 text-sm mt-2">
+              SWIFT: SABRRU2P · Валюта: RUB
             </p>
           </div>
           <div>
