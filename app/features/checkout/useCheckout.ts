@@ -1,6 +1,5 @@
 import * as v from 'valibot'
-import { useFirebase } from '~/composables/firebase/useFirebase'
-import { updateDataByPath } from '~/helpers/firebase/manageDatabase'
+import { useApi } from '~/composables/useApi'
 import { showToast } from '~/helpers/showToast'
 import {
   checkoutSchema,
@@ -18,7 +17,7 @@ export function useCheckout() {
   const router = useRouter()
   const basketStore = useBasketStore()
   const { shoppingCart } = storeToRefs(basketStore)
-  const { addNewOrder, shopData } = useFirebase()
+  const { addNewOrder, shopData, setShopData } = useApi()
   const { sendOrderInfoTelegram, sendOrderInfoEmail } = useShop()
   const ordersStore = useOrdersStore()
 
@@ -211,7 +210,7 @@ export function useCheckout() {
         if (emailResult.status === 'rejected' || !emailResult.value?.success)
           failed.email = true
         if (Object.keys(failed).length > 0)
-          updateDataByPath({ notificationFailed: failed }, `orders/order_${orderId}`)
+          setShopData(`orders/order_${orderId}`, { notificationFailed: failed })
       }
 
       basketStore.clearBasket()

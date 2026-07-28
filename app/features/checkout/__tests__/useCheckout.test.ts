@@ -17,11 +17,25 @@ const mocks = vi.hoisted(() => ({
 const consentState = { pdAgreed: true, hasConsent: true }
 const mockShopDataRef = ref<{ products: Record<string, Product> }>({ products: {} })
 
-vi.mock('~/composables/firebase/useFirebase', () => ({
-  useFirebase: () => ({
+vi.mock('~/composables/useApi', () => ({
+  useApi: () => ({
     addNewOrder: mocks.addNewOrder,
     shopData: mockShopDataRef,
-    ordersData: ref(null),
+    orders: ref([]),
+    exhibitions: ref({}),
+    subscribers: ref([]),
+    addNewProduct: vi.fn(),
+    updateOrderStatus: vi.fn(),
+    setShopData: (path: string, value: unknown) => mocks.updateDataByPath(value, path),
+    removeShopData: vi.fn(),
+    updateLessonsTags: vi.fn(),
+    watchOrders: vi.fn(),
+    watchShopData: vi.fn(),
+    currentUser: ref(null),
+    isLoggedIn: ref(false),
+    login: vi.fn(),
+    logout: vi.fn(),
+    onAuthStateChanged: vi.fn(),
   }),
 }))
 
