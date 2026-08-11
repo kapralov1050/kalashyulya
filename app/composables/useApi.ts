@@ -1,13 +1,11 @@
-import { remove, ref as dbRef } from 'firebase/database'
-import { computed, watch } from 'vue'
-import { useFirebase } from '~/composables/firebase/useFirebase'
-import { loginUser } from '~/helpers/firebase/authService'
-import { updateDataByPath } from '~/helpers/firebase/manageDatabase'
+import { computed, ref, watch } from 'vue'
 import type {
   ExhibitionsData,
+  Exhibition,
   LessonsTags,
   Order,
   OrderInBase,
+  Product,
   ShopData,
 } from '~/types'
 
@@ -22,78 +20,170 @@ export interface ApiLoginResult {
   error: string | null
 }
 
-export function useApi() {
-  const {
-    shopData,
-    ordersData,
-    exhibitionsData,
-    addNewOrder,
-    updateOrderStatus,
-    addNewProduct,
-    logOut,
-  } = useFirebase()
+const shopData = ref<ShopData>({})
+const ordersData = ref<OrderInBase[]>([])
+const exhibitionsData = ref<ExhibitionsData>({})
+const currentUser = ref<ApiUser | null>(null)
 
-  const orders = computed<OrderInBase[]>(() => ordersData.value ?? [])
+export function useApi() {
+  const orders = computed<OrderInBase[]>(() =>
+    ordersData.value ?? [],
+  )
   const exhibitions = computed<ExhibitionsData>(
     () => exhibitionsData.value ?? {},
   )
   const subscribers = computed<string[]>(() => [])
+  const isLoggedIn = computed(() => currentUser.value !== null)
+
+  async function loadOrders(): Promise<void> {
+    const data = await $fetch<OrderInBase[]>('/api/orders')
+    ordersData.value = data
+  }
+
+  async function loadProducts(): Promise<void> {
+    const data = await $fetch<Product[]>('/api/products')
+    shopData.value = {
+      ...(shopData.value ?? {}),
+      products: Object.fromEntries(data.map(p => [String(p.id), p])),
+    }
+  }
+
+  async function loadExhibitions(): Promise<void> {
+    const data = await $fetch<Exhibition[]>('/api/exhibitions')
+    exhibitionsData.value = Object.fromEntries(
+      data.map(e => [String(e.id), e]),
+    )
+  }
 
   async function addNewOrderApi(
     order: Order,
-    path: string = 'orders/',
+    _path: string = 'orders/',
   ): Promise<string> {
-    return addNewOrder(order, path)
+    const { id } = await $fetch<{ id: string }>('/api/orders', {
+      method: 'POST',
+      body: order,
+    })
+    return id
+  }
+
+  async function addNewProduct(
+    product: Omit<Product, 'id'>,
+    _path: string,
+  ): Promise<unknown> {
+    return await $fetch('/api/products', {
+      method: 'POST',
+      body: product,
+    })
+  }
+
+  async function updateOrderStatus(
+    orderId: number,
+    status: string,
+  ): Promise<void> {
+    await $fetch(`/api/orders/${orderId}/status`, {
+      method: 'PATCH',
+      body: { status },
+    })
   }
 
   async function setShopData(path: string, value: unknown): Promise<void> {
-    await updateDataByPath(value as Record<string, unknown>, path)
+    await $fetch(`/api/data/${encodeURIComponent(path)}`, {
+      method: 'PUT',
+      body: { value },
+    })
   }
 
   async function removeShopData(path: string): Promise<void> {
-    const db = useDatabase()
-    await remove(dbRef(db, path))
+    await $fetch(`/api/data/${encodeURIComponent(path)}`, {
+      method: 'DELETE',
+    })
   }
 
   async function updateLessonsTags(value: LessonsTags): Promise<void> {
-    await updateDataByPath(value, 'lessonsTags')
+    await $fetch('/api/lessons-tags', {
+      method: 'PUT',
+      body: value,
+    })
   }
 
   function watchOrders(callback: (orders: OrderInBase[]) => void): () => void {
-    const stop = watch(orders, v => callback(v), { immediate: true })
-    return stop
+    let cancelled = false
+    const poll = async () => {
+      while (!cancelled) {
+        try {
+          const data = await $fetch<OrderInBase[]>('/api/orders')
+          ordersData.value = data
+          callback(data)
+        } catch {
+          // ignore poll errors
+        }
+        await new Promise(resolve => setTimeout(resolve, 5000))
+      }
+    }
+    poll()
+    return () => {
+      cancelled = true
+    }
   }
 
   function watchShopData(callback: (data: ShopData) => void): () => void {
-    const stop = watch(
-      shopData,
-      v => callback(v as ShopData),
-      { immediate: true },
-    )
-    return stop
+    let cancelled = false
+    const poll = async () => {
+      while (!cancelled) {
+        try {
+          const products = await $fetch<Product[]>('/api/products')
+          const next: ShopData = {
+            ...(shopData.value ?? {}),
+            products: Object.fromEntries(products.map(p => [String(p.id), p])),
+          }
+          shopData.value = next
+          callback(next)
+        } catch {
+          // ignore poll errors
+        }
+        await new Promise(resolve => setTimeout(resolve, 5000))
+      }
+    }
+    poll()
+    return () => {
+      cancelled = true
+    }
   }
-
-  const authStore = useAuthStore()
-
-  const currentUser = computed<ApiUser | null>(() => {
-    const u = authStore.currentUser
-    return u ? { uid: u.uid, email: u.email } : null
-  })
-  const isLoggedIn = computed(() => currentUser.value !== null)
 
   async function login(
     email: string,
     password: string,
   ): Promise<ApiLoginResult> {
-    const result = await loginUser(email, password)
-    return {
-      user: result.user ? { uid: result.user.uid, email: result.user.email } : null,
-      error: result.error,
+    try {
+      const { user } = await $fetch<{ user: ApiUser }>('/api/auth/login', {
+        method: 'POST',
+        body: { email, password },
+      })
+      currentUser.value = user
+      return { user, error: null }
+    } catch (err) {
+      return {
+        user: null,
+        error: err instanceof Error ? err.message : 'Ошибка авторизации',
+      }
     }
   }
 
   async function logout(): Promise<void> {
-    await logOut()
+    try {
+      await $fetch('/api/auth/logout', { method: 'POST' })
+    } finally {
+      currentUser.value = null
+    }
+  }
+
+  async function refreshCurrentUser(): Promise<void> {
+    try {
+      const { user } = await $fetch<{ user: ApiUser | null }>('/api/auth/me')
+      currentUser.value = user
+    } catch {
+      currentUser.value = null
+    }
   }
 
   function onAuthStateChanged(
@@ -120,5 +210,9 @@ export function useApi() {
     login,
     logout,
     onAuthStateChanged,
+    loadOrders,
+    loadProducts,
+    loadExhibitions,
+    refreshCurrentUser,
   }
 }

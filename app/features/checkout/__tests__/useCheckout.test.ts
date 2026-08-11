@@ -7,37 +7,17 @@ import { showToast } from '~/helpers/showToast'
 import type { Product } from '~/types'
 
 const mocks = vi.hoisted(() => ({
-  addNewOrder: vi.fn().mockResolvedValue('order-id-123'),
+  $fetch: vi.fn(),
   routerPush: vi.fn(),
   sendOrderInfoTelegram: vi.fn().mockResolvedValue({ success: true }),
   sendOrderInfoEmail: vi.fn().mockResolvedValue({ success: true }),
-  updateDataByPath: vi.fn().mockResolvedValue(undefined),
 }))
 
-const consentState = { pdAgreed: true, hasConsent: true }
-const mockShopDataRef = ref<{ products: Record<string, Product> }>({ products: {} })
-
-vi.mock('~/composables/useApi', () => ({
-  useApi: () => ({
-    addNewOrder: mocks.addNewOrder,
-    shopData: mockShopDataRef,
-    orders: ref([]),
-    exhibitions: ref({}),
-    subscribers: ref([]),
-    addNewProduct: vi.fn(),
-    updateOrderStatus: vi.fn(),
-    setShopData: (path: string, value: unknown) => mocks.updateDataByPath(value, path),
-    removeShopData: vi.fn(),
-    updateLessonsTags: vi.fn(),
-    watchOrders: vi.fn(),
-    watchShopData: vi.fn(),
-    currentUser: ref(null),
-    isLoggedIn: ref(false),
-    login: vi.fn(),
-    logout: vi.fn(),
-    onAuthStateChanged: vi.fn(),
-  }),
+vi.mock('#app', () => ({
+  $fetch: mocks.$fetch,
 }))
+
+vi.stubGlobal('$fetch', mocks.$fetch)
 
 vi.mock('~/helpers/showToast', () => ({
   showToast: vi.fn(),
@@ -52,9 +32,20 @@ vi.mock('~/composables/useShop', () => ({
   }),
 }))
 
-vi.mock('~/helpers/firebase/manageDatabase', () => ({
-  updateDataByPath: mocks.updateDataByPath,
-}))
+const consentState = { pdAgreed: true, hasConsent: true }
+const mockShopDataRef = ref<{ products: Record<string, Product> }>({ products: {} })
+
+vi.mock('~/composables/useApi', async () => {
+  const actual = await vi.importActual<typeof import('~/composables/useApi')>(
+    '~/composables/useApi',
+  )
+  return {
+    useApi: () => ({
+      ...actual.useApi(),
+      shopData: mockShopDataRef,
+    }),
+  }
+})
 
 ;(globalThis as Record<string, unknown>).useConsent = () => ({
   hasValidConsent: () => consentState.hasConsent,
@@ -112,6 +103,53 @@ function setupShopDataWithProduct(product: Product) {
   mockShopDataRef.value = { products: { [String(product.id)]: product } }
 }
 
+interface Order {
+  customer: { email: string, name: string }
+  totalPrice: number
+  paymentMethod?: string
+  framing?: string
+  purchase: { order: unknown[], createdAt: string }
+}
+
+function orderPostCalls(): { url: string, body: Order }[] {
+  return mocks.$fetch.mock.calls
+    .filter(call => call[0] === '/api/orders' && (call[1] as { method?: string } | undefined)?.method === 'POST')
+    .map(call => ({
+      url: call[0] as string,
+      body: (call[1] as { body: Order }).body,
+    }))
+}
+
+function setShopDataCalls(): { url: string, value: unknown, path: string }[] {
+  return mocks.$fetch.mock.calls
+    .filter(call => {
+      const url = call[0] as string
+      const opts = call[1] as { method?: string } | undefined
+      return typeof url === 'string' && url.startsWith('/api/data/') && opts?.method === 'PUT'
+    })
+    .map(call => {
+      const url = call[0] as string
+      const opts = call[1] as { body?: { value?: unknown } }
+      const decoded = decodeURIComponent(url.replace('/api/data/', ''))
+      return {
+        url,
+        value: opts.body?.value,
+        path: decoded,
+      }
+    })
+}
+
+async function waitForSubmitComplete(): Promise<void> {
+  await vi.waitFor(() => {
+    if (orderPostCalls().length === 0) {
+      throw new Error('no order POST yet')
+    }
+    if (mocks.routerPush.mock.calls.length === 0) {
+      throw new Error('no routerPush yet')
+    }
+  })
+}
+
 function setProductionLocation() {
   try {
     Object.defineProperty(window, 'location', {
@@ -136,6 +174,13 @@ describe('useCheckout', () => {
     vi.clearAllMocks()
     mocks.routerPush.mockReset()
     mockShopDataRef.value = { products: {} }
+    mocks.$fetch.mockReset()
+    mocks.$fetch.mockImplementation((url: string) => {
+      if (url === '/api/orders') {
+        return Promise.resolve({ id: 'order-id-123' })
+      }
+      return Promise.resolve({})
+    })
     try {
       Object.defineProperty(window, 'location', {
         value: { href: 'http://localhost:3000/' },
@@ -336,8 +381,7 @@ describe('useCheckout', () => {
       goTo(4)
 
       advance()
-
-      await vi.waitFor(() => expect(mocks.addNewOrder).toHaveBeenCalled())
+      await waitForSubmitComplete()
       await vi.waitFor(() =>
         expect(mocks.routerPush).toHaveBeenCalledWith('/shop'),
       )
@@ -357,7 +401,7 @@ describe('useCheckout', () => {
       await nextTick()
       await nextTick()
 
-      expect(mocks.addNewOrder).not.toHaveBeenCalled()
+      expect(orderPostCalls()).toHaveLength(0)
       expect(showToast).toHaveBeenCalledWith(
         'Подтвердите согласие',
         'Подтвердите согласие на обработку персональных данных',
@@ -379,7 +423,7 @@ describe('useCheckout', () => {
       await nextTick()
       await nextTick()
 
-      expect(mocks.addNewOrder).not.toHaveBeenCalled()
+      expect(orderPostCalls()).toHaveLength(0)
       expect(showToast).toHaveBeenCalledWith(
         'Проверьте данные',
         expect.any(String),
@@ -403,14 +447,14 @@ describe('useCheckout', () => {
       goTo(4)
 
       advance()
-      await vi.waitFor(() => expect(mocks.addNewOrder).toHaveBeenCalled())
+      await waitForSubmitComplete()
 
-      expect(mocks.addNewOrder).toHaveBeenCalledTimes(1)
-      const [orderData, path] = mocks.addNewOrder.mock.calls[0]
+      const orderCalls = orderPostCalls()
+      expect(orderCalls).toHaveLength(1)
+      const orderData = orderCalls[0].body
       expect(orderData.customer.email).toBe('test@example.com')
       expect(orderData.paymentMethod).toBe('manual')
       expect(orderData.totalPrice).toBe(1000)
-      expect(path).toBe('orders/')
 
       expect(mocks.routerPush).toHaveBeenCalledWith('/shop')
       expect(basket.shoppingCart).toEqual([])
@@ -435,10 +479,11 @@ describe('useCheckout', () => {
       goTo(4)
 
       advance()
-      await vi.waitFor(() => expect(mocks.addNewOrder).toHaveBeenCalled())
+      await waitForSubmitComplete()
 
-      expect(mocks.addNewOrder).toHaveBeenCalledTimes(1)
-      expect(mocks.addNewOrder.mock.calls[0][0].paymentMethod).toBe('yookassa')
+      const orderCalls = orderPostCalls()
+      expect(orderCalls).toHaveLength(1)
+      expect(orderCalls[0].body.paymentMethod).toBe('yookassa')
       expect(mocks.routerPush).toHaveBeenCalledWith({
         path: '/shop/payment',
         query: {
@@ -465,7 +510,7 @@ describe('useCheckout', () => {
       advance()
       await vi.waitFor(() => expect(showToast).toHaveBeenCalled())
 
-      expect(mocks.addNewOrder).not.toHaveBeenCalled()
+      expect(orderPostCalls()).toHaveLength(0)
       expect(mocks.routerPush).not.toHaveBeenCalled()
       expect(showToast).toHaveBeenCalledWith(
         'Товары недоступны',
@@ -489,7 +534,7 @@ describe('useCheckout', () => {
       advance()
       await vi.waitFor(() => expect(showToast).toHaveBeenCalled())
 
-      expect(mocks.addNewOrder).not.toHaveBeenCalled()
+      expect(orderPostCalls()).toHaveLength(0)
       expect(showToast).toHaveBeenCalledWith(
         'Товары недоступны',
         expect.stringContaining('Призрак'),
@@ -512,7 +557,7 @@ describe('useCheckout', () => {
       advance()
       await vi.waitFor(() => expect(showToast).toHaveBeenCalled())
 
-      expect(mocks.addNewOrder).not.toHaveBeenCalled()
+      expect(orderPostCalls()).toHaveLength(0)
       expect(showToast).toHaveBeenCalledWith(
         'Товары недоступны',
         'Зарезервированный — уже нет в наличии',
@@ -539,7 +584,7 @@ describe('useCheckout', () => {
       expect(mocks.sendOrderInfoTelegram).toHaveBeenCalledTimes(1)
       expect(mocks.sendOrderInfoEmail).toHaveBeenCalledTimes(1)
       expect(mocks.sendOrderInfoTelegram.mock.calls[0][0].customer.email).toBe('test@example.com')
-      expect(mocks.updateDataByPath).not.toHaveBeenCalled()
+      expect(setShopDataCalls()).toHaveLength(0)
     })
 
     it('writes notificationFailed to firebase when notifications fail', async () => {
@@ -559,13 +604,16 @@ describe('useCheckout', () => {
       goTo(4)
 
       advance()
-      await vi.waitFor(() => expect(mocks.updateDataByPath).toHaveBeenCalled())
+      await vi.waitFor(() => expect(setShopDataCalls().length).toBeGreaterThan(0))
+      await vi.waitFor(() => expect(mocks.routerPush).toHaveBeenCalled())
 
-      expect(mocks.addNewOrder).toHaveBeenCalledTimes(1)
-      expect(mocks.updateDataByPath).toHaveBeenCalledWith(
-        { notificationFailed: { telegram: true, email: true } },
-        'orders/order_order-id-123',
-      )
+      const sets = setShopDataCalls()
+      expect(orderPostCalls()).toHaveLength(1)
+      expect(sets).toHaveLength(1)
+      expect(sets[0].value).toEqual({
+        notificationFailed: { telegram: true, email: true },
+      })
+      expect(sets[0].path).toBe('orders/order_order-id-123')
     })
 
     it('sets orderInfo on ordersStore before addNewOrder', async () => {
@@ -582,7 +630,8 @@ describe('useCheckout', () => {
       goTo(4)
 
       advance()
-      await vi.waitFor(() => expect(mocks.addNewOrder).toHaveBeenCalled())
+      await vi.waitFor(() => expect(orderPostCalls().length).toBeGreaterThan(0))
+      await vi.waitFor(() => expect(mocks.routerPush).toHaveBeenCalled())
 
       expect(orders.orderInfo).not.toBeNull()
       expect(orders.orderInfo?.customer.email).toBe('test@example.com')
@@ -602,7 +651,7 @@ describe('useCheckout', () => {
       goTo(4)
 
       advance()
-      await vi.waitFor(() => expect(mocks.addNewOrder).toHaveBeenCalled())
+      await waitForSubmitComplete()
 
       expect(store.form.name).toBe('')
       expect(store.form.email).toBe('')
