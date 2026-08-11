@@ -50,7 +50,7 @@ jobs:
       - name: Run tests
         run: npm run test:run
 
-  # Job для деплоя на prod (только для ветки prod)
+  # Job для деплоя на prod (VPS через SSH)
   deploy-prod:
     needs: test
     runs-on: ubuntu-latest
@@ -67,40 +67,68 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm i
-
-      - name: Create .env file
-        run: |
-          echo "FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}" >> .env
-          echo "FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }}" >> .env
-          echo "FIREBASE_DATABASE_URL=${{ secrets.FIREBASE_DATABASE_URL }}" >> .env
-          echo "FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}" >> .env
-          echo "FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }}" >> .env
-          echo "FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}" >> .env
-          echo "FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }}" >> .env
-          echo "FIREBASE_MEASUREMENT_ID=${{ secrets.FIREBASE_MEASUREMENT_ID }}" >> .env
-          echo "NUXT_PUBLIC_SITE_URL=${{ secrets.NUXT_PUBLIC_SITE_URL }}" >> .env
-          echo "NUXT_PUBLIC_CLOUD_FUNCTION_TELEGRAM_URL=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_TELEGRAM_URL }}" >> .env
-          echo "NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_URL=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_URL }}" >> .env
-          echo "NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_PRODUCT_URL=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_PRODUCT_URL }}" >> .env
-          echo "NUXT_PUBLIC_CLOUD_FUNCTION_DELETE_PRODUCT_FILE=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_DELETE_PRODUCT_FILE }}" >> .env
-          echo "NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_LOCALES=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_LOCALES }}" >> .env
-          echo "NUXT_PUBLIC_BUCKET_NAME=${{ secrets.NUXT_PUBLIC_BUCKET_NAME }}" >> .env
-          echo "NUXT_PUBLIC_DADATA_API_KEY=${{ secrets.NUXT_PUBLIC_DADATA_API_KEY }}" >> .env
-          echo "NUXT_PUBLIC_DADATA_SECRET_KEY=${{ secrets.NUXT_PUBLIC_DADATA_SECRET_KEY }}" >> .env
-          echo "NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_STATS=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_STATS }}" >> .env
-          echo "NUXT_PUBLIC_STATS=${{ secrets.NUXT_PUBLIC_STATS }}" >> .env
-          echo "NUXT_PUBLIC_LOCALES=${{ secrets.NUXT_PUBLIC_LOCALES }}" >> .env
-          echo "NUXT_PUBLIC_CLOUD_FUNCTION_YOOKASSA_CREATE_PAYMENT=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_YOOKASSA_CREATE_PAYMENT }}" >> .env
+        run: npm ci
 
       - name: Build application
-        run: npm run generate
+        run: npm run build
 
-      - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+      - name: Create .env on VPS
+        uses: appleboy/ssh-action@v1
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /www/kalashyulya.ru/
-          local-dir: ./.output/public/
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cat > /var/www/kalashyulya/.env <<'ENV'
+            FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}
+            FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }}
+            FIREBASE_DATABASE_URL=${{ secrets.FIREBASE_DATABASE_URL }}
+            FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}
+            FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }}
+            FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
+            FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }}
+            FIREBASE_MEASUREMENT_ID=${{ secrets.FIREBASE_MEASUREMENT_ID }}
+            NUXT_PUBLIC_SITE_URL=${{ secrets.NUXT_PUBLIC_SITE_URL }}
+            NUXT_PUBLIC_CLOUD_FUNCTION_TELEGRAM_URL=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_TELEGRAM_URL }}
+            NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_URL=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_URL }}
+            NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_NOTIFIER=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_NOTIFIER }}
+            NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_LOCALES=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_LOCALES }}
+            NUXT_PUBLIC_BUCKET_NAME=${{ secrets.NUXT_PUBLIC_BUCKET_NAME }}
+            NUXT_PUBLIC_DADATA_API_KEY=${{ secrets.NUXT_PUBLIC_DADATA_API_KEY }}
+            NUXT_PUBLIC_DADATA_SECRET_KEY=${{ secrets.NUXT_PUBLIC_DADATA_SECRET_KEY }}
+            NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_STATS=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_STATS }}
+            NUXT_PUBLIC_STATS=${{ secrets.NUXT_PUBLIC_STATS }}
+            NUXT_PUBLIC_LOCALES=${{ secrets.NUXT_PUBLIC_LOCALES }}
+            NUXT_PUBLIC_CLOUD_FUNCTION_YOOKASSA_CREATE_PAYMENT=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_YOOKASSA_CREATE_PAYMENT }}
+            NUXT_PUBLIC_CLOUD_FUNCTION_PDF_GENERATOR_URL=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_PDF_GENERATOR_URL }}
+            ENV
+            chmod 600 /var/www/kalashyulya/.env
+            chown kalashyulya:kalashyulya /var/www/kalashyulya/.env
+
+      - name: Sync build to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: ".output/"
+          target: "/var/www/kalashyulya/.output/"
+          strip_components: 1
+
+      - name: Restart Nitro and healthcheck
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            sudo systemctl restart kalashyulya-nitro
+            sleep 3
+            STATUS=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1/)
+            if [ "$STATUS" = "200" ]; then
+              echo "OK: Nitro healthy (HTTP $STATUS)"
+            else
+              echo "FAIL: Nitro returned HTTP $STATUS"
+              sudo systemctl status kalashyulya-nitro --no-pager
+              exit 1
+            fi
