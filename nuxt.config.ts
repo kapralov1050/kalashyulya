@@ -9,7 +9,7 @@ import { vueFireConfig } from './config/nuxt/vueFire'
 export default defineNuxtConfig({
   ssr: false,
   nitro: {
-    preset: 'static',
+    preset: 'node-server',
   },
   test: true,
   runtimeConfig: runtimeConfig,
