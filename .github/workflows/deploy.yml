@@ -16,6 +16,9 @@ jobs:
   # Job для проверки кода (линтеры, тесты, typecheck)
   test:
     runs-on: ubuntu-latest
+    env:
+      npm_config_target_platform: linux
+      npm_config_target_arch: x64
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -56,6 +59,9 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/prod' || github.event_name == 'repository_dispatch'
     environment: production
+    env:
+      npm_config_target_platform: linux
+      npm_config_target_arch: x64
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
