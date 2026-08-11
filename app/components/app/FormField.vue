@@ -28,7 +28,7 @@
           size="sm"
           icon="i-lucide-circle-x"
           aria-label="Clear input"
-          @click="modelValue = ''"
+          @click="() => { modelValue = '' }"
         />
       </template>
     </UInput>

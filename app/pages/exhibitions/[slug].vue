@@ -183,7 +183,7 @@
               variant="ghost"
               color="neutral"
               class="rounded-full"
-              @click="isMapOpen = false"
+              @click="() => { isMapOpen = false }"
             />
           </div>
 
