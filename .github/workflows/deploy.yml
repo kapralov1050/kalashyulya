@@ -31,7 +31,7 @@ jobs:
       - name: Clear npm cache and install dependencies
         run: |
           npm cache clean --force
-          npm ci
+          npm ci --omit=optional
 
       - name: ESLint Fix
         run: npm run lint:fix --if-present
@@ -75,7 +75,7 @@ jobs:
       - name: Clear npm cache and install dependencies
         run: |
           npm cache clean --force
-          npm ci
+          npm ci --omit=optional
 
       - name: Build application
         run: npm run build
