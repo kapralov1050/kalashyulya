@@ -11,7 +11,6 @@ export default defineNuxtConfig({
   nitro: {
     preset: 'node-server',
   },
-  test: true,
   runtimeConfig: runtimeConfig,
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },

@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY package.json package-lock.json ./
-RUN npm install --include=optional --no-audit --no-fund
+RUN npm ci --os=linux --cpu=x64 --include=optional --ignore-scripts --no-audit --no-fund
 RUN npx nuxt prepare
 
 COPY . .

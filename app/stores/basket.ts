@@ -5,13 +5,13 @@ export const useBasketStore = defineStore('basket', () => {
 
   const totalPurchaseAmount = computed(() => {
     return shoppingCart.value.reduce(
-      (acc, purc) => (acc += purc.item.price * purc.amount),
+      (acc, purc) => acc + purc.item.price * purc.amount,
       0,
     )
   })
 
   const totalPurchaceQty = computed(() => {
-    return shoppingCart.value.reduce((acc, purc) => (acc += purc.amount), 0)
+    return shoppingCart.value.reduce((acc, purc) => acc + purc.amount, 0)
   })
 
   const shortPurchaseInfo = computed<ShortPurchaseInfo[]>(() => {

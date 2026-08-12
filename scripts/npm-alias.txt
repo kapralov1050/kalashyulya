@@ -1,0 +1,16 @@
+# Aliases для npm через Docker — чтобы lockfile не мутировал
+# на Mac с platform-specific deps. Источник: .zshrc или .bashrc
+#
+# Добавь в свой ~/.zshrc (Mac) или ~/.bashrc (Linux):
+
+# 1. Запрет локального npm install/ci (всегда через Docker):
+alias npm='~/projects/frontend/kalashyulya/scripts/npm.sh'
+
+# 2. Прямой вызов docker (fallback):
+alias docker-npm='~/projects/frontend/kalashyulya/scripts/npm.sh'
+
+# 3. Git hooks — pre-commit блокирует рассинхронизацию:
+cd ~/projects/frontend/kalashyulya && \
+  git config core.hooksPath scripts/hooks
+
+# Теперь любой commit проверит lockfile + сгенерирует .nuxt/ если надо.
