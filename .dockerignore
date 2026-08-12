@@ -1,33 +1,18 @@
-# Dependencies
 node_modules
-npm-debug.log
-
-# Build output
-.output
 .nuxt
+.output
+.nitro
+.cache
+.coverage
 dist
-
-# Environment files
-.env
-.env.production
-.env.staging
-
-# IDE
-.vscode
-.idea
-
-# Git
 .git
 .github
-
-# Docker
-Dockerfile
-.dockerignore
-docker-compose.yml
-
-# Claude
-.claude
-
-# docs
 docs
-
+.vscode
+.idea
+.DS_Store
+*.log
+*.tsbuildinfo
+.env
+.env.*
+*.tmp
