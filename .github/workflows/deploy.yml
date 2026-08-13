@@ -113,9 +113,9 @@ jobs:
           script: |
             set -e
 
-            install -d -m 0755 /var/www/kalashyulya/env
+            # /var/www/kalashyulya dir exists from previous deploys
 
-            cat > /var/www/kalashyulya/env/.env <<EOF
+            cat > /var/www/kalashyulya/.env <<EOF
             NUXT_PUBLIC_BUCKET_NAME=${{ secrets.NUXT_PUBLIC_BUCKET_NAME }}
             NUXT_PUBLIC_CLOUD_FUNCTION_DELETE_PRODUCT_FILE=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_DELETE_PRODUCT_FILE }}
             NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_NOTIFIER=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_NOTIFIER }}
@@ -140,8 +140,8 @@ jobs:
             FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}
             FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }}
             EOF
-            chmod 600 /var/www/kalashyulya/env/.env
-            echo ".env written to /var/www/kalashyulya/env/.env ($(wc -l < /var/www/kalashyulya/env/.env) lines)"
+            chmod 600 /var/www/kalashyulya/.env
+            echo ".env written to /var/www/kalashyulya/.env ($(wc -l < /var/www/kalashyulya/.env) lines)"
 
       - name: Pull image and deploy on VPS
         uses: appleboy/ssh-action@v1
@@ -158,13 +158,13 @@ jobs:
             docker stop kalashyulya || true
             docker rm kalashyulya || true
 
-            ls -la /var/www/kalashyulya/env/.env
+            ls -la /var/www/kalashyulya/.env
 
             docker run -d \
               --name kalashyulya \
               --restart unless-stopped \
               -p 127.0.0.1:3000:3000 \
-              --env-file /var/www/kalashyulya/env/.env \
+              --env-file /var/www/kalashyulya/.env \
               ghcr.io/kapralov1050/kalashyulya:nitro
 
             sleep 5
