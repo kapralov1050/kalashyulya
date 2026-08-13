@@ -172,6 +172,7 @@ jobs:
 
             # Copy static assets from container to host (Nginx serves them directly)
             rm -rf /var/www/kalashyulya/.output
+            mkdir -p /var/www/kalashyulya/.output
             docker cp kalashyulya:/app/.output/public /var/www/kalashyulya/.output/public
             echo "✓ Static assets copied: $(ls /var/www/kalashyulya/.output/public/_nuxt/ | wc -l) files in _nuxt/"
 
