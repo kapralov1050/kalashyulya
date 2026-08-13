@@ -160,12 +160,30 @@ jobs:
 
             ls -la /var/www/kalashyulya/.env
 
+            # Run new container (without exposing port — Nginx proxies to 127.0.0.1:3000)
             docker run -d \
               --name kalashyulya \
               --restart unless-stopped \
               -p 127.0.0.1:3000:3000 \
               --env-file /var/www/kalashyulya/.env \
               ghcr.io/kapralov1050/kalashyulya:nitro
+
+            sleep 5
+
+            # Copy static assets from container to host (Nginx serves them directly)
+            rm -rf /var/www/kalashyulya/.output
+            docker cp kalashyulya:/app/.output/public /var/www/kalashyulya/.output/public
+            echo "✓ Static assets copied: $(ls /var/www/kalashyulya/.output/public/_nuxt/ | wc -l) files in _nuxt/"
+
+            STATUS=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/)
+
+            if [ "$STATUS" = "200" ]; then
+              echo "OK: Nitro container healthy (HTTP $STATUS)"
+            else
+              echo "FAIL: Nitro container returned HTTP $STATUS"
+              docker logs kalashyulya --tail 50
+              exit 1
+            fi
 
             sleep 5
 
