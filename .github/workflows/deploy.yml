@@ -99,23 +99,16 @@ jobs:
           # Пишем ключ через printf чтобы корректно обработать многострочный
           printf '%s' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          # Очищаем trailing whitespace который мог попасть из секрета
           sed -i.bak 's/[[:space:]]*$//' ~/.ssh/deploy_key && rm ~/.ssh/deploy_key.bak
-          # Убеждаемся что последняя строка заканчивается на newline
           [ "$(tail -c 1 ~/.ssh/deploy_key | wc -l)" -eq 0 ] && echo "" >> ~/.ssh/deploy_key
-          echo "Key length: $(wc -c < ~/.ssh/deploy_key) bytes"
-          echo "First line: $(head -1 ~/.ssh/deploy_key)"
-          echo "Last line: $(tail -1 ~/.ssh/deploy_key)"
-          # eval ssh-agent и ssh-add
-          eval "$(ssh-agent -s)"
-          ssh-add ~/.ssh/deploy_key
-          ssh-add -l
+          echo "✓ SSH key written ($(wc -c < ~/.ssh/deploy_key) bytes)"
 
       - name: Write .env to VPS
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
+          key_path: ~/.ssh/deploy_key
           command_timeout: 5m
           script: |
             set -e
@@ -155,6 +148,7 @@ jobs:
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
+          key_path: ~/.ssh/deploy_key
           command_timeout: 20m
           script: |
             set -e
@@ -190,6 +184,7 @@ jobs:
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
+          key_path: ~/.ssh/deploy_key
           script: |
             docker image prune -f
             echo "Remaining images:"
