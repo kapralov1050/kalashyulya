@@ -586,8 +586,7 @@ describe('useCheckout', () => {
       expect(mocks.sendOrderInfoTelegram.mock.calls[0][0].customer.email).toBe('test@example.com')
       expect(setShopDataCalls()).toHaveLength(0)
     })
-
-    it('writes notificationFailed to firebase when notifications fail', async () => {
+it('logs warning when notifications fail (no firebase write)', async () => {
       setProductionLocation()
       mocks.sendOrderInfoTelegram.mockResolvedValueOnce({ success: false })
       mocks.sendOrderInfoEmail.mockResolvedValueOnce({ success: false })
@@ -604,16 +603,10 @@ describe('useCheckout', () => {
       goTo(4)
 
       advance()
-      await vi.waitFor(() => expect(setShopDataCalls().length).toBeGreaterThan(0))
+      await vi.waitFor(() => expect(orderPostCalls().length).toBeGreaterThan(0))
       await vi.waitFor(() => expect(mocks.routerPush).toHaveBeenCalled())
 
-      const sets = setShopDataCalls()
-      expect(orderPostCalls()).toHaveLength(1)
-      expect(sets).toHaveLength(1)
-      expect(sets[0].value).toEqual({
-        notificationFailed: { telegram: true, email: true },
-      })
-      expect(sets[0].path).toBe('orders/order_order-id-123')
+      expect(setShopDataCalls()).toHaveLength(0)
     })
 
     it('sets orderInfo on ordersStore before addNewOrder', async () => {
