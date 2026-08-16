@@ -1,18 +1,16 @@
 import { computed, ref, watch } from 'vue'
 import type {
-  ExhibitionsData,
   Exhibition,
-  LessonsTags,
   Order,
   OrderInBase,
   Product,
   ShopData,
 } from '~/types'
 
-
 export interface ApiUser {
   uid: string
   email: string | null
+  name?: string | null
 }
 
 export interface ApiLoginResult {
@@ -22,22 +20,23 @@ export interface ApiLoginResult {
 
 const shopData = ref<ShopData>({})
 const ordersData = ref<OrderInBase[]>([])
-const exhibitionsData = ref<ExhibitionsData>({})
+const exhibitionsData = ref<Exhibition[]>([])
 const currentUser = ref<ApiUser | null>(null)
 
 export function useApi() {
-  const orders = computed<OrderInBase[]>(() =>
-    ordersData.value ?? [],
+  const orders = computed<OrderInBase[]>(() => ordersData.value)
+  const exhibitions = computed<Exhibition[]>(() => exhibitionsData.value)
+
+  const productsById = computed<Record<string, Product>>(() =>
+    Object.fromEntries((shopData.value.products ?? {}) && Object.values(shopData.value.products).length > 0
+      ? Object.values(shopData.value.products).map(p => [String(p.id), p])
+      : []),
   )
-  const exhibitions = computed<ExhibitionsData>(
-    () => exhibitionsData.value ?? {},
-  )
-  const subscribers = computed<string[]>(() => [])
+
   const isLoggedIn = computed(() => currentUser.value !== null)
 
   async function loadOrders(): Promise<void> {
-    const data = await $fetch<OrderInBase[]>('/api/orders')
-    ordersData.value = data
+    ordersData.value = await $fetch<OrderInBase[]>('/api/orders')
   }
 
   async function loadProducts(): Promise<void> {
@@ -49,10 +48,7 @@ export function useApi() {
   }
 
   async function loadExhibitions(): Promise<void> {
-    const data = await $fetch<Exhibition[]>('/api/exhibitions')
-    exhibitionsData.value = Object.fromEntries(
-      data.map(e => [String(e.id), e]),
-    )
+    exhibitionsData.value = await $fetch<Exhibition[]>('/api/exhibitions')
   }
 
   async function addNewOrderApi(
@@ -68,86 +64,49 @@ export function useApi() {
 
   async function addNewProduct(
     product: Omit<Product, 'id'>,
-    _path: string,
-  ): Promise<unknown> {
-    return await $fetch('/api/products', {
+  ): Promise<{ id: string }> {
+    return await $fetch<{ id: string }>('/api/admin/products', {
       method: 'POST',
       body: product,
     })
   }
 
-  async function updateOrderStatus(
-    orderId: number,
-    status: string,
+  async function updateProduct(
+    id: string,
+    patch: Partial<Product>,
   ): Promise<void> {
-    await $fetch(`/api/orders/${orderId}/status`, {
+    await $fetch(`/api/admin/products/${id}`, {
+      method: 'PUT',
+      body: patch,
+    })
+  }
+
+  async function deleteProduct(id: string): Promise<void> {
+    await $fetch(`/api/admin/products/${id}`, { method: 'DELETE' })
+  }
+
+  async function updateOrderStatus(
+    orderId: string,
+    status: 'new' | 'paid' | 'shipped' | 'cancelled',
+  ): Promise<void> {
+    await $fetch(`/api/admin/orders/${orderId}`, {
       method: 'PATCH',
       body: { status },
     })
   }
 
-  async function setShopData(path: string, value: unknown): Promise<void> {
-    await $fetch(`/api/data/${encodeURIComponent(path)}`, {
+  async function updateProductCertificateId(
+    productId: string,
+    certificateId: string | null,
+  ): Promise<void> {
+    await $fetch(`/api/admin/products/${productId}`, {
       method: 'PUT',
-      body: { value },
+      body: { certificateId },
     })
   }
 
-  async function removeShopData(path: string): Promise<void> {
-    await $fetch(`/api/data/${encodeURIComponent(path)}`, {
-      method: 'DELETE',
-    })
-  }
-
-  async function updateLessonsTags(value: LessonsTags): Promise<void> {
-    await $fetch('/api/lessons-tags', {
-      method: 'PUT',
-      body: value,
-    })
-  }
-
-  function watchOrders(callback: (orders: OrderInBase[]) => void): () => void {
-    let cancelled = false
-    const poll = async () => {
-      while (!cancelled) {
-        try {
-          const data = await $fetch<OrderInBase[]>('/api/orders')
-          ordersData.value = data
-          callback(data)
-        } catch {
-          // ignore poll errors
-        }
-        await new Promise(resolve => setTimeout(resolve, 5000))
-      }
-    }
-    poll()
-    return () => {
-      cancelled = true
-    }
-  }
-
-  function watchShopData(callback: (data: ShopData) => void): () => void {
-    let cancelled = false
-    const poll = async () => {
-      while (!cancelled) {
-        try {
-          const products = await $fetch<Product[]>('/api/products')
-          const next: ShopData = {
-            ...(shopData.value ?? {}),
-            products: Object.fromEntries(products.map(p => [String(p.id), p])),
-          }
-          shopData.value = next
-          callback(next)
-        } catch {
-          // ignore poll errors
-        }
-        await new Promise(resolve => setTimeout(resolve, 5000))
-      }
-    }
-    poll()
-    return () => {
-      cancelled = true
-    }
+  async function publishExhibition(id: string): Promise<void> {
+    await $fetch(`/api/admin/exhibitions/${id}/publish`, { method: 'POST' })
   }
 
   async function login(
@@ -196,15 +155,14 @@ export function useApi() {
     shopData,
     orders,
     exhibitions,
-    subscribers,
+    productsById,
     addNewOrder: addNewOrderApi,
     addNewProduct,
+    updateProduct,
+    deleteProduct,
     updateOrderStatus,
-    setShopData,
-    removeShopData,
-    updateLessonsTags,
-    watchOrders,
-    watchShopData,
+    updateProductCertificateId,
+    publishExhibition,
     currentUser,
     isLoggedIn,
     login,

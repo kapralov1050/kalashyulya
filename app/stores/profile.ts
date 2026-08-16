@@ -1,30 +1,23 @@
-import { getDataByPath } from '~/helpers/firebase/manageDatabase'
-import { showToast } from '~/helpers/showToast'
+import { defineStore } from 'pinia'
+import type { OrderInBase } from '~/types'
+import { useApi } from '~/composables/useApi'
 
 export interface UserProfileData {
   name: string
   email: string
-  role: string
-  orders?: newOrderInUserProfile[]
+  orders?: OrderInBase[]
 }
 
 export const useProfileStore = defineStore('profile', () => {
-  const userProfileData = ref<UserProfileData | null>(null)
+  const api = useApi()
 
-  async function loadUserData(uid: string) {
-    try {
-      const snapshot = await getDataByPath(`users/${uid}`)
-
-      if (snapshot) {
-        userProfileData.value = snapshot as UserProfileData
-      }
-    } catch (err) {
-      showToast('error', err as string, 'heroicons:exclamation-circle')
-    }
+  async function loadUserOrders() {
+    if (!api.currentUser.value?.uid) return
+    await api.loadOrders()
   }
 
   return {
-    userProfileData,
-    loadUserData,
+    userOrders: api.orders,
+    loadUserOrders,
   }
 })
