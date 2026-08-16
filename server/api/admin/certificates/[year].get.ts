@@ -1,5 +1,5 @@
-import { getDb } from '../../utils/db'
-import { requireAuth } from '../../utils/requireAuth'
+import { getDb } from '../../../utils/db'
+import { requireAuth } from '../../../utils/requireAuth'
 
 export default defineEventHandler((event): { count: number } => {
   requireAuth(event)
