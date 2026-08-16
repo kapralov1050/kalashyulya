@@ -18,6 +18,7 @@ export const useBasketStore = defineStore('basket', () => {
   const shortPurchaseInfo = computed<ShortPurchaseInfo[]>(() => {
     return shoppingCart.value.map(purc => {
       const shortInfo = {
+        id: purc.item.id,
         amount: purc.amount,
         title: purc.item.title,
         price: purc.item.price,

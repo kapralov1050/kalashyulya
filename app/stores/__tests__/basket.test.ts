@@ -322,11 +322,11 @@ describe('useBasketStore', () => {
       expect(store.shortPurchaseInfo).toEqual([])
     })
 
-    it('маппит позиции в { amount, title, price }', () => {
+    it('маппит позиции в { id, amount, title, price }', () => {
       const store = useBasketStore()
       store.addShopItemToBasket({ item: product1, amount: 2 })
       expect(store.shortPurchaseInfo).toEqual([
-        { amount: 2, title: 'Картина маслом', price: 1000 },
+        { id: 1, amount: 2, title: 'Картина маслом', price: 1000 },
       ])
     })
 
@@ -336,6 +336,7 @@ describe('useBasketStore', () => {
       store.addShopItemToBasket({ item: product2, amount: 3 })
       expect(store.shortPurchaseInfo).toHaveLength(2)
       expect(store.shortPurchaseInfo[1]).toEqual({
+        id: 2,
         amount: 3,
         title: 'Акварель',
         price: 500,
@@ -346,7 +347,7 @@ describe('useBasketStore', () => {
       const store = useBasketStore()
       store.addShopItemToBasket({ item: product1, amount: 1 })
       const info = store.shortPurchaseInfo[0]
-      expect(Object.keys(info ?? {})).toEqual(['amount', 'title', 'price'])
+      expect(Object.keys(info ?? {})).toEqual(['id', 'amount', 'title', 'price'])
     })
   })
 })

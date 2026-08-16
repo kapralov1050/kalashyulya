@@ -33,6 +33,7 @@ export type PurchaseParams = Omit<
 >
 
 export interface ShortPurchaseInfo {
+  id: number | string
   amount: number
   title: string
   price: number
