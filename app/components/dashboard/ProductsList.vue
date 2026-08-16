@@ -436,14 +436,12 @@
 </template>
 
 <script setup lang="ts">
-  import {
-    getDataByPath,
-    removeDataByPath,
-    updateDataByPath,
-  } from '~/helpers/firebase/manageDatabase'
+  import { useApi } from '~/composables/useApi'
   import { showToast } from '~/helpers/showToast'
   import { ProductCategoryLabels, getCategoryLabel } from '~/constants/products'
   import type { Product } from '~/types'
+
+  const api = useApi()
 
   type ProductStatus = 'available' | 'reserved' | 'sold' | 'hidden'
   type StatusFilter = 'all' | ProductStatus
@@ -613,10 +611,7 @@
     if (newPrice === undefined) return
 
     try {
-      await updateDataByPath(
-        { price: newPrice },
-        `shop/products/product_${productId}`,
-      )
+      await api.updateProduct(`product_${productId}`, { price: newPrice })
       Reflect.deleteProperty(priceInputs.value, productId)
       showToast(
         'Успешно!',
@@ -653,10 +648,7 @@
     if (newStock === undefined) return
 
     try {
-      await updateDataByPath(
-        { stock: newStock },
-        `shop/products/product_${productId}`,
-      )
+      await api.updateProduct(`product_${productId}`, { stock: newStock })
       Reflect.deleteProperty(stockInputs.value, productId)
       showToast(
         'Успешно!',
@@ -711,10 +703,7 @@
     }
 
     try {
-      await updateDataByPath(
-        { isReserved: pendingValue },
-        `shop/products/product_${productId}`,
-      )
+      await api.updateProduct(`product_${productId}`, { isReserved: pendingValue })
 
       Reflect.deleteProperty(pendingReservations.value, productId)
 
@@ -743,11 +732,8 @@
   const removeProduct = async (productid: number): Promise<void> => {
     if (!confirm('Вы уверены, что хотите удалить этот товар?')) return
 
-    const allProducts = await getDataByPath<Record<string, Product>>(
-      'shop/products',
-      {},
-    )
-    if (allProducts && Object.keys(allProducts).length === 1) {
+    const allProducts = api.shopData.value?.products ?? {}
+    if (Object.keys(allProducts).length === 1) {
       alert(
         'Нельзя удалить последний товар. Добавь другой, и затем удали ненужный',
       )
@@ -762,6 +748,6 @@
       }
     }
 
-    await removeDataByPath(`shop/products/product_${productid}`)
+    await api.deleteProduct(`product_${productid}`)
   }
 </script>

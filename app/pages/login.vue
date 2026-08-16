@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
   import type { FormSubmitEvent } from '@nuxt/ui'
-  import { loginUser } from '~/helpers/firebase/authService'
+  import { useApi } from '~/composables/useApi'
   import { showToast } from '~/helpers/showToast'
   import type { loginSchemaType } from '~/helpers/valibot'
   import { loginSchema } from '~/helpers/valibot'
@@ -55,11 +55,12 @@
 
   const router = useRouter()
   const authStore = useAuthStore()
+  const { login } = useApi()
 
   authStore.waitForAuthInit()
 
   const onSubmit = async (_event: FormSubmitEvent<loginSchemaType>) => {
-    const { user, error } = await loginUser(userData.email, userData.password)
+    const { user, error } = await login(userData.email, userData.password)
 
     if (user) {
       showToast(

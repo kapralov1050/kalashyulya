@@ -155,11 +155,11 @@
 </template>
 
 <script setup lang="ts">
-  import { useFirebase } from '~/composables/firebase/useFirebase'
+  import { useApi } from '~/composables/useApi'
   import { showToast } from '~/helpers/showToast'
   import { ProductCategory, FramingType } from '~/constants/products'
 
-  const { addNewProduct } = useFirebase()
+  const { addNewProduct } = useApi()
   const { uploadToMountedBucket } = useYandexDatabase()
   const { printLocale } = useLocales()
 
@@ -212,9 +212,9 @@
         framing: formData.framing,
       }
 
-      const success = await addNewProduct(newProduct, 'shop/products/')
+      const result = await addNewProduct(newProduct)
 
-      if (success) {
+      if (result?.id) {
         showToast(
           'success',
           'Product created successfully',

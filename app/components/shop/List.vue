@@ -82,7 +82,6 @@
   import { useRoute } from 'vue-router'
   import BuyActionModal from '~/components/shop/BuyActionModal.vue'
   import ProductModal from '~/components/shop/ProductModal.vue'
-  import { useFirebase } from '~/composables/firebase/useFirebase'
   import { useProductModal } from '~/composables/useProductModal'
   import type { Product } from '~/types'
 
@@ -98,8 +97,8 @@
     currentPage,
     paginatedProducts,
     totalItems,
+    isLoading,
   } = storeToRefs(shopStore)
-  const { isLoading } = useFirebase()
 
   const { isProductModalOpen, selectedProduct, closeModal } = useProductModal()
 
