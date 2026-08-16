@@ -83,6 +83,7 @@
     "eslint-plugin-prettier": "~5.5.1",
     "eslint-plugin-unused-imports": "~4.3.0",
     "eslint-plugin-vue": "~9.25.0",
+    "firebase-admin": "~14.2.0",
     "happy-dom": "~18.0.1",
     "magic-snowflakes": "~7.0.2",
     "prettier": "~3.6.2",
