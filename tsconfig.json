@@ -4,6 +4,8 @@
     ".nuxt/nuxt.d.ts",
     ".nuxt/nuxt.node.d.ts",
     "app/**/*",
+    "server/**/*",
+    "scripts/**/*",
     "shared/**/*",
     "*.d.ts",
     "*.ts",
