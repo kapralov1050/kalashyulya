@@ -3,13 +3,22 @@ import { requireAuth } from '../../../utils/requireAuth'
 
 interface UpdateProductBody {
   title?: string
-  price?: number
-  year?: number | null
-  materials?: string[]
-  images?: string[]
-  status?: 'available' | 'sold' | 'reserved'
-  category?: string | null
   description?: string | null
+  size?: string | null
+  material?: string | null
+  tecnic?: string | null
+  year?: number | null
+  price?: number
+  stock?: number
+  views?: number
+  certificateId?: string | null
+  isReserved?: boolean
+  status?: 'available' | 'sold' | 'reserved'
+  categoryId?: string | null
+  image?: string[]
+  file?: string[]
+  tags?: string[]
+  framing?: ('frame' | 'passepartout')[]
 }
 
 export default defineEventHandler(async (event) => {
@@ -21,14 +30,25 @@ export default defineEventHandler(async (event) => {
   const fields: string[] = []
   const values: unknown[] = []
 
-  if (body.title !== undefined) { fields.push('title = ?'); values.push(body.title) }
-  if (body.price !== undefined) { fields.push('price = ?'); values.push(body.price) }
-  if (body.year !== undefined) { fields.push('year = ?'); values.push(body.year) }
-  if (body.materials !== undefined) { fields.push('materials = ?'); values.push(JSON.stringify(body.materials)) }
-  if (body.images !== undefined) { fields.push('images = ?'); values.push(JSON.stringify(body.images)) }
-  if (body.status !== undefined) { fields.push('status = ?'); values.push(body.status) }
-  if (body.category !== undefined) { fields.push('category = ?'); values.push(body.category) }
-  if (body.description !== undefined) { fields.push('description = ?'); values.push(body.description) }
+  const set = (col: string, val: unknown) => { fields.push(`${col} = ?`); values.push(val) }
+
+  if (body.title !== undefined) set('title', body.title)
+  if (body.description !== undefined) set('description', body.description)
+  if (body.size !== undefined) set('size', body.size)
+  if (body.material !== undefined) set('material', body.material)
+  if (body.tecnic !== undefined) set('tecnic', body.tecnic)
+  if (body.year !== undefined) set('year', body.year)
+  if (body.price !== undefined) set('price', body.price)
+  if (body.stock !== undefined) set('stock', body.stock)
+  if (body.views !== undefined) set('views', body.views)
+  if (body.certificateId !== undefined) set('certificate_id', body.certificateId)
+  if (body.isReserved !== undefined) set('is_reserved', body.isReserved ? 1 : 0)
+  if (body.status !== undefined) set('status', body.status)
+  if (body.categoryId !== undefined) set('category_id', body.categoryId)
+  if (body.image !== undefined) set('images', JSON.stringify(body.image))
+  if (body.file !== undefined) set('files', JSON.stringify(body.file))
+  if (body.tags !== undefined) set('tags', JSON.stringify(body.tags))
+  if (body.framing !== undefined) set('framing', JSON.stringify(body.framing))
 
   if (fields.length === 0) {
     throw createError({ statusCode: 400, message: 'Нет полей для обновления' })

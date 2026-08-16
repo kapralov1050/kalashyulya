@@ -3,13 +3,22 @@ import { getDb } from '../utils/db'
 interface ProductRow {
   id: string
   title: string
-  price: number
-  year: number | null
-  materials: string | null
-  images: string | null
-  status: 'available' | 'sold' | 'reserved'
-  category: string | null
   description: string | null
+  size: string | null
+  material: string | null
+  tecnic: string | null
+  year: number | null
+  price: number
+  stock: number
+  views: number
+  certificate_id: string | null
+  is_reserved: number
+  status: 'available' | 'sold' | 'reserved'
+  category_id: string | null
+  images: string
+  files: string
+  tags: string
+  framing: string
   created_at: number
   updated_at: number
 }
@@ -17,13 +26,22 @@ interface ProductRow {
 export interface ProductDto {
   id: string
   title: string
-  price: number
-  year: number | null
-  materials: string[]
-  images: string[]
-  status: ProductRow['status']
-  category: string | null
   description: string | null
+  size: string | null
+  material: string | null
+  tecnic: string | null
+  year: number | null
+  price: number
+  stock: number
+  views: number
+  certificateId: string | null
+  isReserved: boolean
+  status: 'available' | 'sold' | 'reserved'
+  categoryId: string | null
+  image: string[]
+  file: string[]
+  tags: string[]
+  framing: ('frame' | 'passepartout')[]
   createdAt: number
   updatedAt: number
 }
@@ -37,13 +55,22 @@ export default defineEventHandler((): ProductDto[] => {
   return rows.map((r): ProductDto => ({
     id: r.id,
     title: r.title,
-    price: r.price,
-    year: r.year,
-    materials: JSON.parse(r.materials || '[]'),
-    images: JSON.parse(r.images || '[]'),
-    status: r.status,
-    category: r.category,
     description: r.description,
+    size: r.size,
+    material: r.material,
+    tecnic: r.tecnic,
+    year: r.year,
+    price: r.price,
+    stock: r.stock,
+    views: r.views,
+    certificateId: r.certificate_id,
+    isReserved: r.is_reserved === 1,
+    status: r.status,
+    categoryId: r.category_id,
+    image: JSON.parse(r.images || '[]'),
+    file: JSON.parse(r.files || '[]'),
+    tags: JSON.parse(r.tags || '[]'),
+    framing: JSON.parse(r.framing || '[]'),
     createdAt: r.created_at,
     updatedAt: r.updated_at,
   }))

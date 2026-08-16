@@ -24,15 +24,12 @@ export default defineEventHandler(async (event): Promise<CreateOrderResponse> =>
     throw createError({ statusCode: 400, statusMessage: 'Email и имя обязательны' })
   }
 
-  const items = body.purchase.order.map((i) => {
-    const raw = i as ShortPurchaseInfo & { id?: string | number }
-    return {
-      productId: raw.id !== undefined ? String(raw.id) : i.title,
-      title: i.title,
-      price: i.price,
-      qty: i.amount,
-    }
-  })
+  const items = body.purchase.order.map((i: ShortPurchaseInfo) => ({
+    productId: String(i.id),
+    title: i.title,
+    price: i.price,
+    qty: i.amount,
+  }))
   const total = body.totalPrice
   const id = `${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${randomBytes(4).toString('hex')}`
   const now = Date.now()

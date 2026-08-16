@@ -1,18 +1,29 @@
 -- products: каталог работ
 CREATE TABLE IF NOT EXISTS products (
-  id            TEXT PRIMARY KEY,         -- Firebase id оставляем как есть для совместимости URL
-  title         TEXT NOT NULL,
-  price         INTEGER NOT NULL,         -- в рублях, без копеек
-  year          INTEGER,
-  materials     TEXT,                     -- JSON-строка (array<string>)
-  images        TEXT,                      -- JSON-строка (array<string> с URL)
-  status        TEXT NOT NULL DEFAULT 'available',  -- 'available' | 'sold' | 'reserved'
-  category      TEXT,
-  description   TEXT,
-  created_at    INTEGER NOT NULL,         -- unix ms
-  updated_at    INTEGER NOT NULL
+  id             TEXT PRIMARY KEY,
+  title          TEXT NOT NULL,
+  description    TEXT,
+  size           TEXT,
+  material       TEXT,
+  tecnic         TEXT,
+  year           INTEGER,
+  price          INTEGER NOT NULL,
+  stock          INTEGER NOT NULL DEFAULT 0,
+  views          INTEGER NOT NULL DEFAULT 0,
+  certificate_id TEXT,
+  is_reserved    INTEGER NOT NULL DEFAULT 0,  -- boolean as int (0|1)
+  status         TEXT NOT NULL DEFAULT 'available',  -- 'available' | 'sold' | 'reserved'
+  category_id    TEXT,                     -- FK к categories (пока строкой)
+  images         TEXT,                     -- JSON array<string> с URL
+  files          TEXT,                     -- JSON array<string> с filenames
+  tags           TEXT,                     -- JSON array<string>
+  framing        TEXT,                     -- JSON array<'frame'|'passepartout'>
+  created_at     INTEGER NOT NULL,
+  updated_at     INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_products_status ON products(status);
+CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
+CREATE INDEX IF NOT EXISTS idx_products_certificate ON products(certificate_id);
 
 -- orders: заказы (после чекаута)
 CREATE TABLE IF NOT EXISTS orders (
