@@ -11,12 +11,15 @@ on:
       - prod
   repository_dispatch:
     types: [deploy]
-  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
-  # Job для проверки кода (линтеры, тесты, typecheck)
   test:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -24,103 +27,65 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
-          cache: 'npm'
+          node-version: "22.x"
+          cache: npm
 
       - name: Install dependencies
-        run: npm i
+        run: npm ci --os=linux --cpu=x64 --include=optional --ignore-scripts --no-audit --no-fund
+
+      - name: Generate Nuxt types
+        run: npx nuxt prepare
 
       - name: ESLint Fix
         run: npm run lint:fix --if-present
 
       - name: ESLint Check
         run: npm run lint
-        continue-on-error: false
 
       - name: Prettier Format Fix
         run: npm run format --if-present
 
       - name: Prettier Format Check
         run: npm run format:check
-        continue-on-error: false
 
       - name: TypeScript Check
         run: npm run typecheck
-        continue-on-error: false
 
       - name: Run tests
         run: npm run test:run
 
-  # Job для деплоя на prod VPS (только для ветки prod или ручной запуск через repository_dispatch)
   deploy-prod:
     needs: test
     runs-on: ubuntu-latest
+
     if: github.ref == 'refs/heads/prod' || github.event_name == 'repository_dispatch'
+
     environment: production
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          node-version: '20.x'
-          cache: 'npm'
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Create .env file
-        run: |
-          echo "FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}" >> .env
-          echo "FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }}" >> .env
-          echo "FIREBASE_DATABASE_URL=${{ secrets.FIREBASE_DATABASE_URL }}" >> .env
-          echo "FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}" >> .env
-          echo "FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }}" >> .env
-          echo "FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}" >> .env
-          echo "FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }}" >> .env
-          echo "FIREBASE_MEASUREMENT_ID=${{ secrets.FIREBASE_MEASUREMENT_ID }}" >> .env
-          echo "NUXT_PUBLIC_SITE_URL=${{ secrets.NUXT_PUBLIC_SITE_URL }}" >> .env
-          echo "NUXT_PUBLIC_CLOUD_FUNCTION_TELEGRAM_URL=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_TELEGRAM_URL }}" >> .env
-          echo "NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_URL=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_URL }}" >> .env
-          echo "NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_NOTIFIER=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_NOTIFIER }}" >> .env
-          echo "NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_PRODUCT_URL=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_PRODUCT_URL }}" >> .env
-          echo "NUXT_PUBLIC_CLOUD_FUNCTION_DELETE_PRODUCT_FILE=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_DELETE_PRODUCT_FILE }}" >> .env
-          echo "NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_LOCALES=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_LOCALES }}" >> .env
-          echo "NUXT_PUBLIC_BUCKET_NAME=${{ secrets.NUXT_PUBLIC_BUCKET_NAME }}" >> .env
-          echo "NUXT_PUBLIC_DADATA_API_KEY=${{ secrets.NUXT_PUBLIC_DADATA_API_KEY }}" >> .env
-          echo "NUXT_PUBLIC_DADATA_SECRET_KEY=${{ secrets.NUXT_PUBLIC_DADATA_SECRET_KEY }}" >> .env
-          echo "NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_STATS=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_STATS }}" >> .env
-          echo "NUXT_PUBLIC_STATS=${{ secrets.NUXT_PUBLIC_STATS }}" >> .env
-          echo "NUXT_PUBLIC_LOCALES=${{ secrets.NUXT_PUBLIC_LOCALES }}" >> .env
-          echo "NUXT_PUBLIC_CLOUD_FUNCTION_YOOKASSA_CREATE_PAYMENT=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_YOOKASSA_CREATE_PAYMENT }}" >> .env
-          echo "NUXT_PUBLIC_CLOUD_FUNCTION_PDF_GENERATOR_URL=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_PDF_GENERATOR_URL }}" >> .env
-          echo "NUXT_PUBLIC_CLOUD_FUNCTION_DEPLOY=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_DEPLOY }}" >> .env
-          echo "NUXT_PUBLIC_CLOUD_FUNCTION_DEPLOY_SECRET=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_DEPLOY_SECRET }}" >> .env
-
-      - name: Build application
-        run: npm run generate
-
-      - name: Sync build output to VPS
-        uses: appleboy/scp-action@v0.1.7
+      - name: Build and push Docker image to GHCR
+        uses: docker/build-push-action@v7
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          source: ".output/"
-          target: "/var/www/kalashyulya/.output/"
-          strip_components: 1
-          rm: true
-
-      - name: Write .env on VPS
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            set -e
-            cat > /var/www/kalashyulya/.env <<'ENV'
+          context: .
+          file: ./Dockerfile.prod
+          tags: ghcr.io/kapralov1050/kalashyulya:nitro
+          push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
             FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}
             FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }}
             FIREBASE_DATABASE_URL=${{ secrets.FIREBASE_DATABASE_URL }}
@@ -129,41 +94,126 @@ jobs:
             FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
             FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }}
             FIREBASE_MEASUREMENT_ID=${{ secrets.FIREBASE_MEASUREMENT_ID }}
-            NUXT_PUBLIC_SITE_URL=${{ secrets.NUXT_PUBLIC_SITE_URL }}
-            NUXT_PUBLIC_CLOUD_FUNCTION_TELEGRAM_URL=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_TELEGRAM_URL }}
-            NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_URL=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_URL }}
-            NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_NOTIFIER=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_NOTIFIER }}
-            NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_PRODUCT_URL=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_PRODUCT_URL }}
-            NUXT_PUBLIC_CLOUD_FUNCTION_DELETE_PRODUCT_FILE=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_DELETE_PRODUCT_FILE }}
-            NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_LOCALES=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_LOCALES }}
-            NUXT_PUBLIC_BUCKET_NAME=${{ secrets.NUXT_PUBLIC_BUCKET_NAME }}
-            NUXT_PUBLIC_DADATA_API_KEY=${{ secrets.NUXT_PUBLIC_DADATA_API_KEY }}
-            NUXT_PUBLIC_DADATA_SECRET_KEY=${{ secrets.NUXT_PUBLIC_DADATA_SECRET_KEY }}
-            NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_STATS=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_STATS }}
-            NUXT_PUBLIC_STATS=${{ secrets.NUXT_PUBLIC_STATS }}
-            NUXT_PUBLIC_LOCALES=${{ secrets.NUXT_PUBLIC_LOCALES }}
-            NUXT_PUBLIC_CLOUD_FUNCTION_YOOKASSA_CREATE_PAYMENT=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_YOOKASSA_CREATE_PAYMENT }}
-            NUXT_PUBLIC_CLOUD_FUNCTION_PDF_GENERATOR_URL=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_PDF_GENERATOR_URL }}
-            NUXT_PUBLIC_CLOUD_FUNCTION_DEPLOY=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_DEPLOY }}
-            NUXT_PUBLIC_CLOUD_FUNCTION_DEPLOY_SECRET=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_DEPLOY_SECRET }}
-            ENV
-            chmod 600 /var/www/kalashyulya/.env
-            chown kalashyulya:kalashyulya /var/www/kalashyulya/.env
 
-      - name: Restart Nitro and healthcheck
+      - name: Make GHCR package public
+        run: |
+          gh api -X PATCH /user/packages/container/kalashyulya/visibility \
+            -H "Accept: application/vnd.github+json" \
+            -f visibility=public \
+            || echo "Package may already be public or not exist yet"
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/.ssh"
+          printf '%s' "${{ secrets.VPS_SSH_KEY }}" > "$GITHUB_WORKSPACE/.ssh/deploy_key"
+          chmod 600 "$GITHUB_WORKSPACE/.ssh/deploy_key"
+          sed -i.bak 's/[[:space:]]*$//' "$GITHUB_WORKSPACE/.ssh/deploy_key" && rm "$GITHUB_WORKSPACE/.ssh/deploy_key.bak"
+          [ "$(tail -c 1 "$GITHUB_WORKSPACE/.ssh/deploy_key" | wc -l)" -eq 0 ] && echo "" >> "$GITHUB_WORKSPACE/.ssh/deploy_key"
+          echo "✓ SSH key written ($(wc -c < "$GITHUB_WORKSPACE/.ssh/deploy_key") bytes)"
+          cat "$GITHUB_WORKSPACE/.ssh/deploy_key" | head -1
+
+      - name: Write .env to VPS
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
+          key_path: .ssh/deploy_key
+          command_timeout: 5m
           script: |
             set -e
-            sudo systemctl restart kalashyulya-nitro
-            sleep 4
-            if curl -fsS -o /dev/null -w 'HTTP %{http_code}\n' http://127.0.0.1/; then
-              echo "Nitro is up"
+
+            # /var/www/kalashyulya dir exists from previous deploys
+
+            cat > /var/www/kalashyulya/.env <<EOF
+            NUXT_PUBLIC_BUCKET_NAME=${{ secrets.NUXT_PUBLIC_BUCKET_NAME }}
+            NUXT_PUBLIC_CLOUD_FUNCTION_DELETE_PRODUCT_FILE=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_DELETE_PRODUCT_FILE }}
+            NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_NOTIFIER=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_NOTIFIER }}
+            NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_URL=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_URL }}
+            NUXT_PUBLIC_CLOUD_FUNCTION_PDF_GENERATOR_URL=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_PDF_GENERATOR_URL }}
+            NUXT_PUBLIC_CLOUD_FUNCTION_TELEGRAM_URL=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_TELEGRAM_URL }}
+            NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_LOCALES=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_LOCALES }}
+            NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_PRODUCT_URL=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_PRODUCT_URL }}
+            NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_STATS=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_STATS }}
+            NUXT_PUBLIC_CLOUD_FUNCTION_YOOKASSA_CREATE_PAYMENT=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_YOOKASSA_CREATE_PAYMENT }}
+            NUXT_PUBLIC_DADATA_API_KEY=${{ secrets.NUXT_PUBLIC_DADATA_API_KEY }}
+            NUXT_PUBLIC_DADATA_SECRET_KEY=${{ secrets.NUXT_PUBLIC_DADATA_SECRET_KEY }}
+            NUXT_PUBLIC_LOCALES=${{ secrets.NUXT_PUBLIC_LOCALES }}
+            NUXT_PUBLIC_SITE_URL=${{ secrets.NUXT_PUBLIC_SITE_URL }}
+            NUXT_PUBLIC_STATS=${{ secrets.NUXT_PUBLIC_STATS }}
+            FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}
+            FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }}
+            FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }}
+            FIREBASE_DATABASE_URL=${{ secrets.FIREBASE_DATABASE_URL }}
+            FIREBASE_MEASUREMENT_ID=${{ secrets.FIREBASE_MEASUREMENT_ID }}
+            FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
+            FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}
+            FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }}
+            EOF
+            chmod 600 /var/www/kalashyulya/.env
+            echo ".env written to /var/www/kalashyulya/.env ($(wc -l < /var/www/kalashyulya/.env) lines)"
+
+      - name: Pull image and deploy on VPS
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key_path: .ssh/deploy_key
+          command_timeout: 20m
+          script: |
+            set -e
+
+            docker pull ghcr.io/kapralov1050/kalashyulya:nitro
+
+            docker stop kalashyulya || true
+            docker rm kalashyulya || true
+
+            ls -la /var/www/kalashyulya/.env
+
+            # Run new container (without exposing port — Nginx proxies to 127.0.0.1:3000)
+            docker run -d \
+              --name kalashyulya \
+              --restart unless-stopped \
+              -p 127.0.0.1:3000:3000 \
+              --env-file /var/www/kalashyulya/.env \
+              ghcr.io/kapralov1050/kalashyulya:nitro
+
+            sleep 5
+
+            # Copy static assets from container to host (Nginx serves them directly)
+            rm -rf /var/www/kalashyulya/.output
+            mkdir -p /var/www/kalashyulya/.output
+            docker cp kalashyulya:/app/.output/public /var/www/kalashyulya/.output/public
+            echo "✓ Static assets copied: $(ls /var/www/kalashyulya/.output/public/_nuxt/ | wc -l) files in _nuxt/"
+
+            STATUS=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/)
+
+            if [ "$STATUS" = "200" ]; then
+              echo "OK: Nitro container healthy (HTTP $STATUS)"
             else
-              echo "Nitro healthcheck failed"
-              sudo systemctl status kalashyulya-nitro --no-pager
+              echo "FAIL: Nitro container returned HTTP $STATUS"
+              docker logs kalashyulya --tail 50
               exit 1
             fi
+
+            sleep 5
+
+            STATUS=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/)
+
+            if [ "$STATUS" = "200" ]; then
+              echo "OK: Nitro container healthy (HTTP $STATUS)"
+            else
+              echo "FAIL: Nitro container returned HTTP $STATUS"
+              docker logs kalashyulya --tail 50
+              exit 1
+            fi
+
+      - name: Cleanup old images
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key_path: .ssh/deploy_key
+          script: |
+            docker image prune -f
+            echo "Remaining images:"
+            docker images

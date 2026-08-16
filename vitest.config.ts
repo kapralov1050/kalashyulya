@@ -1,20 +1,10 @@
-import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath } from 'node:url'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
-  plugins: [
-    vue(),
-    {
-      name: 'mock-import-meta-client',
-      enforce: 'pre',
-      transform(code: string) {
-        if (code.includes('import.meta.client')) {
-          return { code: code.replaceAll('import.meta.client', 'true'), map: null }
-        }
-      },
-    },
-  ],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  plugins: [vue() as any],
   resolve: {
     alias: {
       '~': fileURLToPath(new URL('./app/', import.meta.url)),

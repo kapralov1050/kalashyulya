@@ -10,7 +10,6 @@ export default defineNuxtConfig({
   nitro: {
     preset: 'node-server',
   },
-  test: true,
   runtimeConfig: runtimeConfig,
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
@@ -30,26 +29,11 @@ export default defineNuxtConfig({
   devServer: {
     host: '127.0.0.1',
   },
-  hooks: {
-    'nitro:config': async nitroConfig => {
-      try {
-        const projectId = process.env.FIREBASE_PROJECT_ID
-        const data = await fetch(
-          `https://${projectId}-default-rtdb.europe-west1.firebasedatabase.app/exhibitions.json`,
-        )
-
-        if (data.ok) {
-          const json = await data.json()
-          const routes = Object.values(
-            json as Record<string, { slug: string }>,
-          ).map(exhibition => `/exhibitions/${exhibition.slug}`)
-          nitroConfig.prerender ??= {}
-          nitroConfig.prerender.routes = routes
-        }
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.warn('Не удалось загрузить выставки для пререндера:', error)
-      }
-    },
-  },
+  // Раньше здесь был hook 'nitro:config' который пререндерил выставки
+  // на этапе build через fetch Firebase. Это вызывало:
+  //   - 'Unexpected token < <!DOCTYPE is not valid JSON' если Firebase
+  //     возвращал HTML (auth/404/network)
+  //   - Устаревшие данные после каждого обновления в Firebase
+  // С node-server + ssr:false пререндер не нужен — Vue/SSR=false
+  // загружает данные динамически через vuefire на клиенте.
 })

@@ -112,7 +112,7 @@ export function useStructuredData() {
     useHead({
       script: scripts.map(item => ({
         type: 'application/ld+json',
-        children: JSON.stringify(item),
+        innerHTML: JSON.stringify(item),
       })),
     })
   }

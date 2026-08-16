@@ -14,7 +14,7 @@
         leadingIcon: 'text-primary-500',
       }"
       icon="heroicons:information-circle-16-solid"
-      @click="isCustomerInfoOpen = true"
+      @click="() => { isCustomerInfoOpen = true }"
     >
       Важная информация
     </UButton>

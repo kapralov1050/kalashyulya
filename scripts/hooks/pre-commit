@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# scripts/hooks/pre-commit — проверка lockfile синхронизации
+# Запускается через core.hooksPath (см. README)
+# Если lockfile не синхронизирован — блокирует commit.
+
+set -e
+
+if [ ! -f "package.json" ] || [ ! -f "package-lock.json" ]; then
+  exit 0
+fi
+
+# 1. Проверяем sync lockfile
+if ! npm ci --os=linux --cpu=x64 --include=optional --ignore-scripts --no-audit --no-fund > /dev/null 2>&1; then
+  echo ""
+  echo "❌ ERROR: package.json и package-lock.json не синхронизированы"
+  echo ""
+  echo "  Решения:"
+  echo "    1. Откати: git checkout package.json package-lock.json"
+  echo "    2. Регенерируй через Docker:"
+  echo "       ./scripts/npm.sh install"
+  echo ""
+  exit 1
+fi
+
+# 2. Проверяем что .nuxt/ существует (нужно для lint)
+if [ ! -d ".nuxt" ]; then
+  echo "ℹ️  .nuxt/ не найден — генерирую через 'npx nuxt prepare'"
+  if ! npx nuxt prepare > /dev/null 2>&1; then
+    echo "⚠️  npx nuxt prepare упал. Запусти вручную: npx nuxt prepare"
+    exit 1
+  fi
+fi
+
+echo "✅ package-lock.json синхронизирован, .nuxt/ готов"
+exit 0
