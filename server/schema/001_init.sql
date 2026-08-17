@@ -94,3 +94,16 @@ CREATE TABLE IF NOT EXISTS sessions (
   expires_at    INTEGER NOT NULL          -- unix ms
 );
 CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
+-- categories: справочник категорий каталога (Firebase /shop/categories)
+CREATE TABLE IF NOT EXISTS categories (
+  id    TEXT PRIMARY KEY,
+  name  TEXT NOT NULL,
+  "order" INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_categories_order ON categories("order");
+
+-- certificates_counter: счётчик выданных сертификатов по году (Firebase /certificates/{YYYY})
+CREATE TABLE IF NOT EXISTS certificates_counter (
+  year  INTEGER PRIMARY KEY,
+  count INTEGER NOT NULL DEFAULT 0
+);

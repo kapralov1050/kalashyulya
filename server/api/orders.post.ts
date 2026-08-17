@@ -71,17 +71,27 @@ export default defineEventHandler(async (event): Promise<CreateOrderResponse> =>
   getDb()
     .prepare(
       `INSERT INTO orders
-        (id, customer_name, customer_email, customer_phone, city, address,
+        (id, customer_name, customer_email, customer_phone,
+         customer_messenger, customer_nickname,
+         city, address,
+         delivery_type, delivery_recipient, delivery_street, delivery_house, delivery_apartment,
          items_json, total, status, comment, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'new', ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .run(
       id,
       body.customer.name,
       body.customer.email,
       body.customer.phone ?? null,
+      body.customer.userMessenger ?? null,
+      body.customer.userNickname ?? null,
       body.customer.delivery?.city ?? null,
       body.customer.delivery?.address ?? null,
+      body.customer.delivery?.type ?? null,
+      body.customer.delivery?.recipient ?? null,
+      body.customer.delivery?.street ?? null,
+      body.customer.delivery?.house ?? null,
+      body.customer.delivery?.apartment ?? null,
       JSON.stringify(items),
       total,
       null,

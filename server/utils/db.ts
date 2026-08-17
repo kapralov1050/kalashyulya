@@ -63,12 +63,15 @@ function applyMigrations() {
   db.exec(readFileSync(initPath, 'utf-8'))
 
   // Последующие миграции: ALTER TABLE и CREATE INDEX (idempotent через table_info).
-  const m002 = join(schemaDir, '002_exhibitions.sql')
-  try {
-    applyAlterFile(db, m002)
-  }
-  catch (err) {
-    if (!(err instanceof Error && /ENOENT/.test(err.message))) throw err
+  // Каждый файл применяется через applyAlterFile, который skip-ает уже выполненные ALTER
+  // (через PRAGMA table_info) и CREATE INDEX (через try/catch по "already exists").
+  for (const file of ['002_exhibitions.sql', '003_orders.sql']) {
+    try {
+      applyAlterFile(db, join(schemaDir, file))
+    }
+    catch (err) {
+      if (!(err instanceof Error && /ENOENT/.test(err.message))) throw err
+    }
   }
 }
 

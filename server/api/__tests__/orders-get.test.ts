@@ -45,21 +45,31 @@ describe('orders.get DTO mapping', () => {
     const now = Date.now()
     getDb().prepare(`
       INSERT INTO orders (id, customer_name, customer_email, customer_phone,
-                          city, address, items_json, total, status, comment,
-                          created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'new', ?, ?, ?)
+                          customer_messenger, customer_nickname,
+                          city, address,
+                          delivery_type, delivery_recipient, delivery_street, delivery_house, delivery_apartment,
+                          items_json, total, status, comment, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       'order_2',
       'Анна',
       'ann@example.com',
       '+79991234567',
+      'Telegram',
+      '@anna',
       'Москва',
       'ул. Тверская, 1',
+      'delivery',
+      'Анна Аннова',
+      'ул. Тверская',
+      '1',
+      '12',
       JSON.stringify([{ productId: 'product_107', title: 'Тихий свет зимы', price: 6000, qty: 1 }]),
       6000,
+      'new',
       null,
-      now,
-      now,
+      Date.now(),
+      Date.now(),
     )
 
     // Импортируем handler ПОСЛЕ сидинга
@@ -102,6 +112,24 @@ describe('orders.get DTO mapping', () => {
     expect(order.paymentId).toBe('')
     expect(order.notificationFailed).toEqual({ telegram: false, email: false })
     expect(order.framing).toBe('')
+  })
+
+  it('достаёт ВСЕ поля из Firebase customer.delivery (Phase D)', async () => {
+    const fakeEvent = { context: {} } as unknown as Parameters<typeof ordersGetHandler>[0]
+    const result = await ordersGetHandler(fakeEvent)
+    const order = result[0]!
+
+    // Phase D: добавлены поля, которых раньше терялись
+    expect(order.customer.userMessenger).toBe('Telegram')
+    expect(order.customer.userNickname).toBe('@anna')
+    expect(order.customer.delivery.type).toBe('delivery')
+    expect(order.customer.delivery.recipient).toBe('Анна Аннова')
+    expect(order.customer.delivery.street).toBe('ул. Тверская')
+    expect(order.customer.delivery.house).toBe('1')
+    expect(order.customer.delivery.apartment).toBe('12')
+    // city/address всё ещё работают
+    expect(order.customer.delivery.city).toBe('Москва')
+    expect(order.customer.delivery.address).toBe('ул. Тверская, 1')
   })
 
   it('фильтрует по статусу', async () => {

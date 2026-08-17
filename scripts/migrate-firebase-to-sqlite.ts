@@ -207,9 +207,12 @@ async function migrateOrders() {
 
   const insert = db.prepare(`
     INSERT OR REPLACE INTO orders
-      (id, customer_name, customer_email, customer_phone, city, address,
+      (id, customer_name, customer_email, customer_phone,
+       customer_messenger, customer_nickname,
+       city, address,
+       delivery_type, delivery_recipient, delivery_street, delivery_house, delivery_apartment,
        items_json, total, status, comment, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `)
 
   const results: Array<{ ok: boolean, id: string, reason?: string }> = []
@@ -233,8 +236,15 @@ async function migrateOrders() {
         c.name,
         c.email,
         c.phone ?? null,
+        c.userMessenger ?? null,
+        c.userNickname ?? null,
         c.delivery?.city ?? null,
         c.delivery?.address ?? null,
+        c.delivery?.type ?? null,
+        c.delivery?.recipient ?? null,
+        c.delivery?.street ?? null,
+        c.delivery?.house ?? null,
+        c.delivery?.apartment ?? null,
         itemsJson,
         total,
         mapOrderStatus(o.status),
@@ -317,6 +327,104 @@ async function migrateExhibitions() {
   fmtReport('exhibitions', results)
 }
 
+interface FbCategory {
+  name: string
+  order: number
+}
+
+async function migrateCategories() {
+  console.log('\n📂 Читаю /shop/categories ...')
+  // /shop/categories — это массив (не map), id = индекс в массиве.
+  const snap = await fbDb.ref('shop/categories').once('value')
+  if (!snap.exists()) {
+    console.log('   Не найдено.')
+    return
+  }
+  const arr = snap.val() as Array<FbCategory | null>
+  const db = getDb()
+  const now = Date.now()
+
+  const insert = db.prepare(`
+    INSERT OR REPLACE INTO categories (id, name, "order")
+    VALUES (?, ?, ?)
+  `)
+  const touch = db.prepare('UPDATE products SET updated_at = ?, category_id = ? WHERE id = ?')
+  const lookup = db.prepare('SELECT id FROM products WHERE category_id = ? LIMIT 1')
+
+  const results: Array<{ ok: boolean, id: string, reason?: string }> = []
+  const tx = db.transaction(() => {
+    // Сначала затираем старые связи product.category_id (если категории переименовались)
+    db.prepare("UPDATE products SET category_id = NULL WHERE category_id LIKE 'category_%'").run()
+    db.prepare('DELETE FROM categories').run()
+
+    arr.forEach((cat, index) => {
+      if (!cat || !cat.name) return // пропускаем null (дырки в Firebase массиве)
+      const id = `category_${cat.order}`
+      insert.run(id, cat.name, cat.order)
+      results.push({ ok: true, id: `category_${cat.order} (idx=${index})` })
+    })
+  })
+  tx()
+
+  fmtReport('categories', results)
+
+  // Теперь обновляем category_id у товаров: в Firebase product.categoryId
+  // хранился как порядковый номер (1, 2, 3...), в SQLite используем префикс.
+  console.log('\n   Проставляю category_id у товаров...')
+  const productsData = await readAll<{ categoryId?: string | number }>('shop/products')
+  let updatedCount = 0
+  const txProducts = db.transaction(() => {
+    for (const [id, p] of Object.entries(productsData)) {
+      if (p.categoryId !== undefined && p.categoryId !== null) {
+        const catId = `category_${p.categoryId}`
+        // проверим что такая категория есть
+        const exists = db.prepare('SELECT 1 FROM categories WHERE id = ?').get(catId)
+        if (exists) {
+          touch.run(now, catId, id)
+          updatedCount++
+        }
+      }
+    }
+  })
+  txProducts()
+  console.log(`   Обновлено ${updatedCount} товаров с category_id`)
+}
+
+interface FbCertificateCounter {
+  // /certificates/{YYYY} — это просто число (число выданных в этом году)
+  [year: string]: number
+}
+
+async function migrateCertificates() {
+  console.log('\n📜 Читаю /certificates/{YYYY} ...')
+  const data = await readAll<number>('certificates')
+  const years = Object.keys(data)
+  console.log(`   Найдено: ${years.length} записей`)
+
+  const db = getDb()
+
+  const insert = db.prepare(`
+    INSERT OR REPLACE INTO certificates_counter (year, count)
+    VALUES (?, ?)
+  `)
+
+  const results: Array<{ ok: boolean, id: string, reason?: string }> = []
+  const tx = db.transaction((entries: Array<[string, number]>) => {
+    for (const [year, count] of entries) {
+      const y = Number(year)
+      if (!Number.isInteger(y) || y < 2000 || y > 3000) {
+        results.push({ ok: false, id: year, reason: 'некорректный год' })
+        continue
+      }
+      insert.run(y, count)
+      results.push({ ok: true, id: `${y}: ${count}` })
+    }
+  })
+  tx(Object.entries(data))
+
+  fmtReport('certificates_counter', results)
+}
+
 async function listAdminEmails() {
   console.log('\n👤 Читаю /users/* (только для справки, пароли мигрировать нельзя) ...')
   const data = await readAll<{ email?: string }>('users')
@@ -341,6 +449,8 @@ async function main() {
   await migrateProducts()
   await migrateOrders()
   await migrateExhibitions()
+  await migrateCategories()
+  await migrateCertificates()
   await listAdminEmails()
 
   closeDb()
