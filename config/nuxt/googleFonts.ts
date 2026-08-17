@@ -1,6 +1,12 @@
 import type { NuxtConfig } from 'nuxt/config'
 
-export const googleFontsConfig: NuxtConfig['googleFonts'] = {
+// Тип NuxtConfig['googleFonts'] не расширен в .nuxt/ — кастуем вручную.
+interface GoogleFontsConfig {
+  display?: string
+  families?: Record<string, { wght?: string, ital?: string }>
+}
+
+export const googleFontsConfig: GoogleFontsConfig = {
   display: 'swap',
   families: {
     Montserrat: {
