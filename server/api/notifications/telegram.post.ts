@@ -21,6 +21,7 @@ interface TelegramResponse {
  * Партнёрский код (orders.post.ts) должен теперь проверять `success: true`,
  * а не полагаться на HTTP 2xx в целом — иначе failure поднимается как "ок".
  */
+/* eslint-disable no-console */
 export default defineEventHandler(async (event: H3Event): Promise<TelegramResponse> => {
   const body = await readBody<TelegramNotificationPayload>(event)
   if (!body?.orderId || !body?.orderData) {
@@ -43,6 +44,7 @@ export default defineEventHandler(async (event: H3Event): Promise<TelegramRespon
     ?? process.env.NUXT_TELEGRAM_CHAT_ID
 
   if (!token || !chatId) {
+    // eslint-disable-next-line no-console
     console.error('[telegram] credentials not configured')
     throw createError({
       statusCode: 500,
@@ -66,6 +68,7 @@ export default defineEventHandler(async (event: H3Event): Promise<TelegramRespon
       },
     )
     if (!tgResponse.ok) {
+      // eslint-disable-next-line no-console
       console.error('[telegram] API returned ok=false:', JSON.stringify(tgResponse))
       throw createError({
         statusCode: 502,
@@ -75,6 +78,7 @@ export default defineEventHandler(async (event: H3Event): Promise<TelegramRespon
     return { success: true, message: 'Notification sent successfully' }
   }
   catch (error: unknown) {
+    // eslint-disable-next-line no-console
     console.error('[telegram] sendMessage failed:', error)
     throw createError({
       statusCode: 500,

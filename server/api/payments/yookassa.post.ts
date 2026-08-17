@@ -1,3 +1,8 @@
+/**
+ * POST /api/payments/yookassa — создание платежа в YooKassa.
+ * Используется console.log/error для диагностики (legacy Yandex-формат).
+ */
+/* eslint-disable no-console */
 import * as v from 'valibot'
 import {
   buildYookassaAuthHeader,
