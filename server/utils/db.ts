@@ -17,10 +17,59 @@ export function getDb(): Database.Database {
   return _db
 }
 
+/**
+ * Парсит .sql-файл с ALTER TABLE-выражениями и применяет только те,
+ * которые ещё не выполнены. SQLite не умеет `ADD COLUMN IF NOT EXISTS`,
+ * поэтому используется pragma table_info + conditional ALTER.
+ *
+ * Файл 001_init.sql идёт через `db.exec()` целиком (там CREATE TABLE IF NOT EXISTS).
+ */
+function applyAlterFile(db: Database.Database, filePath: string) {
+  const raw = readFileSync(filePath, 'utf-8')
+  // Удаляем комментарии и пустые строки, потом режем по ';'
+  const stripped = raw
+    .split('\n')
+    .filter(line => !line.trim().startsWith('--'))
+    .join('\n')
+  const statements = stripped
+    .split(';')
+    .map(s => s.trim())
+    .filter(s => s.length > 0)
+
+  for (const stmt of statements) {
+    const columnMatch = stmt.match(/^ALTER\s+TABLE\s+(\w+)\s+ADD\s+COLUMN\s+(\w+)\s+/i)
+    if (columnMatch) {
+      const [, table, column] = columnMatch
+      if (!column || !table) continue
+      const cols = db.pragma(`table_info(${table})`) as Array<{ name: string }>
+      if (cols.some(c => c.name === column)) continue
+    }
+    try {
+      db.exec(stmt + ';')
+    }
+    catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      // Идемпотентность: повторный ALTER с тем же CREATE INDEX/уникальным ограничением
+      if (/already exists|duplicate column/i.test(msg)) continue
+      throw err
+    }
+  }
+}
+
 function applyMigrations() {
   const db = getDb()
-  const schemaPath = join(process.cwd(), 'server/schema/001_init.sql')
-  db.exec(readFileSync(schemaPath, 'utf-8'))
+  const schemaDir = join(process.cwd(), 'server/schema')
+  const initPath = join(schemaDir, '001_init.sql')
+  db.exec(readFileSync(initPath, 'utf-8'))
+
+  // Последующие миграции: ALTER TABLE и CREATE INDEX (idempotent через table_info).
+  const m002 = join(schemaDir, '002_exhibitions.sql')
+  try {
+    applyAlterFile(db, m002)
+  }
+  catch (err) {
+    if (!(err instanceof Error && /ENOENT/.test(err.message))) throw err
+  }
 }
 
 export function closeDb() {

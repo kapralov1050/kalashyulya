@@ -251,7 +251,7 @@ async function migrateOrders() {
 }
 
 async function migrateExhibitions() {
-  console.log('\n🖼️  Читаю /exhibitions/* ...')
+  console.log('\n�️  Читаю /exhibitions/* ...')
   const data = await readAll<FbExhibition>('exhibitions')
   const ids = Object.keys(data)
   console.log(`   Найдено: ${ids.length}`)
@@ -261,8 +261,14 @@ async function migrateExhibitions() {
 
   const insert = db.prepare(`
     INSERT OR REPLACE INTO exhibitions
-      (id, title, description, date, location, cover_image, status, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (id, slug, title, tab_title, short_description,
+       description_intro, description_body, description,
+       date_start, date_end, date, date_range,
+       location_venue, location_city, location_address, location_address_line,
+       location_metro_json, location_map_link, location,
+       cover_image, is_free, ticket_info, schedule_json, works_json,
+       status, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `)
 
   const results: Array<{ ok: boolean, id: string, reason?: string }> = []
@@ -272,13 +278,33 @@ async function migrateExhibitions() {
         results.push({ ok: false, id, reason: 'нет title' })
         continue
       }
+      const loc = e.location ?? {}
       insert.run(
         id,
+        e.slug ?? null,
         e.title,
+        // tab_title в Firebase не было — берём из title, можно переопределить в админке
+        null,
+        e.shortDescription ?? null,
+        e.descriptionIntro ?? null,
+        e.descriptionBody ?? null,
         buildExhibitionDescription(e),
         e.dateStart ?? null,
+        e.dateEnd ?? null,
+        e.dateStart ?? null,
+        e.dateRange ?? null,
+        loc.venue ?? null,
+        loc.city ?? null,
+        loc.address ?? null,
+        loc.addressLine ?? null,
+        JSON.stringify(loc.metro ?? []),
+        loc.mapLink ?? null,
         buildExhibitionLocation(e.location),
         e.coverImage ?? null,
+        e.isFree ? 1 : 0,
+        e.ticketInfo ?? null,
+        JSON.stringify(e.schedule ?? []),
+        JSON.stringify(e.works ?? []),
         mapExhibitionStatus(e.status),
         now,
         now,

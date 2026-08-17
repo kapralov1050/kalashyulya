@@ -5,6 +5,7 @@
 
 export type SqlOrderStatus = 'new' | 'paid' | 'shipped' | 'cancelled'
 export type SqlProductStatus = 'available' | 'sold' | 'reserved'
+export type SqlExhibitionStatus = 'draft' | 'published'
 
 const ORDER_STATUS_MAP: Record<string, SqlOrderStatus> = {
   'Новый заказ': 'new',
@@ -77,8 +78,26 @@ export function buildExhibitionLocation(loc: {
   return parts || null
 }
 
-export function mapExhibitionStatus(fb: string | undefined): 'draft' | 'published' {
+export function mapExhibitionStatus(fb: string | undefined): SqlExhibitionStatus {
   return fb === 'published' || fb === 'ongoing' ? 'published' : 'draft'
+}
+
+/**
+ * Обратный маппинг для DTO (SQL → Exhibition shape из app/types).
+ * DB 'published' ↔ 'ongoing', DB 'draft' ↔ 'planned'/'finished'.
+ * Без доп.колонки о distinction planned/finished невозможен,
+ * считаем draft → planned, а finished выводится из даты окончания.
+ */
+export function exhibitionStatusToDto(
+  status: SqlExhibitionStatus | string | null | undefined,
+  dateEnd?: string | null,
+): 'planned' | 'ongoing' | 'finished' {
+  if (status === 'published' || status === 'ongoing') return 'ongoing'
+  if (dateEnd) {
+    const end = Date.parse(dateEnd)
+    if (!Number.isNaN(end) && end < Date.now()) return 'finished'
+  }
+  return 'planned'
 }
 
 export function buildExhibitionDescription(e: {
@@ -87,4 +106,18 @@ export function buildExhibitionDescription(e: {
 }): string | null {
   const parts = [e.descriptionIntro, e.descriptionBody].filter(Boolean)
   return parts.length ? parts.join('\n\n') : null
+}
+
+/**
+ * Безопасный JSON.parse для колонок, которые могут быть NULL или пустой строкой.
+ * Возвращает fallback, если строка невалидна.
+ */
+export function safeJsonParse<T>(s: string | null | undefined, fallback: T): T {
+  if (!s) return fallback
+  try {
+    return JSON.parse(s) as T
+  }
+  catch {
+    return fallback
+  }
 }

@@ -2,11 +2,13 @@ import { describe, expect, it } from 'vitest'
 import {
   buildExhibitionDescription,
   buildExhibitionLocation,
+  exhibitionStatusToDto,
   mapExhibitionStatus,
   mapOrderItems,
   mapOrderStatus,
   mapProductStatus,
   resolveOrderItemProductId,
+  safeJsonParse,
 } from '../migration-mappers'
 
 describe('mapOrderStatus', () => {
@@ -152,5 +154,53 @@ describe('buildExhibitionDescription', () => {
 
   it('только intro', () => {
     expect(buildExhibitionDescription({ descriptionIntro: 'X' })).toBe('X')
+  })
+})
+
+describe('exhibitionStatusToDto', () => {
+  it('published → ongoing', () => {
+    expect(exhibitionStatusToDto('published')).toBe('ongoing')
+    expect(exhibitionStatusToDto('ongoing')).toBe('ongoing')
+  })
+
+  it('draft без date_end → planned', () => {
+    expect(exhibitionStatusToDto('draft')).toBe('planned')
+    expect(exhibitionStatusToDto('draft', null)).toBe('planned')
+  })
+
+  it('draft + date_end в прошлом → finished', () => {
+    expect(exhibitionStatusToDto('draft', '2000-01-01')).toBe('finished')
+  })
+
+  it('draft + date_end в будущем → planned', () => {
+    expect(exhibitionStatusToDto('draft', '2999-12-31')).toBe('planned')
+  })
+
+  it('пусто/null/undefined → planned', () => {
+    expect(exhibitionStatusToDto(null)).toBe('planned')
+    expect(exhibitionStatusToDto(undefined)).toBe('planned')
+    expect(exhibitionStatusToDto('')).toBe('planned')
+  })
+
+  it('published приоритетнее date_end (активная выставка остаётся ongoing)', () => {
+    expect(exhibitionStatusToDto('published', '2000-01-01')).toBe('ongoing')
+  })
+})
+
+describe('safeJsonParse', () => {
+  it('парсит валидный JSON', () => {
+    expect(safeJsonParse('["a","b"]', [])).toEqual(['a', 'b'])
+    expect(safeJsonParse<{ x: number }>('{"x":1}', { x: 0 })).toEqual({ x: 1 })
+  })
+
+  it('возвращает fallback для пустой строки и null/undefined', () => {
+    expect(safeJsonParse(null, [])).toEqual([])
+    expect(safeJsonParse(undefined, [])).toEqual([])
+    expect(safeJsonParse('', ['fallback'])).toEqual(['fallback'])
+  })
+
+  it('возвращает fallback при невалидном JSON', () => {
+    expect(safeJsonParse('not json', ['fallback'])).toEqual(['fallback'])
+    expect(safeJsonParse('{broken', { ok: false })).toEqual({ ok: false })
   })
 })

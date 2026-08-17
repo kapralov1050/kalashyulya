@@ -142,15 +142,20 @@ export interface ExhibitionLocation {
 }
 
 export interface ExhibitionWork {
-  id: number
+  id?: number
   title: string
   subtitle?: string
-  image: string
+  image?: string
   meta?: string
 }
 
+/**
+ * DTO выставки. Совпадает с server/api/exhibitions.get.ts::ExhibitionDto 1:1.
+ * Все опциональные поля могут быть пустой строкой / пустым массивом —
+ * это нормализованное представление после SQLite-строки.
+ */
 export interface Exhibition {
-  id: number
+  id: string
   slug: string
   tabTitle: string
   title: string
@@ -169,6 +174,8 @@ export interface Exhibition {
   works: ExhibitionWork[]
 }
 
-// Firebase
-
-export type ExhibitionsData = Record<string, unknown>
+/**
+ * DTO, возвращаемое /api/exhibitions. Структурно идентично Exhibition,
+ * но алиас фиксирует границу client↔server.
+ */
+export type ExhibitionDto = Exhibition

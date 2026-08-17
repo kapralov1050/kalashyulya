@@ -111,7 +111,7 @@
   const { exhibitions, isLoading } = storeToRefs(exhibitionsStore)
 
   const editingExhibition = ref<Exhibition | null>(null)
-  const savingStatusId = ref<number | null>(null)
+  const savingStatusId = ref<string | null>(null)
 
   const sortedExhibitions = computed(() =>
     [...exhibitions.value].sort((a, b) => {

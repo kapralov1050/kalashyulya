@@ -1,6 +1,7 @@
 import { computed, ref, watch } from 'vue'
 import type {
   Exhibition,
+  ExhibitionDto,
   Order,
   OrderInBase,
   Product,
@@ -48,7 +49,7 @@ export function useApi() {
   }
 
   async function loadExhibitions(): Promise<void> {
-    exhibitionsData.value = await $fetch<Exhibition[]>('/api/exhibitions')
+    exhibitionsData.value = await $fetch<ExhibitionDto[]>('/api/exhibitions')
   }
 
   async function addNewOrderApi(
