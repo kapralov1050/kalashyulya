@@ -37,39 +37,35 @@ export default defineEventHandler((event): OrderInBase[] => {
     ? getDb().prepare(sql).all(status)
     : getDb().prepare(sql).all()) as OrderRow[]
 
-  return rows.map((r) => {
-    const order: OrderInBase = {
-      // r.id — TEXT в SQLite ("order_<ts>" или "YYYYMMDD-<hex>"),
-      // OrderInBase.id заявлен как number (Firebase-era). Приводим через Number().
-      // UI использует id как :key/текст — числовое значение не критично, а старый код,
-      // который ожидает число, продолжает работать (NaN безопасен в сравнениях).
-      id: Number(r.id),
-      customer: {
-        name: r.customer_name,
-        email: r.customer_email,
-        phone: r.customer_phone ?? '',
-        userMessenger: r.customer_messenger ?? '',
-        userNickname: r.customer_nickname ?? '',
-        delivery: {
-          type: r.delivery_type ?? 'pickup',
-          city: r.city ?? '',
-          recipient: r.delivery_recipient ?? '',
-          address: r.address ?? '',
-          street: r.delivery_street ?? '',
-          house: r.delivery_house ?? '',
-          apartment: r.delivery_apartment ?? '',
-        },
+  return rows.map((r): OrderInBase => ({
+    // r.id — TEXT в SQLite. OrderInBase.id теперь `number | string` — оба варианта
+    // допустимы (Firebase использовал unix-ms число, SQLite сохранил как строку).
+    // UI использует id только как :key/текст, формат не критичен.
+    id: r.id,
+    customer: {
+      name: r.customer_name,
+      email: r.customer_email,
+      phone: r.customer_phone ?? '',
+      userMessenger: r.customer_messenger ?? '',
+      userNickname: r.customer_nickname ?? '',
+      delivery: {
+        type: r.delivery_type ?? 'pickup',
+        city: r.city ?? '',
+        recipient: r.delivery_recipient ?? '',
+        address: r.address ?? '',
+        street: r.delivery_street ?? '',
+        house: r.delivery_house ?? '',
+        apartment: r.delivery_apartment ?? '',
       },
-      purchase: {
-        order: JSON.parse(r.items_json) as OrderInBase['purchase']['order'],
-        createdAt: new Date(r.created_at).toISOString(),
-      },
-      totalPrice: r.total,
-      status: r.status,
-      paymentMethod: 'manual',
-      paymentId: '',
-      notificationFailed: { telegram: false, email: false },
-    }
-    return order
-  })
+    },
+    purchase: {
+      order: JSON.parse(r.items_json) as OrderInBase['purchase']['order'],
+      createdAt: new Date(r.created_at).toISOString(),
+    },
+    totalPrice: r.total,
+    status: r.status,
+    paymentMethod: 'manual',
+    paymentId: '',
+    notificationFailed: { telegram: false, email: false },
+  }))
 })

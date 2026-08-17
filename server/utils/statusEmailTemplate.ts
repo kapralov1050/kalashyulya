@@ -9,7 +9,7 @@ export interface StatusEmailRequest {
 export interface StatusEmailPayload {
   to: string
   customerName: string
-  orderId: number
+  orderId: number | string
   orderItems: {
     title: string
     amount: number

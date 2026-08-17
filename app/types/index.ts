@@ -80,7 +80,9 @@ export interface Order {
 }
 
 export interface OrderInBase extends Order {
-  id: number
+  // В Firebase id был unix-ms числом. В SQLite храним как TEXT ("order_1778095908002"
+  // для импортированных, "20260816-abc123" для новых). UI использует только как :key.
+  id: number | string
   status: string
   paymentId?: string
   paymentMethod?: 'yookassa' | 'manual'
