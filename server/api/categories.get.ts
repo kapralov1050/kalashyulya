@@ -4,6 +4,8 @@
  * Категории закэшированы SQLite. Возвращаются отсортированными по полю `order`.
  */
 
+import { getDb } from '../utils/db'
+
 export interface CategoryDto {
   id: string
   name: string
