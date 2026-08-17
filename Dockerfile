@@ -30,6 +30,7 @@ ENV HOST=0.0.0.0
 
 COPY --from=builder --chown=nitro:nodejs /app/.output ./.output
 COPY --from=builder --chown=nitro:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nitro:nodejs /app/server ./server
 
 USER nitro
 
