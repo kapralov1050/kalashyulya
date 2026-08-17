@@ -30,12 +30,21 @@ export default defineEventHandler(async event => {
   }
   const body = parsed.output as CreatePaymentBody
 
-  const shopId = process.env.NUXT_YOOKASSA_SHOP_ID
-  const secret = process.env.NUXT_YOOKASSA_SECRET
+  // Test mode переключает между test- и prod-credentials.
+  // Test-режим использовать ТОЛЬКО в dev/preview окружениях для ручного тестирования.
+  // В prod (VPS) переменная должна быть не задана или = 'false'.
+  const isTestMode = process.env.YOOKASSA_TEST_MODE === 'true'
+  const shopId = isTestMode
+    ? process.env.YOOKASSA_SHOP_ID_TEST
+    : process.env.YOOKASSA_SHOP_ID
+  const secret = isTestMode
+    ? process.env.YOOKASSA_SECRET_KEY_TEST
+    : process.env.YOOKASSA_SECRET_KEY
+
   if (!shopId || !secret) {
     throw createError({
       statusCode: 500,
-      statusMessage: 'Yookassa credentials not configured',
+      statusMessage: `Yookassa credentials not configured (${isTestMode ? 'TEST' : 'PROD'} mode)`,
     })
   }
 

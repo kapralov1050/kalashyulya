@@ -131,8 +131,13 @@ jobs:
             NUXT_PUBLIC_STATS=${{ secrets.NUXT_PUBLIC_STATS }}
             # Server-side (Nitro, не PUBLIC) — заменили Firebase Cloud Functions
             # для YooKassa / Telegram / Email после миграции на SQLite.
-            NUXT_YOOKASSA_SHOP_ID=${{ secrets.NUXT_YOOKASSA_SHOP_ID }}
-            NUXT_YOOKASSA_SECRET=${{ secrets.NUXT_YOOKASSA_SECRET }}
+            # Yookassa: prod-креды + опциональные test-креды для ручного тестирования.
+            # YOOKASSA_TEST_MODE=true в dev/preview; не задано или =false в prod.
+            YOOKASSA_SHOP_ID=${{ secrets.YOOKASSA_SHOP_ID }}
+            YOOKASSA_SECRET_KEY=${{ secrets.YOOKASSA_SECRET_KEY }}
+            YOOKASSA_SHOP_ID_TEST=${{ secrets.YOOKASSA_SHOP_ID_TEST }}
+            YOOKASSA_SECRET_KEY_TEST=${{ secrets.YOOKASSA_SECRET_KEY_TEST }}
+            YOOKASSA_TEST_MODE=${{ secrets.YOOKASSA_TEST_MODE }}
             NUXT_TELEGRAM_BOT_TOKEN=${{ secrets.NUXT_TELEGRAM_BOT_TOKEN }}
             NUXT_TELEGRAM_CHAT_ID=${{ secrets.NUXT_TELEGRAM_CHAT_ID }}
             NUXT_SMTP_HOST=${{ secrets.NUXT_SMTP_HOST }}
