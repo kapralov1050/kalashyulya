@@ -34,9 +34,10 @@ Object.assign(globalThis, {
   getCookie: () => undefined,
   setCookie: () => undefined,
   deleteCookie: () => undefined,
-  readBody: async () => ({}),
-  getQuery: () => ({}),
-  getRouterParam: () => undefined,
+  readBody: async (event?: { body?: unknown }) => event?.body ?? {},
+  getQuery: (event?: { query?: Record<string, unknown> }) => (event?.query ?? {}) as Record<string, string>,
+  getRouterParam: (event?: { context?: { params?: Record<string, string> }, params?: Record<string, string> }) =>
+    (event?.context?.params ?? event?.params ?? {}) as Record<string, string>,
   createError: (opts: { statusCode?: number, message?: string }) => {
     const err = new Error(opts.message ?? 'error') as Error & { statusCode?: number }
     err.statusCode = opts.statusCode ?? 500
