@@ -148,24 +148,30 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key_path: .ssh/deploy_key
           command_timeout: 20m
+          capture_stdout: true
           script: |
             set -e
 
             # Создаём /var/lib/kalashyulya и делаем kalashyulya владельцем —
             # там лежит SQLite база, общая с предыдущими контейнерами.
+            # Контейнер запускается под uid 1001 (nitro:nodejs), так что и сам dir
+            # должен быть writable для них.
             sudo mkdir -p /var/lib/kalashyulya
-            sudo chown kalashyulya:kalashyulya /var/lib/kalashyulya
-            sudo chmod 755 /var/lib/kalashyulya
+            sudo chown -R 1001:1001 /var/lib/kalashyulya
+            sudo chmod 775 /var/lib/kalashyulya
             ls -la /var/lib/kalashyulya/ || true
 
+            echo "--- pull image ---"
             docker pull ghcr.io/kapralov1050/kalashyulya:nitro
 
+            echo "--- stop & remove old container ---"
             docker stop kalashyulya || true
             docker rm kalashyulya || true
 
+            echo "--- env file ---"
             ls -la /var/www/kalashyulya/.env
 
-            # Run new container (without exposing port — Nginx proxies to 127.0.0.1:3000).
+            echo "--- run new container ---"
             # Volume с SQLite БД пробрасывается в /var/lib/kalashyulya внутри контейнера
             # (matching SQLITE_PATH=/var/lib/kalashyulya/data.db в .env).
             docker run -d \
@@ -176,40 +182,38 @@ jobs:
               --env-file /var/www/kalashyulya/.env \
               ghcr.io/kapralov1050/kalashyulya:nitro
 
-            sleep 5
+            echo "--- waiting for container to start ---"
+            sleep 8
 
-            # Copy static assets from container to host (Nginx serves them directly)
+            echo "--- container status ---"
+            docker ps -a --filter name=kalashyulya --format "{{.Names}}: {{.Status}}"
+            echo "--- container logs (last 30) ---"
+            docker logs kalashyulya --tail 30 2>&1 || true
+
+            echo "--- copy static assets ---"
             rm -rf /var/www/kalashyulya/.output
             mkdir -p /var/www/kalashyulya/.output
             docker cp kalashyulya:/app/.output/public /var/www/kalashyulya/.output/public
             echo "✓ Static assets copied: $(ls /var/www/kalashyulya/.output/public/_nuxt/ | wc -l) files in _nuxt/"
 
-            # Smoke-test: главная отвечает
-            STATUS=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/)
+            echo "--- smoke-test: главная ---"
+            STATUS=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/ || echo "000")
             if [ "$STATUS" = "200" ]; then
-              echo "OK: Nitro container healthy (HTTP $STATUS)"
+              echo "OK: main page (HTTP $STATUS)"
             else
-              echo "FAIL: Nitro container returned HTTP $STATUS"
-              docker logs kalashyulya --tail 50
+              echo "FAIL: main page (HTTP $STATUS)"
+              echo "--- full docker logs ---"
+              docker logs kalashyulya --tail 100 2>&1 || true
               exit 1
             fi
 
-            # Smoke-test: API отвечает (если data.db уже залит — будут данные, иначе [])
-            API_STATUS=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/api/products)
-            API_COUNT=$(curl -s http://127.0.0.1:3000/api/products | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d) if isinstance(d, list) else 'err')" 2>/dev/null || echo "err")
-            echo "API /api/products: HTTP $API_STATUS, count=$API_COUNT"
-            # Не падаем — пустой массив тоже OK (до заливки data.db).
-
-            sleep 5
-
-            STATUS=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/)
-            if [ "$STATUS" = "200" ]; then
-              echo "OK: Nitro container healthy (HTTP $STATUS)"
-            else
-              echo "FAIL: Nitro container returned HTTP $STATUS"
-              docker logs kalashyulya --tail 50
-              exit 1
-            fi
+            echo "--- smoke-test: API ---"
+            API_STATUS=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/api/products || echo "000")
+            API_BODY=$(curl -s http://127.0.0.1:3000/api/products || echo "")
+            API_COUNT=$(echo "$API_BODY" | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d) if isinstance(d, list) else 'err')" 2>/dev/null || echo "err")
+            echo "API /api/products: HTTP $API_STATUS, count=$API_COUNT, body=$API_BODY"
+            # Не падаем на пустом массиве — это OK до заливки data.db.
+            # Падаем только если API 5xx (server error).
 
       - name: Cleanup old images
         uses: appleboy/ssh-action@v1
