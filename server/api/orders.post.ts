@@ -8,35 +8,45 @@ interface CreateOrderResponse {
   total: number
 }
 
+async function triggerNotification(
+  event: H3Event,
+  endpoint: string,
+  body: Record<string, unknown>,
+  successKey: 'success' | 'ok',
+): Promise<boolean> {
+  try {
+    const result = await $fetch.raw<Record<string, unknown>>(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body,
+      baseURL: getRequestURL(event).origin,
+    })
+    // Phase D back-compat: проверяем явный success/key в response body,
+    // а не только HTTP 200. Иначе Telegram-нотификация с зафейленными
+    // credentials даст HTTP 200 + {ok:false} и будет ошибочно считаться успешной.
+    return result._data?.[successKey] === true
+  }
+  catch (error) {
+    console.error(`[orders.post] ${endpoint} failed:`, error)
+    return false
+  }
+}
+
 async function triggerOrderNotifications(
   event: H3Event,
   orderId: string,
   orderData: Order,
   totalPrice: number,
 ): Promise<{ telegram: boolean; email: boolean }> {
-  const telegramPromise = $fetch
-    .raw('/api/notifications/telegram', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: { orderId, orderData, totalPrice },
-      baseURL: getRequestURL(event).origin,
-    })
-    .then(() => true)
-    .catch(() => false)
-
-  const emailPromise = $fetch
-    .raw('/api/notifications/email', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: { orderData },
-      baseURL: getRequestURL(event).origin,
-    })
-    .then(() => true)
-    .catch(() => false)
-
   const [telegram, email] = await Promise.all([
-    telegramPromise,
-    emailPromise,
+    triggerNotification(event, '/api/notifications/telegram', {
+      orderId,
+      orderData,
+      totalPrice,
+    }, 'success'),
+    triggerNotification(event, '/api/notifications/email', {
+      orderData,
+    }, 'ok'),
   ])
   return { telegram, email }
 }

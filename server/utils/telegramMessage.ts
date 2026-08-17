@@ -7,56 +7,85 @@ export interface TelegramNotificationPayload {
 }
 
 /**
- * Строит текст сообщения для Telegram по заказу.
- * Вынесено в отдельную функцию, чтобы покрыть unit-тестами.
+ * Строит HTML-сообщение для Telegram по заказу, точно повторяя Yandex-функцию:
+ * 📦 НОВЫЙ ЗАКАЗ!
+ * ⏰ Дата / 👤 Клиент / 📧 Email / 📞 Телефон / 💬 Связь · @ник
+ * 🚚 Доставка (тип/delivery)
+ * 🖼 Оформление (framing)
+ * 💳 Оплата (paymentMethod)
+ * 🛒 Товары
+ * 💵 Итого
+ *
+ * Phase D back-compat (после ревью):
+ * - parse_mode: 'HTML' (как в Yandex) → нет риска дефиса/id/-в-boldMarkdownV2
+ * - Возвращены поля framing / paymentMethod / delivery.type / recipient
+ * - Экранирование только для HTML-чувствительных символов (<, >, &)
  */
+
+const FRAMING_LABELS: Record<string, string> = {
+  none: 'Без рамки',
+  simple: 'Рама с паспарту',
+  premium: 'Багет с паспарту',
+}
+
+function paymentLabel(method: string | undefined): string {
+  if (method === 'yookassa') return 'Онлайн (ЮKassa)'
+  if (method === 'manual') return 'Перевод вручную'
+  return 'Не указан'
+}
+
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+}
+
 export function buildTelegramMessage(
   orderId: string,
   order: Order,
   totalPrice: number,
 ): string {
   const items = order.purchase.order
-    .map(
-      i => `• ${escapeMd(i.title)} — ${i.amount} шт. × ${i.price} ₽`,
-    )
+    .map(i => `  • ${escapeHtml(i.title)} × ${i.amount} шт. — ${i.price} ₽`)
     .join('\n')
 
-  const customerLines: string[] = [
-    `👤 Имя: ${escapeMd(order.customer.name)}`,
-  ]
-  if (order.customer.phone) {
-    customerLines.push(`📞 Телефон: ${escapeMd(order.customer.phone)}`)
+  // Доставка: различаем pickup и delivery (как в Yandex).
+  let deliveryText: string
+  if (order.customer.delivery?.type === 'delivery') {
+    const parts: string[] = []
+    if (order.customer.delivery.city) parts.push(`Город: ${escapeHtml(order.customer.delivery.city)}`)
+    if (order.customer.delivery.recipient) parts.push(`Получатель: ${escapeHtml(order.customer.delivery.recipient)}`)
+    if (order.customer.delivery.address) parts.push(`Адрес: ${escapeHtml(order.customer.delivery.address)}`)
+    deliveryText = parts.length ? parts.join('\n') : 'Адрес не указан'
   }
-  customerLines.push(`✉️ Email: ${escapeMd(order.customer.email)}`)
-  if (order.customer.userMessenger) {
-    customerLines.push(`💬 Связь: ${escapeMd(order.customer.userMessenger)}`)
-  }
-  if (order.customer.userNickname) {
-    customerLines.push(`🔗 Ник: ${escapeMd(order.customer.userNickname)}`)
-  }
-  if (order.customer.delivery?.city) {
-    customerLines.push(`� Город: ${escapeMd(order.customer.delivery.city)}`)
-  }
-  if (order.customer.delivery?.address) {
-    customerLines.push(
-      `📍 Адрес: ${escapeMd(order.customer.delivery.address)}`,
-    )
+  else {
+    deliveryText = 'Самовывоз (Санкт-Петербург)'
   }
 
-  return [
-    `🛒 *Новый заказ #${orderId}*`,
-    '',
-    '*Покупатель:*',
-    customerLines.join('\n'),
-    '',
-    '*Состав заказа:*',
-    items,
-    '',
-    `💰 *Итого: ${totalPrice} ₽*`,
-    `🕒 ${escapeMd(new Date(order.purchase.createdAt).toLocaleString('ru-RU'))}`,
-  ].join('\n')
-}
+  // Оформление рамкой.
+  const framingKey = (order as Order & { framing?: string }).framing
+  const framingText = framingKey && FRAMING_LABELS[framingKey]
+    ? FRAMING_LABELS[framingKey]!
+    : 'Не выбрано'
 
-function escapeMd(text: string): string {
-  return text.replace(/([_*[\]()~`>#+\-=|{}.!\\])/g, '\\$1')
+  // Способ оплаты.
+  const paymentKey = (order as Order & { paymentMethod?: string }).paymentMethod
+  const paymentText = paymentLabel(paymentKey)
+
+  return (
+    `📦 <b>НОВЫЙ ЗАКАЗ!</b>\n\n` +
+    `⏰ <b>Дата:</b> ${escapeHtml(new Date(order.purchase.createdAt).toLocaleString('ru-RU'))}\n` +
+    `👤 <b>Клиент:</b> ${escapeHtml(order.customer.name)}\n` +
+    `📧 <b>Email:</b> ${escapeHtml(order.customer.email)}\n` +
+    `📞 <b>Телефон:</b> ${escapeHtml(order.customer.phone || 'Не указан')}\n` +
+    `💬 <b>Связь:</b> ${escapeHtml(order.customer.userMessenger || 'Не указано')}` +
+    (order.customer.userNickname ? ` · @${escapeHtml(order.customer.userNickname)}` : '') +
+    `\n\n` +
+    `🚚 <b>Доставка:</b>\n${deliveryText}\n\n` +
+    `🖼 <b>Оформление:</b> ${escapeHtml(framingText)}\n` +
+    `💳 <b>Оплата:</b> ${escapeHtml(paymentText)}\n\n` +
+    `🛒 <b>Товары:</b>\n${items}\n\n` +
+    `💵 <b>Итого: ${totalPrice} ₽</b>`
+  )
 }

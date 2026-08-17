@@ -20,7 +20,7 @@ describe('POST /api/payments/yookassa — request shape', () => {
       description: longDescription,
       returnUrl: 'https://example.com/return',
       customer: { email: 'a@b.com' },
-    })
+    }, { isTestMode: false })
     expect(payload.amount).toEqual({ value: '1500.50', currency: 'RUB' })
     expect(payload.capture).toBe(true)
     expect(payload.confirmation).toEqual({
@@ -28,9 +28,11 @@ describe('POST /api/payments/yookassa — request shape', () => {
       return_url: 'https://example.com/return',
     })
     expect(payload.description).toHaveLength(128)
+    // Back-compat: metadata использует camelCase (Yandex-формат) + доп. поля
     expect(payload.metadata).toEqual({
-      order_id: 'order_1',
-      customer_email: 'a@b.com',
+      orderId: 'order_1',
+      customerEmail: 'a@b.com',
+      env: 'prod',
       customer_phone: '',
     })
     expect(payload.receipt.customer).toEqual({
@@ -52,10 +54,21 @@ describe('POST /api/payments/yookassa — request shape', () => {
       returnUrl: 'https://example.com/return',
       currency: 'USD',
       customer: { email: 'a@b.com', phone: '+79991234567' },
-    })
+    }, { isTestMode: false })
     expect(payload.amount.currency).toBe('USD')
     expect(payload.receipt.customer.phone).toBe('+79991234567')
     expect(payload.metadata.customer_phone).toBe('+79991234567')
+  })
+
+  it('isTestMode=true записывает env=test в metadata', () => {
+    const payload = buildYookassaPaymentPayload({
+      orderId: 'order_t',
+      amount: 100,
+      description: 'X',
+      returnUrl: 'https://example.com/r',
+      customer: { email: 'a@b.com' },
+    }, { isTestMode: true })
+    expect(payload.metadata.env).toBe('test')
   })
 })
 

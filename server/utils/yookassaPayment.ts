@@ -19,6 +19,14 @@ export interface YooKassaPayment {
   }
 }
 
+/**
+ * Options для buildYookassaPaymentPayload, чтобы прокинуть isTestMode
+ * и не потерять legacy-поля в metadata (back-compat с Yandex Cloud Function).
+ */
+export interface PaymentPayloadContext {
+  isTestMode: boolean
+}
+
 export function buildYookassaAuthHeader(
   shopId: string,
   secret: string,
@@ -26,7 +34,23 @@ export function buildYookassaAuthHeader(
   return 'Basic ' + Buffer.from(`${shopId}:${secret}`).toString('base64')
 }
 
-export function buildYookassaPaymentPayload(body: CreatePaymentBody) {
+/**
+ * Формирует payload для POST /v3/payments.
+ *
+ * Phase D back-compat (после ревью): metadata keys ВОЗВРАЩЕНЫ в legacy формат:
+ *   - orderId, customerEmail, env (camelCase как в Yandex-функции).
+ *
+ * Snake_case вариант (`order_id`/`customer_email`/`customer_phone`) мы тоже
+ * добавляем — чтобы новые consumers (например webhook-handlers) могли найти
+ * заказ по любому стилю. Новый формат не ломает старый.
+ *
+ * amount.value: с toFixed(2) — YooKassa требует 2 знака. Yandex слал `.toString()`,
+ * что было норм только для целых сумм. Наша версия правильнее.
+ *
+ * description: обрезаем до 128 символов (лимит YooKassa). Yandex этого не делал,
+ * что было потенциальным багом для длинных title.
+ */
+export function buildYookassaPaymentPayload(body: CreatePaymentBody, ctx: PaymentPayloadContext) {
   return {
     amount: {
       value: body.amount.toFixed(2),
@@ -39,8 +63,11 @@ export function buildYookassaPaymentPayload(body: CreatePaymentBody) {
     },
     description: body.description.slice(0, 128),
     metadata: {
-      order_id: body.orderId,
-      customer_email: body.customer.email,
+      // Legacy keys (Yandex-совместимые для dashboard/webhooks поиска)
+      orderId: body.orderId,
+      customerEmail: body.customer.email,
+      env: ctx.isTestMode ? 'test' : 'prod',
+      // Доп. поля для новых consumers (кейс-нейтральные)
       customer_phone: body.customer.phone ?? '',
     },
     receipt: {

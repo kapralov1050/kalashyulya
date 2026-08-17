@@ -13,6 +13,7 @@ const baseOrder: Order = {
       type: 'delivery',
       city: 'Москва',
       address: 'ул. Тверская, 1',
+      recipient: 'Иван Иванов',
     },
   },
   purchase: {
@@ -23,25 +24,83 @@ const baseOrder: Order = {
     createdAt: '2026-08-18T10:00:00.000Z',
   },
   totalPrice: 10200,
-}
+  // Доп. поля для parity-test с Yandex-форматом сообщения
+  // (Order их сейчас не хранит, но форматирование полагается на них).
+} as Order & { framing?: string, paymentMethod?: string }
 
-describe('buildTelegramMessage', () => {
-  it('содержит id заказа и итоговую сумму', () => {
+describe('buildTelegramMessage (back-compat с Yandex-функцией)', () => {
+  it('содержит заголовок «НОВЫЙ ЗАКАЗ» с orderId и итоговой суммой', () => {
     const msg = buildTelegramMessage('order_42', baseOrder, 10200)
+    expect(msg).toContain('НОВЫЙ ЗАКАЗ')
     expect(msg).toContain('order_42')
-    expect(msg).toContain('10200')
     expect(msg).toContain('10200 ₽')
   })
 
-  it('содержит имя, телефон и email покупателя', () => {
+  it('содержит имя, email и телефон покупателя', () => {
     const msg = buildTelegramMessage('o1', baseOrder, 10200)
     expect(msg).toContain('Иван Петров')
     expect(msg).toContain('+79991234567')
-    // Спецсимволы MarkdownV2 экранированы (\. для точки в email)
-    expect(msg).toContain('ivan@test\\.com')
+    // Точка в email НЕ экранируется (HTML mode, не MarkdownV2)
+    expect(msg).toContain('ivan@test.com')
   })
 
-  it('содержит все позиции заказа с ценами', () => {
+  it('содержит messenger с @nickname в формате «Связь: X · @nick»', () => {
+    const msg = buildTelegramMessage('o1', baseOrder, 10200)
+    expect(msg).toContain('💬')
+    expect(msg).toContain('Telegram')
+    expect(msg).toMatch(/Связь:[^\n]*Telegram[^\n]*@ivan/)
+  })
+
+  it('для delivery показывает город, recipient, адрес', () => {
+    const msg = buildTelegramMessage('o1', baseOrder, 10200)
+    expect(msg).toContain('🚚')
+    expect(msg).toContain('Город: Москва')
+    expect(msg).toContain('Получатель: Иван Иванов')
+    expect(msg).toContain('Адрес: ул. Тверская, 1')
+  })
+
+  it('для pickup пишет «Самовывоз (Санкт-Петербург)»', () => {
+    const pickupOrder: Order = {
+      ...baseOrder,
+      customer: { ...baseOrder.customer, delivery: { type: 'pickup' } },
+    }
+    const msg = buildTelegramMessage('o1', pickupOrder, 100)
+    expect(msg).toContain('Самовывоз (Санкт-Петербург)')
+  })
+
+  it('для framing=simple пишет «Рама с паспарту»', () => {
+    const framed = { ...baseOrder, framing: 'simple' } as Order & { framing: string }
+    const msg = buildTelegramMessage('o1', framed, 100)
+    expect(msg).toContain('🖼 Оформление')
+    expect(msg).toContain('Рама с паспарту')
+  })
+
+  it('для premium — «Багет с паспарту»', () => {
+    const framed = { ...baseOrder, framing: 'premium' } as Order & { framing: string }
+    const msg = buildTelegramMessage('o1', framed, 100)
+    expect(msg).toContain('Багет с паспарту')
+  })
+
+  it('для none — «Без рамки»', () => {
+    const framed = { ...baseOrder, framing: 'none' } as Order & { framing: string }
+    const msg = buildTelegramMessage('o1', framed, 100)
+    expect(msg).toContain('Без рамки')
+  })
+
+  it('для paymentMethod=yookassa пишет «Онлайн (ЮKassa)»', () => {
+    const paid = { ...baseOrder, paymentMethod: 'yookassa' } as Order & { paymentMethod: string }
+    const msg = buildTelegramMessage('o1', paid, 100)
+    expect(msg).toContain('💳 Оплата')
+    expect(msg).toContain('Онлайн (ЮKassa)')
+  })
+
+  it('для paymentMethod=manual пишет «Перевод вручную»', () => {
+    const paid = { ...baseOrder, paymentMethod: 'manual' } as Order & { paymentMethod: string }
+    const msg = buildTelegramMessage('o1', paid, 100)
+    expect(msg).toContain('Перевод вручную')
+  })
+
+  it('содержит все позиции заказа с ценами в формате «title × N шт. — P ₽»', () => {
     const msg = buildTelegramMessage('o1', baseOrder, 10200)
     expect(msg).toContain('Акварель')
     expect(msg).toContain('2 шт.')
@@ -49,23 +108,23 @@ describe('buildTelegramMessage', () => {
     expect(msg).toContain('Открытка')
     expect(msg).toContain('1 шт.')
     expect(msg).toContain('200 ₽')
+    // Формат строки: «title × amount шт. — price ₽»
+    expect(msg).toMatch(/Акварель[^—]*×[^—]*2 шт\.[^—]*—[^—]*5000 ₽/)
   })
 
-  it('экранирует спецсимволы MarkdownV2', () => {
+  it('экранирует <, >, & для HTML parse_mode', () => {
     const order: Order = {
       ...baseOrder,
-      customer: {
-        ...baseOrder.customer,
-        name: 'Тест_Имя.Спец*',
-      },
+      customer: { ...baseOrder.customer, name: '<Иван & Петров>' },
     }
     const msg = buildTelegramMessage('o1', order, 100)
-    // Спецсимволы экранированы обратным слэшем
-    expect(msg).toContain('Тест\\_Имя\\.Спец\\*')
-    expect(msg).not.toContain('Тест_Имя.Спец*')
+    // HTML-чувствительные символы экранированы
+    expect(msg).toContain('&lt;Иван &amp; Петров&gt;')
+    // А точка НЕ экранируется (HTML vs MarkdownV2)
+    expect(msg).not.toContain('&lt;Иван &amp; Петров&gt;.')
   })
 
-  it('корректно работает без опциональных полей', () => {
+  it('корректно работает без опциональных полей (только minimum)', () => {
     const minimal: Order = {
       customer: {
         name: 'Мини',
@@ -79,5 +138,6 @@ describe('buildTelegramMessage', () => {
     expect(msg).toContain('Мини')
     expect(msg).toContain('X')
     expect(msg).toContain('1 ₽')
+    expect(msg).toContain('Не указано') // default для messenger
   })
 })
