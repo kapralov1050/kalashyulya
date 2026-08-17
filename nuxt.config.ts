@@ -8,7 +8,6 @@ export default defineNuxtConfig({
   ssr: false,
   nitro: {
     preset: 'node-server',
-    scanDirs: ['server'],
   },
   runtimeConfig: runtimeConfig,
   compatibilityDate: '2025-05-15',
