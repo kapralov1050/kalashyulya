@@ -28,6 +28,20 @@ Object.assign(globalThis, {
   watch,
   watchEffect,
   reactive,
+  // Nitro auto-imports для тестов server/api/*
+  defineEventHandler: (handler: unknown) => handler,
+  defineNitroPlugin: (handler: unknown) => handler,
+  getCookie: () => undefined,
+  setCookie: () => undefined,
+  deleteCookie: () => undefined,
+  readBody: async () => ({}),
+  getQuery: () => ({}),
+  getRouterParam: () => undefined,
+  createError: (opts: { statusCode?: number, message?: string }) => {
+    const err = new Error(opts.message ?? 'error') as Error & { statusCode?: number }
+    err.statusCode = opts.statusCode ?? 500
+    return err
+  },
   toRef,
   toRefs,
   readonly,

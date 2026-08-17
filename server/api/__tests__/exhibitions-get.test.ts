@@ -32,12 +32,9 @@ describe('exhibitions.get DTO mapping', () => {
     getDb = dbModule.getDb
     closeDb = dbModule.closeDb
 
-    // Применяем схему (идемпотентно через applyMigrations)
-    const schemaPath = resolve(process.cwd(), 'server/schema/001_init.sql')
-    const fs = await import('node:fs')
-    getDb().exec(fs.readFileSync(schemaPath, 'utf-8'))
-    const m002Path = resolve(process.cwd(), 'server/schema/002_exhibitions.sql')
-    getDb().exec(fs.readFileSync(m002Path, 'utf-8'))
+    // Схема применяется автоматически через getDb() → applyMigrations().
+    // НЕ вызываем exec повторно — applyAlterFile идемпотентна через table_info,
+    // но прямой exec не идемпотентен и упадёт на duplicate column.
 
     // Сидим одну выставку со всеми полями
     const now = Date.now()
