@@ -27,6 +27,8 @@ async function triggerNotification(
     return result._data?.[successKey] === true
   }
   catch (error) {
+    // Логируем, чтобы пропавшие уведомления были диагностируемы.
+    // eslint-disable-next-line no-console
     console.error(`[orders.post] ${endpoint} failed:`, error)
     return false
   }
