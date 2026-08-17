@@ -2,8 +2,8 @@ export function maskName(value?: string | null): string {
   if (!value) return ''
   const parts = value.trim().split(/\s+/).filter(Boolean)
   if (parts.length === 0) return ''
-  if (parts.length === 1) return `${parts[0].charAt(0)}***`
-  return `${parts[0]} ${parts[1].charAt(0)}.`
+  if (parts.length === 1) return `${parts[0]?.charAt(0) ?? ''}***`
+  return `${parts[0]} ${parts[1]?.charAt(0) ?? ''}.`
 }
 
 export function maskEmail(value?: string | null): string {

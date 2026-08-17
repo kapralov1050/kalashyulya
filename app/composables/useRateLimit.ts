@@ -11,10 +11,10 @@ type RateLimitOptions = {
 }
 
 type RateLimitApi = {
-  attempts: ReturnType<typeof ref<number>>
-  blockedUntil: ReturnType<typeof ref<number | null>>
-  isBlocked: ReturnType<typeof computed<boolean>>
-  remainingTimeMs: ReturnType<typeof computed<number>>
+  attempts: { value: number }
+  blockedUntil: { value: number | null }
+  isBlocked: { value: boolean }
+  remainingTimeMs: { value: number }
   recordAttempt: () => void
   reset: () => void
 }

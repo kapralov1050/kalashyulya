@@ -20,7 +20,7 @@ vi.mock('#app', () => ({
 vi.stubGlobal('$fetch', mocks.$fetch)
 
 vi.mock('~/helpers/showToast', () => ({
-  showToast: vi.fn(),
+  showToast: vi.fn().mockReturnValue(undefined),
 }))
 
 vi.mock('~/composables/useShop', () => ({
@@ -451,10 +451,10 @@ describe('useCheckout', () => {
 
       const orderCalls = orderPostCalls()
       expect(orderCalls).toHaveLength(1)
-      const orderData = orderCalls[0].body
-      expect(orderData.customer.email).toBe('test@example.com')
-      expect(orderData.paymentMethod).toBe('manual')
-      expect(orderData.totalPrice).toBe(1000)
+      const orderData = orderCalls[0]?.body
+      expect(orderData?.customer.email).toBe('test@example.com')
+      expect(orderData?.paymentMethod).toBe('manual')
+      expect(orderData?.totalPrice).toBe(1000)
 
       expect(mocks.routerPush).toHaveBeenCalledWith('/shop')
       expect(basket.shoppingCart).toEqual([])
@@ -483,7 +483,7 @@ describe('useCheckout', () => {
 
       const orderCalls = orderPostCalls()
       expect(orderCalls).toHaveLength(1)
-      expect(orderCalls[0].body.paymentMethod).toBe('yookassa')
+      expect(orderCalls[0]?.body.paymentMethod).toBe('yookassa')
       expect(mocks.routerPush).toHaveBeenCalledWith({
         path: '/shop/payment',
         query: {
@@ -583,7 +583,7 @@ describe('useCheckout', () => {
 
       expect(mocks.sendOrderInfoTelegram).toHaveBeenCalledTimes(1)
       expect(mocks.sendOrderInfoEmail).toHaveBeenCalledTimes(1)
-      expect(mocks.sendOrderInfoTelegram.mock.calls[0][0].customer.email).toBe('test@example.com')
+      expect(mocks.sendOrderInfoTelegram.mock.calls[0]?.[0]?.customer.email).toBe('test@example.com')
       expect(setShopDataCalls()).toHaveLength(0)
     })
 it('logs warning when notifications fail (no firebase write)', async () => {

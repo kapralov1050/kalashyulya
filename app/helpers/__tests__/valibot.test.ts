@@ -7,10 +7,17 @@ import {
   checkoutSchema,
 } from '../valibot'
 
-function collectErrors(result: v.SafeParseResult<unknown>): Record<string, string> {
+interface IssueLike {
+  path?: Array<{ key?: unknown }>
+  message: string
+}
+
+type SafeResult = { success: true } | { success: false, issues: unknown }
+
+function collectErrors(result: SafeResult): Record<string, string> {
   const errors: Record<string, string> = {}
   if (!result.success) {
-    for (const issue of result.issues) {
+    for (const issue of (result.issues as IssueLike[])) {
       const key = issue.path?.[0]?.key
       if (typeof key === 'string' && !errors[key]) errors[key] = issue.message
     }

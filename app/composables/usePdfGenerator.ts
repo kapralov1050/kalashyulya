@@ -1,9 +1,9 @@
 import type { Product } from '~/types'
 
 export interface CertificateProduct {
-  id: number
+  id: number | string
   title: string
-  year: string
+  year: string | number
   tecnic: string
   material: string
   size: string
@@ -45,7 +45,7 @@ export const usePdfGenerator = () => {
       product: {
         id: product.id,
         title: product.title,
-        year: product.year,
+        year: String(product.year ?? ''),
         tecnic: product.tecnic,
         material: product.material,
         size: product.size,
@@ -56,7 +56,7 @@ export const usePdfGenerator = () => {
     const blob = await generatePdf(data)
 
     // Сохраняем номер сертификата в продукт
-    await saveCertificateIdToProduct(product.id, certificateNumber)
+    await saveCertificateIdToProduct(String(product.id), certificateNumber)
 
     return blob
   }
@@ -130,7 +130,7 @@ export const usePdfGenerator = () => {
       product: {
         id: product.id,
         title: product.title,
-        year: product.year,
+        year: String(product.year ?? ''),
         tecnic: product.tecnic,
         material: product.material,
         size: product.size,

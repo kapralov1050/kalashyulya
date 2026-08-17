@@ -76,7 +76,7 @@ export const deliverySchema = v.pipe(
       const result = v.safeParse(schema, value)
       if (!result.success) addIssue({ message: result.issues[0].message, path: [{ type: 'object', origin: 'value', input: dataset.value, key, value }] })
     }
-    if (!dataset.value.house.trim() && !dataset.value.apartment.trim()) {
+    if (!dataset.value.house?.trim() && !dataset.value.apartment?.trim()) {
       addIssue({ message: 'Введите дом или квартиру', path: [{ type: 'object', origin: 'value', input: dataset.value, key: 'house', value: dataset.value.house }] })
     }
   }),
