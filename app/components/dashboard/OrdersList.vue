@@ -221,7 +221,7 @@
 <script setup lang="ts">
   import type { OrderInBase } from '~/types'
   import { computed, ref, watch } from 'vue'
-  import { useFirebase } from '~/composables/firebase/useFirebase'
+  import { useApi } from '~/composables/useApi'
   import { useOrderEmail } from '~/composables/useOrderEmail'
   import { ORDER_STATUS_OPTIONS, getOrderStatusColor } from '~/constants/orders'
   import StatusChangeModal from './StatusChangeModal.vue'
@@ -231,8 +231,17 @@
     premium: 'Багет с паспарту',
   }
 
+  function mapStatusToSql(
+    status: string,
+  ): 'new' | 'paid' | 'shipped' | 'cancelled' {
+    if (status === 'Оплачен') return 'paid'
+    if (status === 'Отправлен') return 'shipped'
+    if (status === 'Отменён' || status === 'Отменен') return 'cancelled'
+    return 'new'
+  }
+
   const { allOrders } = storeToRefs(useOrdersStore())
-  const { updateOrderStatus } = useFirebase()
+  const { updateOrderStatus } = useApi()
   const { sendStatusUpdateEmail } = useOrderEmail()
   const toast = useToast()
 
@@ -289,8 +298,9 @@
         throw new Error('Заказ не найден')
       }
 
-      // Обновляем статус в Firebase
-      await updateOrderStatus(data.orderId, data.status)
+      // Обновляем статус через API (переводим русский → SQL enum)
+      const sqlStatus = mapStatusToSql(data.status)
+      await updateOrderStatus(data.orderId, sqlStatus)
 
       // Отправляем email уведомление
       const emailResult = await sendStatusUpdateEmail(

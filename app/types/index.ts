@@ -6,7 +6,7 @@ export interface Product {
   tecnic: string
   year: string
   categoryId: string
-  id: number
+  id: number | string
   image: string[]
   file: string[]
   price: number
@@ -15,6 +15,7 @@ export interface Product {
   isReserved?: boolean
   framing?: ('frame' | 'passepartout')[]
   certificateId?: string // Номер сертификата, если был сгенерирован
+  views?: number
 }
 
 export interface ShopData {
@@ -33,6 +34,7 @@ export type PurchaseParams = Omit<
 >
 
 export interface ShortPurchaseInfo {
+  id: number | string
   amount: number
   title: string
   price: number

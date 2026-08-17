@@ -87,7 +87,7 @@ function createMockOrder(): OrderInBase {
       },
     },
     purchase: {
-      order: [{ title: 'Акварель', amount: 1, price: 5000 }],
+      order: [{ id: 1, title: 'Акварель', amount: 1, price: 5000 }],
       createdAt: '2026-07-20T12:00:00.000Z',
     },
     totalPrice: 5000,

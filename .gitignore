@@ -6,6 +6,9 @@
 .cache
 .coverage
 dist
+
+# Local SQLite database (development)
+data/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

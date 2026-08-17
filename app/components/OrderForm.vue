@@ -186,8 +186,7 @@
 <script setup lang="ts">
   import type { CheckboxGroupItem } from '@nuxt/ui'
   import { computed } from 'vue'
-  import { useFirebase } from '~/composables/firebase/useFirebase'
-  import { updateDataByPath } from '~/helpers/firebase/manageDatabase'
+  import { useApi } from '~/composables/useApi'
   import { showToast } from '~/helpers/showToast'
   import { orderSchema } from '~/helpers/valibot'
   import type { DaDataSuggestion, Order } from '~/types'
@@ -202,7 +201,8 @@
   const { suggestions, fetchAddresses } = useDaDataAddress()
   const basketStore = useBasketStore()
   const { sendOrderInfoTelegram, sendOrderInfoEmail } = useShop()
-  const { addNewOrder, shopData } = useFirebase()
+  const api = useApi()
+  const { shopData: _shopData, addNewOrder } = api
   const { orderInfo } = storeToRefs(useOrdersStore())
 
   const addressQuery = ref('')
@@ -284,7 +284,7 @@
   async function submitOrder() {
     if (isSending.value) return
     try {
-      const products = Object.values(shopData.value?.products ?? {})
+      const products = Object.values(_shopData.value?.products ?? {})
       const soldOut = basketStore.shoppingCart.filter(purchase => {
         const current = products.find(p => p.id === purchase.item.id)
         return !current || current.stock === 0 || current.isReserved
@@ -353,11 +353,10 @@
           failed.telegram = true
         if (emailResult.status === 'rejected' || !emailResult.value?.success)
           failed.email = true
-        if (Object.keys(failed).length > 0)
-          updateDataByPath(
-            { notificationFailed: failed },
-            `orders/order_${orderId}`,
-          )
+        if (Object.keys(failed).length > 0) {
+          // eslint-disable-next-line no-console
+          console.warn('Notification failures for order', orderId, failed)
+        }
       }
 
       basketStore.clearBasket()

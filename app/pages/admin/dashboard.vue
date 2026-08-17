@@ -89,7 +89,7 @@
 
 <script setup lang="ts">
   import type { Component } from 'vue'
-  import { useFirebase } from '~/composables/firebase/useFirebase'
+  import { useApi } from '~/composables/useApi'
   import type { DashBoardOption } from '~/types'
 
   definePageMeta({
@@ -139,12 +139,12 @@
     return names[option] || option
   }
 
-  const { logOut } = useFirebase()
+  const { logout } = useApi()
   const router = useRouter()
 
   const quitFromAdminPanel = async () => {
     try {
-      await logOut()
+      await logout()
       router.push('/')
     } catch (error) {
       // eslint-disable-next-line no-console

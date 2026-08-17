@@ -6,7 +6,6 @@ export const modulesConfig: NuxtConfig['modules'] = [
   '@nuxt/ui',
   '@pinia/nuxt',
   '@nuxt/image',
-  'nuxt-vuefire',
   '@vueuse/nuxt',
   '@nuxtjs/device',
 ]

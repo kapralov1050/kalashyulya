@@ -6,10 +6,10 @@ import type { Product } from '~/types'
 
 const mockShopData = ref<{ products: Record<string, Product> } | null>(null)
 
-vi.mock('~/composables/firebase/useFirebase', () => ({
-  useFirebase: () => ({
+vi.mock('~/composables/useApi', () => ({
+  useApi: () => ({
     shopData: mockShopData,
-    isLoading: ref(false),
+    loadProducts: vi.fn(async () => {}),
   }),
 }))
 

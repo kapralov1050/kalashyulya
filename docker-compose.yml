@@ -4,10 +4,13 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ./:/app
+      # НЕ монтируем ./:/app — иначе перезапишется .output из образа.
+      # Для live-reload в dev-режиме нужен отдельный сервис с `npm run dev`.
       - /app/node_modules
     ports:
       - "3000:3000"
+    environment:
+      - SQLITE_PATH=/tmp/data.db
     env_file:
       - .env
     healthcheck:

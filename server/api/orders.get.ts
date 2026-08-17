@@ -1,63 +1,67 @@
-import type { OrderInBase } from '~/types'
+import { getDb } from '../utils/db'
 
-const mockOrders: OrderInBase[] = [
-  {
-    id: 1700000000000,
-    status: 'paid',
-    customer: {
-      name: 'Иван Иванов',
-      email: 'ivan@example.com',
-      phone: '+79991234567',
-      userMessenger: 'Телеграм',
-      userNickname: '@ivan',
-      delivery: {
-        type: 'pickup',
-        city: 'Москва',
-        recipient: 'Иван Иванов',
-        address: 'ул. Пушкина, д. 10',
-      },
-    },
-    purchase: {
-      order: [
-        { amount: 1, title: 'Акварель "Море"', price: 5000 },
-      ],
-      createdAt: '2026-01-15T10:30:00.000Z',
-    },
-    totalPrice: 5000,
-    paymentMethod: 'yookassa',
-    paymentId: 'yookassa_1700000000000',
-  },
-  {
-    id: 1700000100000,
-    status: 'Новый заказ',
-    customer: {
-      name: 'Мария Петрова',
-      email: 'maria@example.com',
-      phone: '+79997654321',
-      userMessenger: 'Вконтакте',
-      delivery: {
-        type: 'delivery',
-        city: 'Санкт-Петербург',
-        recipient: 'Мария Петрова',
-        address: 'Невский проспект, д. 1',
-      },
-    },
-    purchase: {
-      order: [
-        { amount: 2, title: 'Открытка "Зима"', price: 350 },
-      ],
-      createdAt: '2026-02-20T14:15:00.000Z',
-    },
-    totalPrice: 700,
-    paymentMethod: 'manual',
-    framing: 'simple',
-  },
-]
+interface OrderRow {
+  id: string
+  customer_name: string
+  customer_email: string
+  customer_phone: string | null
+  city: string | null
+  address: string | null
+  items_json: string
+  total: number
+  status: 'new' | 'paid' | 'shipped' | 'cancelled'
+  comment: string | null
+  created_at: number
+  updated_at: number
+}
 
-export default defineEventHandler((): OrderInBase[] => {
-  try {
-    return mockOrders
-  } catch {
-    throw createError({ statusCode: 500, statusMessage: 'Не удалось загрузить заказы' })
+export interface OrderItemDto {
+  productId: string
+  title: string
+  price: number
+  qty: number
+}
+
+export interface OrderDto {
+  id: string
+  customer: {
+    name: string
+    email: string
+    phone: string | null
+    city: string | null
+    address: string | null
   }
+  items: OrderItemDto[]
+  total: number
+  status: OrderRow['status']
+  comment: string | null
+  createdAt: number
+  updatedAt: number
+}
+
+export default defineEventHandler((event): OrderDto[] => {
+  const status = getQuery(event).status as string | undefined
+  const sql = status
+    ? 'SELECT * FROM orders WHERE status = ? ORDER BY created_at DESC'
+    : 'SELECT * FROM orders ORDER BY created_at DESC'
+  const rows = (status
+    ? getDb().prepare(sql).all(status)
+    : getDb().prepare(sql).all()) as OrderRow[]
+
+  return rows.map((r): OrderDto => ({
+    id: r.id,
+    customer: {
+      name: r.customer_name,
+      email: r.customer_email,
+      phone: r.customer_phone,
+      city: r.city,
+      address: r.address,
+    },
+    items: JSON.parse(r.items_json),
+    total: r.total,
+    status: r.status,
+    comment: r.comment,
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
+  }))
 })

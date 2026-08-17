@@ -17,7 +17,7 @@ export function useCheckout() {
   const router = useRouter()
   const basketStore = useBasketStore()
   const { shoppingCart } = storeToRefs(basketStore)
-  const { addNewOrder, shopData, setShopData } = useApi()
+  const { addNewOrder, shopData } = useApi()
   const { sendOrderInfoTelegram, sendOrderInfoEmail } = useShop()
   const ordersStore = useOrdersStore()
 
@@ -209,8 +209,10 @@ export function useCheckout() {
           failed.telegram = true
         if (emailResult.status === 'rejected' || !emailResult.value?.success)
           failed.email = true
-        if (Object.keys(failed).length > 0)
-          setShopData(`orders/order_${orderId}`, { notificationFailed: failed })
+        if (Object.keys(failed).length > 0) {
+          // eslint-disable-next-line no-console
+          console.warn('Notification failures for order', orderId, failed)
+        }
       }
 
       basketStore.clearBasket()
