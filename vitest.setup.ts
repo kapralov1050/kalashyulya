@@ -38,8 +38,8 @@ Object.assign(globalThis, {
   getQuery: (event?: { query?: Record<string, unknown> }) => (event?.query ?? {}) as Record<string, string>,
   getRouterParam: (event?: { context?: { params?: Record<string, string> }, params?: Record<string, string> }) =>
     (event?.context?.params ?? event?.params ?? {}) as Record<string, string>,
-  createError: (opts: { statusCode?: number, message?: string }) => {
-    const err = new Error(opts.message ?? 'error') as Error & { statusCode?: number }
+  createError: (opts: { statusCode?: number, message?: string, statusMessage?: string }) => {
+    const err = new Error(opts.message ?? opts.statusMessage ?? 'error') as Error & { statusCode?: number }
     err.statusCode = opts.statusCode ?? 500
     return err
   },
