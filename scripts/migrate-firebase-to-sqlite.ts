@@ -348,8 +348,6 @@ async function migrateCategories() {
     INSERT OR REPLACE INTO categories (id, name, "order")
     VALUES (?, ?, ?)
   `)
-  const touch = db.prepare('UPDATE products SET updated_at = ?, category_id = ? WHERE id = ?')
-  const lookup = db.prepare('SELECT id FROM products WHERE category_id = ? LIMIT 1')
 
   const results: Array<{ ok: boolean, id: string, reason?: string }> = []
   const tx = db.transaction(() => {
@@ -377,10 +375,9 @@ async function migrateCategories() {
     for (const [id, p] of Object.entries(productsData)) {
       if (p.categoryId !== undefined && p.categoryId !== null) {
         const catId = `category_${p.categoryId}`
-        // проверим что такая категория есть
         const exists = db.prepare('SELECT 1 FROM categories WHERE id = ?').get(catId)
         if (exists) {
-          touch.run(now, catId, id)
+          db.prepare('UPDATE products SET updated_at = ?, category_id = ? WHERE id = ?').run(now, catId, id)
           updatedCount++
         }
       }

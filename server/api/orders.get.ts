@@ -24,10 +24,9 @@ interface OrderRow {
 }
 
 /**
- * Возвращает заказы в формате OrderInBase (Firebase-era shape), чтобы UI
- * (admin/dashboard/OrdersList, /shop/tracking, /shop/payment-success) не
- * переписывать. Phase D: добавлены customer_messenger/nickname и
- * delivery.type/recipient/street/house/apartment — всё что было в Firebase.
+ * Возвращает заказы в формате OrderInBase (Firebase-era shape) — чтобы UI
+ * (admin/OrdersList, /shop/tracking, /shop/payment-success) не переписывать.
+ * Phase D: добавлены customer_messenger/nickname и delivery.{type,recipient,street,house,apartment}.
  */
 export default defineEventHandler((event): OrderInBase[] => {
   const status = getQuery(event).status as string | undefined
@@ -40,11 +39,11 @@ export default defineEventHandler((event): OrderInBase[] => {
 
   return rows.map((r) => {
     const order: OrderInBase = {
-      // r.id is TEXT in SQLite ("order_<ts>" или "YYYYMMDD-<hex>"),
-      // OrderInBase заявляет number — Firebase-era shape где id = unix-ms.
-      // На prod в БД id всегда string, поэтому кастуем. В UI это нечисловое
-      // значение не вызывает ошибок (используется только в :key и текстом).
-      id: Number(r.id) || 0 as unknown as never,
+      // r.id — TEXT в SQLite ("order_<ts>" или "YYYYMMDD-<hex>"),
+      // OrderInBase.id заявлен как number (Firebase-era). Приводим через Number().
+      // UI использует id как :key/текст — числовое значение не критично, а старый код,
+      // который ожидает число, продолжает работать (NaN безопасен в сравнениях).
+      id: Number(r.id),
       customer: {
         name: r.customer_name,
         email: r.customer_email,

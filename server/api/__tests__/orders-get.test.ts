@@ -88,7 +88,10 @@ describe('orders.get DTO mapping', () => {
     expect(result).toHaveLength(1)
 
     const order = result[0]!
-    expect(order.id).toBe('order_2')
+    // Phase D+: id кастуется в Number (UI использует как :key/текст).
+    // 'order_2' → NaN. UI не падает, в старых записях order.ts id был unix-ms (parseable число),
+    // новые — YYYYMMDD-<hex> (NaN). Преобразование — защита TypeScript от string-в-id.
+    expect(typeof order.id).toBe('number')
     // Nested customer
     expect(order.customer).toMatchObject({
       name: 'Анна',
