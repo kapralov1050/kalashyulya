@@ -63,7 +63,7 @@ describe('POST /api/payments/yookassa — test/prod credentials switching', () =
   // Утилита: подставляем в handler нужные креды через process.env
   // и смотрим, какой Authorization уходит в $fetch (через мок).
 
-  async function callHandler(body: Record<string, unknown>) {
+  async function callHandler(_body: Record<string, unknown>) {
     const handler = (await import('../yookassa.post')).default
     const event = {
       context: {},
