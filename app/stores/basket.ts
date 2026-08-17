@@ -2,6 +2,7 @@ import type { Purchase, PurchaseParams, ShortPurchaseInfo } from '~/types'
 
 export const useBasketStore = defineStore('basket', () => {
   const shoppingCart = ref<Purchase[]>([])
+  const loaded = ref(false)
 
   const totalPurchaseAmount = computed(() => {
     return shoppingCart.value.reduce(
@@ -17,6 +18,7 @@ export const useBasketStore = defineStore('basket', () => {
   const shortPurchaseInfo = computed<ShortPurchaseInfo[]>(() => {
     return shoppingCart.value.map(purc => {
       const shortInfo = {
+        id: purc.item.id,
         amount: purc.amount,
         title: purc.item.title,
         price: purc.item.price,
@@ -27,9 +29,10 @@ export const useBasketStore = defineStore('basket', () => {
   })
 
   function loadPurchase() {
-    if (shoppingCart.value.length === 0) {
+    if (!loaded.value) {
       const basketContent = localStorage.getItem('basket')
       if (basketContent) shoppingCart.value = JSON.parse(basketContent)
+      loaded.value = true
     }
   }
 
@@ -76,6 +79,7 @@ export const useBasketStore = defineStore('basket', () => {
 
   return {
     shoppingCart,
+    loaded,
     deleteShopItemFromBasket,
     addShopItemToBasket,
     changeShopItemQty,

@@ -1,21 +1,16 @@
-import { useFirebase } from '~/composables/firebase/useFirebase'
+import { defineStore } from 'pinia'
 import type { Order, OrderInBase } from '~/types'
+import { useApi } from '~/composables/useApi'
 
 export const useOrdersStore = defineStore('orders', () => {
-  const { ordersData } = useFirebase()
+  const api = useApi()
 
-  const allOrders = computed<OrderInBase[] | []>(() => {
-    if (!ordersData.value) return []
-
-    const orders = Object.values(ordersData.value)
-
-    return orders
-  })
-
+  const allOrders = computed<OrderInBase[]>(() => api.orders.value)
   const orderInfo = ref<Order | null>(null)
 
-  return {
-    allOrders,
-    orderInfo,
+  async function loadOrders() {
+    await api.loadOrders()
   }
+
+  return { allOrders, orderInfo, loadOrders }
 })

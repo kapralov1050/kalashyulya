@@ -91,6 +91,26 @@
         </div>
       </NuxtLink>
 
+      <!-- Privacy Policy Link -->
+      <NuxtLink
+        to="/privacy"
+        class="group flex items-center justify-center space-x-3 p-3 rounded-lg
+          hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors
+          duration-200 sm:ml-2"
+        @click="metrics.trackButtonClick('privacyButton')"
+      >
+        <div class="flex flex-col text-center sm:text-left">
+          <span
+            class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+          >
+            Политика обработки ПДн
+          </span>
+          <span class="text-xs text-neutral-500 dark:text-neutral-400">
+            Федеральный закон № 152-ФЗ
+          </span>
+        </div>
+      </NuxtLink>
+
       <!-- Tracking Link -->
       <NuxtLink
         to="/shop/tracking"

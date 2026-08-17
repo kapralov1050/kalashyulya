@@ -269,7 +269,7 @@ describe('useBasketStore', () => {
   })
 
   describe('loadPurchase', () => {
-    it('загружает корзину из localStorage если корзина пуста', () => {
+    it('загружает корзину из localStorage', () => {
       localStorage.setItem(
         'basket',
         JSON.stringify([{ item: product1, amount: 3 }]),
@@ -280,9 +280,26 @@ describe('useBasketStore', () => {
       expect(store.shoppingCart[0]?.amount).toBe(3)
     })
 
-    it('не перезаписывает корзину если она уже заполнена', () => {
+    it('при первом вызове читает актуальное состояние из localStorage', () => {
       const store = useBasketStore()
       store.addShopItemToBasket({ item: product1, amount: 1 })
+      localStorage.setItem(
+        'basket',
+        JSON.stringify([{ item: product2, amount: 5 }]),
+      )
+      store.loadPurchase()
+      expect(store.shoppingCart).toHaveLength(1)
+      expect(store.shoppingCart[0]?.item.id).toBe(2)
+    })
+
+    it('не перезаписывает корзину при повторных вызовах', () => {
+      localStorage.setItem(
+        'basket',
+        JSON.stringify([{ item: product1, amount: 3 }]),
+      )
+      const store = useBasketStore()
+      store.loadPurchase()
+      expect(store.shoppingCart[0]?.item.id).toBe(1)
       localStorage.setItem(
         'basket',
         JSON.stringify([{ item: product2, amount: 5 }]),
@@ -305,11 +322,11 @@ describe('useBasketStore', () => {
       expect(store.shortPurchaseInfo).toEqual([])
     })
 
-    it('маппит позиции в { amount, title, price }', () => {
+    it('маппит позиции в { id, amount, title, price }', () => {
       const store = useBasketStore()
       store.addShopItemToBasket({ item: product1, amount: 2 })
       expect(store.shortPurchaseInfo).toEqual([
-        { amount: 2, title: 'Картина маслом', price: 1000 },
+        { id: 1, amount: 2, title: 'Картина маслом', price: 1000 },
       ])
     })
 
@@ -319,6 +336,7 @@ describe('useBasketStore', () => {
       store.addShopItemToBasket({ item: product2, amount: 3 })
       expect(store.shortPurchaseInfo).toHaveLength(2)
       expect(store.shortPurchaseInfo[1]).toEqual({
+        id: 2,
         amount: 3,
         title: 'Акварель',
         price: 500,
@@ -329,7 +347,7 @@ describe('useBasketStore', () => {
       const store = useBasketStore()
       store.addShopItemToBasket({ item: product1, amount: 1 })
       const info = store.shortPurchaseInfo[0]
-      expect(Object.keys(info ?? {})).toEqual(['amount', 'title', 'price'])
+      expect(Object.keys(info ?? {})).toEqual(['id', 'amount', 'title', 'price'])
     })
   })
 })

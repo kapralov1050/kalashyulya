@@ -1,24 +1,17 @@
-import {
-  ref as dbRef,
-  getDatabase,
-  increment,
-  onValue,
-  update,
-} from 'firebase/database'
 import { ref } from 'vue'
+import { useApi } from '~/composables/useApi'
 
 export const useProductViews = (productId: string) => {
-  const db = getDatabase()
   const viewsCount = ref(0)
   const viewsKey = `product-${productId}-viewed`
+  const api = useApi()
 
-  const trackView = async () => {
+  async function trackView() {
     if (sessionStorage.getItem(viewsKey) || !productId) return
-
     try {
-      const updates: Record<string, unknown> = {}
-      updates[`shop/products/product_${productId}/views`] = increment(1)
-      await update(dbRef(db), updates)
+      await api.updateProduct(productId, {
+        views: ((api.shopData.value?.products?.[productId]?.views ?? 0) + 1),
+      })
       sessionStorage.setItem(viewsKey, 'true')
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -26,17 +19,11 @@ export const useProductViews = (productId: string) => {
     }
   }
 
-  const getViews = () => {
-    const viewsRef = dbRef(db, `shop/products/product_${productId}/views`)
-    onValue(viewsRef, snapshot => {
-      viewsCount.value = snapshot.val()
-    })
-
+  function getViews() {
+    const product = api.shopData.value?.products?.[productId]
+    viewsCount.value = product?.views ?? 0
     return viewsCount
   }
 
-  return {
-    trackView,
-    getViews,
-  }
+  return { trackView, getViews }
 }

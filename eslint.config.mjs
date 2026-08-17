@@ -103,5 +103,11 @@ export default withNuxt([
       'vue/no-v-html': 'off',
     },
   },
+  {
+    files: ['scripts/**/*.ts', 'server/scripts/**/*.ts'],
+    rules: {
+      'no-console': 'off',
+    },
+  },
   prettier,
 ])

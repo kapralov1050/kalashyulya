@@ -8,7 +8,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY package.json package-lock.json ./
-RUN npm ci --os=linux --cpu=x64 --include=optional --ignore-scripts --no-audit --no-fund
+RUN npm ci --os=linux --include=optional --ignore-scripts --no-audit --no-fund && \
+    npm rebuild better-sqlite3
 RUN npx nuxt prepare
 
 COPY . .
@@ -29,6 +30,7 @@ ENV HOST=0.0.0.0
 
 COPY --from=builder --chown=nitro:nodejs /app/.output ./.output
 COPY --from=builder --chown=nitro:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nitro:nodejs /app/server ./server
 
 USER nitro
 

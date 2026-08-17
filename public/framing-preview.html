@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Выбор изображений — оформление</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; padding: 40px 24px; color: #111; }
+    h1 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+    .subtitle { color: #666; font-size: 14px; margin-bottom: 40px; }
+    .section { margin-bottom: 48px; }
+    .section-title {
+      font-size: 13px; font-weight: 700; letter-spacing: 0.15em;
+      text-transform: uppercase; color: #0891b2; margin-bottom: 16px;
+    }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .card {
+      background: #fff; border-radius: 16px; overflow: hidden;
+      border: 2px solid transparent; cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .card:hover { border-color: #0891b2; box-shadow: 0 4px 20px rgba(8,145,178,0.15); }
+    .card img { width: 100%; height: 240px; object-fit: cover; display: block; }
+    .card-body { padding: 12px 14px; }
+    .card-label { font-size: 12px; font-weight: 600; color: #666; }
+    .card-url {
+      font-size: 10px; color: #aaa; margin-top: 4px;
+      word-break: break-all; font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <h1>Изображения для шага «Оформление»</h1>
+  <p class="subtitle">Выбери по одному на каждый вариант и скажи букву (А / Б / В)</p>
+
+  <div class="section">
+    <div class="section-title">Без рамки</div>
+    <div class="grid">
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1581554848693-667c83b9ccef?w=600&auto=format&q=80" />
+        <div class="card-body">
+          <div class="card-label">А — скетчбук с красками, акварель на ковре</div>
+        </div>
+      </div>
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1704123298677-9415e95d1133?w=600&auto=format&q=80" />
+        <div class="card-body">
+          <div class="card-label">Б — лист акварели, улица, белые поля</div>
+        </div>
+      </div>
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1740518905417-5e0dcf6286b2?w=600&auto=format&q=80" />
+        <div class="card-body">
+          <div class="card-label">В — парижские крыши на бумаге, видны края</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Деревянная рамка</div>
+    <div class="grid">
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1605845872108-b733db1f2663?w=600&auto=format&q=80" />
+        <div class="card-body">
+          <div class="card-label">А — морской пейзаж в тёмной деревянной раме</div>
+        </div>
+      </div>
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1765371512379-b6e10ffddc3f?w=600&auto=format&q=80" />
+        <div class="card-body">
+          <div class="card-label">Б — абстракция в тонкой раме, современный интерьер</div>
+        </div>
+      </div>
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1768481664880-656147a9020c?w=600&auto=format&q=80" />
+        <div class="card-body">
+          <div class="card-label">В — рама в домашнем интерьере с цветами</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Багетное оформление / паспарту</div>
+    <div class="grid">
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1585609976813-2b9063bd94e0?w=600&auto=format&q=80" />
+        <div class="card-body">
+          <div class="card-label">А — портрет в узком тёмном багете, крупный план</div>
+        </div>
+      </div>
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1741959113079-4092822d359c?w=600&auto=format&q=80" />
+        <div class="card-body">
+          <div class="card-label">Б — пейзаж с церковью в позолоченной раме</div>
+        </div>
+      </div>
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1574165426304-c0e34341b2e8?w=600&auto=format&q=80" />
+        <div class="card-body">
+          <div class="card-label">В — Мадонна в широком резном золочёном багете</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

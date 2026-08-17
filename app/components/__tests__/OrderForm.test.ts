@@ -10,12 +10,21 @@ const { mockAddNewOrder } = vi.hoisted(() => ({
   mockAddNewOrder: vi.fn().mockResolvedValue('order_123'),
 }))
 
-vi.mock('~/composables/firebase/useFirebase', () => ({
-  useFirebase: () => ({
+vi.mock('~/composables/useApi', () => ({
+  useApi: () => ({
     shopData: ref(null),
-    ordersData: ref(null),
-    isLoading: ref(false),
+    orders: ref([]),
+    exhibitions: ref([]),
     addNewOrder: mockAddNewOrder,
+    login: vi.fn(),
+    logout: vi.fn(),
+    refreshCurrentUser: vi.fn(),
+    loadProducts: vi.fn(),
+    loadOrders: vi.fn(),
+    loadExhibitions: vi.fn(),
+    onAuthStateChanged: () => () => {},
+    isLoggedIn: ref(false),
+    currentUser: ref(null),
   }),
 }))
 

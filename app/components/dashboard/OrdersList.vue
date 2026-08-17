@@ -134,21 +134,26 @@
 
         <div class="delivery-info bg-gray-50 p-4 rounded-lg">
           <h4 class="font-medium mb-3 flex items-center gap-2">
-            Адрес доставки:
+            Доставка:
           </h4>
-          <div class="space-y-1">
-            <p v-if="order.customer.delivery" class="flex items-center gap-2">
-              <span class="material-icons-outlined text-sm text-gray-500">
-                адрес
-              </span>
-              {{ order.customer.delivery.city || 'Город не указан' }}, ул.
-              {{ order.customer.delivery.street || 'улица не указана' }}, д.
-              {{ order.customer.delivery.house || 'не указан' }}
-              <span v-if="order.customer.delivery.apartment">
-                , кв. {{ order.customer.delivery.apartment }}
-              </span>
-            </p>
-            <p v-else class="text-gray-500">Адрес не указан</p>
+          <div class="space-y-1 text-sm">
+            <template v-if="order.customer.delivery?.type === 'pickup' || !order.customer.delivery?.type">
+              <p class="flex items-center gap-2 text-gray-700">
+                <span class="material-icons-outlined text-sm text-gray-500">store</span>
+                Самовывоз (Санкт-Петербург)
+              </p>
+            </template>
+            <template v-else>
+              <p v-if="order.customer.delivery.recipient" class="flex items-center gap-2 text-gray-700">
+                <span class="material-icons-outlined text-sm text-gray-500">person</span>
+                {{ order.customer.delivery.recipient }}
+              </p>
+              <p v-if="order.customer.delivery.address" class="flex items-center gap-2 text-gray-700">
+                <span class="material-icons-outlined text-sm text-gray-500">place</span>
+                {{ order.customer.delivery.address }}
+              </p>
+              <p v-else class="text-gray-400">Адрес не указан</p>
+            </template>
           </div>
         </div>
       </div>
@@ -195,6 +200,12 @@
             </span>
           </div>
         </div>
+
+        <div v-if="order.framing && order.framing !== 'none'" class="mt-3 flex items-center gap-2 px-4 py-3 bg-cyan-50 border border-cyan-200 rounded-lg text-sm text-cyan-800">
+          <span class="material-icons-outlined text-sm">frame_inspect</span>
+          <span class="font-medium">Оформление:</span>
+          {{ FRAMING_LABELS[order.framing] }}
+        </div>
       </div>
     </div>
 
@@ -210,13 +221,27 @@
 <script setup lang="ts">
   import type { OrderInBase } from '~/types'
   import { computed, ref, watch } from 'vue'
-  import { useFirebase } from '~/composables/firebase/useFirebase'
+  import { useApi } from '~/composables/useApi'
   import { useOrderEmail } from '~/composables/useOrderEmail'
   import { ORDER_STATUS_OPTIONS, getOrderStatusColor } from '~/constants/orders'
   import StatusChangeModal from './StatusChangeModal.vue'
 
+  const FRAMING_LABELS: Record<string, string> = {
+    simple: 'Рама с паспарту',
+    premium: 'Багет с паспарту',
+  }
+
+  function mapStatusToSql(
+    status: string,
+  ): 'new' | 'paid' | 'shipped' | 'cancelled' {
+    if (status === 'Оплачен') return 'paid'
+    if (status === 'Отправлен') return 'shipped'
+    if (status === 'Отменён' || status === 'Отменен') return 'cancelled'
+    return 'new'
+  }
+
   const { allOrders } = storeToRefs(useOrdersStore())
-  const { updateOrderStatus } = useFirebase()
+  const { updateOrderStatus } = useApi()
   const { sendStatusUpdateEmail } = useOrderEmail()
   const toast = useToast()
 
@@ -273,8 +298,9 @@
         throw new Error('Заказ не найден')
       }
 
-      // Обновляем статус в Firebase
-      await updateOrderStatus(data.orderId, data.status)
+      // Обновляем статус через API (переводим русский → SQL enum)
+      const sqlStatus = mapStatusToSql(data.status)
+      await updateOrderStatus(data.orderId, sqlStatus)
 
       // Отправляем email уведомление
       const emailResult = await sendStatusUpdateEmail(

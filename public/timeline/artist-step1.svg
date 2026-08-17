@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
+  <style>
+    @media (prefers-reduced-motion: no-preference) {
+      .l-arm {
+        transform-origin: 33px 30px;
+        animation: l-arm-anim 2.5s linear infinite;
+      }
+      .r-arm {
+        transform-origin: 47px 30px;
+        animation: r-arm-anim 2.5s linear infinite;
+      }
+      .body-grp {
+        transform-origin: 40px 33.5px;
+        animation: body-anim 2.5s linear infinite;
+      }
+
+      @keyframes l-arm-anim {
+        0%   { transform: rotate(-30deg); animation-timing-function: ease-out; }
+        20%  { transform: rotate(-165deg); animation-timing-function: ease-in-out; }
+        26%  { transform: rotate(-147deg); animation-timing-function: ease-in-out; }
+        32%  { transform: rotate(-153deg); }
+        48%  { transform: rotate(-30deg); animation-timing-function: ease-in; }
+        100% { transform: rotate(-30deg); }
+      }
+
+      @keyframes r-arm-anim {
+        0%   { transform: rotate(30deg); animation-timing-function: ease-out; }
+        20%  { transform: rotate(165deg); animation-timing-function: ease-in-out; }
+        26%  { transform: rotate(147deg); animation-timing-function: ease-in-out; }
+        32%  { transform: rotate(153deg); }
+        48%  { transform: rotate(30deg); animation-timing-function: ease-in; }
+        100% { transform: rotate(30deg); }
+      }
+
+      @keyframes body-anim {
+        0%, 16%, 52%, 100% { transform: scale(1); }
+        28%  { transform: scale(1.05); animation-timing-function: ease-in-out; }
+        36%  { transform: scale(1); }
+      }
+    }
+  </style>
+
+  <!-- Hair bun -->
+  <ellipse cx="40" cy="11" rx="5" ry="3.5" fill="#5C3D2E"/>
+
+  <!-- Head -->
+  <circle cx="40" cy="20" r="7" fill="#FDDCB5"/>
+
+  <!-- Body -->
+  <g class="body-grp">
+    <rect x="33" y="27" width="14" height="13" rx="3" fill="#06b6d4"/>
+  </g>
+
+  <!-- Legs (static) -->
+  <line x1="37" y1="40" x2="34" y2="56" stroke="#1e293b" stroke-width="2" stroke-linecap="round"/>
+  <line x1="43" y1="40" x2="46" y2="56" stroke="#1e293b" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Left arm -->
+  <g class="l-arm">
+    <line x1="33" y1="30" x2="33" y2="42" stroke="#FDDCB5" stroke-width="2" stroke-linecap="round"/>
+  </g>
+
+  <!-- Right arm + paintbrush -->
+  <g class="r-arm">
+    <line x1="47" y1="30" x2="47" y2="42" stroke="#FDDCB5" stroke-width="2" stroke-linecap="round"/>
+    <line x1="47" y1="43" x2="47" y2="51" stroke="#5C3D2E" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="47" cy="52.5" r="2" fill="#06b6d4"/>
+  </g>
+</svg>

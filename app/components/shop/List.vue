@@ -65,28 +65,6 @@
         @close="closeModal"
       />
 
-      <!-- Order Modal -->
-      <UModal
-        v-model:open="isOrderModalOpen"
-        :title="printLocale('shop_list_order_modal_title')"
-        :description="printLocale('shop_list_order_modal_description')"
-        close-icon="heroicons:x-mark-16-solid"
-      >
-        <template #body>
-          <OrderForm
-            @close-modal="isOrderModalOpen = false"
-            @success-order="onOrderSuccess"
-          />
-        </template>
-      </UModal>
-
-      <!-- Payment Method Selector Modal -->
-      <UModal v-model:open="isOrderSuccessModalOpen">
-        <template #content>
-          <PaymentMethodSelector @select-payment-method="handlePaymentMethod" />
-        </template>
-      </UModal>
-
       <!-- Buy Action Modal -->
       <BuyActionModal
         v-model:open="isBuyActionModalOpen"
@@ -102,11 +80,8 @@
 
 <script setup lang="ts">
   import { useRoute } from 'vue-router'
-  import OrderForm from '~/components/OrderForm.vue'
   import BuyActionModal from '~/components/shop/BuyActionModal.vue'
-  import PaymentMethodSelector from '~/components/shop/PaymentMethodSelector.vue'
   import ProductModal from '~/components/shop/ProductModal.vue'
-  import { useFirebase } from '~/composables/firebase/useFirebase'
   import { useProductModal } from '~/composables/useProductModal'
   import type { Product } from '~/types'
 
@@ -114,72 +89,62 @@
   const route = useRoute()
   const router = useRouter()
 
-  const { addShopItemToBasket, clearBasket } = useBasketStore()
+  const { clearBasket } = useBasketStore()
 
   const shopStore = useShopStore()
   const {
-    searchedProducts,
     shopData,
     currentPage,
     paginatedProducts,
     totalItems,
+    isLoading,
   } = storeToRefs(shopStore)
-  const { isLoading } = useFirebase()
 
   const { isProductModalOpen, selectedProduct, closeModal } = useProductModal()
 
-  const isOrderModalOpen = ref(false)
-  const isOrderSuccessModalOpen = ref(false)
   const isBuyActionModalOpen = ref(false)
-  const lastOrderId = ref<string | null>(null)
   const modalProduct = ref<Product | null>(null)
   const basketStore = useBasketStore()
   const { totalPurchaceQty, totalPurchaseAmount } = storeToRefs(basketStore)
 
-  // Обработчик клика на кнопку "Купить"
   const handleBuyClick = (product: Product) => {
     metrics.trackButtonClick('buyButton')
     modalProduct.value = product
 
-    // Если в корзине уже есть товары, показываем модалку выбора
     if (totalPurchaceQty.value > 0) {
       isBuyActionModalOpen.value = true
     } else {
-      addToBasketAndOrder(product, false)
+      addToBasketAndGo(product, false)
     }
   }
 
-  // Обработчики для модалки выбора действия
   const handleBuyOnly = async () => {
     isBuyActionModalOpen.value = false
-    // Очищаем корзину и оформляем
-    await addToBasketAndOrder(modalProduct.value!, true)
+    await addToBasketAndGo(modalProduct.value!, true)
   }
 
   const handleAddToBasket = async () => {
     isBuyActionModalOpen.value = false
-    // Добавляем к существующим
-    await addToBasketAndOrder(modalProduct.value!, false)
+    await addToBasketAndGo(modalProduct.value!, false)
   }
 
-  // Добавляем товар в корзину и открываем модалку заказа
-  const addToBasketAndOrder = async (
+  const addToBasketAndGo = async (
     product: Product,
     shouldClearBasket: boolean = false,
   ) => {
-    isOrderModalOpen.value = true
     if (shouldClearBasket) {
       clearBasket()
     }
 
     await addToBasket(product)
+    router.push('/basket')
   }
 
   const error = computed(() => {
     if (shopData.value instanceof Error) {
       return shopData.value
     }
-    if (!shopData || Object.keys(shopData).length === 0) {
+    if (!shopData.value || Object.keys(shopData.value).length === 0) {
       return new Error('Данные не загружены')
     }
     return null
@@ -209,40 +174,7 @@
       amount: 1,
       item: purchaseParams,
     }
-    addShopItemToBasket(purchase)
-  }
-
-  const onOrderSuccess = (orderId: string) => {
-    lastOrderId.value = orderId
-    isOrderModalOpen.value = false
-    isOrderSuccessModalOpen.value = true
-  }
-
-  const handlePaymentMethod = (method: 'yookassa' | 'manual') => {
-    isOrderSuccessModalOpen.value = false
-
-    if (method === 'yookassa') {
-      // Онлайн оплата → редирект на страницу оплаты
-      const orderId = lastOrderId.value || Date.now().toString()
-      const product = modalProduct.value
-
-      if (product) {
-        const amount = product.price.toString()
-        const description = `Оплата: ${product.title || 'Заказ'}`
-
-        router.push({
-          path: '/shop/payment',
-          query: {
-            orderId,
-            amount,
-            description,
-          },
-        })
-      }
-    } else {
-      // Оплата вручную → сообщение и редирект на магазин
-      router.push('/shop')
-    }
+    basketStore.addShopItemToBasket(purchase)
   }
 
   function handleTagClick(tag: string) {
@@ -251,8 +183,6 @@
     } else {
       shopStore.addTag(tag)
     }
-
-    searchedProducts.value = shopStore.filterProductsByTags()
 
     if (route.query.page) {
       router.push({ query: { ...route.query, page: undefined } })
@@ -275,21 +205,6 @@
         isUpdatingPage.value = false
       })
   }
-
-  function onOrderFormClose() {
-    isOrderModalOpen.value = false
-    clearBasket()
-  }
-
-  watch(isOrderModalOpen, (newValue, oldValue) => {
-    if (
-      oldValue === true &&
-      newValue === false &&
-      !isOrderSuccessModalOpen.value
-    ) {
-      onOrderFormClose()
-    }
-  })
 
   onMounted(() => {
     if (route.query.page) {

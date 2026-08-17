@@ -140,6 +140,10 @@ export class MetricsTracker {
     )
   }
 
+  clearQueue(): void {
+    this.metricsQueue.clear()
+  }
+
   private flushMetrics(): void {
     if (this.metricsQueue.size === 0) return
     const optimizedData: Record<string, Record<string, [number, number]>> = {}
@@ -176,17 +180,26 @@ export class MetricsTracker {
 }
 
 let _instance: MetricsTracker | null = null
+let _analyticsEnabled = false
 
 export function initMetrics(endpoint: string) {
+  if (_instance) return
   _instance = new MetricsTracker(endpoint)
 }
 
+export function setMetricsEnabled(enabled: boolean): void {
+  _analyticsEnabled = enabled
+  if (!enabled && _instance) {
+    _instance.clearQueue()
+  }
+}
+
 export const metrics = {
-  trackPageView: (p: string) => _instance?.trackPageView(p),
-  trackButtonClick: (b: string) => _instance?.trackButtonClick(b),
-  trackReferrer: () => _instance?.trackReferrer(),
-  trackDevice: () => _instance?.trackDevice(),
-  trackVisitorType: () => _instance?.trackVisitorType(),
-  startPageTimer: (p: string) => _instance?.startPageTimer(p),
-  endPageTimer: () => _instance?.endPageTimer(),
+  trackPageView: (p: string) => _analyticsEnabled && _instance?.trackPageView(p),
+  trackButtonClick: (b: string) => _analyticsEnabled && _instance?.trackButtonClick(b),
+  trackReferrer: () => _analyticsEnabled && _instance?.trackReferrer(),
+  trackDevice: () => _analyticsEnabled && _instance?.trackDevice(),
+  trackVisitorType: () => _analyticsEnabled && _instance?.trackVisitorType(),
+  startPageTimer: (p: string) => _analyticsEnabled && _instance?.startPageTimer(p),
+  endPageTimer: () => _analyticsEnabled && _instance?.endPageTimer(),
 }

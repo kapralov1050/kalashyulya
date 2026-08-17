@@ -6,7 +6,7 @@ export interface Product {
   tecnic: string
   year: string
   categoryId: string
-  id: number
+  id: number | string
   image: string[]
   file: string[]
   price: number
@@ -15,6 +15,7 @@ export interface Product {
   isReserved?: boolean
   framing?: ('frame' | 'passepartout')[]
   certificateId?: string // Номер сертификата, если был сгенерирован
+  views?: number
 }
 
 export interface ShopData {
@@ -33,6 +34,7 @@ export type PurchaseParams = Omit<
 >
 
 export interface ShortPurchaseInfo {
+  id: number | string
   amount: number
   title: string
   price: number
@@ -45,30 +47,36 @@ export interface CustomerInfo {
   userMessenger?: string
   userNickname?: string
   delivery?: {
-    city: string
-    recipient: string
-    street: string
-    house: string
-    apartment: string
+    type: 'pickup' | 'delivery'
+    city?: string
+    recipient?: string
+    address?: string
+    // Legacy fields — kept for backward-compat with old Firebase records
+    street?: string
+    house?: string
+    apartment?: string
   }
 }
 
 export interface Order {
   customer: Omit<CustomerInfo, 'delivery'> & {
     delivery: {
-      city: string
-      recipient: string
-      street: string
-      house: string
-      apartment: string
+      type: 'pickup' | 'delivery'
+      city?: string
+      recipient?: string
+      address?: string
+      street?: string
+      house?: string
+      apartment?: string
     }
   }
   purchase: {
     order: ShortPurchaseInfo[]
     createdAt: string
   }
-
   totalPrice: number
+  framing?: 'none' | 'simple' | 'premium'
+  paymentMethod?: 'yookassa' | 'manual'
 }
 
 export interface OrderInBase extends Order {
@@ -87,7 +95,10 @@ export interface DaDataSuggestion {
   unrestricted_value: string
   data: {
     postal_code?: string
+    region?: string
+    region_with_type?: string
     city?: string
+    settlement?: string
     street?: string
     house?: string
     flat?: string
