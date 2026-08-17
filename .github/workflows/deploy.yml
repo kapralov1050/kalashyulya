@@ -152,31 +152,33 @@ jobs:
             set -e
 
             # Создаём /var/lib/kalashyulya (uid 1001 = nitro в контейнере).
-            sudo mkdir -p /var/lib/kalashyulya
-            sudo chown -R 1001:1001 /var/lib/kalashyulya
-            sudo chmod 775 /var/lib/kalashyulya
+            # Без sudo — пользователь kalashyulya не имеет sudo без пароля.
+            # /var/lib обычно writable для обычных пользователей только в своём home,
+            # поэтому для SQLite базы используем /var/www/kalashyulya/data/ —
+            # этот путь точно принадлежит юзеру (там лежит .env).
+            mkdir -p /var/www/kalashyulya/data
+            chmod 775 /var/www/kalashyulya/data
 
             docker pull ghcr.io/kapralov1050/kalashyulya:nitro
 
             docker stop kalashyulya 2>/dev/null || true
             docker rm kalashyulya 2>/dev/null || true
 
+            # Volume: /var/www/kalashyulya/data на хосте → /var/lib/kalashyulya в контейнере
             docker run -d \
               --name kalashyulya \
               --restart unless-stopped \
               -p 127.0.0.1:3000:3000 \
-              -v /var/lib/kalashyulya:/var/lib/kalashyulya \
+              -v /var/www/kalashyulya/data:/var/lib/kalashyulya \
               --env-file /var/www/kalashyulya/.env \
               ghcr.io/kapralov1050/kalashyulya:nitro
 
             sleep 10
 
-            # Скопировать static assets
             rm -rf /var/www/kalashyulya/.output
             mkdir -p /var/www/kalashyulya/.output
             docker cp kalashyulya:/app/.output/public /var/www/kalashyulya/.output/public 2>/dev/null || true
 
-            # Сохранить лог в файл (потом прочитаем в GitHub Actions)
             DEPLOY_LOG=/tmp/kalashyulya-deploy.log
             {
               echo "=== DEPLOY RUN $(date -Iseconds) ==="
@@ -192,11 +194,7 @@ jobs:
               echo "--- end ---"
             } > "$DEPLOY_LOG" 2>&1
 
-            # ВАЖНО: всегда печатаем содержимое лога, чтобы оно попало в GitHub Actions
             cat "$DEPLOY_LOG"
-
-            # Не падаем на smoke test — это инфо, главное что новый код задеплоен.
-            # Если что-то критичное — увидим в логах выше.
             exit 0
 
       - name: Cleanup old images
