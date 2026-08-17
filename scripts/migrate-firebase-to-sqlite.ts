@@ -387,11 +387,6 @@ async function migrateCategories() {
   console.log(`   Обновлено ${updatedCount} товаров с category_id`)
 }
 
-interface FbCertificateCounter {
-  // /certificates/{YYYY} — это просто число (число выданных в этом году)
-  [year: string]: number
-}
-
 async function migrateCertificates() {
   console.log('\n📜 Читаю /certificates/{YYYY} ...')
   const data = await readAll<number>('certificates')

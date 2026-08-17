@@ -42,7 +42,6 @@ describe('orders.get DTO mapping', () => {
     getDb().exec(schema)
 
     // Сидим один заказ
-    const now = Date.now()
     getDb().prepare(`
       INSERT INTO orders (id, customer_name, customer_email, customer_phone,
                           customer_messenger, customer_nickname,
@@ -114,7 +113,8 @@ describe('orders.get DTO mapping', () => {
     expect(order.paymentMethod).toBe('manual')
     expect(order.paymentId).toBe('')
     expect(order.notificationFailed).toEqual({ telegram: false, email: false })
-    expect(order.framing).toBe('')
+    // Phase D: framing нет в SQLite (FB тоже не хранит), просто отсутствует.
+    expect(order.framing).toBeUndefined()
   })
 
   it('достаёт ВСЕ поля из Firebase customer.delivery (Phase D)', async () => {
