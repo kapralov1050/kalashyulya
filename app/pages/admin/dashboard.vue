@@ -141,6 +141,15 @@
 
   const { logout } = useApi()
   const router = useRouter()
+  const ordersStore = useOrdersStore()
+  const exhibitionsStore = useExhibitionsStore()
+
+  // Заказы и выставки тяжелее товаров — грузим по требованию при заходе в админку.
+  // Товары уже загружены plugin'ом load-data.client.ts.
+  onMounted(() => {
+    ordersStore.loadOrders().catch(() => {})
+    exhibitionsStore.loadExhibitions().catch(() => {})
+  })
 
   const quitFromAdminPanel = async () => {
     try {
