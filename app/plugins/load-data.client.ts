@@ -9,10 +9,10 @@ export default defineNuxtPlugin(async () => {
 
   // Параллельно грузим всё нужное для витрины
   await Promise.all([
-    api.loadProducts().catch((err) => console.error('[init] loadProducts failed', err)),
-    api.loadExhibitions().catch((err) => console.error('[init] loadExhibitions failed', err)),
+    api.loadProducts().catch(() => {}),
+    api.loadExhibitions().catch(() => {}),
   ])
 
   // Аутентификация — отдельным вызовом (не блокируем витрину)
-  api.refreshCurrentUser().catch((err) => console.error('[init] auth refresh failed', err))
+  api.refreshCurrentUser().catch(() => {})
 })
