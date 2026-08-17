@@ -1,6 +1,3 @@
-import { useRuntimeConfig } from '#app'
-import type { OrderInBase } from '~/types'
-
 export interface StatusEmailData {
   to: string
   customerName: string
@@ -23,12 +20,7 @@ export interface EmailResponse {
 }
 
 export const useOrderEmail = () => {
-  const config = useRuntimeConfig()
-
-  /**
-   * Генерация HTML шаблона email уведомления
-   */
-  function generateEmailTemplate(data: StatusEmailData): string {
+  const generateEmailTemplate = (data: StatusEmailData): string => {
     const orderItemsHtml = data.orderItems
       .map(
         item => `
@@ -99,9 +91,6 @@ export const useOrderEmail = () => {
 </html>`
   }
 
-  /**
-   * Экранирование HTML символов для безопасности
-   */
   function escapeHtml(text: string): string {
     const map: Record<string, string> = {
       '&': '&amp;',
@@ -113,11 +102,8 @@ export const useOrderEmail = () => {
     return text.replace(/[&<>"']/g, m => map[m] ?? m)
   }
 
-  /**
-   * Подготовка данных для отправки email
-   */
   function prepareEmailData(
-    order: OrderInBase,
+    order: import('~/types').OrderInBase,
     newStatus: string,
     customMessage?: string,
   ): StatusEmailData {
@@ -137,11 +123,8 @@ export const useOrderEmail = () => {
     }
   }
 
-  /**
-   * Отправка email уведомления о смене статуса
-   */
   async function sendStatusUpdateEmail(
-    order: OrderInBase,
+    order: import('~/types').OrderInBase,
     newStatus: string,
     customMessage?: string,
   ): Promise<EmailResponse> {
@@ -149,14 +132,8 @@ export const useOrderEmail = () => {
       const emailData = prepareEmailData(order, newStatus, customMessage)
       const htmlContent = generateEmailTemplate(emailData)
 
-      const functionUrl = config.public.cloudFunctionEmailStatusNotification
-
-      if (!functionUrl) {
-        throw new Error('Email function URL is not configured')
-      }
-
-      const response = await $fetch<{ success: boolean; message: string }>(
-        functionUrl,
+      const response = await $fetch<{ ok: boolean; error?: string }>(
+        '/api/notifications/email',
         {
           method: 'POST',
           body: {
@@ -170,14 +147,11 @@ export const useOrderEmail = () => {
         },
       )
 
-      return {
-        success: response.success,
-        message: response.message,
+      if (!response.ok) {
+        return { success: false, error: response.error }
       }
+      return { success: true, message: 'Email отправлен' }
     } catch (error: unknown) {
-      // eslint-disable-next-line no-console
-      console.error('Error sending status update email:', error)
-
       let errorMessage = 'Неизвестная ошибка'
 
       if (error && typeof error === 'object' && 'status' in error) {

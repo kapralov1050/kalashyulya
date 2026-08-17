@@ -1,3 +1,4 @@
+import type { H3Event } from 'h3'
 import type { Order, ShortPurchaseInfo } from '~/types'
 import { randomBytes } from 'node:crypto'
 import { getDb } from '../utils/db'
@@ -5,6 +6,39 @@ import { getDb } from '../utils/db'
 interface CreateOrderResponse {
   id: string
   total: number
+}
+
+async function triggerOrderNotifications(
+  event: H3Event,
+  orderId: string,
+  orderData: Order,
+  totalPrice: number,
+): Promise<{ telegram: boolean; email: boolean }> {
+  const telegramPromise = $fetch
+    .raw('/api/notifications/telegram', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: { orderId, orderData, totalPrice },
+      baseURL: getRequestURL(event).origin,
+    })
+    .then(() => true)
+    .catch(() => false)
+
+  const emailPromise = $fetch
+    .raw('/api/notifications/email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: { orderData },
+      baseURL: getRequestURL(event).origin,
+    })
+    .then(() => true)
+    .catch(() => false)
+
+  const [telegram, email] = await Promise.all([
+    telegramPromise,
+    emailPromise,
+  ])
+  return { telegram, email }
 }
 
 export default defineEventHandler(async (event): Promise<CreateOrderResponse> => {
@@ -54,6 +88,12 @@ export default defineEventHandler(async (event): Promise<CreateOrderResponse> =>
       now,
       now,
     )
+
+  // Server-side уведомления: выполняем best-effort параллельно,
+  // не блокируем ответ клиенту при ошибках отдельных каналов.
+  void triggerOrderNotifications(event, id, body, total).catch(() => {
+    /* noop — best-effort */
+  })
 
   return { id, total }
 })

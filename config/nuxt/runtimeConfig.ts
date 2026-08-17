@@ -1,13 +1,16 @@
 import type { NuxtConfig } from 'nuxt/config'
 
 export const runtimeConfig: NuxtConfig['runtimeConfig'] = {
+  yookassaShopId: process.env.NUXT_YOOKASSA_SHOP_ID,
+  yookassaSecret: process.env.NUXT_YOOKASSA_SECRET,
+  telegramBotToken: process.env.NUXT_TELEGRAM_BOT_TOKEN,
+  telegramChatId: process.env.NUXT_TELEGRAM_CHAT_ID,
+  smtpHost: process.env.NUXT_SMTP_HOST,
+  smtpUser: process.env.NUXT_SMTP_USER,
+  smtpPass: process.env.NUXT_SMTP_PASS,
+  smtpFrom: process.env.NUXT_SMTP_FROM,
   public: {
     siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://kalashyulya.ru',
-    cloudFunctionTelegramUrl:
-      process.env.NUXT_PUBLIC_CLOUD_FUNCTION_TELEGRAM_URL,
-    cloudFunctionEmailUrl: process.env.NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_URL,
-    cloudFunctionEmailStatusNotification:
-      process.env.NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_NOTIFIER,
     cloudFunctionUploadProduct:
       process.env.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_PRODUCT_URL,
     cloudFunctionDeleteProductImage:
@@ -22,9 +25,6 @@ export const runtimeConfig: NuxtConfig['runtimeConfig'] = {
     locales: process.env.NUXT_PUBLIC_LOCALES,
     cloudFunctionPdfGenerator:
       process.env.NUXT_PUBLIC_CLOUD_FUNCTION_PDF_GENERATOR_URL,
-    //payments:
-    cloudFunctionYookassaCreatePayment:
-      process.env.NUXT_PUBLIC_CLOUD_FUNCTION_YOOKASSA_CREATE_PAYMENT,
     cloudFunctionDeploy: process.env.NUXT_PUBLIC_CLOUD_FUNCTION_DEPLOY,
     cloudFunctionDeploySecret:
       process.env.NUXT_PUBLIC_CLOUD_FUNCTION_DEPLOY_SECRET,

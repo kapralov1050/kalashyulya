@@ -1,5 +1,3 @@
-import { useRuntimeConfig } from '#app'
-
 export interface CreatePaymentOptions {
   orderId: string
   amount: number
@@ -20,27 +18,16 @@ export interface CreatePaymentResult {
 }
 
 export const useYookassaPayment = () => {
-  const config = useRuntimeConfig()
-
   const createPayment = async (
     options: CreatePaymentOptions,
   ): Promise<CreatePaymentResult> => {
     try {
-      const functionUrl = config.public
-        .cloudFunctionYookassaCreatePayment as string
-
-      if (!functionUrl) {
-        throw new Error(
-          'Yookassa create payment function URL is not configured',
-        )
-      }
-
       const response = await $fetch<{
         success: boolean
         paymentId?: string
         confirmationUrl?: string
         error?: string
-      }>(functionUrl, {
+      }>('/api/payments/yookassa', {
         method: 'POST',
         body: options,
         headers: {

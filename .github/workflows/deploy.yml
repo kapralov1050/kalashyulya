@@ -120,19 +120,26 @@ jobs:
             cat > /var/www/kalashyulya/.env <<EOF
             NUXT_PUBLIC_BUCKET_NAME=${{ secrets.NUXT_PUBLIC_BUCKET_NAME }}
             NUXT_PUBLIC_CLOUD_FUNCTION_DELETE_PRODUCT_FILE=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_DELETE_PRODUCT_FILE }}
-            NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_NOTIFIER=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_NOTIFIER }}
-            NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_URL=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_EMAIL_URL }}
             NUXT_PUBLIC_CLOUD_FUNCTION_PDF_GENERATOR_URL=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_PDF_GENERATOR_URL }}
-            NUXT_PUBLIC_CLOUD_FUNCTION_TELEGRAM_URL=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_TELEGRAM_URL }}
             NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_LOCALES=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_LOCALES }}
             NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_PRODUCT_URL=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_PRODUCT_URL }}
             NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_STATS=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_UPLOAD_STATS }}
-            NUXT_PUBLIC_CLOUD_FUNCTION_YOOKASSA_CREATE_PAYMENT=${{ secrets.NUXT_PUBLIC_CLOUD_FUNCTION_YOOKASSA_CREATE_PAYMENT }}
             NUXT_PUBLIC_DADATA_API_KEY=${{ secrets.NUXT_PUBLIC_DADATA_API_KEY }}
             NUXT_PUBLIC_DADATA_SECRET_KEY=${{ secrets.NUXT_PUBLIC_DADATA_SECRET_KEY }}
             NUXT_PUBLIC_LOCALES=${{ secrets.NUXT_PUBLIC_LOCALES }}
             NUXT_PUBLIC_SITE_URL=${{ secrets.NUXT_PUBLIC_SITE_URL }}
             NUXT_PUBLIC_STATS=${{ secrets.NUXT_PUBLIC_STATS }}
+            # Server-side (Nitro, не PUBLIC) — заменили Firebase Cloud Functions
+            # для YooKassa / Telegram / Email после миграции на SQLite.
+            NUXT_YOOKASSA_SHOP_ID=${{ secrets.NUXT_YOOKASSA_SHOP_ID }}
+            NUXT_YOOKASSA_SECRET=${{ secrets.NUXT_YOOKASSA_SECRET }}
+            NUXT_TELEGRAM_BOT_TOKEN=${{ secrets.NUXT_TELEGRAM_BOT_TOKEN }}
+            NUXT_TELEGRAM_CHAT_ID=${{ secrets.NUXT_TELEGRAM_CHAT_ID }}
+            NUXT_SMTP_HOST=${{ secrets.NUXT_SMTP_HOST }}
+            NUXT_SMTP_PORT=${{ secrets.NUXT_SMTP_PORT }}
+            NUXT_SMTP_USER=${{ secrets.NUXT_SMTP_USER }}
+            NUXT_SMTP_PASS=${{ secrets.NUXT_SMTP_PASS }}
+            NUXT_SMTP_FROM=${{ secrets.NUXT_SMTP_FROM }}
             # Путь к SQLite внутри контейнера.
             # data.db лежит на хосте в /var/lib/kalashyulya/data.db,
             # пробрасывается через volume в контейнер.
