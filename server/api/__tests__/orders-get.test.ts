@@ -115,22 +115,14 @@ describe('orders.get DTO mapping', () => {
   })
 
   it('не падает на пустой БД', async () => {
-    // Очистим таблицу временно
+    // Используем savepoint чтобы не мешать другим тестам
+    getDb().exec('BEGIN')
     getDb().prepare('DELETE FROM orders').run()
 
     const fakeEvent = { context: {} } as unknown as Parameters<typeof ordersGetHandler>[0]
     const empty = await ordersGetHandler(fakeEvent)
     expect(empty).toEqual([])
 
-    // Восстановим для других тестов
-    getDb().prepare('INSERT INTO orders (id, customer_name, customer_email, items_json, total, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)').run(
-      'order_2',
-      'Анна',
-      'ann@example.com',
-      JSON.stringify([{ productId: 'product_107', title: 'Тихий свет зимы', price: 6000, qty: 1 }]),
-      6000,
-      Date.now(),
-      Date.now(),
-    )
+    getDb().exec('ROLLBACK')
   })
 })
