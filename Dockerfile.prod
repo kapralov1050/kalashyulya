@@ -32,6 +32,7 @@ RUN npm ci --omit=dev --include=optional --no-audit --no-fund && \
     rm -rf /root/.npm /root/.cache
 
 COPY --from=builder /app/.output ./.output
+COPY --from=builder /app/server ./server
 
 EXPOSE 3000
 
