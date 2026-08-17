@@ -18,7 +18,7 @@ export interface ApiLoginResult {
   error: string | null
 }
 
-const shopData = ref<ShopData>({})
+const shopData = ref<ShopData>({ categories: {}, products: {} })
 const ordersData = ref<OrderInBase[]>([])
 const exhibitionsData = ref<Exhibition[]>([])
 const currentUser = ref<ApiUser | null>(null)
