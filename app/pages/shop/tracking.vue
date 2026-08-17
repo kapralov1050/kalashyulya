@@ -419,6 +419,8 @@
 
   let tickInterval: ReturnType<typeof setInterval> | undefined
   onMounted(() => {
+    useOrdersStore().loadOrders().catch(() => {})
+
     if (isBlocked.value) {
       tickInterval = setInterval(() => {
         if (!isBlocked.value && tickInterval) {

@@ -5,10 +5,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { OrderInBase } from '~/types'
 import Tracking from '../tracking.vue'
 
+const loadOrdersMock = vi.fn(async () => {})
 const useTrackingOrdersStore = defineStore('tracking-orders-test', () => {
   const allOrders = ref<OrderInBase[]>([])
+  const loadOrders = loadOrdersMock
 
-  return { allOrders }
+  return { allOrders, loadOrders }
 })
 
 const translations: Record<string, string> = {
@@ -115,6 +117,7 @@ describe('tracking', () => {
     remainingTimeMs = ref(0)
     recordAttemptMock = vi.fn()
     toastAddMock = vi.fn()
+    loadOrdersMock.mockClear()
 
     vi.stubGlobal('useOrdersStore', useTrackingOrdersStore)
     vi.stubGlobal('useLocales', () => ({
@@ -130,6 +133,14 @@ describe('tracking', () => {
     vi.stubGlobal('useRouter', () => ({ push: vi.fn() }))
     vi.stubGlobal('useRoute', () => ({ query: {} }))
     vi.stubGlobal('useSeoMeta', vi.fn())
+  })
+
+  describe('autoload orders on mount', () => {
+    it('вызывает useOrdersStore().loadOrders() при монтировании', async () => {
+      mountTracking()
+      await flushPromises()
+      expect(loadOrdersMock).toHaveBeenCalledTimes(1)
+    })
   })
 
   describe('masking', () => {

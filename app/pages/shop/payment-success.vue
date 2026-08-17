@@ -329,6 +329,8 @@
   )
 
   onMounted(() => {
+    useOrdersStore().loadOrders().catch(() => {})
+
     // Принимаем paymentId из URL (переданный success.vue) или из localStorage
     paymentId.value =
       (route.query.paymentId as string) ||

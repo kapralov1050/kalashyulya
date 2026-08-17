@@ -1,18 +1,17 @@
 import { defineStore } from 'pinia'
-import type { OrderInBase } from '~/types'
 import { useApi } from '~/composables/useApi'
-
-export interface UserProfileData {
-  name: string
-  email: string
-  orders?: OrderInBase[]
-}
 
 export const useProfileStore = defineStore('profile', () => {
   const api = useApi()
 
-  async function loadUserOrders() {
-    if (!api.currentUser.value?.uid) return
+  /**
+   * Загружает заказы текущего пользователя. Раньше фильтровалось по `uid` —
+   * в новой модели авторизации uid нет, заказы пока не привязаны к user.id
+   * (нужна отдельная миграция для бэкфилла user_id в orders).
+   * Пока просто грузим все заказы — фильтрация переедет на сервер.
+   */
+  async function loadUserOrders(): Promise<void> {
+    if (!api.currentUser.value) return
     await api.loadOrders()
   }
 
