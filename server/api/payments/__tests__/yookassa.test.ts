@@ -83,7 +83,7 @@ describe('POST /api/payments/yookassa — test/prod credentials switching', () =
       context: {},
       body,
     } as unknown
-    return handler(event as never) as Promise<{ success: boolean, paymentId: string, confirmationUrl: string }>
+    return handler(event as never) as Promise<{ success: boolean, paymentId: string, confirmationUrl: string, status: string }>
   }
 
   function mockFetchToYookassa(): { captured: { auth?: string, url?: string } } {
@@ -148,14 +148,41 @@ describe('POST /api/payments/yookassa — test/prod credentials switching', () =
     delete process.env.YOOKASSA_SHOP_ID
     process.env.YOOKASSA_SECRET_KEY = 'x'
 
-    await expect(
-      callHandler({
-        orderId: 'o3',
-        amount: 1,
-        description: 'd',
+    // Чистим Origin/Referer чтобы legacy test-detection не сработал из предыдущего теста
+    const result = callHandler({
+      orderId: 'o3',
+      amount: 1,
+      description: 'd',
+      returnUrl: 'https://example.com/r',
+      customer: { email: 'a@b.com' },
+    })
+    await expect(result).rejects.toThrow(/Payment service not configured/)
+  })
+
+  it('Origin от legacy test-host автоматически переключает в test mode', async () => {
+    process.env.YOOKASSA_TEST_MODE = ''
+    delete process.env.YOOKASSA_SHOP_ID
+    delete process.env.YOOKASSA_SECRET_KEY_TEST
+    process.env.YOOKASSA_SHOP_ID_TEST = 'origin-test-shop'
+    process.env.YOOKASSA_SECRET_KEY_TEST = 'origin-test-secret'
+
+    const { captured } = mockFetchToYookassa()
+    // Use page-isolation: поправим event с origin в headers
+    const handler = (await import('../yookassa.post')).default
+    const event = {
+      context: {},
+      body: {
+        orderId: 'order_origin',
+        amount: 100,
+        description: 'X',
         returnUrl: 'https://example.com/r',
         customer: { email: 'a@b.com' },
-      }),
-    ).rejects.toThrow(/Yookassa credentials not configured/)
+      },
+      headers: { origin: 'https://kalashyulya.vercel.app' },
+    }
+    await handler(event as never)
+
+    const expected = 'Basic ' + Buffer.from('origin-test-shop:origin-test-secret').toString('base64')
+    expect(captured.auth).toBe(expected)
   })
 })
