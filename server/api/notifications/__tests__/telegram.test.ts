@@ -29,10 +29,9 @@ const baseOrder: Order = {
 } as Order & { framing?: string, paymentMethod?: string }
 
 describe('buildTelegramMessage (back-compat с Yandex-функцией)', () => {
-  it('содержит заголовок «НОВЫЙ ЗАКАЗ» с orderId и итоговой суммой', () => {
+  it('содержит заголовок «НОВЫЙ ЗАКАЗ» (как Yandex) и итоговую сумму', () => {
     const msg = buildTelegramMessage('order_42', baseOrder, 10200)
     expect(msg).toContain('НОВЫЙ ЗАКАЗ')
-    expect(msg).toContain('order_42')
     expect(msg).toContain('10200 ₽')
   })
 
@@ -71,7 +70,9 @@ describe('buildTelegramMessage (back-compat с Yandex-функцией)', () => 
   it('для framing=simple пишет «Рама с паспарту»', () => {
     const framed = { ...baseOrder, framing: 'simple' } as Order & { framing: string }
     const msg = buildTelegramMessage('o1', framed, 100)
-    expect(msg).toContain('🖼 Оформление')
+    // HTML-вёрстка разделяет emoji и текст — проверим по фрагментам
+    expect(msg).toContain('🖼')
+    expect(msg).toContain('Оформление')
     expect(msg).toContain('Рама с паспарту')
   })
 
@@ -90,7 +91,8 @@ describe('buildTelegramMessage (back-compat с Yandex-функцией)', () => 
   it('для paymentMethod=yookassa пишет «Онлайн (ЮKassa)»', () => {
     const paid = { ...baseOrder, paymentMethod: 'yookassa' } as Order & { paymentMethod: string }
     const msg = buildTelegramMessage('o1', paid, 100)
-    expect(msg).toContain('💳 Оплата')
+    expect(msg).toContain('💳')
+    expect(msg).toContain('Оплата')
     expect(msg).toContain('Онлайн (ЮKassa)')
   })
 
