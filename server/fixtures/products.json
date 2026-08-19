@@ -1,0 +1,598 @@
+{
+  "products": [
+    {
+      "id": "product_100",
+      "title": "Влажный воздух",
+      "description": "Первый зимний пленэр 2025 года я провела в компании с Леной. Мы написали два этюда, грелись в кафе, болтали и наслаждались красивыми видами города.",
+      "size": "27,5*40",
+      "material": "Бумага, акварель",
+      "tecnic": "Акварель",
+      "year": 2025,
+      "price": 20000,
+      "stock": 1,
+      "views": 42,
+      "certificateId": null,
+      "isReserved": false,
+      "status": "available",
+      "categoryId": "category_1",
+      "image": [
+        "https://storage.yandexcloud.net/kalashyulya-shop-images/Влажный_воздух.webp"
+      ],
+      "file": [
+        "Влажный_воздух.webp"
+      ],
+      "tags": [
+        "пейзаж",
+        "Санкт-Петербург",
+        "зима",
+        "река"
+      ],
+      "framing": [],
+      "createdAt": 1787000729131,
+      "updatedAt": 1787000729741
+    },
+    {
+      "id": "product_101",
+      "title": "Рыбаки в миниатюре",
+      "description": "Родной сюжет с зимней рыбалкой на реке Клязьма.",
+      "size": "23,5*33",
+      "material": "Бумага, акварель",
+      "tecnic": "Акварель",
+      "year": 2025,
+      "price": 14000,
+      "stock": 1,
+      "views": 78,
+      "certificateId": null,
+      "isReserved": false,
+      "status": "available",
+      "categoryId": "category_1",
+      "image": [
+        "https://storage.yandexcloud.net/kalashyulya-shop-images/Рыбаки_в_миниатюре.webp"
+      ],
+      "file": [
+        "Рыбаки_в_миниатюре.webp"
+      ],
+      "tags": [
+        "пейзаж",
+        "зима",
+        "река",
+        "Южа"
+      ],
+      "framing": [],
+      "createdAt": 1787000729131,
+      "updatedAt": 1787000729741
+    },
+    {
+      "id": "product_102",
+      "title": "Невский",
+      "description": "Акварельный \"открыточный\" Петербург. Сюжет был написан осенью на пленэре в самом центре города.",
+      "size": "22*29",
+      "material": "Бумага, акварель",
+      "tecnic": "Акварель",
+      "year": 2025,
+      "price": 10000,
+      "stock": 1,
+      "views": 18,
+      "certificateId": null,
+      "isReserved": false,
+      "status": "available",
+      "categoryId": "category_1",
+      "image": [
+        "https://storage.yandexcloud.net/kalashyulya-shop-images/Невский.webp"
+      ],
+      "file": [
+        "Невский.webp"
+      ],
+      "tags": [
+        "Санкт-Петербург",
+        "город",
+        "пейзаж"
+      ],
+      "framing": [],
+      "createdAt": 1787000729131,
+      "updatedAt": 1787000729741
+    },
+    {
+      "id": "product_103",
+      "title": "В парке",
+      "description": "Акварельный Петербург. Сюжет с Михайловским замком был написан осенью на пленэре в центре города в Михайловском парке. ",
+      "size": "28*22",
+      "material": "Бумага, акварель",
+      "tecnic": "Акварель",
+      "year": 2025,
+      "price": 10000,
+      "stock": 1,
+      "views": 17,
+      "certificateId": null,
+      "isReserved": false,
+      "status": "available",
+      "categoryId": "category_1",
+      "image": [
+        "https://storage.yandexcloud.net/kalashyulya-shop-images/У_замка.webp"
+      ],
+      "file": [
+        "У_замка.webp"
+      ],
+      "tags": [
+        "Санкт-Петербург",
+        "город",
+        "пейзаж"
+      ],
+      "framing": [],
+      "createdAt": 1787000729131,
+      "updatedAt": 1787000729741
+    },
+    {
+      "id": "product_104",
+      "title": "В Крыму ",
+      "description": "Крымский пленэрный сюжет был написан недалеко от музея 35-ой береговой батареи.",
+      "size": "18*32",
+      "material": "Бумага, акварель",
+      "tecnic": "Акварель",
+      "year": 2021,
+      "price": 10000,
+      "stock": 1,
+      "views": 9,
+      "certificateId": null,
+      "isReserved": false,
+      "status": "available",
+      "categoryId": "category_1",
+      "image": [
+        "https://storage.yandexcloud.net/kalashyulya-shop-images/В_Крыму.webp"
+      ],
+      "file": [
+        "В_Крыму.webp"
+      ],
+      "tags": [
+        "Крым",
+        "пейзаж",
+        "лето"
+      ],
+      "framing": [],
+      "createdAt": 1787000729131,
+      "updatedAt": 1787000729741
+    },
+    {
+      "id": "product_105",
+      "title": "Дождливо. Байкал",
+      "description": "Этюд из Байкальской серии. Нежный и туманный.",
+      "size": "19,5*29",
+      "material": "Бумага, акварель",
+      "tecnic": "Акварель",
+      "year": 2023,
+      "price": 5000,
+      "stock": 1,
+      "views": 9,
+      "certificateId": null,
+      "isReserved": false,
+      "status": "available",
+      "categoryId": "category_1",
+      "image": [
+        "https://storage.yandexcloud.net/kalashyulya-shop-images/Дождливо_Байкал.webp"
+      ],
+      "file": [
+        "Дождливо_Байкал.webp"
+      ],
+      "tags": [
+        "пейзаж",
+        "Байкал"
+      ],
+      "framing": [],
+      "createdAt": 1787000729131,
+      "updatedAt": 1787000729741
+    },
+    {
+      "id": "product_106",
+      "title": "В центре Петербурга",
+      "description": "Летний дворец, лето, туристы - красота...",
+      "size": "41*28",
+      "material": "Бумага, акварель",
+      "tecnic": "Акварель",
+      "year": 2025,
+      "price": 10000,
+      "stock": 1,
+      "views": 11,
+      "certificateId": null,
+      "isReserved": false,
+      "status": "available",
+      "categoryId": "category_1",
+      "image": [
+        "https://storage.yandexcloud.net/kalashyulya-shop-images/В_центре_Петербурга.webp"
+      ],
+      "file": [
+        "В_центре_Петербурга.webp"
+      ],
+      "tags": [
+        "пейзаж",
+        "Петербург ",
+        "лето"
+      ],
+      "framing": [],
+      "createdAt": 1787000729131,
+      "updatedAt": 1787000729741
+    },
+    {
+      "id": "product_107",
+      "title": "Тихий свет зимы ",
+      "description": "Простой сюжет, подсмотренный дома в Юже. Зима, топится банька, выходишь и созерцаешь красоту в тишине...",
+      "size": "17*23",
+      "material": "Бумага, акварель",
+      "tecnic": "Акварель",
+      "year": 2024,
+      "price": 6000,
+      "stock": 0,
+      "views": 38,
+      "certificateId": "JK-2026-006",
+      "isReserved": true,
+      "status": "reserved",
+      "categoryId": "category_1",
+      "image": [
+        "https://storage.yandexcloud.net/kalashyulya-shop-images/Тихий_свет_зимы.webp"
+      ],
+      "file": [
+        "Тихий_свет_зимы.webp"
+      ],
+      "tags": [
+        "Южа",
+        "пейзаж",
+        "зима"
+      ],
+      "framing": [],
+      "createdAt": 1787000729131,
+      "updatedAt": 1787000729741
+    },
+    {
+      "id": "product_108",
+      "title": "Скоро будет новый мост",
+      "description": "Приезжая домой, иногда мы с папой катаемся до ближайших знакомых местечек. В этот раз Холуй, да еще и при стройке нового моста - целое событие!",
+      "size": "25,5*37",
+      "material": "Бумага, акварель",
+      "tecnic": "Акварель",
+      "year": 2025,
+      "price": 8500,
+      "stock": 1,
+      "views": 9,
+      "certificateId": null,
+      "isReserved": false,
+      "status": "available",
+      "categoryId": "category_1",
+      "image": [
+        "https://storage.yandexcloud.net/kalashyulya-shop-images/Скоро_будет_новый_мост.webp"
+      ],
+      "file": [
+        "Скоро_будет_новый_мост.webp"
+      ],
+      "tags": [
+        "пейзаж",
+        "зима",
+        "Холуй"
+      ],
+      "framing": [],
+      "createdAt": 1787000729131,
+      "updatedAt": 1787000729741
+    },
+    {
+      "id": "product_109",
+      "title": "Домик в Юже",
+      "description": "Один из уютных небольших домов, которые меня вдохновляют. Сказочно же?",
+      "size": "20*29 ",
+      "material": "Бумага, акварель",
+      "tecnic": "Акварель",
+      "year": 2022,
+      "price": 5000,
+      "stock": 1,
+      "views": 42,
+      "certificateId": null,
+      "isReserved": false,
+      "status": "available",
+      "categoryId": "category_1",
+      "image": [
+        "https://storage.yandexcloud.net/kalashyulya-shop-images/Домик_в_Юже.webp"
+      ],
+      "file": [
+        "Домик_в_Юже.webp"
+      ],
+      "tags": [
+        "пейзаж",
+        "зима",
+        "Южа"
+      ],
+      "framing": [],
+      "createdAt": 1787000729131,
+      "updatedAt": 1787000729741
+    },
+    {
+      "id": "product_110",
+      "title": "Там, где холодно",
+      "description": "Один из первых приездов в Мурманск, знакомство с городом Полярный. Ощущения удивительные-край света!\nПленэрный этюд.",
+      "size": "16,5*25,5",
+      "material": "Бумага, акварель",
+      "tecnic": "Акварель",
+      "year": 2023,
+      "price": 15000,
+      "stock": 1,
+      "views": 13,
+      "certificateId": null,
+      "isReserved": false,
+      "status": "available",
+      "categoryId": "category_1",
+      "image": [
+        "https://storage.yandexcloud.net/kalashyulya-shop-images/Там_где_холодно.webp"
+      ],
+      "file": [
+        "Там_где_холодно.webp"
+      ],
+      "tags": [
+        "пейзаж",
+        "зима",
+        "Мурманск"
+      ],
+      "framing": [],
+      "createdAt": 1787000729131,
+      "updatedAt": 1787000729741
+    },
+    {
+      "id": "product_111",
+      "title": "На Дворцовой",
+      "description": "Пленэрный сюжет написан в компании прекрасных художников. Замечательный был день!",
+      "size": "27*20",
+      "material": "Бумага, акварель",
+      "tecnic": "Акварель",
+      "year": 2025,
+      "price": 7000,
+      "stock": 0,
+      "views": 10,
+      "certificateId": null,
+      "isReserved": true,
+      "status": "reserved",
+      "categoryId": "category_1",
+      "image": [
+        "https://storage.yandexcloud.net/kalashyulya-shop-images/На_Дворцовой.webp"
+      ],
+      "file": [
+        "На_Дворцовой.webp"
+      ],
+      "tags": [
+        "Петербург",
+        "пейзаж",
+        "зима"
+      ],
+      "framing": [],
+      "createdAt": 1787000729131,
+      "updatedAt": 1787000729741
+    },
+    {
+      "id": "product_112",
+      "title": "6 школа",
+      "description": "Еще один этюд, который был написан на пленэре в машине. На этот раз художественная школа, где я училась рисовать.",
+      "size": "19*28",
+      "material": "Бумага, акварель",
+      "tecnic": "Акварель",
+      "year": 2023,
+      "price": 6500,
+      "stock": 1,
+      "views": 9,
+      "certificateId": null,
+      "isReserved": false,
+      "status": "available",
+      "categoryId": "category_1",
+      "image": [
+        "https://storage.yandexcloud.net/kalashyulya-shop-images/6_школа.webp"
+      ],
+      "file": [
+        "6_школа.webp"
+      ],
+      "tags": [
+        "пейзаж",
+        "зима",
+        "Южа"
+      ],
+      "framing": [],
+      "createdAt": 1787000729131,
+      "updatedAt": 1787000729741
+    },
+    {
+      "id": "product_113",
+      "title": "Главная площадь",
+      "description": "Главная площадь города: школу покрасили в лимонно-желтый, поставили елку и новогодние шары...впереди праздник.",
+      "size": "19*28",
+      "material": "Бумага, акварель",
+      "tecnic": "Акварель",
+      "year": 2023,
+      "price": 6500,
+      "stock": 1,
+      "views": 8,
+      "certificateId": null,
+      "isReserved": false,
+      "status": "available",
+      "categoryId": "category_1",
+      "image": [
+        "https://storage.yandexcloud.net/kalashyulya-shop-images/Главная_площадь.webp"
+      ],
+      "file": [
+        "Главная_площадь.webp"
+      ],
+      "tags": [
+        "пейзаж",
+        "зима",
+        "Южа"
+      ],
+      "framing": [],
+      "createdAt": 1787000729131,
+      "updatedAt": 1787000729741
+    },
+    {
+      "id": "product_114",
+      "title": "В Старой Юже",
+      "description": "Катались с папой на снегоходе. Часто подъезжаем к району \"Старая Южа\". Новый ракурс теперь в этюде.",
+      "size": "21,5*25,5 ",
+      "material": "Бумага, акварель",
+      "tecnic": "Акварель",
+      "year": 2025,
+      "price": 6500,
+      "stock": 1,
+      "views": 22,
+      "certificateId": null,
+      "isReserved": false,
+      "status": "available",
+      "categoryId": "category_1",
+      "image": [
+        "https://storage.yandexcloud.net/kalashyulya-shop-images/В_Старой_Юже.webp"
+      ],
+      "file": [
+        "В_Старой_Юже.webp"
+      ],
+      "tags": [
+        "пейзаж",
+        "зима",
+        "Южа"
+      ],
+      "framing": [],
+      "createdAt": 1787000729131,
+      "updatedAt": 1787000729741
+    },
+    {
+      "id": "product_115",
+      "title": "Этюд с розами",
+      "description": "Натюрморт с лимоном и букетом роз в вазе. Освещены прохладным светом из окна.",
+      "size": "40*28",
+      "material": "Бумага, акварель",
+      "tecnic": "Акварель",
+      "year": 2025,
+      "price": 6500,
+      "stock": 1,
+      "views": 22,
+      "certificateId": null,
+      "isReserved": false,
+      "status": "available",
+      "categoryId": "category_1",
+      "image": [
+        "https://storage.yandexcloud.net/kalashyulya-shop-images/Этюд_с_розами.webp"
+      ],
+      "file": [
+        "Этюд_с_розами.webp"
+      ],
+      "tags": [
+        "цветы",
+        "натюрморт"
+      ],
+      "framing": [],
+      "createdAt": 1787000729131,
+      "updatedAt": 1787000729741
+    },
+    {
+      "id": "product_116",
+      "title": "Перерыв",
+      "description": "Работа написанная по первому этюду-впечатлению.\n\nНа пленэре, организованном фестивалем «Время, вперед» удалось увидеть разные сюжеты. От трудоемкого рабочего процесса до отдыха работников. «Перерыв» показывает, как за беседой проходят мгновения отдыха.\nОтдыхают не только люди, но и огромные сложные механизмы. Залитые светом, они продолжают гудеть, рассказывая свою историю.",
+      "size": "25*25",
+      "material": "Бумага, акварель",
+      "tecnic": "Акварель",
+      "year": 2023,
+      "price": 9500,
+      "stock": 1,
+      "views": 4,
+      "certificateId": null,
+      "isReserved": false,
+      "status": "available",
+      "categoryId": "category_1",
+      "image": [
+        "https://storage.yandexcloud.net/kalashyulya-shop-images/Перерыв.webp"
+      ],
+      "file": [
+        "Перерыв.webp"
+      ],
+      "tags": [
+        "Санкт-Петербург"
+      ],
+      "framing": [],
+      "createdAt": 1787000729131,
+      "updatedAt": 1787000729741
+    },
+    {
+      "id": "product_117",
+      "title": "Молитва перед боем",
+      "description": "",
+      "size": "21,5*19,5",
+      "material": "Бумага, акварель",
+      "tecnic": "Акварель",
+      "year": 2025,
+      "price": 10000,
+      "stock": 1,
+      "views": 3,
+      "certificateId": null,
+      "isReserved": false,
+      "status": "available",
+      "categoryId": "category_1",
+      "image": [
+        "https://storage.yandexcloud.net/kalashyulya-shop-images/Молитва_перед_боем.webp"
+      ],
+      "file": [
+        "Молитва_перед_боем.webp"
+      ],
+      "tags": [
+        "Санкт-Петербург",
+        "пейзаж"
+      ],
+      "framing": [],
+      "createdAt": 1787000729131,
+      "updatedAt": 1787000729741
+    },
+    {
+      "id": "product_118",
+      "title": "Узоры",
+      "description": "Выборгские камни и деревья, окутанные мхом, травами и лишайниками. Мотив из окна гостевого дома.",
+      "size": "40*28",
+      "material": "Бумага, акварель",
+      "tecnic": "Акварель",
+      "year": 2025,
+      "price": 10000,
+      "stock": 1,
+      "views": 6,
+      "certificateId": null,
+      "isReserved": false,
+      "status": "available",
+      "categoryId": "category_1",
+      "image": [
+        "https://storage.yandexcloud.net/kalashyulya-shop-images/Узоры.webp"
+      ],
+      "file": [
+        "Узоры.webp"
+      ],
+      "tags": [
+        "пейзаж",
+        "Выборг"
+      ],
+      "framing": [],
+      "createdAt": 1787000729131,
+      "updatedAt": 1787000729741
+    },
+    {
+      "id": "product_119",
+      "title": "Рабочий стол",
+      "description": "В ноябре 2022 я посетила Минералогический музей Санкт-Петербургского Университета и мне посчастливилось в нем порисовать!\nМинералы, драгоценные и поделочные камни, метеориты... \nВ этюдах я показала часть большой коллекции музея и прекрасный вид на Исаакиевский собор.",
+      "size": "26*20",
+      "material": "Бумага, акварель",
+      "tecnic": "Акварель",
+      "year": 2022,
+      "price": 9500,
+      "stock": 1,
+      "views": 7,
+      "certificateId": null,
+      "isReserved": false,
+      "status": "available",
+      "categoryId": "category_1",
+      "image": [
+        "https://storage.yandexcloud.net/kalashyulya-shop-images/Рабочий_стол.webp"
+      ],
+      "file": [
+        "Рабочий_стол.webp"
+      ],
+      "tags": [
+        "Санкт-Петербург"
+      ],
+      "framing": [],
+      "createdAt": 1787000729131,
+      "updatedAt": 1787000729741
+    }
+  ]
+}

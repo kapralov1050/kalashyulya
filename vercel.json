@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": null,
+  "installCommand": "npm ci --include=optional --ignore-scripts",
+  "outputDirectory": ".vercel/output",
+  "build": {
+    "env": {
+      "NITRO_PRESET": "vercel",
+      "NUXT_PUBLIC_SITE_URL": "https://kalashyulya.vercel.app"
+    }
+  }
+}

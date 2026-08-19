@@ -1,0 +1,29 @@
+{
+  "categories": [
+    {
+      "id": "category_1",
+      "name": "watercolor",
+      "order": 1
+    },
+    {
+      "id": "category_2",
+      "name": "sketches",
+      "order": 2
+    },
+    {
+      "id": "category_3",
+      "name": "postcards",
+      "order": 3
+    },
+    {
+      "id": "category_4",
+      "name": "stickers",
+      "order": 4
+    },
+    {
+      "id": "category_5",
+      "name": "calendars",
+      "order": 5
+    }
+  ]
+}
