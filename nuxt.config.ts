@@ -7,7 +7,9 @@ import { viteConfig } from './config/nuxt/vite'
 export default defineNuxtConfig({
   ssr: false,
   nitro: {
-    preset: 'node-server',
+    // preset: 'vercel' для preview на Vercel (UI-only), 'node-server' для VPS prod.
+    // Задаётся через NITRO_PRESET env в workflow (.github/workflows/deploy*.yml).
+    preset: (process.env.NITRO_PRESET as 'vercel' | 'node-server') ?? 'node-server',
   },
   runtimeConfig: runtimeConfig,
   compatibilityDate: '2025-05-15',
