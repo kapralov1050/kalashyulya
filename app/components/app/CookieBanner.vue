@@ -21,16 +21,14 @@
               class="text-xs leading-relaxed text-neutral-700
                 dark:text-neutral-300 sm:text-sm"
             >
-              Этот сайт использует технические cookies для работы корзины и
-              входа в админку. Продолжая использовать сайт, вы соглашаетесь с
-              их использованием.
-              Подробнее — в
+              Мы используем cookies для работы сайта. Продолжая использовать
+              сайт, вы соглашаетесь с этим.
               <NuxtLink
                 to="/privacy"
                 class="text-primary-500 hover:underline"
                 target="_blank"
               >
-                Политике обработки персональных данных
+                Подробнее
               </NuxtLink>.
             </p>
 
