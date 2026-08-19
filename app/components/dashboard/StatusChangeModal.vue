@@ -1,6 +1,7 @@
 <template>
   <UModal
     v-model:open="isOpen"
+    title="Изменение статуса заказа"
     :ui="{
       overlay: 'bg-black/60 backdrop-blur-sm',
       content: 'w-full max-w-lg p-0 rounded-2xl',
