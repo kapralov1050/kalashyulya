@@ -69,7 +69,7 @@
         'heroicons:exclamation-circle',
       )
       await setTimeout(() => {}, 1500)
-      router.push('/lessons')
+      router.push('/admin/dashboard')
     }
 
     if (error) {

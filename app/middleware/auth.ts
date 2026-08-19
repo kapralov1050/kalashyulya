@@ -4,7 +4,7 @@ export default defineNuxtRouteMiddleware(async to => {
   const user = await authStore.waitForAuthInit()
   const isLoginPage = to.path === '/login'
 
-  if (!user?.uid) {
+  if (!user?.id) {
     if (!isLoginPage) return navigateTo('/login')
     return
   }
