@@ -104,7 +104,7 @@ export default withNuxt([
     },
   },
   {
-    files: ['scripts/**/*.ts', 'server/scripts/**/*.ts'],
+    files: ['scripts/**/*.{ts,mjs}', 'server/scripts/**/*.ts'],
     rules: {
       'no-console': 'off',
     },
