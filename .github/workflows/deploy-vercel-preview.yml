@@ -1,18 +1,21 @@
 # Preview на Vercel (UI-only).
-# Vercel НЕ имеет persistent FS — SQLite недоступна, эндпоинты читают fixtures.
-# Это работает ТОЛЬКО для просмотра UI (главная, каталог, выставки).
-# Полный функционал (orders, admin, payments) — на prod VPS.
 #
-# Триггер: push в main.
-# Vercel CLI деплоит prebuilt Nitro-output через vercel deploy --prebuilt.
+# Два пути деплоя (выбирается автоматически):
 #
-# Setup:
-# 1. Зарегистрировать проект в Vercel UI, привязать этот GitHub repo.
-# 2. Скопировать VERCEL_ORG_ID, VERCEL_PROJECT_ID в GH Secrets.
-# 3. Создать Vercel Token (Settings → Tokens → Create) → VERCEL_TOKEN в GH Secrets.
-# 4. В Vercel project settings → Environment Variables:
-#    NITRO_PRESET=vercel, NUXT_PUBLIC_SITE_URL=https://kalashyulya.vercel.app
-# 5. Push в main → CI соберёт + задеплоит на preview URL.
+# A. Через Vercel GitHub Integration (рекомендуется)
+#    В Vercel UI → Project Settings → Git → "Deploy on push to main".
+#    Integration сам собирает и деплоит. CI просто валидирует что сборка проходит.
+#
+# B. Через Vercel CLI (fallback)
+#    Если NITRO_PRESET=vercel задан в env workflow-а — CI деплоит сам.
+#    Нужны GH Secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID.
+#
+# На preview работает:
+#   - Главная, каталог, корзина, чекаут (UI)
+#   - Картинки с Yandex Object Storage
+# На preview НЕ работает (нужен VPS prod):
+#   - SQLite (нет persistent FS) → читаем из server/fixtures/*.json
+#   - Реальные заказы, админка, YooKassa payment, Telegram/Email
 
 name: Vercel Preview (UI)
 
@@ -44,15 +47,9 @@ jobs:
           NUXT_PUBLIC_SITE_URL: https://kalashyulya.vercel.app
         run: npx nuxt build
 
-      # Nitro preset=vercel → output в .vercel/output/
-      # Vercel CLI деплоит это через --prebuilt
-      - name: Verify build output
-        working-directory: ${{ github.workspace }}
-        run: |
-          ls -la .vercel/output/ 2>&1 || echo "(.vercel/output not found)"
-
-      - name: Deploy to Vercel (prebuilt)
-        working-directory: ${{ github.workspace }}
+      # Путь A: Vercel CLI deploy (нужны secrets)
+      - name: Deploy via Vercel CLI
+        if: ${{ env.VERCEL_TOKEN != '' }}
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -66,11 +63,22 @@ jobs:
             --token "$VERCEL_TOKEN" \
             --scope "$VERCEL_ORG_ID" \
             --project "$VERCEL_PROJECT_ID"
-          echo "✓ Vercel preview deployed"
+          echo "✓ Vercel preview deployed via CLI"
 
-      - name: List deployments
-        if: github.ref == 'refs/heads/main'
-        working-directory: ${{ github.workspace }}
+      # Путь B (по умолчанию): только валидация билда, деплоит Vercel GitHub Integration
+      - name: Validate build output (no CLI deploy)
+        if: ${{ env.VERCEL_TOKEN == '' || env.VERCEL_TOKEN == null }}
+        run: |
+          if [ ! -d ".vercel/output" ]; then
+            echo "::error::Build output .vercel/output not found. Check build step."
+            exit 1
+          fi
+          echo "✓ Build output exists at .vercel/output/"
+          echo "Vercel GitHub Integration should deploy this build automatically."
+          echo "(Чтобы CI сам деплоил, добавь secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID)"
+
+      - name: List deployments (informational)
+        if: ${{ always() && env.VERCEL_TOKEN != '' }}
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
