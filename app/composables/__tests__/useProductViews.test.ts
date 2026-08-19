@@ -2,17 +2,19 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { ref } from 'vue'
 import { mount } from '@vue/test-utils'
 
-const mockTrackProductView = vi.fn()
+const mocks = vi.hoisted(() => ({
+  mockTrackProductView: vi.fn(),
+  mockIsDevOrPreview: vi.fn(),
+}))
 
 vi.mock('~/composables/useApi', () => ({
   useApi: () => ({
-    trackProductView: mockTrackProductView,
+    trackProductView: mocks.mockTrackProductView,
   }),
 }))
 
-const mockIsDevOrPreview = vi.fn()
 vi.mock('~/utils/devGuard', () => ({
-  isDevOrPreview: mockIsDevOrPreview,
+  isDevOrPreview: mocks.mockIsDevOrPreview,
 }))
 
 import { useProductViews } from '../useProductViews'
@@ -21,8 +23,8 @@ describe('useProductViews (dev guard)', () => {
   beforeEach(() => {
     vi.unstubAllGlobals()
     sessionStorage.clear()
-    mockTrackProductView.mockClear()
-    mockIsDevOrPreview.mockReset()
+    mocks.mockTrackProductView.mockClear()
+    mocks.mockIsDevOrPreview.mockReset()
   })
 
   afterEach(() => {
@@ -30,32 +32,31 @@ describe('useProductViews (dev guard)', () => {
   })
 
   it('НЕ инкрементит views в dev/preview (isDevOrPreview=true)', async () => {
-    mockIsDevOrPreview.mockReturnValue(true)
+    mocks.mockIsDevOrPreview.mockReturnValue(true)
     const { trackView } = useProductViews('product_101')
     await trackView()
-    expect(mockTrackProductView).not.toHaveBeenCalled()
+    expect(mocks.mockTrackProductView).not.toHaveBeenCalled()
   })
 
   it('инкрементит views только на prod (isDevOrPreview=false)', async () => {
-    mockIsDevOrPreview.mockReturnValue(false)
+    mocks.mockIsDevOrPreview.mockReturnValue(false)
     vi.stubGlobal('useApi', () => ({
-      trackProductView: mockTrackProductView.mockResolvedValue(undefined),
+      trackProductView: mocks.mockTrackProductView.mockResolvedValue(undefined),
     }))
     const { trackView } = useProductViews('product_101')
     await trackView()
-    expect(mockTrackProductView).toHaveBeenCalledWith('product_101')
-    // sessionStorage помечен, второй вызов не пойдёт
+    expect(mocks.mockTrackProductView).toHaveBeenCalledWith('product_101')
     await trackView()
-    expect(mockTrackProductView).toHaveBeenCalledTimes(1)
+    expect(mocks.mockTrackProductView).toHaveBeenCalledTimes(1)
   })
 
   it('не вызывается если productId пустой', async () => {
-    mockIsDevOrPreview.mockReturnValue(false)
+    mocks.mockIsDevOrPreview.mockReturnValue(false)
     vi.stubGlobal('useApi', () => ({
-      trackProductView: mockTrackProductView.mockResolvedValue(undefined),
+      trackProductView: mocks.mockTrackProductView.mockResolvedValue(undefined),
     }))
     const { trackView } = useProductViews('')
     await trackView()
-    expect(mockTrackProductView).not.toHaveBeenCalled()
+    expect(mocks.mockTrackProductView).not.toHaveBeenCalled()
   })
 })
