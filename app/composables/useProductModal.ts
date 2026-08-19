@@ -20,7 +20,7 @@ export function useProductModal(products?: MaybeRefOrGetter<Product[]>) {
     }
 
     return (
-      shopStore.allProducts.find(
+      shopStore.allProducts.value.find(
         p => p.id.toString() === selectedProductId.value,
       ) || null
     )

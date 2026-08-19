@@ -73,7 +73,7 @@
 
     const workTitles = props.works.map(work => work.title.toLowerCase().trim())
 
-    return shopStore.allProducts.filter(product => {
+    return shopStore.allProducts.value.filter(product => {
       const productTitle = product.title.toLowerCase().trim()
       return workTitles.some(workTitle => productTitle === workTitle)
     })

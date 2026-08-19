@@ -543,7 +543,7 @@
 
   const coverResults = computed<Product[]>(() => {
     if (!coverSearch.value.trim()) return []
-    return shopStore.allProducts
+    return shopStore.allProducts.value
       .filter(p =>
         p.title.toLowerCase().includes(coverSearch.value.toLowerCase()),
       )
@@ -562,7 +562,7 @@
 
   const worksResults = computed<Product[]>(() => {
     const q = worksSearch.value.toLowerCase().trim()
-    const all = shopStore.allProducts
+    const all = shopStore.allProducts.value
     if (!q && !worksOpen.value) return []
     return q ? all.filter(p => p.title.toLowerCase().includes(q)) : all
   })
