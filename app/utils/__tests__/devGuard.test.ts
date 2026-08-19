@@ -2,8 +2,6 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { isDevOrPreview } from '../devGuard'
 
 describe('isDevOrPreview', () => {
-  const originalWindow = globalThis.window
-
   afterEach(() => {
     vi.unstubAllGlobals()
   })

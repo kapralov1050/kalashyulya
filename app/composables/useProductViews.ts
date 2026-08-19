@@ -9,16 +9,19 @@ export const useProductViews = (productId: string) => {
 
   async function trackView() {
     if (isDevOrPreview()) {
+      // eslint-disable-next-line no-console
       console.debug('[productViews] skipped: dev/preview environment')
       return
     }
     if (sessionStorage.getItem(viewsKey) || !productId) {
+      // eslint-disable-next-line no-console
       console.debug('[productViews] skipped: already viewed or missing id')
       return
     }
     try {
       await api.trackProductView(productId)
       sessionStorage.setItem(viewsKey, 'true')
+      // eslint-disable-next-line no-console
       console.debug(`[productViews] tracked: ${productId}`)
     } catch (error) {
       // eslint-disable-next-line no-console
