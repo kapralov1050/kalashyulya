@@ -136,7 +136,7 @@ describe('CookieBanner', () => {
       const link = wrapper.find('a[href="/privacy"]')
 
       expect(link.exists()).toBe(true)
-      expect(link.text()).toContain('Политике обработки персональных данных')
+      expect(link.text()).toContain('Подробнее')
     })
   })
 })
