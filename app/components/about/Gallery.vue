@@ -38,8 +38,10 @@
 <script setup lang="ts">
   const shopStore = useShopStore()
 
+  // Phase D миграция: id категорий в БД хранятся с префиксом "category_<n>"
+  // (было просто число в Firebase). Фильтруем по watercolor (order=1).
   const productsForGallery = computed(() => {
-    return shopStore.allProducts.filter(prod => prod.categoryId === '1')
+    return shopStore.allProducts.filter(prod => prod.categoryId === 'category_1')
   })
   const { printLocale } = useLocales()
 </script>
