@@ -130,20 +130,6 @@ describe('CookieBanner', () => {
     })
   })
 
-  describe('settings', () => {
-    it('reveals cookie details', async () => {
-      const { wrapper } = mountBanner()
-
-      expect(wrapper.text()).not.toContain('Firebase Authentication')
-
-      await findButtonByText(wrapper, 'Настройки').trigger('click')
-
-      expect(wrapper.text()).toContain('Firebase Authentication')
-      expect(wrapper.text()).toContain('Аналитические и рекламные cookies')
-      expect(findButtonByText(wrapper, 'Скрыть').exists()).toBe(true)
-    })
-  })
-
   describe('privacy link', () => {
     it('renders a link to the privacy policy', () => {
       const { wrapper } = mountBanner()

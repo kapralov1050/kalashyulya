@@ -21,9 +21,10 @@
               class="text-xs leading-relaxed text-neutral-700
                 dark:text-neutral-300 sm:text-sm"
             >
-              Сайт использует технические cookies (Firebase) для работы корзины и
-              входа в админку. Продолжая использовать сайт, вы соглашаетесь с их
-              использованием. Подробнее — в
+              Этот сайт использует технические cookies для работы корзины и
+              входа в админку. Продолжая использовать сайт, вы соглашаетесь с
+              их использованием.
+              Подробнее — в
               <NuxtLink
                 to="/privacy"
                 class="text-primary-500 hover:underline"
@@ -32,28 +33,6 @@
                 Политике обработки персональных данных
               </NuxtLink>.
             </p>
-
-            <div
-              v-if="settingsOpen"
-              class="mt-3 rounded-md bg-neutral-50 p-3 text-xs
-                text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300
-                sm:text-sm"
-            >
-              <p class="font-medium mb-2">Используемые cookies и SDK:</p>
-              <ul class="list-disc pl-5 space-y-1">
-                <li>
-                  <strong>Firebase Authentication</strong> — техническая сессия
-                  администратора, хранится в IndexedDB браузера.
-                </li>
-                <li>
-                  <strong>localStorage</strong> — корзина, согласия, настройки
-                  интерфейса (без передачи третьим лицам).
-                </li>
-                <li>
-                  Аналитические и рекламные cookies не используются.
-                </li>
-              </ul>
-            </div>
 
             <div
               class="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-2"
@@ -77,16 +56,6 @@
               >
                 Только необходимые
               </UButton>
-              <UButton
-                color="neutral"
-                variant="ghost"
-                size="sm"
-                block
-                class="sm:order-3 sm:w-auto"
-                @click="settingsOpen = !settingsOpen"
-              >
-                {{ settingsOpen ? 'Скрыть' : 'Настройки' }}
-              </UButton>
             </div>
           </div>
 
@@ -108,8 +77,6 @@
 
 <script setup lang="ts">
 const { hasMadeChoice, acceptAll, acceptNecessary } = useCookieConsent()
-
-const settingsOpen = ref(false)
 </script>
 
 <style scoped>
