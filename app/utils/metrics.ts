@@ -1,3 +1,5 @@
+import { isDevOrPreview } from './devGuard'
+
 interface OptimizedMetric {
   t: number // timestamp в секундах
   c: number // counter (для type=time — секунды на странице)
@@ -131,13 +133,7 @@ export class MetricsTracker {
   }
 
   private isDebugEnvironment(): boolean {
-    if (typeof window === 'undefined') return false
-    const { hostname, href } = window.location
-    return (
-      hostname === 'localhost' ||
-      hostname.startsWith('127.0.0.1') ||
-      href.includes('kalashyulya.vercel.app')
-    )
+    return isDevOrPreview()
   }
 
   clearQueue(): void {
