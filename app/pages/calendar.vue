@@ -82,8 +82,10 @@
   const router = useRouter()
   const route = useRoute()
 
+  // Phase D миграция: id категорий в БД хранятся с префиксом "category_<n>".
+  // Календари — категория с order=5 (stickers был 4, calendars был 5 в Firebase).
   const calendars = computed(() => {
-    return allProducts.value.filter(product => product.categoryId === '5')
+    return allProducts.value.filter(product => product.categoryId === 'category_5')
   })
 
   onMounted(() => {

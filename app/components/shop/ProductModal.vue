@@ -2,6 +2,7 @@
   <UModal
     v-if="selectedProduct"
     v-model:open="isOpen"
+    :title="selectedProduct.title"
     :ui="{
       overlay: 'bg-black/50 backdrop-blur-sm',
       content: 'min-w-[80vw] max-h-[70vh] h-auto shadow-4xl',

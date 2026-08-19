@@ -1,43 +1,32 @@
 <template>
-  <div class="w-full flex flex-col items-center justify-center sm:flex-row">
-    <h3
-      class="text-sm text-center font-semibold text-neutral-800 dark:text-white
-        uppercase tracking-wide"
-    >
-      {{ printLocale('footer_links_title') }}
-    </h3>
+  <div class="w-full flex flex-col gap-6">
+    <!-- Соцсети: крупные иконки, выделенный блок -->
+    <div class="flex flex-col items-center gap-3">
+      <h3
+        class="text-sm text-center font-semibold text-neutral-800 dark:text-white
+          uppercase tracking-wide"
+      >
+        {{ printLocale('footer_links_title') }}
+      </h3>
 
-    <div class="ml-0 sm:ml-auto flex flex-col sm:flex-row">
-      <!-- Social Links Container -->
-      <div class="flex">
+      <div class="flex items-center gap-3">
         <!-- Telegram -->
         <a
           href="https://t.me/kalashyulyaa"
           target="_blank"
           rel="noopener noreferrer"
-          class="group flex items-center space-x-3 p-3 rounded-lg
-            hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors
-            duration-200"
+          aria-label="Telegram"
+          class="group flex items-center justify-center w-11 h-11 rounded-full
+            bg-neutral-100 hover:bg-primary-500 dark:bg-neutral-800
+            dark:hover:bg-primary-500 transition-colors duration-200"
           @click="metrics.trackButtonClick('telegramButton')"
         >
-          <div class="flex-shrink-0">
-            <img
-              src="/links/telegram.svg"
-              alt="Telegram"
-              class="w-6 h-6 group-hover:scale-110 transition-transform
-                duration-200 invert dark:invert-0"
-            />
-          </div>
-          <div class="flex flex-col">
-            <span
-              class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
-            >
-              {{ printLocale('footer_telegram_title') }}
-            </span>
-            <span class="text-xs text-neutral-500 dark:text-neutral-400">
-              {{ printLocale('footer_linkname') }}
-            </span>
-          </div>
+          <img
+            src="/links/telegram.svg"
+            alt=""
+            class="w-6 h-6 invert dark:invert-0 group-hover:invert group-hover:brightness-0
+              group-hover:contrast-200 transition duration-200"
+          />
         </a>
 
         <!-- VK -->
@@ -45,98 +34,52 @@
           href="https://vk.com/kalashyulya"
           target="_blank"
           rel="noopener noreferrer"
-          class="group flex items-center space-x-3 p-3 rounded-lg
-            hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors
-            duration-200"
+          aria-label="VKontakte"
+          class="group flex items-center justify-center w-11 h-11 rounded-full
+            bg-neutral-100 hover:bg-primary-500 dark:bg-neutral-800
+            dark:hover:bg-primary-500 transition-colors duration-200"
           @click="metrics.trackButtonClick('vkButton')"
         >
-          <div class="flex-shrink-0">
-            <img
-              src="/links/vk.svg"
-              alt="VKontakte"
-              class="w-6 h-6 group-hover:scale-110 transition-transform
-                duration-200 invert dark:invert-0"
-            />
-          </div>
-          <div class="flex flex-col">
-            <span
-              class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
-            >
-              {{ printLocale('footer_vk_title') }}
-            </span>
-            <span class="text-xs text-neutral-500 dark:text-neutral-400">
-              {{ printLocale('footer_linkname') }}
-            </span>
-          </div>
+          <img
+            src="/links/vk.svg"
+            alt=""
+            class="w-6 h-6 invert dark:invert-0 group-hover:invert group-hover:brightness-0
+              group-hover:contrast-200 transition duration-200"
+          />
         </a>
       </div>
+    </div>
 
-      <!-- Requisites Link -->
+    <!-- Утилитарные ссылки: мелко, единой строкой -->
+    <div
+      class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1
+        text-xs text-neutral-500 dark:text-neutral-400"
+    >
       <NuxtLink
         to="/requisites"
-        class="group flex items-center justify-center space-x-3 p-3 rounded-lg
-          hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors
-          duration-200 sm:ml-2"
+        class="hover:text-neutral-700 dark:hover:text-neutral-200
+          transition-colors"
         @click="metrics.trackButtonClick('requisitesButton')"
       >
-        <div class="flex flex-col text-center sm:text-left">
-          <span
-            class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
-          >
-            Реквизиты
-          </span>
-          <span class="text-xs text-neutral-500 dark:text-neutral-400">
-            Информация о продавце
-          </span>
-        </div>
+        Реквизиты
       </NuxtLink>
-
-      <!-- Privacy Policy Link -->
+      <span aria-hidden="true">·</span>
       <NuxtLink
         to="/privacy"
-        class="group flex items-center justify-center space-x-3 p-3 rounded-lg
-          hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors
-          duration-200 sm:ml-2"
+        class="hover:text-neutral-700 dark:hover:text-neutral-200
+          transition-colors"
         @click="metrics.trackButtonClick('privacyButton')"
       >
-        <div class="flex flex-col text-center sm:text-left">
-          <span
-            class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
-          >
-            Политика обработки ПДн
-          </span>
-          <span class="text-xs text-neutral-500 dark:text-neutral-400">
-            Федеральный закон № 152-ФЗ
-          </span>
-        </div>
+        Политика обработки ПДн
       </NuxtLink>
-
-      <!-- Tracking Link -->
+      <span aria-hidden="true">·</span>
       <NuxtLink
         to="/shop/tracking"
-        class="group flex items-center justify-center space-x-3 p-3 rounded-lg
-          hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors
-          duration-200 sm:ml-2"
+        class="hover:text-neutral-700 dark:hover:text-neutral-200
+          transition-colors"
         @click="metrics.trackButtonClick('trackingButton')"
       >
-        <div class="flex-shrink-0">
-          <img
-            src="/links/tracking.svg"
-            alt="Отслеживание"
-            class="w-6 h-6 group-hover:scale-110 transition-transform
-              duration-200 invert dark:invert-0"
-          />
-        </div>
-        <div class="flex flex-col text-center sm:text-left">
-          <span
-            class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
-          >
-            Отслеживание заказа
-          </span>
-          <span class="text-xs text-neutral-500 dark:text-neutral-400">
-            Найти заказ по ID платежа
-          </span>
-        </div>
+        Отслеживание заказа
       </NuxtLink>
     </div>
   </div>
