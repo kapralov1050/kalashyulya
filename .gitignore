@@ -23,6 +23,8 @@ logs
 # docs
 docs
 
+# Vercel build output
+.vercel
 # Misc
 .DS_Store
 .fleet

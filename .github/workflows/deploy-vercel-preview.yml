@@ -1,0 +1,77 @@
+# Preview на Vercel (UI-only).
+# Vercel НЕ имеет persistent FS — SQLite недоступна, эндпоинты читают fixtures.
+# Это работает ТОЛЬКО для просмотра UI (главная, каталог, выставки).
+# Полный функционал (orders, admin, payments) — на prod VPS.
+#
+# Триггер: push в main.
+# Vercel CLI деплоит prebuilt Nitro-output через vercel deploy --prebuilt.
+#
+# Setup:
+# 1. Зарегистрировать проект в Vercel UI, привязать этот GitHub repo.
+# 2. Скопировать VERCEL_ORG_ID, VERCEL_PROJECT_ID в GH Secrets.
+# 3. Создать Vercel Token (Settings → Tokens → Create) → VERCEL_TOKEN в GH Secrets.
+# 4. В Vercel project settings → Environment Variables:
+#    NITRO_PRESET=vercel, NUXT_PUBLIC_SITE_URL=https://kalashyulya.vercel.app
+# 5. Push в main → CI соберёт + задеплоит на preview URL.
+
+name: Vercel Preview (UI)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-preview
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - run: npm ci --include=optional --ignore-scripts --no-audit --no-fund
+
+      - name: Build (Nitro preset=vercel)
+        env:
+          NITRO_PRESET: vercel
+          NUXT_PUBLIC_SITE_URL: https://kalashyulya.vercel.app
+        run: npx nuxt build
+
+      # Nitro preset=vercel → output в .vercel/output/
+      # Vercel CLI деплоит это через --prebuilt
+      - name: Deploy to Vercel (prebuilt)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          if [ ! -d ".vercel/output" ]; then
+            echo "::error::Build output .vercel/output not found. Nitro preset должен быть 'vercel'."
+            exit 1
+          fi
+          npx vercel deploy --prebuilt --archive=tgz --yes \
+            --token "$VERCEL_TOKEN" \
+            --scope "$VERCEL_ORG_ID" \
+            --project "$VERCEL_PROJECT_ID"
+          echo "✓ Vercel preview deployed"
+
+      # Триггерим пересоздание preview URL после деплоя (alias нужен для /preview branch)
+      - name: Assign preview alias
+        if: github.ref == 'refs/heads/main'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        run: |
+          DEPLOYMENT_URL=$(npx vercel ls --yes --token "$VERCEL_TOKEN" --scope "$VERCEL_ORG_ID" --project "$VERCEL_PROJECT_ID" 2>/dev/null | head -1)
+          if [ -n "$DEPLOYMENT_URL" ]; then
+            echo "Deployment URL: https://$DEPLOYMENT_URL"
+          fi
+          true
