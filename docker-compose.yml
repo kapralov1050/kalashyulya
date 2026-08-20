@@ -5,12 +5,17 @@ services:
       dockerfile: Dockerfile
     volumes:
       # НЕ монтируем ./:/app — иначе перезапишется .output из образа.
-      # Для live-reload в dev-режиме нужен отдельный сервис с `npm run dev`.
+      # Для live-reload в dev-режиме используй nuxt-app-dev сервис.
       - /app/node_modules
+      # SQLite БД: маунтим хостовую ./data/ в контейнер.
+      # Контейнер работает под uid 1001 (nitro). Чтобы мог писать:
+      #   chmod -R 777 ./data   (или chown -R 1001:1001 ./data)
+      - ./data:/tmp/data
     ports:
       - "3000:3000"
     environment:
-      - SQLITE_PATH=/tmp/data.db
+      # SQLite-файл лежит в ./data/db (как сохраняет migrate-firebase-to-sqlite.ts).
+      - SQLITE_PATH=/tmp/data/db
     env_file:
       - .env
     healthcheck:
@@ -41,3 +46,31 @@ services:
       - "3001:3000"
     env_file:
       - .env
+
+  # Dev-сервис с hot reload: запускает `nuxt dev` внутри контейнера.
+  # Исходники маунтятся с хоста → правки видны сразу (HMR через Vite).
+  # Использование: docker compose up -d nuxt-app-dev → http://localhost:3002
+  # Альтернатива (без Docker): cd app && npm run dev
+  nuxt-app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      # Исходники: правки видны в контейнере без пересборки
+      - ./app:/app/app
+      # Анонимный volume поверх image's node_modules — host'овый node_modules
+      # (mac arm64) не конфликтует с linux x64 в образе.
+      - dev_node_modules:/app/node_modules
+      # SQLite данные (как у nuxt-app)
+      - ./data:/tmp/data
+    ports:
+      - "3002:3000"
+    environment:
+      - SQLITE_PATH=/tmp/data/db
+      - NUXT_HOST=0.0.0.0
+    env_file:
+      - .env
+    restart: unless-stopped
+
+volumes:
+  dev_node_modules:

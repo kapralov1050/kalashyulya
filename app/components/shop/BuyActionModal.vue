@@ -1,5 +1,9 @@
 <template>
-  <UModal v-model:open="isOpen" @close="emit('close')">
+  <UModal
+    v-model:open="isOpen"
+    :title="printLocale('shop_buy_modal_title')"
+    @close="emit('close')"
+  >
     <template #content>
       <div
         class="bg-white dark:bg-neutral-800 rounded-2xl p-6 max-w-md w-full

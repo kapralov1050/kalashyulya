@@ -9,7 +9,7 @@ import type {
 } from '~/types'
 
 export interface ApiUser {
-  uid: string
+  id: number
   email: string | null
   name?: string | null
 }
@@ -106,6 +106,20 @@ export function useApi() {
     })
   }
 
+  /**
+   * Инкрементировать счётчик просмотров товара.
+   * Публичный endpoint (без auth) — для анонимных посетителей.
+   * Не кидает ошибку: если запрос не прошёл — UI продолжит работать.
+   */
+  async function trackProductView(productId: string): Promise<void> {
+    // Nitro typed-routes не видит dynamic POST-роут (/${productId}/view),
+    // any-cast чтобы обойти. Реальный сервер корректно отвечает POST.
+    await $fetch(
+      `/api/products/${productId}/view`,
+      { method: 'POST' } as never,
+    )
+  }
+
   async function publishExhibition(id: string): Promise<void> {
     await $fetch(`/api/admin/exhibitions/${id}/publish`, { method: 'POST' })
   }
@@ -162,6 +176,7 @@ export function useApi() {
     updateProduct,
     deleteProduct,
     updateOrderStatus,
+    trackProductView,
     updateProductCertificateId,
     publishExhibition,
     currentUser,

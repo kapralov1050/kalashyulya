@@ -1,0 +1,26 @@
+# Dev-образ для docker-compose: запускает `nuxt dev` с hot reload.
+# Исходники маунтятся как volume, поэтому правки в IDE видны сразу.
+# Для prod-сборки используй Dockerfile / Dockerfile.prod.
+
+FROM node:22-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Зависимости для nuxt dev
+COPY package.json package-lock.json ./
+RUN npm ci --os=linux --include=optional --ignore-scripts --no-audit --no-fund && \
+    npm rebuild better-sqlite3
+
+# prepare типы для nuxt.config (выполнится один раз при сборке image).
+COPY . .
+RUN npx nuxt prepare || true
+
+# При старте dev-сервера чистим .nuxt/ (там мог остаться stale кэш из build-time),
+# иначе Vite не подхватит изменения source'а из mount'а /app/src
+CMD ["sh", "-c", "rm -rf .nuxt && exec npx nuxt dev --host 0.0.0.0 --port 3000"]
