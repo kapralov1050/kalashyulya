@@ -18,12 +18,17 @@ const paymentLabels: Record<string, string> = {
   manual: 'Перевод вручную',
 }
 
-export function buildOrderEmail(order: Order): OrderEmailRequest {
+// Простая проверка email — не RFC-совместимая, но достаточная для защиты от
+// очевидного мусора. Если из формы пришло что-то невалидное, лучше кинуть
+// ошибку, чем отправить пустое письмо в никуда.
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+export function buildOrderEmail(order: Order, orderId: string): OrderEmailRequest {
   const { customer, purchase, totalPrice, framing, paymentMethod } = order
 
-  const adminEmail = process.env.EMAIL_USER
-  if (!adminEmail) {
-    throw new Error('EMAIL_USER is not configured')
+  const customerEmail = customer.email?.trim()
+  if (!customerEmail || !EMAIL_RE.test(customerEmail)) {
+    throw new Error(`Invalid customer email: ${JSON.stringify(customer.email)}`)
   }
 
   const framingKey = framing ?? ''
@@ -56,14 +61,14 @@ export function buildOrderEmail(order: Order): OrderEmailRequest {
 
   const html = `
     <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#111">
-        <h2 style="background:#06b6d4;color:#fff;padding:16px 24px;border-radius:8px 8px 0 0;margin:0">📦 Новый заказ</h2>
+        <h2 style="background:#06b6d4;color:#fff;padding:16px 24px;border-radius:8px 8px 0 0;margin:0">Спасибо за заказ!</h2>
         <div style="border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;padding:24px">
-            <p style="margin:0 0 4px"><b>Дата:</b> ${escapeHtml(new Date(purchase.createdAt).toLocaleString('ru-RU'))}</p>
-            <h3 style="margin:20px 0 8px;color:#374151">Покупатель</h3>
-            <p style="margin:2px 0"><b>Имя:</b> ${escapeHtml(customer.name)}</p>
-            <p style="margin:2px 0"><b>Email:</b> ${escapeHtml(customer.email)}</p>
-            <p style="margin:2px 0"><b>Телефон:</b> ${escapeHtml(customer.phone || 'Не указан')}</p>
-            <p style="margin:2px 0"><b>Связь:</b> ${escapeHtml(customer.userMessenger || 'Не указано')}${customer.userNickname ? ` · @${escapeHtml(customer.userNickname)}` : ''}</p>
+            <p style="margin:0 0 16px">${escapeHtml(customer.name)}, здравствуйте!</p>
+            <p style="margin:0 0 16px">Мы получили ваш заказ <b>#${escapeHtml(orderId)}</b> и скоро свяжемся с вами, чтобы подтвердить детали и согласовать оплату.</p>
+            <h3 style="margin:20px 0 8px;color:#374151">Номер заказа</h3>
+            <p style="margin:2px 0;font-size:18px;font-weight:bold;color:#06b6d4">#${escapeHtml(orderId)}</p>
+            <h3 style="margin:20px 0 8px;color:#374151">Дата</h3>
+            <p style="margin:2px 0">${escapeHtml(new Date(purchase.createdAt).toLocaleString('ru-RU'))}</p>
             <h3 style="margin:20px 0 8px;color:#374151">Доставка</h3>
             <p style="margin:2px 0">${deliveryHtml}</p>
             <h3 style="margin:20px 0 8px;color:#374151">Оформление и оплата</h3>
@@ -82,12 +87,15 @@ export function buildOrderEmail(order: Order): OrderEmailRequest {
                 <tbody>${productsHtml}</tbody>
             </table>
             <p style="margin:16px 0 0;font-size:18px;font-weight:bold;text-align:right;color:#06b6d4">Итого: ${escapeHtml(String(totalPrice))} ₽</p>
+            <hr style="margin:24px 0;border:none;border-top:1px solid #e5e7eb">
+            <p style="margin:0;font-size:12px;color:#6b7280">Если у вас появятся вопросы — напишите мне в Telegram <a href="https://t.me/kalashyulya" style="color:#06b6d4">@kalashyulya</a> или ответьте на это письмо.</p>
+            <p style="margin:8px 0 0;font-size:12px;color:#6b7280">Юлия Калашникова · kalashyulya.ru</p>
         </div>
     </div>`
 
   return {
-    to: adminEmail,
-    subject: `Новый заказ от ${customer.name}`,
+    to: customerEmail,
+    subject: `Заказ #${escapeHtml(orderId)} принят`,
     html,
   }
 }

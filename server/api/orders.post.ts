@@ -51,6 +51,7 @@ async function triggerOrderNotifications(
       totalPrice,
     }, 'success'),
     triggerNotification(event, '/api/notifications/email', {
+      orderId,
       orderData,
     }, 'ok'),
   ])

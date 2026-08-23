@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach, afterEach } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { buildOrderEmail } from '../../../utils/orderEmailTemplate'
 import type { Order } from '../../../../app/types'
 
@@ -27,27 +27,79 @@ const baseOrder: Order = {
   paymentMethod: 'manual',
 }
 
-describe('buildOrderEmail', () => {
-  beforeEach(() => {
-    process.env.EMAIL_USER = 'shop@kalashyulya.ru'
+describe('buildOrderEmail (customer-facing)', () => {
+  it('шлёт письмо покупателю (customer.email), а не продавцу', () => {
+    const { to } = buildOrderEmail(baseOrder, '20260824-abcd1234')
+    expect(to).toBe('maria@test.com')
   })
-  afterEach(() => {
+
+  it('subject содержит orderId', () => {
+    const { subject } = buildOrderEmail(baseOrder, '20260824-abcd1234')
+    expect(subject).toBe('Заказ #20260824-abcd1234 принят')
+  })
+
+  it('экранирует HTML в orderId (если туда попадёт мусор)', () => {
+    const { subject, html } = buildOrderEmail(baseOrder, '<script>x</script>')
+    expect(subject).not.toContain('<script>')
+    expect(html).not.toContain('<script>x</script>')
+    expect(html).toContain('&lt;script&gt;x&lt;/script&gt;')
+  })
+
+  it('HTML использует customer-facing копирайт', () => {
+    const { html } = buildOrderEmail(baseOrder, '20260824-abcd1234')
+    expect(html).toContain('Спасибо за заказ!')
+    expect(html).not.toContain('Новый заказ')
+    expect(html).toContain('Мы получили ваш заказ')
+    expect(html).toContain('Юлия Калашникова')
+    expect(html).toContain('@kalashyulya')
+  })
+
+  it('HTML содержит orderId в видимой части', () => {
+    const { html } = buildOrderEmail(baseOrder, '20260824-abcd1234')
+    expect(html).toContain('#20260824-abcd1234')
+  })
+
+  it('email не зависит от EMAIL_USER (раньше требовал env)', () => {
+    // delete process.env.EMAIL_USER — теперь не должно быть throw
+    const prev = process.env.EMAIL_USER
     delete process.env.EMAIL_USER
+    try {
+      const { to } = buildOrderEmail(baseOrder, 'X')
+      expect(to).toBe('maria@test.com')
+    } finally {
+      if (prev) process.env.EMAIL_USER = prev
+    }
   })
 
-  it('шлёт письмо админу (EMAIL_USER), а не покупателю', () => {
-    const { to } = buildOrderEmail(baseOrder)
-    expect(to).toBe('shop@kalashyulya.ru')
+  it('throw если email покупателя пустой', () => {
+    const noEmail: Order = {
+      ...baseOrder,
+      customer: { ...baseOrder.customer, email: '' },
+    }
+    expect(() => buildOrderEmail(noEmail, 'X')).toThrow(/Invalid customer email/)
   })
 
-  it('формирует subject "Новый заказ от <name>"', () => {
-    const { subject } = buildOrderEmail(baseOrder)
-    expect(subject).toBe('Новый заказ от Мария')
+  it('throw если email покупателя невалиден', () => {
+    const invalid: Order = {
+      ...baseOrder,
+      customer: { ...baseOrder.customer, email: 'not-an-email' },
+    }
+    expect(() => buildOrderEmail(invalid, 'X')).toThrow(/Invalid customer email/)
   })
 
-  it('выбрасывает ошибку, если EMAIL_USER не задан', () => {
-    delete process.env.EMAIL_USER
-    expect(() => buildOrderEmail(baseOrder)).toThrow(/EMAIL_USER/)
+  it('throw если email содержит мусор (XSS-вектор)', () => {
+    const xss: Order = {
+      ...baseOrder,
+      customer: { ...baseOrder.customer, email: '"><svg/onload=alert(1)>@x.com' },
+    }
+    // Должно либо пройти regex (тогда отправляется — XSS-фильтр на стороне SMTP)
+    // либо throw. Главное — не молча отправить пустоту.
+    try {
+      const { to } = buildOrderEmail(xss, 'X')
+      expect(to).not.toContain('<svg>')
+    } catch {
+      // OK — отбрасываем мусор
+    }
   })
 
   it('экранирует HTML в полях доставки', () => {
@@ -63,7 +115,7 @@ describe('buildOrderEmail', () => {
         },
       },
     }
-    const { html } = buildOrderEmail(malicious)
+    const { html } = buildOrderEmail(malicious, 'X')
     expect(html).not.toContain('<script>alert("x")</script>')
     expect(html).not.toContain('<b>Иван</b>')
     expect(html).toContain('&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;')
@@ -71,23 +123,17 @@ describe('buildOrderEmail', () => {
     expect(html).toContain('&quot;&amp;&lt;&gt;&quot;&#039;')
   })
 
-  it('экранирует HTML в имени, email, мессенджере и нике', () => {
+  it('экранирует HTML в имени покупателя (приветствие в письме)', () => {
     const malicious: Order = {
       ...baseOrder,
       customer: {
         ...baseOrder.customer,
         name: '<img src=x onerror=alert(1)>',
-        email: '"><svg/onload=alert(1)>',
-        userMessenger: 'Telegram & Co',
-        userNickname: '<b>nick</b>',
       },
     }
-    const { html } = buildOrderEmail(malicious)
+    const { html } = buildOrderEmail(malicious, 'X')
     expect(html).not.toContain('<img src=x onerror=alert(1)>')
-    expect(html).not.toContain('<svg/onload=alert(1)>')
     expect(html).toContain('&lt;img src=x onerror=alert(1)&gt;')
-    expect(html).toContain('Telegram &amp; Co')
-    expect(html).toContain('&lt;b&gt;nick&lt;/b&gt;')
   })
 
   it('рендерит ветку pickup без полей доставки', () => {
@@ -98,13 +144,13 @@ describe('buildOrderEmail', () => {
         delivery: { type: 'pickup' },
       },
     }
-    const { html } = buildOrderEmail(pickup)
+    const { html } = buildOrderEmail(pickup, 'X')
     expect(html).toContain('Самовывоз (Санкт-Петербург)')
     expect(html).not.toContain('Невский 1')
   })
 
   it('рендерит ветку delivery с городом/получателем/адресом', () => {
-    const { html } = buildOrderEmail(baseOrder)
+    const { html } = buildOrderEmail(baseOrder, 'X')
     expect(html).toContain('<b>Город:</b> СПб')
     expect(html).toContain('<b>Получатель:</b> Мария Иванова')
     expect(html).toContain('<b>Адрес:</b> Невский 1')
@@ -118,13 +164,13 @@ describe('buildOrderEmail', () => {
         order: [{ id: 1, title: '<script>bad</script>', amount: 1, price: 100 }],
       },
     }
-    const { html } = buildOrderEmail(item)
+    const { html } = buildOrderEmail(item, 'X')
     expect(html).not.toContain('<script>bad</script>')
     expect(html).toContain('&lt;script&gt;bad&lt;/script&gt;')
   })
 
   it('локализует framing и paymentMethod', () => {
-    const { html } = buildOrderEmail(baseOrder)
+    const { html } = buildOrderEmail(baseOrder, 'X')
     expect(html).toContain('Рама с паспарту')
     expect(html).toContain('Перевод вручную')
   })

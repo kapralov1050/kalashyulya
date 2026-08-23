@@ -64,7 +64,20 @@ export default defineEventHandler(
       message = { to: body.to, subject: body.subject, html: body.html }
     }
     else if ('orderData' in body) {
-      message = buildOrderEmail(body.orderData)
+      const orderDataBody = body as { orderData: Order, orderId?: string }
+      const orderId = typeof orderDataBody.orderId === 'string' && orderDataBody.orderId
+        ? orderDataBody.orderId
+        : 'unknown'
+      try {
+        message = buildOrderEmail(orderDataBody.orderData, orderId)
+      }
+      catch (err) {
+        console.error('[email] buildOrderEmail failed:', err)
+        return {
+          ok: false,
+          error: err instanceof Error ? err.message : 'unknown',
+        }
+      }
     }
     else {
       throw createError({
