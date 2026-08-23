@@ -80,7 +80,7 @@
                     defaultValue: 'Не получили подтверждение. Похоже, оплата не была завершена.',
                   })
                 : printLocale('payment_success_webhook_waiting', {
-                    defaultValue: 'Проверяем статус платежа каждые 5 секунд...',
+                    defaultValue: 'Подождите, проверяем статус оплаты...',
                   })
             }}
           </p>
@@ -91,20 +91,6 @@
           v-if="paymentStatus === 'pending' || paymentStatus === 'waiting_for_capture' || paymentStatus === 'canceled'"
           class="flex flex-col sm:flex-row gap-3 justify-center"
         >
-          <UButton
-            v-if="paymentStatus === 'pending' || paymentStatus === 'waiting_for_capture'"
-            color="neutral"
-            variant="outline"
-            size="lg"
-            :disabled="manualChecking"
-            @click="manualCheck"
-          >
-            <UIcon
-              :name="manualChecking ? 'i-heroicons-arrow-path' : 'i-heroicons-arrow-path-circle'"
-              :class="['w-5 h-5 mr-2', manualChecking && 'animate-spin']"
-            />
-            {{ printLocale('payment_success_check_again_button', { defaultValue: 'Проверить снова' }) }}
-          </UButton>
           <UButton
             color="primary"
             size="lg"
@@ -305,7 +291,6 @@
   const paymentId = ref<string | null>(null)
   const paymentStatus = ref<YookassaPaymentStatus | null>(null)
   const pollingTimedOut = ref(false)
-  const manualChecking = ref(false)
   // Флаг: polling ещё активен (для pending/waiting_for_capture)
   let pollingTimer: ReturnType<typeof setInterval> | null = null
   let pollingAttempts = 0
@@ -397,56 +382,10 @@
   }
 
   /**
-   * Ручная проверка статуса — кнопка «Проверить снова» в UI.
-   * Не зависит от polling. Если ЮKassa уже ответила «succeeded» или «canceled» —
-   * мы сразу переключаемся в нужную ветку.
-   * Даже если статус не изменился, сбрасывает pollingTimedOut и возобновляет polling —
-   * иначе после таймаута кнопка выглядит «мёртвой».
+   * Ручная проверка статуса удалена из UI (см. обсуждение в MR).
+   * Пользователь после таймаута polling может либо «Попробовать снова»
+   * (создаёт новый платёж в ЮKassa), либо закрыть вкладку.
    */
-  async function manualCheck() {
-    if (!paymentId.value || manualChecking.value) return
-    manualChecking.value = true
-    try {
-      const result = await getPaymentStatus(paymentId.value)
-
-      // Сетевая ошибка или пустой статус — оставляем UI как есть,
-      // но если был timedOut — даём пользователю ещё попытку подождать.
-      if (!result.success || !result.status) {
-        if (pollingTimedOut.value) {
-          pollingTimedOut.value = false
-          startPolling()
-        }
-        return
-      }
-
-      // Пользователь явно запросил проверку — в любом случае даём polling ещё один шанс.
-      const wasTimedOut = pollingTimedOut.value
-      pollingTimedOut.value = false
-
-      if (result.status !== paymentStatus.value) {
-        paymentStatus.value = result.status
-      }
-
-      if (result.status !== 'pending' && result.status !== 'waiting_for_capture') {
-        stopPolling()
-        if (result.status === 'succeeded') {
-          metrics.trackButtonClick('paymentSuccess')
-          clearBasket()
-          localStorage.removeItem('pendingPaymentId')
-          localStorage.removeItem('pendingOrderId')
-        }
-        else {
-          localStorage.removeItem('pendingPaymentId')
-          localStorage.removeItem('pendingOrderId')
-        }
-      } else if (wasTimedOut) {
-        // Возобновляем polling после ручной проверки, если до этого был таймаут
-        startPolling()
-      }
-    } finally {
-      manualChecking.value = false
-    }
-  }
 
   function onOrderFound(found: OrderInBase) {
     order.value = found
