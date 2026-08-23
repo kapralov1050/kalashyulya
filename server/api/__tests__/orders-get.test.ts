@@ -10,7 +10,7 @@ import { mkdirSync, rmSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 // Перенаправляем DB в отдельный файл чтобы не зависеть от дефолтного пути
-const TEST_DIR = resolve(process.cwd(), 'tmp-server-tests')
+const TEST_DIR = resolve(process.cwd(), 'tmp-server-tests/orders-get')
 const TEST_DB = resolve(TEST_DIR, 'test-orders.db')
 
 beforeAll(() => {

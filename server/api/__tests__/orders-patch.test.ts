@@ -8,7 +8,7 @@ import type Database from 'better-sqlite3'
   name: string,
 ) => (event?.context?.params ?? event?.params ?? {})[name]
 
-const TEST_DIR = resolve(process.cwd(), 'tmp-server-tests')
+const TEST_DIR = resolve(process.cwd(), 'tmp-server-tests/orders-patch')
 const TEST_DB = resolve(TEST_DIR, 'test-orders-patch.db')
 
 function applyMigrations(db: Database.Database) {

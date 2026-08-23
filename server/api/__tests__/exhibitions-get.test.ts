@@ -9,7 +9,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { mkdirSync, rmSync } from 'node:fs'
 import { resolve } from 'node:path'
 
-const TEST_DIR = resolve(process.cwd(), 'tmp-server-tests')
+const TEST_DIR = resolve(process.cwd(), 'tmp-server-tests/exhibitions-get')
 const TEST_DB = resolve(TEST_DIR, 'test-exhibitions.db')
 
 beforeAll(() => {

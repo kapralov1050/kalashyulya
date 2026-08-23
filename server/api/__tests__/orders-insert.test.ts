@@ -14,7 +14,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { mkdirSync, rmSync } from 'node:fs'
 import { resolve } from 'node:path'
 
-const TEST_DIR = resolve(process.cwd(), 'tmp-server-tests')
+const TEST_DIR = resolve(process.cwd(), 'tmp-server-tests/orders-insert')
 const TEST_DB = resolve(TEST_DIR, 'test-orders-insert.db')
 
 // Подменяем $fetch ДО импорта orders.post (vi.mock поднимается наверх).
