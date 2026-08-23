@@ -15,14 +15,13 @@ export interface SendEmailResult {
 }
 
 export function getSmtpTransportConfig() {
-  const host = process.env.NUXT_SMTP_HOST
-  const user = process.env.NUXT_SMTP_USER
-  const pass = process.env.NUXT_SMTP_PASS
-  if (!host || !user || !pass) return null
+  const user = process.env.EMAIL_USER
+  const pass = process.env.EMAIL_PASSWORD
+  if (!user || !pass) return null
   return {
-    host,
-    port: Number(process.env.NUXT_SMTP_PORT ?? 465),
-    secure: (process.env.NUXT_SMTP_PORT ?? '465') === '465',
+    host: 'smtp.mail.ru',
+    port: 465,
+    secure: true,
     auth: { user, pass },
   }
 }
@@ -34,7 +33,7 @@ async function sendViaSmtp(
   if (!cfg) {
     return { ok: false, error: 'SMTP not configured' }
   }
-  const from = process.env.NUXT_SMTP_FROM || cfg.auth.user
+  const from = process.env.SELLER_EMAIL || cfg.auth.user
   const transporter = nodemailer.createTransport(cfg)
   await transporter.sendMail({
     from,
@@ -56,7 +55,7 @@ export default defineEventHandler(
       'html' in body && body.html
         ? { to: body.to, subject: body.subject, html: body.html }
         : 'orderData' in body
-          ? buildOrderEmail('pending', body.orderData)
+          ? buildOrderEmail(body.orderData)
           : (() => {
               throw createError({
                 statusCode: 400,

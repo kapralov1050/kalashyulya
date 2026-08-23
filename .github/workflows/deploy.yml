@@ -133,18 +133,17 @@ jobs:
             # для YooKassa / Telegram / Email после миграции на SQLite.
             # Yookassa: prod-креды + опциональные test-креды для ручного тестирования.
             # YOOKASSA_TEST_MODE=true в dev/preview; не задано или =false в prod.
+            # SMTP host/port захардкожены в server/api/notifications/email.post.ts (smtp.mail.ru:465).
             YOOKASSA_SHOP_ID=${{ secrets.YOOKASSA_SHOP_ID }}
             YOOKASSA_SECRET_KEY=${{ secrets.YOOKASSA_SECRET_KEY }}
             YOOKASSA_SHOP_ID_TEST=${{ secrets.YOOKASSA_SHOP_ID_TEST }}
             YOOKASSA_SECRET_KEY_TEST=${{ secrets.YOOKASSA_SECRET_KEY_TEST }}
             YOOKASSA_TEST_MODE=${{ secrets.YOOKASSA_TEST_MODE }}
-            NUXT_TELEGRAM_BOT_TOKEN=${{ secrets.NUXT_TELEGRAM_BOT_TOKEN }}
-            NUXT_TELEGRAM_CHAT_ID=${{ secrets.NUXT_TELEGRAM_CHAT_ID }}
-            NUXT_SMTP_HOST=${{ secrets.NUXT_SMTP_HOST }}
-            NUXT_SMTP_PORT=${{ secrets.NUXT_SMTP_PORT }}
-            NUXT_SMTP_USER=${{ secrets.NUXT_SMTP_USER }}
-            NUXT_SMTP_PASS=${{ secrets.NUXT_SMTP_PASS }}
-            NUXT_SMTP_FROM=${{ secrets.NUXT_SMTP_FROM }}
+            TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
+            TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}
+            EMAIL_USER=${{ secrets.EMAIL_USER }}
+            EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}
+            SELLER_EMAIL=${{ secrets.SELLER_EMAIL }}
             # Путь к SQLite внутри контейнера.
             # data.db лежит на хосте в /var/lib/kalashyulya/data.db,
             # пробрасывается через volume в контейнер.

@@ -6,38 +6,81 @@ export interface OrderEmailRequest {
   html: string
 }
 
-/**
- * Строит email-уведомление о новом заказе для админа/покупателя.
- * Возвращает request-объект, который уходит в SMTP.
- */
-export function buildOrderEmail(orderId: string, order: Order): OrderEmailRequest {
-  const items = order.purchase.order
-    .map(
-      i =>
-        `<tr><td>${escapeHtml(i.title)}</td><td>${i.amount}</td><td>${i.price} ₽</td><td>${i.amount * i.price} ₽</td></tr>`,
-    )
+const framingLabels: Record<string, string> = {
+  none: 'Без рамки',
+  simple: 'Рама с паспарту',
+  premium: 'Багет с паспарту',
+}
+
+const paymentLabels: Record<string, string> = {
+  yookassa: 'Онлайн (ЮKassa)',
+  manual: 'Перевод вручную',
+}
+
+export function buildOrderEmail(order: Order): OrderEmailRequest {
+  const { customer, purchase, totalPrice, framing, paymentMethod } = order
+
+  const framingText = framing ? framingLabels[framing] ?? framing : 'Не выбрано'
+  const paymentText = paymentMethod ? paymentLabels[paymentMethod] ?? 'Не указан' : 'Не указан'
+
+  let deliveryHtml: string
+  if (customer.delivery?.type === 'delivery') {
+    const parts: string[] = []
+    if (customer.delivery.city) parts.push(`<b>Город:</b> ${customer.delivery.city}`)
+    if (customer.delivery.recipient) parts.push(`<b>Получатель:</b> ${customer.delivery.recipient}`)
+    if (customer.delivery.address) parts.push(`<b>Адрес:</b> ${customer.delivery.address}`)
+    deliveryHtml = parts.join('<br>') || 'Адрес не указан'
+  }
+  else {
+    deliveryHtml = 'Самовывоз (Санкт-Петербург)'
+  }
+
+  const productsHtml = purchase.order
+    .map(item => `
+        <tr>
+            <td style="padding:8px 12px;border-bottom:1px solid #eee">${escapeHtml(item.title)}</td>
+            <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center">${item.amount}</td>
+            <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right">${item.price} ₽</td>
+            <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;font-weight:bold">${item.amount * item.price} ₽</td>
+        </tr>`)
     .join('')
 
-  const deliveryLine = order.customer.delivery?.address
-    ? `<p>Адрес: ${escapeHtml(order.customer.delivery.address)}</p>`
-    : ''
-
   const html = `
-    <h2>Новый заказ #${orderId}</h2>
-    <p><b>Покупатель:</b> ${escapeHtml(order.customer.name)}</p>
-    <p><b>Email:</b> ${escapeHtml(order.customer.email)}</p>
-    ${order.customer.phone ? `<p><b>Телефон:</b> ${escapeHtml(order.customer.phone)}</p>` : ''}
-    ${deliveryLine}
-    <table border="1" cellpadding="6" style="border-collapse:collapse">
-      <thead><tr><th>Товар</th><th>Кол-во</th><th>Цена</th><th>Сумма</th></tr></thead>
-      <tbody>${items}</tbody>
-      <tfoot><tr><td colspan="3"><b>Итого</b></td><td><b>${order.totalPrice} ₽</b></td></tr></tfoot>
-    </table>
-  `
+    <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#111">
+        <h2 style="background:#06b6d4;color:#fff;padding:16px 24px;border-radius:8px 8px 0 0;margin:0">📦 Новый заказ</h2>
+        <div style="border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;padding:24px">
+            <p style="margin:0 0 4px"><b>Дата:</b> ${escapeHtml(new Date(purchase.createdAt).toLocaleString('ru-RU'))}</p>
+            <h3 style="margin:20px 0 8px;color:#374151">Покупатель</h3>
+            <p style="margin:2px 0"><b>Имя:</b> ${escapeHtml(customer.name)}</p>
+            <p style="margin:2px 0"><b>Email:</b> ${escapeHtml(customer.email)}</p>
+            <p style="margin:2px 0"><b>Телефон:</b> ${escapeHtml(customer.phone || 'Не указан')}</p>
+            <p style="margin:2px 0"><b>Связь:</b> ${escapeHtml(customer.userMessenger || 'Не указано')}${customer.userNickname ? ` · @${escapeHtml(customer.userNickname)}` : ''}</p>
+            <h3 style="margin:20px 0 8px;color:#374151">Доставка</h3>
+            <p style="margin:2px 0">${deliveryHtml}</p>
+            <h3 style="margin:20px 0 8px;color:#374151">Оформление и оплата</h3>
+            <p style="margin:2px 0"><b>Оформление:</b> ${framingText}</p>
+            <p style="margin:2px 0"><b>Оплата:</b> ${paymentText}</p>
+            <h3 style="margin:20px 0 8px;color:#374151">Товары</h3>
+            <table style="width:100%;border-collapse:collapse;font-size:14px">
+                <thead>
+                    <tr style="background:#f9fafb;text-align:left">
+                        <th style="padding:8px 12px">Название</th>
+                        <th style="padding:8px 12px;text-align:center">Кол-во</th>
+                        <th style="padding:8px 12px;text-align:right">Цена</th>
+                        <th style="padding:8px 12px;text-align:right">Сумма</th>
+                    </tr>
+                </thead>
+                <tbody>${productsHtml}</tbody>
+            </table>
+            <p style="margin:16px 0 0;font-size:18px;font-weight:bold;text-align:right;color:#06b6d4">Итого: ${totalPrice} ₽</p>
+        </div>
+    </div>`
+
+  const adminEmail = process.env.EMAIL_USER
 
   return {
-    to: order.customer.email,
-    subject: `Заказ #${orderId}`,
+    to: adminEmail || '',
+    subject: `Новый заказ от ${customer.name}`,
     html,
   }
 }
