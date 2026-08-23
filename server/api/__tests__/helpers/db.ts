@@ -8,7 +8,7 @@ function listMigrationFiles(): string[] {
   const schemaDir = resolve(process.cwd(), 'server/schema')
   return readdirSync(schemaDir)
     .filter(f => /^\d{3}_.*\.sql$/.test(f) && f !== INIT_FILE)
-    .sort()
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
 }
 
 export function applyMigrations(db: Database.Database): void {

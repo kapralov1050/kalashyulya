@@ -267,6 +267,16 @@
     return canDeleteOrder(order.status)
   }
 
+  async function handleSessionExpired(): Promise<void> {
+    toast.add({
+      title: 'Сессия истекла',
+      description: 'Войдите снова',
+      color: 'warning',
+    })
+    await logout()
+    router.push('/login')
+  }
+
   const filteredOrders = computed(() => {
     if (!allOrders.value) return []
     if (selectedStatus.value === 'all') return allOrders.value
@@ -347,13 +357,7 @@
       console.error('Error updating order status:', error)
       const status = (error as { statusCode?: number })?.statusCode
       if (status === 401) {
-        toast.add({
-          title: 'Сессия истекла',
-          description: 'Войдите снова',
-          color: 'warning',
-        })
-        await logout()
-        router.push('/login')
+        await handleSessionExpired()
         return
       }
       toast.add({
@@ -397,13 +401,7 @@
       console.error('Error deleting order:', error)
       const status = (error as { statusCode?: number })?.statusCode
       if (status === 401) {
-        toast.add({
-          title: 'Сессия истекла',
-          description: 'Войдите снова',
-          color: 'warning',
-        })
-        await logout()
-        router.push('/login')
+        await handleSessionExpired()
         return
       }
       if (status === 404) {

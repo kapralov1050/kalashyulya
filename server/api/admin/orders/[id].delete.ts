@@ -2,7 +2,7 @@ import { getDb } from '../../../utils/db'
 import { requireAuth } from '../../../utils/requireAuth'
 
 // Заказы со статусом paid/shipped можно удалить через API напрямую,
-// хотя UI-кнопка скрыта (см. OrdersList.vue:DELETABLE_STATUSES).
+// хотя UI-кнопка скрыта (см. app/constants/orderPermissions.ts).
 // Это намеренно: refund / chargeback сценарии требуют ручного удаления.
 // Если когда-нибудь понадобится жёсткий guard — добавить 409 для
 // status ∉ ['new', 'cancelled'] здесь.
