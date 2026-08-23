@@ -3,11 +3,6 @@ import { rmSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { applyMigrations, insertFullOrder, setupTestDb } from './helpers/db'
 
-;(globalThis as Record<string, unknown>).getRouterParam = (
-  event: { context?: { params?: Record<string, string> }, params?: Record<string, string> },
-  name: string,
-) => (event?.context?.params ?? event?.params ?? {})[name]
-
 const TEST_DIR = resolve(process.cwd(), 'tmp-server-tests/orders-patch')
 
 beforeAll(() => {
