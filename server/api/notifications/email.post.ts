@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import nodemailer from 'nodemailer'
 import type { H3Event } from 'h3'
 import { buildOrderEmail } from '../../utils/orderEmailTemplate'
@@ -33,7 +34,11 @@ async function sendViaSmtp(
   if (!cfg) {
     return { ok: false, error: 'SMTP not configured' }
   }
-  const from = process.env.SELLER_EMAIL || cfg.auth.user
+  const sellerEmail = process.env.SELLER_EMAIL
+  if (sellerEmail && sellerEmail !== cfg.auth.user) {
+    console.warn(`[email] SELLER_EMAIL (${sellerEmail}) differs from EMAIL_USER (${cfg.auth.user}) — mail.ru will reject unless they match`)
+  }
+  const from = sellerEmail || cfg.auth.user
   const transporter = nodemailer.createTransport(cfg)
   await transporter.sendMail({
     from,
@@ -51,21 +56,30 @@ export default defineEventHandler(
       throw createError({ statusCode: 400, statusMessage: 'Body required' })
     }
 
-    const message: SendEmailBody =
-      'html' in body && body.html
-        ? { to: body.to, subject: body.subject, html: body.html }
-        : 'orderData' in body
-          ? buildOrderEmail(body.orderData)
-          : (() => {
-              throw createError({
-                statusCode: 400,
-                statusMessage: 'Unsupported body',
-              })
-            })()
+    let message: SendEmailBody
+    if ('html' in body && body.html) {
+      if (!body.to || !body.subject) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: 'to and subject required for pre-rendered email',
+        })
+      }
+      message = { to: body.to, subject: body.subject, html: body.html }
+    }
+    else if ('orderData' in body) {
+      message = buildOrderEmail(body.orderData)
+    }
+    else {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Unsupported body',
+      })
+    }
 
     try {
       return await sendViaSmtp(message)
     } catch (error: unknown) {
+      console.error('[email] send failed:', error)
       return {
         ok: false,
         error: error instanceof Error ? error.message : 'unknown',

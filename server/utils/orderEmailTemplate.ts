@@ -1,4 +1,5 @@
 import type { Order } from '~/types'
+import { escapeHtml } from './escapeHtml'
 
 export interface OrderEmailRequest {
   to: string
@@ -20,15 +21,23 @@ const paymentLabels: Record<string, string> = {
 export function buildOrderEmail(order: Order): OrderEmailRequest {
   const { customer, purchase, totalPrice, framing, paymentMethod } = order
 
-  const framingText = framing ? framingLabels[framing] ?? framing : 'Не выбрано'
-  const paymentText = paymentMethod ? paymentLabels[paymentMethod] ?? 'Не указан' : 'Не указан'
+  const adminEmail = process.env.EMAIL_USER
+  if (!adminEmail) {
+    throw new Error('EMAIL_USER is not configured')
+  }
+
+  const framingKey = framing ?? ''
+  const framingText
+    = (framingLabels[framingKey] ?? (framingKey ? escapeHtml(framingKey) : '')) || 'Не выбрано'
+  const paymentKey = paymentMethod ?? ''
+  const paymentText = paymentLabels[paymentKey] ?? 'Не указан'
 
   let deliveryHtml: string
   if (customer.delivery?.type === 'delivery') {
     const parts: string[] = []
-    if (customer.delivery.city) parts.push(`<b>Город:</b> ${customer.delivery.city}`)
-    if (customer.delivery.recipient) parts.push(`<b>Получатель:</b> ${customer.delivery.recipient}`)
-    if (customer.delivery.address) parts.push(`<b>Адрес:</b> ${customer.delivery.address}`)
+    if (customer.delivery.city) parts.push(`<b>Город:</b> ${escapeHtml(customer.delivery.city)}`)
+    if (customer.delivery.recipient) parts.push(`<b>Получатель:</b> ${escapeHtml(customer.delivery.recipient)}`)
+    if (customer.delivery.address) parts.push(`<b>Адрес:</b> ${escapeHtml(customer.delivery.address)}`)
     deliveryHtml = parts.join('<br>') || 'Адрес не указан'
   }
   else {
@@ -39,9 +48,9 @@ export function buildOrderEmail(order: Order): OrderEmailRequest {
     .map(item => `
         <tr>
             <td style="padding:8px 12px;border-bottom:1px solid #eee">${escapeHtml(item.title)}</td>
-            <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center">${item.amount}</td>
-            <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right">${item.price} ₽</td>
-            <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;font-weight:bold">${item.amount * item.price} ₽</td>
+            <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center">${escapeHtml(String(item.amount))}</td>
+            <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right">${escapeHtml(String(item.price))} ₽</td>
+            <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;font-weight:bold">${escapeHtml(String(item.amount * item.price))} ₽</td>
         </tr>`)
     .join('')
 
@@ -58,8 +67,8 @@ export function buildOrderEmail(order: Order): OrderEmailRequest {
             <h3 style="margin:20px 0 8px;color:#374151">Доставка</h3>
             <p style="margin:2px 0">${deliveryHtml}</p>
             <h3 style="margin:20px 0 8px;color:#374151">Оформление и оплата</h3>
-            <p style="margin:2px 0"><b>Оформление:</b> ${framingText}</p>
-            <p style="margin:2px 0"><b>Оплата:</b> ${paymentText}</p>
+            <p style="margin:2px 0"><b>Оформление:</b> ${escapeHtml(framingText)}</p>
+            <p style="margin:2px 0"><b>Оплата:</b> ${escapeHtml(paymentText)}</p>
             <h3 style="margin:20px 0 8px;color:#374151">Товары</h3>
             <table style="width:100%;border-collapse:collapse;font-size:14px">
                 <thead>
@@ -72,26 +81,13 @@ export function buildOrderEmail(order: Order): OrderEmailRequest {
                 </thead>
                 <tbody>${productsHtml}</tbody>
             </table>
-            <p style="margin:16px 0 0;font-size:18px;font-weight:bold;text-align:right;color:#06b6d4">Итого: ${totalPrice} ₽</p>
+            <p style="margin:16px 0 0;font-size:18px;font-weight:bold;text-align:right;color:#06b6d4">Итого: ${escapeHtml(String(totalPrice))} ₽</p>
         </div>
     </div>`
 
-  const adminEmail = process.env.EMAIL_USER
-
   return {
-    to: adminEmail || '',
+    to: adminEmail,
     subject: `Новый заказ от ${customer.name}`,
     html,
   }
-}
-
-function escapeHtml(text: string): string {
-  const map: Record<string, string> = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#039;',
-  }
-  return text.replace(/[&<>"']/g, m => map[m] ?? m)
 }

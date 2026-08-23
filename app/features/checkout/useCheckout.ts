@@ -18,7 +18,7 @@ export function useCheckout() {
   const basketStore = useBasketStore()
   const { shoppingCart } = storeToRefs(basketStore)
   const { addNewOrder, shopData } = useApi()
-  const { sendOrderInfoTelegram, sendOrderInfoEmail } = useShop()
+  const { sendOrderInfoTelegram } = useShop()
   const ordersStore = useOrdersStore()
 
   // Пропускаем шаг оформления, если все товары уже имеют оформление
@@ -200,18 +200,15 @@ export function useCheckout() {
       )
 
       if (!isTestOrder) {
-        const [telegramResult, emailResult] = await Promise.allSettled([
+        const telegramResult = await Promise.allSettled([
           sendOrderInfoTelegram(orderData),
-          sendOrderInfoEmail(orderData),
         ])
-        const failed: { telegram?: boolean; email?: boolean } = {}
-        if (telegramResult.status === 'rejected' || !telegramResult.value?.success)
-          failed.telegram = true
-        if (emailResult.status === 'rejected' || !emailResult.value?.success)
-          failed.email = true
-        if (Object.keys(failed).length > 0) {
+        if (
+          telegramResult[0].status === 'rejected'
+          || !telegramResult[0].value?.success
+        ) {
           // eslint-disable-next-line no-console
-          console.warn('Notification failures for order', orderId, failed)
+          console.warn('Telegram notification failed for order', orderId)
         }
       }
 

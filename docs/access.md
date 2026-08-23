@@ -195,17 +195,17 @@ docker pull ghcr.io/kapralov1050/kalashyulya:nitro
 **Telegram (для `/api/notifications/telegram`):**
 | Secret | Значение |
 |---|---|
-| `NUXT_TELEGRAM_BOT_TOKEN` | от @BotFather, `110201543:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw` (legacy: `BOT_TOKEN`) |
-| `NUXT_TELEGRAM_CHAT_ID` | id чата/группы (legacy: `CHAT_ID`) |
+| `TELEGRAM_BOT_TOKEN` | от @BotFather, `110201543:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw` |
+| `TELEGRAM_CHAT_ID` | id чата/группы |
 
 **Email (для `/api/notifications/email`):**
 | Secret | Значение |
 |---|---|
-| `NUXT_SMTP_HOST` | SMTP-сервер |
-| `NUXT_SMTP_PORT` | `465` |
-| `NUXT_SMTP_USER` | `noreply@kalashyulya.ru` |
-| `NUXT_SMTP_PASS` | SMTP-пароль |
-| `NUXT_SMTP_FROM` | `noreply@kalashyulya.ru` |
+| `EMAIL_USER` | SMTP-логин (mail.ru ящик) |
+| `EMAIL_PASSWORD` | **пароль приложения** mail.ru, не основной пароль (https://account.mail.ru/user/2-step-auth/passwords) |
+| `SELLER_EMAIL` | `From:` в письме; должен совпадать с `EMAIL_USER`, иначе mail.ru отклонит |
+
+SMTP host/port захардкожены в `server/api/notifications/email.post.ts` (`smtp.mail.ru:465`).
 
 **Storage / misc:**
 | Secret | Значение |

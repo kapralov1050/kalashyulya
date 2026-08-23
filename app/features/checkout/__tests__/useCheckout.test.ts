@@ -582,14 +582,13 @@ describe('useCheckout', () => {
       await vi.waitFor(() => expect(mocks.sendOrderInfoTelegram).toHaveBeenCalled())
 
       expect(mocks.sendOrderInfoTelegram).toHaveBeenCalledTimes(1)
-      expect(mocks.sendOrderInfoEmail).toHaveBeenCalledTimes(1)
+      expect(mocks.sendOrderInfoEmail).not.toHaveBeenCalled()
       expect(mocks.sendOrderInfoTelegram.mock.calls[0]?.[0]?.customer.email).toBe('test@example.com')
       expect(setShopDataCalls()).toHaveLength(0)
     })
 it('logs warning when notifications fail (no firebase write)', async () => {
       setProductionLocation()
       mocks.sendOrderInfoTelegram.mockResolvedValueOnce({ success: false })
-      mocks.sendOrderInfoEmail.mockResolvedValueOnce({ success: false })
 
       const store = useCheckoutStore()
       const basket = useBasketStore()

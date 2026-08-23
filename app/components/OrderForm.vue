@@ -200,7 +200,7 @@
 
   const { suggestions, fetchAddresses } = useDaDataAddress()
   const basketStore = useBasketStore()
-  const { sendOrderInfoTelegram, sendOrderInfoEmail } = useShop()
+  const { sendOrderInfoTelegram } = useShop()
   const api = useApi()
   const { shopData: _shopData, addNewOrder } = api
   const { orderInfo } = storeToRefs(useOrdersStore())
@@ -340,19 +340,16 @@
         // eslint-disable-next-line no-console
         console.debug('[order] test environment — notifications skipped')
       } else {
-        const [telegramResult, emailResult] = await Promise.allSettled([
+        const telegramResult = await Promise.allSettled([
           sendOrderInfoTelegram(orderInfo.value),
-          sendOrderInfoEmail(orderInfo.value),
         ])
 
-        const failed: { telegram?: boolean; email?: boolean } = {}
+        const failed: { telegram?: boolean } = {}
         if (
-          telegramResult.status === 'rejected' ||
-          !telegramResult.value?.success
+          telegramResult[0].status === 'rejected' ||
+          !telegramResult[0].value?.success
         )
           failed.telegram = true
-        if (emailResult.status === 'rejected' || !emailResult.value?.success)
-          failed.email = true
         if (Object.keys(failed).length > 0) {
           // eslint-disable-next-line no-console
           console.warn('Notification failures for order', orderId, failed)

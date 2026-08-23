@@ -3,12 +3,6 @@ import type { NuxtConfig } from 'nuxt/config'
 export const runtimeConfig: NuxtConfig['runtimeConfig'] = {
   yookassaShopId: process.env.NUXT_YOOKASSA_SHOP_ID,
   yookassaSecret: process.env.NUXT_YOOKASSA_SECRET,
-  telegramBotToken: process.env.NUXT_TELEGRAM_BOT_TOKEN,
-  telegramChatId: process.env.NUXT_TELEGRAM_CHAT_ID,
-  smtpHost: process.env.NUXT_SMTP_HOST,
-  smtpUser: process.env.NUXT_SMTP_USER,
-  smtpPass: process.env.NUXT_SMTP_PASS,
-  smtpFrom: process.env.NUXT_SMTP_FROM,
   public: {
     siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://kalashyulya.ru',
     cloudFunctionUploadProduct:

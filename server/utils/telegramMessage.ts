@@ -1,4 +1,5 @@
 import type { Order } from '~/types'
+import { escapeHtml } from './escapeHtml'
 
 export interface TelegramNotificationPayload {
   orderId: string
@@ -32,13 +33,6 @@ function paymentLabel(method: string | undefined): string {
   if (method === 'yookassa') return 'Онлайн (ЮKassa)'
   if (method === 'manual') return 'Перевод вручную'
   return 'Не указан'
-}
-
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
 }
 
 export function buildTelegramMessage(
