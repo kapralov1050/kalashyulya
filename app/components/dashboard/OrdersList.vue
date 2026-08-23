@@ -91,19 +91,22 @@
             >
               Обновить статус
             </UButton>
-            <button
-              class="flex items-center gap-1 px-2.5 py-1 text-red-500 border
-                border-red-200 rounded-lg hover:bg-red-50 hover:border-red-300
-                transition-colors duration-200 text-xs font-medium shrink-0"
-              :disabled="deletingOrderId === order.id"
+            <UButton
+              v-if="canDelete(order)"
+              type="button"
+              color="error"
+              variant="outline"
+              size="sm"
+              :loading="deletingOrderId === order.id"
+              :aria-label="`Удалить заказ #${order.id}`"
+              class="shrink-0"
               @click="confirmDelete(order)"
             >
-              <UIcon
-                name="i-heroicons-trash"
-                class="w-3.5 h-3.5"
-              />
+              <template #leading>
+                <UIcon name="i-heroicons-trash" class="w-3.5 h-3.5" />
+              </template>
               Удалить
-            </button>
+            </UButton>
           </div>
         </div>
       </div>
@@ -246,9 +249,10 @@
   }
 
   const { allOrders } = storeToRefs(useOrdersStore())
-  const { updateOrderStatus, deleteOrder } = useApi()
+  const { updateOrderStatus, deleteOrder, logout } = useApi()
   const { sendStatusUpdateEmail } = useOrderEmail()
   const ordersStore = useOrdersStore()
+  const router = useRouter()
   const toast = useToast()
 
   const selectedStatus = ref('all')
@@ -256,6 +260,12 @@
   const selectedOrder = ref<OrderInBase | null>(null)
   const pendingStatuses = ref<Record<number, string>>({})
   const deletingOrderId = ref<number | string | null>(null)
+
+  const DELETABLE_STATUSES = new Set(['new', 'cancelled'])
+
+  function canDelete(order: OrderInBase): boolean {
+    return DELETABLE_STATUSES.has(order.status ?? '')
+  }
 
   const filteredOrders = computed(() => {
     if (!allOrders.value) return []
@@ -357,7 +367,7 @@
   }
 
   function confirmDelete(order: OrderInBase) {
-    if (!confirm(`Удалить заказ #${order.id}? Действие необратимо.`)) return
+    if (!confirm(`Удалить заказ #${order.id}? Это удалит запись из базы.`)) return
     void handleDelete(order)
   }
 
@@ -374,6 +384,26 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error deleting order:', error)
+      const status = (error as { statusCode?: number })?.statusCode
+      if (status === 401) {
+        toast.add({
+          title: 'Сессия истекла',
+          description: 'Войдите снова',
+          color: 'warning',
+        })
+        await logout()
+        router.push('/login')
+        return
+      }
+      if (status === 404) {
+        toast.add({
+          title: 'Уже удалён',
+          description: `Заказ #${order.id} уже был удалён ранее`,
+          color: 'warning',
+        })
+        await ordersStore.loadOrders()
+        return
+      }
       toast.add({
         title: 'Ошибка',
         description: 'Не удалось удалить заказ',

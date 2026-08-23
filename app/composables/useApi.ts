@@ -96,11 +96,9 @@ export function useApi() {
     })
   }
 
-  async function deleteOrder(orderId: string): Promise<void> {
-    await $fetch(
-      `/api/admin/orders/${orderId}`,
-      { method: 'DELETE' } as never,
-    )
+  async function deleteOrder(orderId: string | number): Promise<void> {
+    // Cast нужен: Nitro typed-routes не знает про DELETE-handler до npx nuxt prepare.
+    await $fetch(`/api/admin/orders/${orderId}`, { method: 'DELETE' } as never)
   }
 
   async function updateProductCertificateId(

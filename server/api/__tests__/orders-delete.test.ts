@@ -1,63 +1,21 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
-import { mkdirSync, rmSync, readFileSync } from 'node:fs'
-import { resolve, join } from 'node:path'
-import type Database from 'better-sqlite3'
+import { rmSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { applyMigrations, insertFullOrder, setupTestDb } from './helpers/db'
+
+const requireAuthMock = vi.fn()
 
 vi.mock('../../utils/requireAuth', () => ({
-  requireAuth: () => undefined,
+  requireAuth: (event: unknown) => requireAuthMock(event),
 }))
 
-;(globalThis as Record<string, unknown>).getRouterParam = (
-  event: { context?: { params?: Record<string, string> }, params?: Record<string, string> },
-  name: string,
-) => (event?.context?.params ?? event?.params ?? {})[name]
-
 const TEST_DIR = resolve(process.cwd(), 'tmp-server-tests/orders-delete')
-const TEST_DB = resolve(TEST_DIR, 'test-orders-delete.db')
 
-function applyMigrations(db: Database.Database) {
-  const schemaDir = resolve(process.cwd(), 'server/schema')
-  const initPath = join(schemaDir, '001_init.sql')
-  db.exec(readFileSync(initPath, 'utf-8'))
-
-  for (const file of ['002_exhibitions.sql', '003_orders.sql', '004_orders.sql', '005_orders.sql']) {
-    const path = join(schemaDir, file)
-    try {
-      const raw = readFileSync(path, 'utf-8')
-      const stripped = raw
-        .split('\n')
-        .filter(line => !line.trim().startsWith('--'))
-        .join('\n')
-      const statements = stripped
-        .split(';')
-        .map(s => s.trim())
-        .filter(s => s.length > 0)
-
-      for (const stmt of statements) {
-        const columnMatch = stmt.match(/^ALTER\s+TABLE\s+(\w+)\s+ADD\s+COLUMN\s+(\w+)\s+/i)
-        if (columnMatch) {
-          const [, table, column] = columnMatch
-          const cols = db.pragma(`table_info(${table})`) as Array<{ name: string }>
-          if (cols.some(c => c.name === column)) continue
-        }
-        try {
-          db.exec(stmt + ';')
-        }
-        catch {
-          // idempotent: skip already exists / duplicate column
-        }
-      }
-    }
-    catch {
-      // ignore missing files
-    }
-  }
-}
+setupTestDb(TEST_DIR, 'test-orders-delete.db')
 
 beforeAll(() => {
-  mkdirSync(TEST_DIR, { recursive: true })
-  process.env.SQLITE_PATH = TEST_DB
-  process.env.NODE_ENV = 'test'
+  requireAuthMock.mockReset()
+  requireAuthMock.mockReturnValue({ id: 1, email: 'admin@test', name: 'Admin' })
 })
 
 afterAll(() => {
@@ -75,40 +33,18 @@ describe('DELETE /api/admin/orders/[id]', () => {
     closeDb = dbModule.closeDb
 
     applyMigrations(getDb())
-
-    getDb().prepare(`
-      INSERT INTO orders (id, customer_name, customer_email, customer_phone,
-                          customer_messenger, customer_nickname,
-                          city, address,
-                          delivery_type, delivery_recipient, delivery_street, delivery_house, delivery_apartment,
-                          items_json, total, status, payment_method, comment, created_at, updated_at,
-                          framing, payment_id, notification_failed)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
-      'order_del_1',
-      'Вася',
-      'vasya@example.com',
-      null,
-      null,
-      null,
-      null,
-      null,
-      'pickup',
-      null,
-      null,
-      null,
-      null,
-      JSON.stringify([{ productId: '1', title: 'X', price: 100, amount: 1 }]),
-      100,
-      'new',
-      'manual',
-      null,
-      Date.now(),
-      Date.now(),
-      null,
-      null,
-      null,
-    )
+    insertFullOrder(getDb(), {
+      id: 'order_del_1',
+      customer_name: 'Вася',
+      customer_email: 'vasya@example.com',
+      delivery_type: 'pickup',
+      items_json: JSON.stringify([{ productId: '1', title: 'X', price: 100, amount: 1 }]),
+      total: 100,
+      status: 'new',
+      payment_method: 'manual',
+      created_at: Date.now(),
+      updated_at: Date.now(),
+    })
 
     handler = (await import('../admin/orders/[id].delete')).default
   })
@@ -132,6 +68,16 @@ describe('DELETE /api/admin/orders/[id]', () => {
     expect(row).toBeUndefined()
   })
 
+  it('вызывает requireAuth перед удалением', async () => {
+    requireAuthMock.mockClear()
+    const event = {
+      context: {},
+      params: { id: 'missing' },
+    } as never
+    await expect(handler(event)).rejects.toMatchObject({ statusCode: 404 })
+    expect(requireAuthMock).toHaveBeenCalledWith(event)
+  })
+
   it('DELETE с несуществующим id возвращает 404', async () => {
     const event = {
       context: {},
@@ -144,6 +90,51 @@ describe('DELETE /api/admin/orders/[id]', () => {
     })
   })
 
+  it('DELETE повторно того же id возвращает 404 (защита от двойного клика)', async () => {
+    insertFullOrder(getDb(), {
+      id: 'order_del_double',
+      customer_name: 'Двойной',
+      customer_email: 'd@x.com',
+      delivery_type: 'pickup',
+      items_json: '[]',
+      total: 0,
+      status: 'new',
+      payment_method: 'manual',
+      created_at: Date.now(),
+      updated_at: Date.now(),
+    })
+    const event = { context: {}, params: { id: 'order_del_double' } } as never
+
+    const first = await handler(event)
+    expect(first).toEqual({ ok: true })
+
+    await expect(handler(event)).rejects.toMatchObject({
+      statusCode: 404,
+      statusMessage: 'Заказ не найден',
+    })
+  })
+
+  it('DELETE с SQL-injection в id не ломает таблицу и возвращает 404', async () => {
+    const before = getDb()
+      .prepare('SELECT COUNT(*) as c FROM orders')
+      .get() as { c: number }
+
+    const event = {
+      context: {},
+      params: { id: "x'; DROP TABLE orders; --" },
+    } as never
+
+    await expect(handler(event)).rejects.toMatchObject({
+      statusCode: 404,
+    })
+
+    const after = getDb()
+      .prepare('SELECT COUNT(*) as c FROM orders')
+      .get() as { c: number }
+    expect(after.c).toBe(before.c)
+    expect(after.c).toBeGreaterThan(0)
+  })
+
   it('DELETE без id возвращает 400', async () => {
     const event = {
       context: {},
@@ -154,5 +145,16 @@ describe('DELETE /api/admin/orders/[id]', () => {
       statusCode: 400,
       statusMessage: 'id обязателен',
     })
+  })
+
+  it('если requireAuth бросает 401 — запрос не доходит до БД', async () => {
+    requireAuthMock.mockImplementationOnce(() => {
+      throw new Error('Unauthorized') as Error & { statusCode: number }
+    })
+    const event = {
+      context: {},
+      params: { id: 'order_del_1' },
+    } as never
+    await expect(handler(event)).rejects.toThrow('Unauthorized')
   })
 })
