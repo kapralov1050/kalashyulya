@@ -77,6 +77,9 @@ export interface Order {
   totalPrice: number
   framing?: 'none' | 'simple' | 'premium'
   paymentMethod?: 'yookassa' | 'manual'
+  // Phase D-фикс: paymentId (YooKassa) теперь шлётся с фронта чтобы payment-success
+  // мог найти заказ в БД. Раньше orders.get.ts хардкодил '' и lookup не работал.
+  paymentId?: string
 }
 
 export interface OrderInBase extends Order {

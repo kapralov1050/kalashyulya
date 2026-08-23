@@ -158,7 +158,7 @@
         </div>
       </div>
       <div
-        v-if="order.notificationFailed"
+        v-if="order.notificationFailed && (!order.notificationFailed.telegram || !order.notificationFailed.email)"
         class="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg flex
           items-start gap-2 text-orange-700 text-sm"
       >

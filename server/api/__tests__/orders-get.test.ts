@@ -143,6 +143,53 @@ describe('orders.get DTO mapping', () => {
     expect(newOrders).toHaveLength(1)
   })
 
+  it('Phase D: framing, payment_id, notification_failed round-trip через GET', async () => {
+    // Сидим заказ со всеми 23 колонками (включая новые из 005_orders.sql)
+    getDb().prepare(`
+      INSERT INTO orders (id, customer_name, customer_email, customer_phone,
+                          customer_messenger, customer_nickname,
+                          city, address,
+                          delivery_type, delivery_recipient, delivery_street, delivery_house, delivery_apartment,
+                          items_json, total, status, payment_method, comment, created_at, updated_at,
+                          framing, payment_id, notification_failed)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      'order_phase_d',
+      'ФазаД',
+      'phased@example.com',
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      JSON.stringify([{ productId: 'p1', title: 'X', price: 100, amount: 1 }]),
+      100,
+      'new',
+      'yookassa',
+      null,
+      Date.now(),
+      Date.now(),
+      'premium',
+      'pay_abc123',
+      JSON.stringify({ telegram: true, email: false }),
+    )
+
+    const fakeEvent = { context: {} } as unknown as Parameters<typeof ordersGetHandler>[0]
+    const result = await ordersGetHandler(fakeEvent)
+    const order = result.find(o => o.id === 'order_phase_d')!
+
+    expect(order).toBeDefined()
+    expect(order.framing).toBe('premium')
+    expect(order.paymentMethod).toBe('yookassa')
+    expect(order.paymentId).toBe('pay_abc123')
+    expect(order.notificationFailed).toEqual({ telegram: true, email: false })
+  })
+
   // Не падает на пустой БД — протестировано отдельно (требует чистой БД,
 // трудно изолировать через SAVEPOINT в WAL-mode с singleton).
 // Корректность маппинга покрыта первыми двумя тестами.

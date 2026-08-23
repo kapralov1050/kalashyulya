@@ -1,8 +1,14 @@
 /**
- * Регрессионный тест: schema Phase D (orders) имеет 19 колонок,
- * и INSERT должен передавать ровно 19 параметров. Раньше здесь было 18,
+ * Регрессионный тест: schema orders имеет 23 колонки (12 из 001_init.sql +
+ * 7 из 003_orders.sql + 1 payment_method из 004 + 3 из 005_orders.sql),
+ * и INSERT должен передавать ровно 23 параметра. Раньше здесь было 18,
  * что приводило к "RangeError: Too few parameter values were provided"
  * на проде с 500 Server Error при попытке оформить заказ.
+ *
+ * Также проверяет Phase D-фиксы:
+ * - paymentMethod ('yookassa' | 'manual') сохраняется из body
+ * - framing сохраняется в БД (не теряется)
+ * - items_json хранит 'amount' (Firebase-контракт), а не 'qty'
  */
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { mkdirSync, rmSync } from 'node:fs'
@@ -10,6 +16,31 @@ import { resolve } from 'node:path'
 
 const TEST_DIR = resolve(process.cwd(), 'tmp-server-tests')
 const TEST_DB = resolve(TEST_DIR, 'test-orders-insert.db')
+
+// Подменяем $fetch ДО импорта orders.post (vi.mock поднимается наверх).
+// ofech экспортирует $fetch как named export; в Nuxt-серверном коде $fetch —
+// globalThis.$fetch (auto-import). В тестах Nitro-runtime не загружается, поэтому
+// мок модуля подменяет globalThis.$fetch на наш мок.
+//
+// ВАЖНО: устанавливаем $fetch и в globalThis, потому что production-код
+// использует его как global (через $fetch.raw), не импортирует.
+vi.mock('ofetch', () => {
+  const mock = Object.assign(vi.fn(), {
+    raw: vi.fn(async () => ({
+      _data: { success: true, ok: true },
+      status: 200,
+      headers: new Headers(),
+      ok: true,
+    })),
+    create: vi.fn(),
+  })
+  // Делаем mock доступным и как globalThis.$fetch
+  ;(globalThis as Record<string, unknown>).$fetch = mock
+  return { $fetch: mock }
+})
+
+// getRequestURL — Nitro global (h3), в тестах отсутствует. Мокаем как global.
+vi.stubGlobal('getRequestURL', () => ({ origin: 'http://localhost:3000' }))
 
 beforeAll(() => {
   mkdirSync(TEST_DIR, { recursive: true })
@@ -34,8 +65,9 @@ describe('POST /api/orders (regression: parameter count)', () => {
     // Schema применяется через applyMigrations() в getDb().
     // Seed минимальный admin (если потребуется), но для INSERT в orders не нужно.
 
-    // Подменяем $fetch и createError, чтобы triggerOrderNotifications не падал
-    globalThis.$fetch = vi.fn(async () => ({ success: true })) as never
+    // $fetch уже замокан на module level (vi.mock 'ofetch') — handler будет
+    // получать успешный ответ от обеих нотификаций. Тест проверяет, что
+    // notification_failed в БД содержит JSON с {telegram: true, email: true}.
   })
 
   afterAll(() => {
@@ -148,5 +180,56 @@ describe('POST /api/orders (regression: parameter count)', () => {
       .prepare('SELECT * FROM orders WHERE id = ?')
       .get(result.id) as Record<string, unknown>
     expect(order.payment_method).toBe('yookassa')
+  })
+
+  it('framing сохраняется в БД (Phase D-фикс #3)', async () => {
+    const event = {
+      context: {},
+      body: {
+        customer: {
+          name: 'Frame User',
+          email: 'frame@example.com',
+        },
+        purchase: {
+          order: [{ id: 4, title: 'F', price: 100, amount: 1 }],
+          createdAt: new Date().toISOString(),
+        },
+        totalPrice: 100,
+        framing: 'premium',
+      },
+    } as never
+
+    const result = await handler(event)
+    const order = getDb()
+      .prepare('SELECT * FROM orders WHERE id = ?')
+      .get(result.id) as Record<string, unknown>
+    expect(order.framing).toBe('premium')
+  })
+
+  it('notification_failed сохраняется в БД как JSON (Phase D-фикс #2)', async () => {
+    // Перед тестом — подменяем $fetch чтобы вернул {success: true} для обеих нотификаций
+    // (используется $fetch.raw в handler). Это имитирует успешные Telegram+email.
+    const event = {
+      context: {},
+      body: {
+        customer: { name: 'Notif User', email: 'notif@example.com' },
+        purchase: {
+          order: [{ id: 5, title: 'N', price: 100, amount: 1 }],
+          createdAt: new Date().toISOString(),
+        },
+        totalPrice: 100,
+      },
+    } as never
+
+    const result = await handler(event)
+    const order = getDb()
+      .prepare('SELECT * FROM orders WHERE id = ?')
+      .get(result.id) as Record<string, unknown>
+
+    // eslint-disable-next-line no-console
+    console.log('DEBUG notification_failed:', order.notification_failed)
+    // JSON парсится корректно
+    const notif = JSON.parse(order.notification_failed as string)
+    expect(notif).toEqual({ telegram: true, email: true })
   })
 })

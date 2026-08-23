@@ -22,6 +22,10 @@ interface OrderRow {
   comment: string | null
   created_at: number
   updated_at: number
+  // Phase D-фикс #3: теперь читаются из БД, а не хардкодятся.
+  framing: 'none' | 'simple' | 'premium' | null
+  payment_id: string | null
+  notification_failed: string | null  // JSON: '{"telegram":bool,"email":bool}'
 }
 
 /**
@@ -65,8 +69,16 @@ export default defineEventHandler((event): OrderInBase[] => {
     },
     totalPrice: r.total,
     status: r.status,
+    // Phase D-фикс #3: framing читается из БД, не хардкодится.
+    framing: r.framing ?? undefined,
     paymentMethod: r.payment_method ?? 'manual',
-    paymentId: '',
-    notificationFailed: { telegram: false, email: false },
+    paymentId: r.payment_id ?? '',
+    // notification_failed хранится в БД как JSON-строка ('{"telegram":true,"email":false}')
+    // orders.post.ts пишет туда реальный результат triggerOrderNotifications.
+    // Если по какой-то причине JSON нет (legacy заказы до Phase D-фикс) — возвращаем
+    // дефолтный объект {false,false} для совместимости с OrdersList.vue:161.
+    notificationFailed: r.notification_failed
+      ? (JSON.parse(r.notification_failed) as { telegram: boolean, email: boolean })
+      : { telegram: false, email: false },
   }))
 })

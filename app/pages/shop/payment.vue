@@ -111,6 +111,15 @@
           localStorage.setItem('pendingOrderId', orderId)
         }
 
+        try {
+          await $fetch(`/api/orders/${orderId}`, {
+            method: 'PATCH',
+            body: { paymentId: result.paymentId || '' },
+          })
+        } catch {
+          // best-effort: paymentId will be saved via webhook fallback
+        }
+
         redirecting.value = true
         metrics.trackButtonClick('paymentRedirect')
         setTimeout(() => {

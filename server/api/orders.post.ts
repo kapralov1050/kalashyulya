@@ -2,6 +2,8 @@ import type { H3Event } from 'h3'
 import type { Order, ShortPurchaseInfo } from '~/types'
 import { randomBytes } from 'node:crypto'
 import { getDb } from '../utils/db'
+// В production (Nitro) $fetch — global auto-import; здесь нужно для тестов (vi.mock 'ofetch').
+import { $fetch } from 'ofetch'
 
 interface CreateOrderResponse {
   id: string
@@ -14,6 +16,8 @@ async function triggerNotification(
   body: Record<string, unknown>,
   successKey: 'success' | 'ok',
 ): Promise<boolean> {
+  // eslint-disable-next-line no-console
+  console.log('[DEBUG triggerNotification] $fetch type:', typeof $fetch, '$fetch.raw type:', typeof $fetch.raw)
   try {
     const result = await $fetch.raw<Record<string, unknown>>(endpoint, {
       method: 'POST',
@@ -87,6 +91,14 @@ export default defineEventHandler(async (event): Promise<CreateOrderResponse> =>
   const paymentMethod: 'yookassa' | 'manual' =
     body.paymentMethod === 'yookassa' ? 'yookassa' : 'manual'
 
+  // Phase D-фикс #3: framing, payment_id, notification_failed теперь хранятся в БД.
+  const framing: 'none' | 'simple' | 'premium' | null =
+    body.framing === 'simple' || body.framing === 'premium' || body.framing === 'none'
+      ? body.framing
+      : null
+  // paymentId: фронт сейчас не шлёт (нет webhook), сохраняем если передан.
+  const paymentId: string | null = body.paymentId ?? null
+
   getDb()
     .prepare(
       `INSERT INTO orders
@@ -94,8 +106,9 @@ export default defineEventHandler(async (event): Promise<CreateOrderResponse> =>
          customer_messenger, customer_nickname,
          city, address,
          delivery_type, delivery_recipient, delivery_street, delivery_house, delivery_apartment,
-         items_json, total, status, payment_method, comment, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         items_json, total, status, payment_method, comment, created_at, updated_at,
+         framing, payment_id, notification_failed)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .run(
       id,
@@ -118,13 +131,20 @@ export default defineEventHandler(async (event): Promise<CreateOrderResponse> =>
       null,
       now,
       now,
+      framing,
+      paymentId,
+      null,  // notification_failed заполнится после уведомлений
     )
 
-  // Server-side уведомления: выполняем best-effort параллельно,
-  // не блокируем ответ клиенту при ошибках отдельных каналов.
-  void triggerOrderNotifications(event, id, body, total).catch(() => {
-    /* noop — best-effort */
-  })
+  // Phase D-фикс #2: реальный статус уведомлений сохраняем в БД.
+  // Раньше был hardcoded {false,false} → admin "Уведомление не отправлено" баннер был мёртвый.
+  // Await блокирует ответ на ~100-500мс (Telegram/email best-effort), но даёт реальный
+  // статус в админке. Без await notification_failed был бы всегда 'sending'/'pending' — не
+  // помогает оператору понять, дошло ли уведомление.
+  const notifResult = await triggerOrderNotifications(event, id, body, total)
+  getDb()
+    .prepare('UPDATE orders SET notification_failed = ? WHERE id = ?')
+    .run(JSON.stringify(notifResult), id)
 
   return { id, total }
 })
