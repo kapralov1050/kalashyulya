@@ -8,6 +8,12 @@ import PaymentSuccess from '../payment-success.vue'
 const getPaymentStatusMock = vi.fn()
 const useYookassaPaymentMock = () => ({ getPaymentStatus: getPaymentStatusMock })
 
+const updateOrderPaymentMethodMock = vi.fn()
+const useApiMock = () => ({ updateOrderPaymentMethod: updateOrderPaymentMethodMock })
+
+const toastAddMock = vi.fn()
+const useToastMock = () => ({ add: toastAddMock })
+
 const loadOrdersMock = vi.fn(async () => {})
 const usePaymentSuccessOrdersStore = defineStore('payment-success-orders-test', () => {
   const allOrders = ref<OrderInBase[]>([])
@@ -34,6 +40,9 @@ const translations: Record<string, string> = {
   payment_success_subtitle_pending: 'Завершите оплату, чтобы мы начали работу над заказом.',
   payment_success_status_check_timed_out: 'Не получили подтверждение.',
   payment_success_retry_button: 'Попробовать снова',
+  payment_success_manual_button: 'Оплатить переводом',
+  payment_success_manual_switched_message: 'Спасибо! Заказ переведён в режим ручной оплаты.',
+  payment_success_manual_switched_hint: 'Реквизиты для перевода в Telegram-чате.',
   payment_success_order_payment_description: 'Оплата заказа #{orderId}',
   payment_success_date_not_specified: 'Не указана',
   payment_success_no_payment_id_error: 'Не передан ID платежа',
@@ -117,6 +126,8 @@ function mountPaymentSuccess(routeQuery: Record<string, string> = {}, pendingPay
   vi.stubGlobal('useOrdersStore', usePaymentSuccessOrdersStore)
   vi.stubGlobal('useBasketStore', useBasketStoreMock)
   vi.stubGlobal('useYookassaPayment', useYookassaPaymentMock)
+  vi.stubGlobal('useApi', useApiMock)
+  vi.stubGlobal('useToast', useToastMock)
   vi.stubGlobal('useSeoMeta', vi.fn())
 
   // Pinia уже активна из beforeEach — используем её,
@@ -138,6 +149,8 @@ describe('payment-success', () => {
     loadOrdersMock.mockClear()
     clearBasketMock.mockClear()
     routerPushMock.mockClear()
+    updateOrderPaymentMethodMock.mockReset()
+    toastAddMock.mockClear()
   })
 
   it('запрашивает статус в ЮKassa и загружает список заказов при монтировании', async () => {
@@ -377,5 +390,112 @@ describe('payment-success', () => {
       translations.payment_success_status_paid = savedPaid
       translations.payment_success_subtitle_paid = savedPaidSub
     }
+  })
+
+  it('для pending показывает кнопку «Оплатить переводом»', async () => {
+    getPaymentStatusMock.mockResolvedValue({
+      success: true,
+      status: 'pending',
+      paid: false,
+    })
+
+    const ordersStore = usePaymentSuccessOrdersStore()
+    ordersStore.allOrders = [createMockOrder()]
+
+    const wrapper = mountPaymentSuccess({ paymentId: 'payment-123' })
+    await flushPromises()
+
+    const buttons = wrapper.findAll('button').map(b => b.text())
+    expect(buttons.some(t => t.includes('Оплатить переводом'))).toBe(true)
+
+    wrapper.unmount()
+  })
+
+  it('клик «Оплатить переводом» вызывает updateOrderPaymentMethod и показывает подтверждение', async () => {
+    getPaymentStatusMock.mockResolvedValue({
+      success: true,
+      status: 'pending',
+      paid: false,
+    })
+
+    const ordersStore = usePaymentSuccessOrdersStore()
+    ordersStore.allOrders = [createMockOrder()]
+
+    const wrapper = mountPaymentSuccess({ paymentId: 'payment-123' })
+    await flushPromises()
+
+    const manualButton = wrapper.findAll('button').find(b => b.text().includes('Оплатить переводом'))
+    expect(manualButton).toBeDefined()
+    await manualButton!.trigger('click')
+    await flushPromises()
+
+    expect(updateOrderPaymentMethodMock).toHaveBeenCalledWith('42', 'manual')
+
+    // После успеха — кнопки скрыты, показан блок подтверждения
+    const buttons = wrapper.findAll('button').map(b => b.text())
+    expect(buttons.some(t => t.includes('Попробовать снова'))).toBe(false)
+    expect(buttons.some(t => t.includes('Оплатить переводом'))).toBe(false)
+    expect(wrapper.text()).toContain('Заказ переведён в режим ручной оплаты')
+
+    // localStorage очищен
+    expect(localStorage.getItem('pendingPaymentId')).toBeNull()
+    expect(localStorage.getItem('pendingOrderId')).toBeNull()
+
+    wrapper.unmount()
+  })
+
+  it('ошибка API при «Оплатить переводом» показывает toast и НЕ скрывает кнопки', async () => {
+    getPaymentStatusMock.mockResolvedValue({
+      success: true,
+      status: 'canceled',
+      paid: false,
+    })
+
+    const ordersStore = usePaymentSuccessOrdersStore()
+    ordersStore.allOrders = [createMockOrder()]
+
+    updateOrderPaymentMethodMock.mockRejectedValueOnce(new Error('Нельзя сменить способ оплаты'))
+
+    const wrapper = mountPaymentSuccess({ paymentId: 'payment-123' })
+    await flushPromises()
+
+    const manualButton = wrapper.findAll('button').find(b => b.text().includes('Оплатить переводом'))
+    await manualButton!.trigger('click')
+    await flushPromises()
+
+    expect(updateOrderPaymentMethodMock).toHaveBeenCalledWith('42', 'manual')
+    expect(toastAddMock).toHaveBeenCalledTimes(1)
+    expect(toastAddMock.mock.calls[0]?.[0]).toMatchObject({ color: 'red' })
+
+    // Кнопки остались на месте
+    const buttons = wrapper.findAll('button').map(b => b.text())
+    expect(buttons.some(t => t.includes('Попробовать снова'))).toBe(true)
+    expect(buttons.some(t => t.includes('Оплатить переводом'))).toBe(true)
+    expect(wrapper.text()).not.toContain('Заказ переведён в режим ручной оплаты')
+
+    wrapper.unmount()
+  })
+
+  it('работает с orderId-строкой (как в реальных SQLite-заказах)', async () => {
+    getPaymentStatusMock.mockResolvedValue({
+      success: true,
+      status: 'pending',
+      paid: false,
+    })
+
+    const ordersStore = usePaymentSuccessOrdersStore()
+    ordersStore.allOrders = [createMockOrder('payment-123')]
+    ordersStore.allOrders[0]!.id = '20260824-abc12345' // string id, как в реальной БД
+
+    const wrapper = mountPaymentSuccess({ paymentId: 'payment-123' })
+    await flushPromises()
+
+    const manualButton = wrapper.findAll('button').find(b => b.text().includes('Оплатить переводом'))
+    await manualButton!.trigger('click')
+    await flushPromises()
+
+    expect(updateOrderPaymentMethodMock).toHaveBeenCalledWith('20260824-abc12345', 'manual')
+
+    wrapper.unmount()
   })
 })

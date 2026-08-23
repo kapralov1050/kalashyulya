@@ -49,8 +49,8 @@
 
       <!-- Основной блок: статус платежа получен -->
       <div v-else-if="paymentStatus" class="space-y-6">
-        <!-- Заголовок по статусу -->
-        <div class="text-center">
+        <!-- Заголовок по статусу (скрывается, если пользователь уже переключился на ручную оплату) -->
+        <div v-if="!switchedToManual" class="text-center">
           <UIcon
             v-if="paymentStatus === 'succeeded'"
             name="i-heroicons-check-circle"
@@ -88,12 +88,13 @@
 
         <!-- Кнопки для pending и canceled -->
         <div
-          v-if="paymentStatus === 'pending' || paymentStatus === 'waiting_for_capture' || paymentStatus === 'canceled'"
+          v-if="(paymentStatus === 'pending' || paymentStatus === 'waiting_for_capture' || paymentStatus === 'canceled') && !switchedToManual"
           class="flex flex-col sm:flex-row gap-3 justify-center"
         >
           <UButton
             color="primary"
             size="lg"
+            :disabled="switchingToManual"
             @click="retryPayment"
           >
             <UIcon name="i-heroicons-arrow-path" class="w-5 h-5 mr-2" />
@@ -101,7 +102,51 @@
           </UButton>
           <UButton
             color="neutral"
+            variant="outline"
+            size="lg"
+            :disabled="switchingToManual"
+            @click="switchToManual"
+          >
+            <UIcon name="i-heroicons-banknotes" class="w-5 h-5 mr-2" />
+            {{ printLocale('payment_success_manual_button', { defaultValue: 'Оплатить переводом' }) }}
+          </UButton>
+          <UButton
+            color="neutral"
             variant="ghost"
+            size="lg"
+            @click="goToShop"
+          >
+            <UIcon name="i-heroicons-arrow-left" class="w-5 h-5 mr-2" />
+            {{ printLocale('shop_back_to_shop', { defaultValue: 'В магазин' }) }}
+          </UButton>
+        </div>
+
+        <!-- Сообщение после успешного переключения на ручную оплату -->
+        <div
+          v-if="switchedToManual"
+          class="bg-white dark:bg-neutral-800 rounded-xl shadow-lg p-6
+            text-center space-y-3"
+        >
+          <UIcon
+            name="i-heroicons-check-circle"
+            class="w-12 h-12 text-green-500 mx-auto"
+          />
+          <p class="text-lg font-medium text-neutral-900 dark:text-neutral-100">
+            {{
+              printLocale('payment_success_manual_switched_message', {
+                defaultValue: 'Спасибо! Заказ переведён в режим ручной оплаты. Я свяжусь с вами в Telegram, чтобы подтвердить детали.',
+              })
+            }}
+          </p>
+          <p class="text-sm text-neutral-600 dark:text-neutral-400">
+            {{
+              printLocale('payment_success_manual_switched_hint', {
+                defaultValue: 'Реквизиты для перевода вы найдёте в Telegram-чате или на странице «Реквизиты».',
+              })
+            }}
+          </p>
+          <UButton
+            color="primary"
             size="lg"
             @click="goToShop"
           >
@@ -291,6 +336,8 @@
   const paymentId = ref<string | null>(null)
   const paymentStatus = ref<YookassaPaymentStatus | null>(null)
   const pollingTimedOut = ref(false)
+  const switchingToManual = ref(false)
+  const switchedToManual = ref(false)
   // Флаг: polling ещё активен (для pending/waiting_for_capture)
   let pollingTimer: ReturnType<typeof setInterval> | null = null
   let pollingAttempts = 0
@@ -506,14 +553,52 @@
     })
   }
 
+  /**
+   * Переключить существующий заказ с ЮKassa на ручную оплату (перевод).
+   * Не редиректим в магазин — оставляем пользователя на странице с сообщением
+   * «Юлия свяжется с вами». Polling останавливаем — платёж в ЮKassa уже
+   * неактуален.
+   */
+  async function switchToManual() {
+    if (switchingToManual.value || switchedToManual.value) return
+
+    const foundOrder = order.value
+      ?? allOrders.value.find(o => o.paymentId === paymentId.value)
+      ?? null
+    if (!foundOrder) {
+      router.push('/shop')
+      return
+    }
+
+    switchingToManual.value = true
+    try {
+      await useApi().updateOrderPaymentMethod(String(foundOrder.id), 'manual')
+      metrics.trackButtonClick('paymentManualSwitch')
+      switchedToManual.value = true
+      stopPolling()
+      localStorage.removeItem('pendingPaymentId')
+      localStorage.removeItem('pendingOrderId')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Не удалось переключить на ручную оплату'
+      useToast().add({ title: message, color: 'red' })
+    } finally {
+      switchingToManual.value = false
+    }
+  }
+
   watch(
-    [paymentStatus, error],
+    [paymentStatus, error, switchedToManual],
     () => {
       if (error.value) {
         useSeoMeta({
           title: 'Ошибка оплаты | Kalashyulya',
           description:
             'Произошла ошибка при обработке платежа. Попробуйте позже или свяжитесь с поддержкой.',
+        })
+      } else if (switchedToManual.value) {
+        useSeoMeta({
+          title: 'Заказ ожидает ручной оплаты | Kalashyulya',
+          description: 'Заказ переведён в режим ручной оплаты. Юлия свяжется с вами для подтверждения.',
         })
       } else if (paymentStatus.value === 'succeeded') {
         useSeoMeta({

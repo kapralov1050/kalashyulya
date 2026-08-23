@@ -101,6 +101,22 @@ export function useApi() {
     await $fetch(`/api/admin/orders/${orderId}`, { method: 'DELETE' } as never)
   }
 
+  /**
+   * Сменить способ оплаты существующего заказа на ручной (перевод на карту).
+   * Используется на /shop/payment-success когда у пользователя не получилось
+   * оплатить через ЮKassa и он хочет переключиться на ручную оплату.
+   * Кидает ошибку, если заказ в финальном статусе ('paid'/'shipped'/'cancelled').
+   */
+  async function updateOrderPaymentMethod(
+    orderId: string,
+    paymentMethod: 'manual',
+  ): Promise<void> {
+    await $fetch(`/api/orders/${orderId}/payment-method`, {
+      method: 'PATCH',
+      body: { paymentMethod },
+    })
+  }
+
   async function updateProductCertificateId(
     productId: string,
     certificateId: string | null,
@@ -181,6 +197,7 @@ export function useApi() {
     updateProduct,
     deleteProduct,
     updateOrderStatus,
+    updateOrderPaymentMethod,
     deleteOrder,
     trackProductView,
     updateProductCertificateId,
