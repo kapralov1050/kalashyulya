@@ -2,11 +2,11 @@
  * Константы категорий продуктов
  */
 export const ProductCategory = {
-  PICTURES: '1',
-  SKETCHES: '2',
-  POSTCARDS: '3',
-  STICKERS: '4',
-  CALENDARS: '5',
+  PICTURES: 'category_1',
+  SKETCHES: 'category_2',
+  POSTCARDS: 'category_3',
+  STICKERS: 'category_4',
+  CALENDARS: 'category_5',
 } as const
 
 /**
