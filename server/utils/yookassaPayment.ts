@@ -85,6 +85,7 @@ export type CancelPreviousPaymentResult = 'canceled' | 'not_found' | 'skipped'
  *  - 404 → платёж не найден, ничего не делаем → 'not_found'
  *  - любая другая ошибка → warning, НЕ блокируем создание нового → 'skipped'
  */
+/* eslint-disable no-console */
 export async function cancelPreviousPayment(
   paymentId: string,
   credentials: YookassaCredentials,
