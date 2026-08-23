@@ -12,7 +12,7 @@
             dark:text-neutral-400"
         />
         <p class="text-neutral-600 dark:text-neutral-400">
-          {{ printLocale('payment_success_loading') }}
+          {{ printLocale('payment_success_loading', { defaultValue: 'Проверяем статус оплаты...' }) }}
         </p>
       </div>
 
@@ -27,12 +27,12 @@
             class="w-16 h-16 text-red-500 mb-4"
           />
           <h2 class="text-2xl font-bold mb-2">
-            {{ printLocale('tracking_error_title') }}
+            {{ printLocale('tracking_error_title', { defaultValue: 'Ошибка' }) }}
           </h2>
           <p class="text-neutral-600 dark:text-neutral-400 mb-6">{{ error }}</p>
           <div class="flex flex-col gap-3 max-w-sm">
             <UButton color="primary" size="lg" block @click="goToShop">
-              {{ printLocale('shop_back_to_shop') }}
+              {{ printLocale('shop_back_to_shop', { defaultValue: 'В магазин' }) }}
             </UButton>
             <UButton
               color="neutral"
@@ -41,7 +41,7 @@
               block
               @click="goToTracking"
             >
-              {{ printLocale('shop_tracking_link') }}
+              {{ printLocale('shop_tracking_link', { defaultValue: 'Отследить заказ' }) }}
             </UButton>
           </div>
         </div>
@@ -74,22 +74,53 @@
             v-if="paymentStatus === 'pending' || paymentStatus === 'waiting_for_capture'"
             class="text-sm text-neutral-500 dark:text-neutral-500 mt-2"
           >
-            {{ printLocale('payment_success_webhook_waiting') }}
+            {{
+              pollingTimedOut
+                ? printLocale('payment_success_status_check_timed_out', {
+                    defaultValue: 'Не получили подтверждение. Похоже, оплата не была завершена.',
+                  })
+                : printLocale('payment_success_webhook_waiting', {
+                    defaultValue: 'Проверяем статус платежа каждые 5 секунд...',
+                  })
+            }}
           </p>
         </div>
 
-        <!-- Кнопка «Попробовать снова» для canceled -->
+        <!-- Кнопки для pending и canceled -->
         <div
-          v-if="paymentStatus === 'canceled'"
+          v-if="paymentStatus === 'pending' || paymentStatus === 'waiting_for_capture' || paymentStatus === 'canceled'"
           class="flex flex-col sm:flex-row gap-3 justify-center"
         >
+          <UButton
+            v-if="paymentStatus === 'pending' || paymentStatus === 'waiting_for_capture'"
+            color="neutral"
+            variant="outline"
+            size="lg"
+            :disabled="manualChecking"
+            @click="manualCheck"
+          >
+            <UIcon
+              :name="manualChecking ? 'i-heroicons-arrow-path' : 'i-heroicons-arrow-path-circle'"
+              :class="['w-5 h-5 mr-2', manualChecking && 'animate-spin']"
+            />
+            {{ printLocale('payment_success_check_again_button', { defaultValue: 'Проверить снова' }) }}
+          </UButton>
           <UButton
             color="primary"
             size="lg"
             @click="retryPayment"
           >
             <UIcon name="i-heroicons-arrow-path" class="w-5 h-5 mr-2" />
-            {{ printLocale('payment_success_retry_button') }}
+            {{ printLocale('payment_success_retry_button', { defaultValue: 'Попробовать снова' }) }}
+          </UButton>
+          <UButton
+            color="neutral"
+            variant="ghost"
+            size="lg"
+            @click="goToShop"
+          >
+            <UIcon name="i-heroicons-arrow-left" class="w-5 h-5 mr-2" />
+            {{ printLocale('shop_back_to_shop', { defaultValue: 'В магазин' }) }}
           </UButton>
         </div>
 
@@ -111,7 +142,7 @@
             >
               <UIcon name="i-heroicons-hashtag" class="w-5 h-5" />
               <span class="font-semibold">
-                {{ printLocale('payment_success_tracking_number_label') }}
+                {{ printLocale('payment_success_tracking_number_label', { defaultValue: 'Номер для отслеживания' }) }}
               </span>
             </div>
             <div
@@ -125,7 +156,7 @@
                 name="i-heroicons-exclamation-triangle"
                 class="w-4 h-4 inline mr-1"
               />
-              {{ printLocale('payment_success_save_hint') }}
+              {{ printLocale('payment_success_save_hint', { defaultValue: 'Сохраните этот номер для отслеживания заказа' }) }}
             </p>
           </div>
 
@@ -135,7 +166,7 @@
               class="text-lg font-semibold text-neutral-900
                 dark:text-neutral-100"
             >
-              {{ printLocale('payment_success_details_title') }}
+              {{ printLocale('payment_success_details_title', { defaultValue: 'Детали заказа' }) }}
             </h3>
 
             <div class="grid gap-4">
@@ -144,7 +175,7 @@
                 class="py-3 border-b border-neutral-200 dark:border-neutral-700"
               >
                 <span class="text-neutral-600 dark:text-neutral-400 block mb-2">
-                  {{ printLocale('order_goods_label') }}
+                  {{ printLocale('order_goods_label', { defaultValue: 'Товары:' }) }}
                 </span>
                 <ul class="space-y-1">
                   <li
@@ -170,7 +201,7 @@
                   border-neutral-200 dark:border-neutral-700"
               >
                 <span class="text-neutral-600 dark:text-neutral-400">
-                  {{ printLocale('payment_success_payment_sum_label') }}
+                  {{ printLocale('payment_success_payment_sum_label', { defaultValue: 'Сумма оплаты:' }) }}
                 </span>
                 <span
                   class="text-right font-bold text-2xl text-green-600
@@ -186,7 +217,7 @@
                   border-neutral-200 dark:border-neutral-700"
               >
                 <span class="text-neutral-600 dark:text-neutral-400">
-                  {{ printLocale('order_delivery_method_label') }}
+                  {{ printLocale('order_delivery_method_label', { defaultValue: 'Способ доставки:' }) }}
                 </span>
                 <span
                   class="text-right font-medium text-neutral-900
@@ -197,11 +228,11 @@
                     class="flex items-center gap-1"
                   >
                     <UIcon name="i-heroicons-truck" class="w-5 h-5" />
-                    {{ printLocale('order_delivery') }}
+                    {{ printLocale('order_delivery', { defaultValue: 'Доставка' }) }}
                   </span>
                   <span v-else class="flex items-center gap-1">
                     <UIcon name="i-heroicons-bag" class="w-5 h-5" />
-                    {{ printLocale('order_pickup') }}
+                    {{ printLocale('order_pickup', { defaultValue: 'Самовывоз' }) }}
                   </span>
                 </span>
               </div>
@@ -209,7 +240,7 @@
               <!-- Дата заказа -->
               <div class="flex justify-between items-start py-3">
                 <span class="text-neutral-600 dark:text-neutral-400">
-                  {{ printLocale('payment_success_order_date_label') }}
+                  {{ printLocale('payment_success_order_date_label', { defaultValue: 'Дата заказа:' }) }}
                 </span>
                 <span
                   class="text-right font-medium text-neutral-900
@@ -228,7 +259,7 @@
           class="bg-white dark:bg-neutral-800 rounded-xl shadow-lg p-6"
         >
           <p class="text-neutral-700 dark:text-neutral-300 leading-relaxed">
-            {{ printLocale('payment_success_contact_text') }}
+            {{ printLocale('payment_success_contact_text', { defaultValue: 'Спасибо за ваш заказ! Я скоро свяжусь с вами, чтобы подтвердить оплату и обсудить детали доставки.' }) }}
           </p>
         </div>
 
@@ -239,7 +270,7 @@
         >
           <UButton color="primary" size="lg" block @click="goToShop">
             <UIcon name="i-heroicons-arrow-left" class="w-5 h-5 mr-2" />
-            {{ printLocale('shop_back_to_shop') }}
+            {{ printLocale('shop_back_to_shop', { defaultValue: 'В магазин' }) }}
           </UButton>
           <UButton
             color="neutral"
@@ -249,7 +280,7 @@
             @click="goToTracking"
           >
             <UIcon name="i-heroicons-magnifying-glass" class="w-5 h-5 mr-2" />
-            {{ printLocale('shop_tracking_link') }}
+            {{ printLocale('shop_tracking_link', { defaultValue: 'Отследить заказ' }) }}
           </UButton>
         </div>
       </div>
@@ -273,11 +304,13 @@
   const order = ref<OrderInBase | null>(null)
   const paymentId = ref<string | null>(null)
   const paymentStatus = ref<YookassaPaymentStatus | null>(null)
+  const pollingTimedOut = ref(false)
+  const manualChecking = ref(false)
   // Флаг: polling ещё активен (для pending/waiting_for_capture)
   let pollingTimer: ReturnType<typeof setInterval> | null = null
   let pollingAttempts = 0
   const POLLING_INTERVAL_MS = 5_000
-  const POLLING_MAX_ATTEMPTS = 24 // 24 * 5s = 2 минуты
+  const POLLING_MAX_ATTEMPTS = 6 // 6 * 5s = 30 секунд — достаточно, чтобы поймать succeeded, но не заставлять пользователя ждать 2 минуты
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat('ru-RU').format(price)
@@ -297,20 +330,20 @@
 
   const statusTitle = computed(() => {
     if (paymentStatus.value === 'succeeded')
-      return printLocale('payment_success_status_paid')
+      return printLocale('payment_success_status_paid', { defaultValue: 'Оплата получена' })
     if (paymentStatus.value === 'canceled' || paymentStatus.value === 'not_found')
-      return printLocale('payment_success_status_cancelled')
-    return printLocale('payment_success_status_pending')
+      return printLocale('payment_success_status_cancelled', { defaultValue: 'Оплата не завершена' })
+    return printLocale('payment_success_status_pending', { defaultValue: 'Ожидается оплата' })
   })
 
   const statusSubtitle = computed(() => {
     if (paymentStatus.value === 'succeeded')
-      return printLocale('payment_success_subtitle_paid')
+      return printLocale('payment_success_subtitle_paid', { defaultValue: 'Спасибо за заказ!' })
     if (paymentStatus.value === 'canceled')
-      return printLocale('payment_success_subtitle_cancelled')
+      return printLocale('payment_success_subtitle_cancelled', { defaultValue: 'Заказ сохранён, но оплата не прошла.' })
     if (paymentStatus.value === 'not_found')
-      return printLocale('payment_success_subtitle_not_found')
-    return printLocale('payment_success_subtitle_pending')
+      return printLocale('payment_success_subtitle_not_found', { defaultValue: 'Платёж не найден.' })
+    return printLocale('payment_success_subtitle_pending', { defaultValue: 'Завершите оплату, чтобы мы начали работу над заказом.' })
   })
 
   const foundOrder = computed(() => {
@@ -328,10 +361,12 @@
   function startPolling() {
     stopPolling()
     pollingAttempts = 0
+    pollingTimedOut.value = false
     pollingTimer = setInterval(async () => {
       pollingAttempts += 1
       if (pollingAttempts > POLLING_MAX_ATTEMPTS) {
         stopPolling()
+        pollingTimedOut.value = true
         return
       }
       if (!paymentId.value) {
@@ -359,6 +394,58 @@
         stopPolling()
       }
     }, POLLING_INTERVAL_MS)
+  }
+
+  /**
+   * Ручная проверка статуса — кнопка «Проверить снова» в UI.
+   * Не зависит от polling. Если ЮKassa уже ответила «succeeded» или «canceled» —
+   * мы сразу переключаемся в нужную ветку.
+   * Даже если статус не изменился, сбрасывает pollingTimedOut и возобновляет polling —
+   * иначе после таймаута кнопка выглядит «мёртвой».
+   */
+  async function manualCheck() {
+    if (!paymentId.value || manualChecking.value) return
+    manualChecking.value = true
+    try {
+      const result = await getPaymentStatus(paymentId.value)
+
+      // Сетевая ошибка или пустой статус — оставляем UI как есть,
+      // но если был timedOut — даём пользователю ещё попытку подождать.
+      if (!result.success || !result.status) {
+        if (pollingTimedOut.value) {
+          pollingTimedOut.value = false
+          startPolling()
+        }
+        return
+      }
+
+      // Пользователь явно запросил проверку — в любом случае даём polling ещё один шанс.
+      const wasTimedOut = pollingTimedOut.value
+      pollingTimedOut.value = false
+
+      if (result.status !== paymentStatus.value) {
+        paymentStatus.value = result.status
+      }
+
+      if (result.status !== 'pending' && result.status !== 'waiting_for_capture') {
+        stopPolling()
+        if (result.status === 'succeeded') {
+          metrics.trackButtonClick('paymentSuccess')
+          clearBasket()
+          localStorage.removeItem('pendingPaymentId')
+          localStorage.removeItem('pendingOrderId')
+        }
+        else {
+          localStorage.removeItem('pendingPaymentId')
+          localStorage.removeItem('pendingOrderId')
+        }
+      } else if (wasTimedOut) {
+        // Возобновляем polling после ручной проверки, если до этого был таймаут
+        startPolling()
+      }
+    } finally {
+      manualChecking.value = false
+    }
   }
 
   function onOrderFound(found: OrderInBase) {
@@ -416,7 +503,9 @@
       localStorage.getItem('pendingPaymentId')
 
     if (!paymentId.value) {
-      error.value = 'Не передан ID платежа. Перейдите по ссылке из письма или свяжитесь с поддержкой.'
+      error.value = printLocale('payment_success_no_payment_id_error', {
+        defaultValue: 'Не передан ID платежа. Перейдите по ссылке из письма или свяжитесь с поддержкой.',
+      })
       loading.value = false
       return
     }

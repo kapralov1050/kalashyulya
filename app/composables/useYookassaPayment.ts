@@ -8,6 +8,11 @@ export interface CreatePaymentOptions {
     email: string
     phone?: string
   }
+  /**
+   * При retry — id предыдущего pending-платежа, который должен быть
+   * отменён в ЮKassa перед созданием нового.
+   */
+  retryPaymentId?: string
 }
 
 export interface CreatePaymentResult {

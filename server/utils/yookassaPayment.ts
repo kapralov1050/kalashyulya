@@ -8,6 +8,7 @@ export interface CreatePaymentBody {
     email: string
     phone?: string
   }
+  retryPaymentId?: string
 }
 
 export interface YooKassaPayment {
@@ -69,6 +70,82 @@ export function getYookassaCredentials(headers: Record<string, string | undefine
   }
 
   return { shopId, secretKey, isTestMode }
+}
+
+export type CancelPreviousPaymentResult = 'canceled' | 'not_found' | 'skipped'
+
+/**
+ * Отменяет предыдущий pending-платёж в ЮKassa перед созданием нового.
+ * Используется в retry-flow (когда пользователь вернулся с ЮKassa без оплаты).
+ *
+ * Поведение:
+ *  - status=pending → POST /v3/payments/{id}/cancel → 'canceled'
+ *  - status=canceled → уже отменён, ничего не делаем → 'canceled'
+ *  - status=succeeded → throw 409 (предыдущий платёж уже оплачен)
+ *  - 404 → платёж не найден, ничего не делаем → 'not_found'
+ *  - любая другая ошибка → warning, НЕ блокируем создание нового → 'skipped'
+ */
+export async function cancelPreviousPayment(
+  paymentId: string,
+  credentials: YookassaCredentials,
+): Promise<CancelPreviousPaymentResult> {
+  const authHeader = buildYookassaAuthHeader(credentials.shopId, credentials.secretKey)
+
+  let currentStatus: string
+  try {
+    const existing = await $fetch<{ status: string }>(
+      `https://api.yookassa.ru/v3/payments/${encodeURIComponent(paymentId)}`,
+      {
+        method: 'GET',
+        headers: { Authorization: authHeader },
+      },
+    )
+    currentStatus = existing.status
+  } catch (err: unknown) {
+    const fetchErr = err as { status?: number, statusCode?: number, response?: { status?: number } }
+    const statusCode = fetchErr?.status ?? fetchErr?.statusCode ?? fetchErr?.response?.status
+    if (statusCode === 404) {
+      console.log(`[yookassa] cancel: previous payment ${paymentId} not_found`)
+      return 'not_found'
+    }
+    // Любая другая ошибка — не блокируем создание нового платежа.
+    // Старый платёж повисит pending в ЮKassa и сам отменится по timeout.
+    console.warn(`[yookassa] cancel: failed to fetch status for ${paymentId}, skipping cancel`)
+    return 'skipped'
+  }
+
+  if (currentStatus === 'succeeded') {
+    throw createError({
+      statusCode: 409,
+      statusMessage: 'Previous payment already succeeded',
+    })
+  }
+
+  if (currentStatus === 'canceled') {
+    return 'canceled'
+  }
+
+  if (currentStatus !== 'pending' && currentStatus !== 'waiting_for_capture') {
+    console.warn(`[yookassa] cancel: unexpected status ${currentStatus} for ${paymentId}, skipping`)
+    return 'skipped'
+  }
+
+  try {
+    await $fetch(`https://api.yookassa.ru/v3/payments/${encodeURIComponent(paymentId)}/cancel`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Idempotence-Key': `cancel_${paymentId}_${Date.now()}`,
+        Authorization: authHeader,
+      },
+      body: {},
+    })
+    console.log(`[yookassa] cancel: previous payment ${paymentId} canceled`)
+    return 'canceled'
+  } catch (err: unknown) {
+    console.warn(`[yookassa] cancel: failed to cancel ${paymentId}:`, (err as Error).message)
+    return 'skipped'
+  }
 }
 
 /**

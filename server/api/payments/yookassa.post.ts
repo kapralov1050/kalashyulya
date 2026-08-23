@@ -7,6 +7,7 @@ import * as v from 'valibot'
 import {
   buildYookassaAuthHeader,
   buildYookassaPaymentPayload,
+  cancelPreviousPayment,
   getYookassaCredentials,
   type CreatePaymentBody,
   type YooKassaPayment,
@@ -22,6 +23,11 @@ const BodySchema = v.object({
     email: v.pipe(v.string(), v.email()),
     phone: v.optional(v.string()),
   }),
+  // При retry — id предыдущего pending-платежа, который нужно отменить
+  // перед созданием нового. Не отправляется при первом создании.
+  // Trim + minLength защищает от мусорных ID (пустая строка / пробелы),
+  // которые иначе привели бы к GET-у в ЮKassa с некорректным URL.
+  retryPaymentId: v.optional(v.pipe(v.string(), v.trim(), v.minLength(1))),
 })
 
 // Логика определения test/prod mode и credentials вынесена в getYookassaCredentials()
@@ -51,6 +57,14 @@ export default defineEventHandler(async (event) => {
 
   const origin = headersObj.origin || '—'
   console.log(`[yookassa] mode=${isTestMode ? 'TEST' : 'PROD'} origin=${origin} orderId=${body.orderId}`)
+
+  // Retry-flow: при наличии retryPaymentId проверяем его в ЮKassa и отменяем
+  // pending-платёж, прежде чем создавать новый. Без этого в ЮKassa будут
+  // висеть мёртвые pending-платежи (ЮKassa не отменяет их автоматически
+  // при уходе пользователя — только по таймауту срока жизни ~30 мин).
+  if (body.retryPaymentId) {
+    await cancelPreviousPayment(body.retryPaymentId, { shopId, secretKey, isTestMode })
+  }
 
   // Legacy idempotence key: Yandex слал `test_<orderId>_<ts>` в test mode,
   // `<orderId>_<ts>` в prod. Сохраняем формат.

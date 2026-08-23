@@ -24,14 +24,16 @@ let pinia: ReturnType<typeof createPinia>
 
 const translations: Record<string, string> = {
   payment_success_loading: 'Проверяем статус оплаты...',
-  payment_success_webhook_waiting: 'Ожидаем подтверждения от платёжной системы',
+  payment_success_webhook_waiting: 'Проверяем статус платежа каждые 5 секунд...',
   payment_success_status_paid: 'Оплата получена',
   payment_success_status_cancelled: 'Оплата не завершена',
-  payment_success_status_pending: 'Ожидаем подтверждения оплаты',
+  payment_success_status_pending: 'Ожидается оплата',
   payment_success_subtitle_paid: 'Спасибо за заказ!',
   payment_success_subtitle_cancelled: 'Заказ сохранён, но оплата не прошла.',
   payment_success_subtitle_not_found: 'Платёж не найден.',
-  payment_success_subtitle_pending: 'Платёж в обработке...',
+  payment_success_subtitle_pending: 'Завершите оплату, чтобы мы начали работу над заказом.',
+  payment_success_status_check_timed_out: 'Не получили подтверждение.',
+  payment_success_check_again_button: 'Проверить снова',
   payment_success_retry_button: 'Попробовать снова',
   payment_success_order_payment_description: 'Оплата заказа #{orderId}',
   payment_success_date_not_specified: 'Не указана',
@@ -261,7 +263,7 @@ describe('payment-success', () => {
     expect(getPaymentStatusMock).toHaveBeenCalledWith('stored-payment-id')
   })
 
-  it('для pending сразу показывает «Ожидаем подтверждения» и не очищает корзину', async () => {
+  it('для pending сразу показывает «Ожидается оплата» и не очищает корзину', async () => {
     getPaymentStatusMock.mockResolvedValue({
       success: true,
       status: 'pending',
@@ -274,10 +276,32 @@ describe('payment-success', () => {
     const wrapper = mountPaymentSuccess({ paymentId: 'payment-123' })
     await flushPromises()
 
-    expect(wrapper.text()).toContain('Ожидаем подтверждения оплаты')
+    expect(wrapper.text()).toContain('Ожидается оплата')
+    expect(wrapper.text()).toContain('Завершите оплату')
     expect(clearBasketMock).not.toHaveBeenCalled()
 
     // Гарантируем остановку polling-таймера, чтобы он не флакал другие тесты.
+    wrapper.unmount()
+  })
+
+  it('для pending показывает кнопки «Проверить снова», «Попробовать снова», «В магазин»', async () => {
+    getPaymentStatusMock.mockResolvedValue({
+      success: true,
+      status: 'pending',
+      paid: false,
+    })
+
+    const ordersStore = usePaymentSuccessOrdersStore()
+    ordersStore.allOrders = [createMockOrder()]
+
+    const wrapper = mountPaymentSuccess({ paymentId: 'payment-123' })
+    await flushPromises()
+
+    const buttons = wrapper.findAll('button').map(b => b.text())
+    expect(buttons.some(t => t.includes('Проверить снова'))).toBe(true)
+    expect(buttons.some(t => t.includes('Попробовать снова'))).toBe(true)
+    expect(buttons.some(t => t.includes('В магазин'))).toBe(true)
+
     wrapper.unmount()
   })
 
@@ -291,5 +315,101 @@ describe('payment-success', () => {
     await flushPromises()
 
     expect(wrapper.text()).toContain('Проблемы с соединением')
+  })
+
+  it('после таймаута polling (30 сек) текст меняется на «Не получили подтверждение»', async () => {
+    vi.useFakeTimers()
+    getPaymentStatusMock.mockResolvedValue({
+      success: true,
+      status: 'pending',
+      paid: false,
+    })
+
+    const ordersStore = usePaymentSuccessOrdersStore()
+    ordersStore.allOrders = [createMockOrder()]
+
+    const wrapper = mountPaymentSuccess({ paymentId: 'payment-123' })
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Проверяем статус платежа каждые 5 секунд...')
+    expect(wrapper.text()).not.toContain('Не получили подтверждение.')
+
+    // 7 тиков × 5 сек = 35 сек (после 6-го pollingAttempts = 6, 7-й > 6 → timedOut)
+    await vi.advanceTimersByTimeAsync(36_000)
+    // Даём микротаскам (внутри callback — await getPaymentStatus) завершиться
+    for (let i = 0; i < 10; i++) await Promise.resolve()
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Не получили подтверждение.')
+    expect(wrapper.text()).not.toContain('Проверяем статус платежа каждые 5 секунд...')
+
+    wrapper.unmount()
+    vi.useRealTimers()
+  })
+
+  it('кнопка «Проверить снова» дёргает getPaymentStatus и обновляет статус', async () => {
+    getPaymentStatusMock.mockResolvedValueOnce({
+      success: true,
+      status: 'pending',
+      paid: false,
+    })
+
+    const ordersStore = usePaymentSuccessOrdersStore()
+    ordersStore.allOrders = [createMockOrder()]
+
+    const wrapper = mountPaymentSuccess({ paymentId: 'payment-123' })
+    await flushPromises()
+
+    expect(getPaymentStatusMock).toHaveBeenCalledTimes(1)
+
+    // После ручной проверки ЮKassa уже подтвердила оплату
+    getPaymentStatusMock.mockResolvedValueOnce({
+      success: true,
+      status: 'succeeded',
+      paid: true,
+    })
+
+    const checkButton = wrapper.findAll('button').find(b => b.text().includes('Проверить снова'))
+    expect(checkButton).toBeDefined()
+    await checkButton!.trigger('click')
+    await flushPromises()
+
+    expect(getPaymentStatusMock).toHaveBeenCalledTimes(2)
+    expect(wrapper.text()).toContain('Оплата получена')
+    expect(clearBasketMock).toHaveBeenCalledTimes(1)
+
+    wrapper.unmount()
+  })
+
+  it('fallback defaultValue из printLocale когда ключ отсутствует в локали', async () => {
+    // Временно убираем ключи, чтобы printLocale вернул defaultValue.
+    // Восстанавливаем в finally, чтобы не сломать последующие тесты.
+    const savedPaid = translations.payment_success_status_paid as string
+    const savedPaidSub = translations.payment_success_subtitle_paid as string
+    delete translations.payment_success_status_paid
+    delete translations.payment_success_subtitle_paid
+
+    try {
+      getPaymentStatusMock.mockResolvedValue({
+        success: true,
+        status: 'succeeded',
+        paid: true,
+      })
+
+      const ordersStore = usePaymentSuccessOrdersStore()
+      ordersStore.allOrders = [createMockOrder()]
+
+      const wrapper = mountPaymentSuccess({ paymentId: 'payment-123' })
+      await flushPromises()
+
+      // Из defaultValue в payment-success.vue
+      expect(wrapper.text()).toContain('Оплата получена')
+      expect(wrapper.text()).toContain('Спасибо за заказ!')
+
+      wrapper.unmount()
+    } finally {
+      translations.payment_success_status_paid = savedPaid
+      translations.payment_success_subtitle_paid = savedPaidSub
+    }
   })
 })

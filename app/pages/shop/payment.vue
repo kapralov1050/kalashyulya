@@ -87,16 +87,17 @@
     }
 
     if (isRetry) {
-      // Повтор после canceled: чистим pending-ключи, чтобы createPayment
-      // не привязался к старому платежу.
+      // Повтор после canceled/pending: чистим pending-ключи, чтобы createPayment
+      // не привязался к старому платежу. existingPaymentId прокинем как
+      // retryPaymentId — сервер явно отменит его в ЮKassa.
       localStorage.removeItem('pendingPaymentId')
       localStorage.removeItem('pendingOrderId')
     }
 
-    await createPayment()
+    await createPayment(isRetry ? existingPaymentId : undefined)
   })
 
-  const createPayment = async () => {
+  const createPayment = async (retryPaymentId?: string) => {
     try {
       const { createPayment } = useYookassaPayment()
 
@@ -137,6 +138,7 @@
         customer: {
           email: customerEmail,
         },
+        retryPaymentId,
       })
 
       if (result.success && result.confirmationUrl) {
