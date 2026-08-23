@@ -65,7 +65,7 @@ function applyMigrations() {
   // Последующие миграции: ALTER TABLE и CREATE INDEX (idempotent через table_info).
   // Каждый файл применяется через applyAlterFile, который skip-ает уже выполненные ALTER
   // (через PRAGMA table_info) и CREATE INDEX (через try/catch по "already exists").
-  for (const file of ['002_exhibitions.sql', '003_orders.sql', '004_orders.sql', '005_orders.sql']) {
+  for (const file of ['002_exhibitions.sql', '003_orders.sql', '004_orders.sql', '005_orders.sql', '006_admin_seed.sql']) {
     try {
       applyAlterFile(db, join(schemaDir, file))
     }
