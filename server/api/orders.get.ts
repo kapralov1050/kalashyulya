@@ -18,6 +18,7 @@ interface OrderRow {
   items_json: string
   total: number
   status: 'new' | 'paid' | 'shipped' | 'cancelled'
+  payment_method: 'yookassa' | 'manual' | null
   comment: string | null
   created_at: number
   updated_at: number
@@ -64,7 +65,7 @@ export default defineEventHandler((event): OrderInBase[] => {
     },
     totalPrice: r.total,
     status: r.status,
-    paymentMethod: 'manual',
+    paymentMethod: r.payment_method ?? 'manual',
     paymentId: '',
     notificationFailed: { telegram: false, email: false },
   }))

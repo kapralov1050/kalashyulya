@@ -74,11 +74,18 @@ export default defineEventHandler(async (event): Promise<CreateOrderResponse> =>
     productId: String(i.id),
     title: i.title,
     price: i.price,
-    qty: i.amount,
+    // Phase D back-compat: используем `amount` (Firebase-контракт) — фронт
+    // читает это поле в OrdersList/StatusChangeModal/useOrderEmail.
+    amount: i.amount,
   }))
   const total = body.totalPrice
   const id = `${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${randomBytes(4).toString('hex')}`
   const now = Date.now()
+
+  // body.paymentMethod приходит с фронта ('yookassa' | 'manual'). Если null —
+  // считаем manual (default для чекаута без онлайн-оплаты).
+  const paymentMethod: 'yookassa' | 'manual' =
+    body.paymentMethod === 'yookassa' ? 'yookassa' : 'manual'
 
   getDb()
     .prepare(
@@ -87,8 +94,8 @@ export default defineEventHandler(async (event): Promise<CreateOrderResponse> =>
          customer_messenger, customer_nickname,
          city, address,
          delivery_type, delivery_recipient, delivery_street, delivery_house, delivery_apartment,
-         items_json, total, status, comment, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         items_json, total, status, payment_method, comment, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .run(
       id,
@@ -106,6 +113,8 @@ export default defineEventHandler(async (event): Promise<CreateOrderResponse> =>
       body.customer.delivery?.apartment ?? null,
       JSON.stringify(items),
       total,
+      'new',
+      paymentMethod,
       null,
       now,
       now,
