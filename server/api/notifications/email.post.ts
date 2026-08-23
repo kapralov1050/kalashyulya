@@ -34,14 +34,11 @@ async function sendViaSmtp(
   if (!cfg) {
     return { ok: false, error: 'SMTP not configured' }
   }
-  const sellerEmail = process.env.SELLER_EMAIL
-  if (sellerEmail && sellerEmail !== cfg.auth.user) {
-    console.warn(`[email] SELLER_EMAIL (${sellerEmail}) differs from EMAIL_USER (${cfg.auth.user}) — mail.ru will reject unless they match`)
-  }
-  const from = sellerEmail || cfg.auth.user
+  // mail.ru требует MAIL FROM == authenticated user. SELLER_EMAIL убрали —
+  // pin to auth.user чтобы не было соблазна рассинхронить.
   const transporter = nodemailer.createTransport(cfg)
   await transporter.sendMail({
-    from,
+    from: cfg.auth.user,
     to: message.to,
     subject: message.subject,
     html: message.html,

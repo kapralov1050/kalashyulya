@@ -143,7 +143,6 @@ jobs:
             TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}
             EMAIL_USER=${{ secrets.EMAIL_USER }}
             EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}
-            SELLER_EMAIL=${{ secrets.SELLER_EMAIL }}
             # Путь к SQLite внутри контейнера.
             # data.db лежит на хосте в /var/lib/kalashyulya/data.db,
             # пробрасывается через volume в контейнер.

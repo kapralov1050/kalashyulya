@@ -201,11 +201,10 @@ docker pull ghcr.io/kapralov1050/kalashyulya:nitro
 **Email (для `/api/notifications/email`):**
 | Secret | Значение |
 |---|---|
-| `EMAIL_USER` | SMTP-логин (mail.ru ящик) |
+| `EMAIL_USER` | SMTP-логин (mail.ru ящик), используется и для auth, и для `From:` |
 | `EMAIL_PASSWORD` | **пароль приложения** mail.ru, не основной пароль (https://account.mail.ru/user/2-step-auth/passwords) |
-| `SELLER_EMAIL` | `From:` в письме; должен совпадать с `EMAIL_USER`, иначе mail.ru отклонит |
 
-SMTP host/port захардкожены в `server/api/notifications/email.post.ts` (`smtp.mail.ru:465`).
+SMTP host/port захардкожены в `server/api/notifications/email.post.ts` (`smtp.mail.ru:465`). `From:` всегда равен `EMAIL_USER` — mail.ru требует совпадения MAIL FROM и auth user.
 
 **Storage / misc:**
 | Secret | Значение |
