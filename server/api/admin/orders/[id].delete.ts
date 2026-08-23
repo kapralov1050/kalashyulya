@@ -6,7 +6,7 @@ import { requireAuth } from '../../../utils/requireAuth'
 // Это намеренно: refund / chargeback сценарии требуют ручного удаления.
 // Если когда-нибудь понадобится жёсткий guard — добавить 409 для
 // status ∉ ['new', 'cancelled'] здесь.
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   requireAuth(event)
   const id = getRouterParam(event, 'id')
   if (!id) throw createError({ statusCode: 400, message: 'id обязателен' })
