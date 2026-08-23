@@ -13,7 +13,10 @@ export default defineEventHandler((event) => {
 
   let info: { changes: number }
   try {
-    info = getDb().prepare('DELETE FROM orders WHERE id = ?').run(id)
+    const sql = 'DELETE FROM orders WHERE id = ?'
+    // eslint-disable-next-line no-console
+    console.log('[orders.delete] sql=', JSON.stringify(sql), 'id=', JSON.stringify(id), 'typeof=', typeof id, 'len=', id.length)
+    info = getDb().prepare(sql).run(id)
   }
   catch (error: unknown) {
     // eslint-disable-next-line no-console
