@@ -72,15 +72,27 @@
   const redirecting = ref(false)
 
   onMounted(async () => {
-    // Если paymentId уже создан для этого orderId — не создаём повторно
+    const isRetry = route.query.retry === '1'
+
+    // Если уже есть pending-платёж для этого orderId И не запрошен повтор —
+    // не плодим новые платежи в ЮKassa, идём на success-страницу.
+    // При retry=1 (возврат после canceled) — сбрасываем и создаём заново.
     const existingPaymentId = localStorage.getItem('pendingPaymentId')
     const existingOrderId = localStorage.getItem('pendingOrderId')
-    if (existingPaymentId && existingOrderId === orderId) {
+    if (!isRetry && existingPaymentId && existingOrderId === orderId) {
       redirecting.value = true
       loading.value = false
       window.location.href = `${window.location.origin}/shop/payment-success?paymentId=${existingPaymentId}`
       return
     }
+
+    if (isRetry) {
+      // Повтор после canceled: чистим pending-ключи, чтобы createPayment
+      // не привязался к старому платежу.
+      localStorage.removeItem('pendingPaymentId')
+      localStorage.removeItem('pendingOrderId')
+    }
+
     await createPayment()
   })
 
@@ -88,10 +100,32 @@
     try {
       const { createPayment } = useYookassaPayment()
 
-      const { orderInfo } = storeToRefs(useOrdersStore())
+      const ordersStore = useOrdersStore()
+      const { orderInfo } = storeToRefs(ordersStore)
 
       if (!orderId || !amount) {
         throw new Error('Missing required data')
+      }
+
+      // Для повтора (retry=1) orderInfo может быть пустым после refresh —
+      // подгружаем заказ из БД и берём email оттуда.
+      let customerEmail = orderInfo.value?.customer.email || ''
+      if (!customerEmail) {
+        try {
+          await ordersStore.loadOrders()
+          const found = ordersStore.allOrders.find(o => String(o.id) === orderId)
+          if (found?.customer?.email) {
+            customerEmail = found.customer.email
+          }
+        } catch {
+          // best-effort: если не удалось, createPayment всё равно попробует
+          // с пустым email (валидация на сервере его не пропустит, тогда
+          // покажем ошибку ниже)
+        }
+      }
+
+      if (!customerEmail) {
+        throw new Error('Не удалось получить email покупателя. Вернитесь в магазин и оформите заказ заново.')
       }
 
       const result = await createPayment({
@@ -101,7 +135,7 @@
         description,
         returnUrl: `${window.location.origin}/shop/payment-success`,
         customer: {
-          email: orderInfo.value?.customer.email || '',
+          email: customerEmail,
         },
       })
 

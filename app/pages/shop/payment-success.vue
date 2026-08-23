@@ -1,7 +1,7 @@
 <template>
   <div class="payment-success-page">
     <div class="max-w-4xl mx-auto p-6">
-      <!-- Загрузка -->
+      <!-- Загрузка начального статуса -->
       <div
         v-if="loading"
         class="flex flex-col items-center justify-center py-20"
@@ -14,15 +14,9 @@
         <p class="text-neutral-600 dark:text-neutral-400">
           {{ printLocale('payment_success_loading') }}
         </p>
-        <p
-          v-if="waitingForWebhook"
-          class="text-sm text-neutral-500 dark:text-neutral-500 mt-2"
-        >
-          {{ printLocale('payment_success_webhook_waiting') }}
-        </p>
       </div>
 
-      <!-- Ошибка -->
+      <!-- Ошибка / платёж не найден -->
       <div
         v-else-if="error"
         class="flex flex-col items-center justify-center py-20"
@@ -53,17 +47,17 @@
         </div>
       </div>
 
-      <!-- Успешная оплата -->
-      <div v-else-if="order" class="space-y-6">
-        <!-- Заголовок -->
+      <!-- Основной блок: статус платежа получен -->
+      <div v-else-if="paymentStatus" class="space-y-6">
+        <!-- Заголовок по статусу -->
         <div class="text-center">
           <UIcon
-            v-if="order.status === 'Оплачен'"
+            v-if="paymentStatus === 'succeeded'"
             name="i-heroicons-check-circle"
             class="w-16 h-16 text-green-500 mb-4 mx-auto"
           />
           <UIcon
-            v-else-if="order.status === 'Отменен'"
+            v-else-if="paymentStatus === 'canceled'"
             name="i-heroicons-x-circle"
             class="w-16 h-16 text-red-500 mb-4 mx-auto"
           />
@@ -76,15 +70,38 @@
           <p class="text-neutral-600 dark:text-neutral-400">
             {{ statusSubtitle }}
           </p>
+          <p
+            v-if="paymentStatus === 'pending' || paymentStatus === 'waiting_for_capture'"
+            class="text-sm text-neutral-500 dark:text-neutral-500 mt-2"
+          >
+            {{ printLocale('payment_success_webhook_waiting') }}
+          </p>
         </div>
 
-        <!-- Информация о заказе -->
+        <!-- Кнопка «Попробовать снова» для canceled -->
         <div
+          v-if="paymentStatus === 'canceled'"
+          class="flex flex-col sm:flex-row gap-3 justify-center"
+        >
+          <UButton
+            color="primary"
+            size="lg"
+            @click="retryPayment"
+          >
+            <UIcon name="i-heroicons-arrow-path" class="w-5 h-5 mr-2" />
+            {{ printLocale('payment_success_retry_button') }}
+          </UButton>
+        </div>
+
+        <!-- Информация о заказе (не показываем для not_found) -->
+        <div
+          v-if="order"
           class="bg-white dark:bg-neutral-800 rounded-xl shadow-lg p-6
             space-y-6"
         >
           <!-- Номер заказа -->
           <div
+            v-if="paymentStatus === 'succeeded'"
             class="bg-green-50 dark:bg-green-900/20 border border-green-200
               dark:border-green-800 rounded-lg p-4"
           >
@@ -101,10 +118,7 @@
               class="text-2xl font-mono font-bold text-green-800
                 dark:text-green-300 mb-2"
             >
-              {{
-                order.paymentId ||
-                printLocale('payment_success_tracking_number_waiting')
-              }}
+              {{ order.paymentId }}
             </div>
             <p class="text-sm text-green-700 dark:text-green-400">
               <UIcon
@@ -121,7 +135,7 @@
               class="text-lg font-semibold text-neutral-900
                 dark:text-neutral-100"
             >
-              Детали заказа
+              {{ printLocale('payment_success_details_title') }}
             </h3>
 
             <div class="grid gap-4">
@@ -192,10 +206,10 @@
                 </span>
               </div>
 
-              <!-- Дата оплаты -->
+              <!-- Дата заказа -->
               <div class="flex justify-between items-start py-3">
                 <span class="text-neutral-600 dark:text-neutral-400">
-                  Дата заказа:
+                  {{ printLocale('payment_success_order_date_label') }}
                 </span>
                 <span
                   class="text-right font-medium text-neutral-900
@@ -209,14 +223,20 @@
         </div>
 
         <!-- Что будет дальше -->
-        <div class="bg-white dark:bg-neutral-800 rounded-xl shadow-lg p-6">
+        <div
+          v-if="paymentStatus === 'succeeded'"
+          class="bg-white dark:bg-neutral-800 rounded-xl shadow-lg p-6"
+        >
           <p class="text-neutral-700 dark:text-neutral-300 leading-relaxed">
             {{ printLocale('payment_success_contact_text') }}
           </p>
         </div>
 
-        <!-- Кнопки действий -->
-        <div class="flex flex-col sm:flex-row gap-3">
+        <!-- Кнопки действий: succeeded или not_found -->
+        <div
+          v-if="paymentStatus === 'succeeded' || paymentStatus === 'not_found'"
+          class="flex flex-col sm:flex-row gap-3"
+        >
           <UButton color="primary" size="lg" block @click="goToShop">
             <UIcon name="i-heroicons-arrow-left" class="w-5 h-5 mr-2" />
             {{ printLocale('shop_back_to_shop') }}
@@ -239,46 +259,57 @@
 
 <script setup lang="ts">
   import type { OrderInBase } from '~/types'
+  import type { YookassaPaymentStatus } from '~/composables/useYookassaPayment'
 
   const { printLocale } = useLocales()
   const route = useRoute()
   const router = useRouter()
   const { allOrders } = storeToRefs(useOrdersStore())
   const { clearBasket } = useBasketStore()
+  const { getPaymentStatus } = useYookassaPayment()
 
   const loading = ref(true)
   const error = ref<string | null>(null)
   const order = ref<OrderInBase | null>(null)
-  const waitingForWebhook = ref(false)
   const paymentId = ref<string | null>(null)
+  const paymentStatus = ref<YookassaPaymentStatus | null>(null)
+  // Флаг: polling ещё активен (для pending/waiting_for_capture)
+  let pollingTimer: ReturnType<typeof setInterval> | null = null
+  let pollingAttempts = 0
+  const POLLING_INTERVAL_MS = 5_000
+  const POLLING_MAX_ATTEMPTS = 24 // 24 * 5s = 2 минуты
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat('ru-RU').format(price)
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return 'Не указана'
+    if (!dateString) return printLocale('payment_success_date_not_specified', { defaultValue: 'Не указана' })
+    const d = new Date(dateString)
+    if (Number.isNaN(d.getTime())) return printLocale('payment_success_date_not_specified', { defaultValue: 'Не указана' })
     return new Intl.DateTimeFormat('ru-RU', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-    }).format(new Date(dateString))
+    }).format(d)
   }
 
   const statusTitle = computed(() => {
-    if (order.value?.status === 'Оплачен')
+    if (paymentStatus.value === 'succeeded')
       return printLocale('payment_success_status_paid')
-    if (order.value?.status === 'Отменен')
+    if (paymentStatus.value === 'canceled' || paymentStatus.value === 'not_found')
       return printLocale('payment_success_status_cancelled')
     return printLocale('payment_success_status_pending')
   })
 
   const statusSubtitle = computed(() => {
-    if (order.value?.status === 'Оплачен')
+    if (paymentStatus.value === 'succeeded')
       return printLocale('payment_success_subtitle_paid')
-    if (order.value?.status === 'Отменен')
+    if (paymentStatus.value === 'canceled')
       return printLocale('payment_success_subtitle_cancelled')
+    if (paymentStatus.value === 'not_found')
+      return printLocale('payment_success_subtitle_not_found')
     return printLocale('payment_success_subtitle_pending')
   })
 
@@ -287,75 +318,123 @@
     return allOrders.value.find(o => o.paymentId === paymentId.value) ?? null
   })
 
-  // Таймер ожидания webhook — даём Firebase 30 секунд на обновление
-  let webhookTimeout: ReturnType<typeof setTimeout> | null = null
-  // Таймаут на случай если Firebase вообще не ответил
-  let loadingTimeout: ReturnType<typeof setTimeout> | null = null
-
-  function onOrderFound(found: OrderInBase) {
-    metrics.trackButtonClick('paymentSuccess')
-    order.value = found
-    loading.value = false
-    waitingForWebhook.value = false
-    if (webhookTimeout) clearTimeout(webhookTimeout)
-    if (loadingTimeout) clearTimeout(loadingTimeout)
-    clearBasket()
-    localStorage.removeItem('pendingPaymentId')
-    localStorage.removeItem('pendingOrderId')
+  function stopPolling() {
+    if (pollingTimer) {
+      clearInterval(pollingTimer)
+      pollingTimer = null
+    }
   }
 
-  watch(
-    foundOrder,
-    newOrder => {
-      if (newOrder) {
-        onOrderFound(newOrder)
-      } else if (
-        allOrders.value.length > 0 &&
-        paymentId.value &&
-        !webhookTimeout
-      ) {
-        // Заказы из Firebase загружены, но этот ещё без paymentId (webhook в пути)
-        waitingForWebhook.value = true
-        webhookTimeout = setTimeout(() => {
-          if (!order.value) {
-            error.value =
-              'Заказ не найден. Проверьте ID платежа или свяжитесь с поддержкой.'
-            loading.value = false
-          }
-        }, 30_000)
+  function startPolling() {
+    stopPolling()
+    pollingAttempts = 0
+    pollingTimer = setInterval(async () => {
+      pollingAttempts += 1
+      if (pollingAttempts > POLLING_MAX_ATTEMPTS) {
+        stopPolling()
+        return
       }
-    },
-    { immediate: true },
-  )
+      if (!paymentId.value) {
+        stopPolling()
+        return
+      }
+      const result = await getPaymentStatus(paymentId.value)
+      if (result.success && result.status && result.status !== paymentStatus.value) {
+        paymentStatus.value = result.status
+        if (result.status !== 'pending' && result.status !== 'waiting_for_capture') {
+          stopPolling()
+          if (result.status === 'succeeded') {
+            metrics.trackButtonClick('paymentSuccess')
+            clearBasket()
+            localStorage.removeItem('pendingPaymentId')
+            localStorage.removeItem('pendingOrderId')
+          }
+          else {
+            localStorage.removeItem('pendingPaymentId')
+            localStorage.removeItem('pendingOrderId')
+          }
+        }
+      }
+      else if (!result.success) {
+        stopPolling()
+      }
+    }, POLLING_INTERVAL_MS)
+  }
 
-  onMounted(() => {
-    useOrdersStore().loadOrders().catch(() => {})
+  function onOrderFound(found: OrderInBase) {
+    order.value = found
+  }
 
-    // Принимаем paymentId из URL (переданный success.vue) или из localStorage
+  async function fetchStatus() {
+    if (!paymentId.value) {
+      error.value = printLocale('payment_success_no_payment_id_error', {
+        defaultValue: 'Не передан ID платежа. Перейдите по ссылке из письма или свяжитесь с поддержкой.',
+      })
+      loading.value = false
+      return
+    }
+    const result = await getPaymentStatus(paymentId.value)
+
+    // not_found — запрос успешен, но платёж не найден в YooKassa
+    if (result.success && result.status === 'not_found') {
+      paymentStatus.value = 'not_found'
+      loading.value = false
+      localStorage.removeItem('pendingPaymentId')
+      localStorage.removeItem('pendingOrderId')
+      return
+    }
+
+    if (!result.success || !result.status) {
+      error.value = result.error || printLocale('payment_success_status_check_failed', {
+        defaultValue: 'Не удалось проверить статус платежа.',
+      })
+      loading.value = false
+      return
+    }
+    paymentStatus.value = result.status
+    loading.value = false
+
+    if (result.status === 'succeeded') {
+      metrics.trackButtonClick('paymentSuccess')
+      clearBasket()
+      localStorage.removeItem('pendingPaymentId')
+      localStorage.removeItem('pendingOrderId')
+    }
+    else if (result.status === 'canceled') {
+      localStorage.removeItem('pendingPaymentId')
+      localStorage.removeItem('pendingOrderId')
+    }
+    else {
+      // pending / waiting_for_capture → запускаем polling
+      startPolling()
+    }
+  }
+
+  onMounted(async () => {
     paymentId.value =
       (route.query.paymentId as string) ||
       localStorage.getItem('pendingPaymentId')
 
     if (!paymentId.value) {
-      error.value =
-        'Не передан ID платежа. Перейдите по ссылке из письма или свяжитесь с поддержкой.'
+      error.value = 'Не передан ID платежа. Перейдите по ссылке из письма или свяжитесь с поддержкой.'
       loading.value = false
       return
     }
 
-    // Страховочный таймаут — если Firebase не ответил вообще
-    loadingTimeout = setTimeout(() => {
-      if (loading.value) {
-        error.value =
-          'Превышено время ожидания. Проверьте статус заказа на странице отслеживания.'
-        loading.value = false
-      }
-    }, 45_000)
+    // Параллельно: грузим заказы из БД (для деталей) + проверяем статус в ЮKassa
+    await Promise.all([
+      useOrdersStore().loadOrders().catch(() => {}),
+      fetchStatus(),
+    ])
   })
 
+  // Когда заказы подгрузились — подцепить детали по paymentId
+  watch(foundOrder, newOrder => {
+    if (newOrder) onOrderFound(newOrder)
+  }, { immediate: true })
+
   onUnmounted(() => {
-    if (webhookTimeout) clearTimeout(webhookTimeout)
-    if (loadingTimeout) clearTimeout(loadingTimeout)
+    stopPolling()
   })
 
   function goToShop() {
@@ -366,8 +445,41 @@
     router.push('/shop/tracking')
   }
 
+  function retryPayment() {
+    if (!paymentId.value) {
+      router.push('/shop')
+      return
+    }
+
+    // Сбрасываем pending-ключи в localStorage, чтобы /shop/payment
+    // не использовал старый (canceled) paymentId.
+    localStorage.removeItem('pendingPaymentId')
+    localStorage.removeItem('pendingOrderId')
+
+    // Если order ещё не загружен — пытаемся найти в allOrders по paymentId.
+    // Fallback: если вообще не нашли (order=null), идём в магазин.
+    const foundOrder = order.value
+      ?? allOrders.value.find(o => o.paymentId === paymentId.value)
+      ?? null
+    if (!foundOrder) {
+      router.push('/shop')
+      return
+    }
+
+    const orderId = String(foundOrder.id)
+    const amount = foundOrder.totalPrice || 0
+    const description = printLocale('payment_success_order_payment_description', {
+      params: { orderId },
+      defaultValue: `Оплата заказа #${orderId}`,
+    })
+    router.push({
+      path: '/shop/payment',
+      query: { orderId, amount: String(amount), description, retry: '1' },
+    })
+  }
+
   watch(
-    [order, error],
+    [paymentStatus, error],
     () => {
       if (error.value) {
         useSeoMeta({
@@ -375,16 +487,22 @@
           description:
             'Произошла ошибка при обработке платежа. Попробуйте позже или свяжитесь с поддержкой.',
         })
-      } else if (order.value) {
+      } else if (paymentStatus.value === 'succeeded') {
         useSeoMeta({
           title: 'Оплата прошла успешно | Kalashyulya',
           description:
             'Ваш заказ успешно оплачен. Информация о заказе и дальнейшие действия.',
         })
+      } else if (paymentStatus.value === 'canceled' || paymentStatus.value === 'not_found') {
+        useSeoMeta({
+          title: 'Оплата не завершена | Kalashyulya',
+          description:
+            'Оплата не была завершена. Вы можете повторить попытку или связаться с поддержкой.',
+        })
       } else {
         useSeoMeta({
-          title: 'Оплата заказа | Kalashyulya',
-          description: 'Загрузка информации о заказе...',
+          title: 'Ожидание оплаты | Kalashyulya',
+          description: 'Проверяем статус платежа в платёжной системе...',
         })
       }
     },

@@ -17,6 +17,18 @@ export interface CreatePaymentResult {
   error?: string
 }
 
+export type YookassaPaymentStatus = 'pending' | 'waiting_for_capture' | 'succeeded' | 'canceled' | 'not_found'
+
+export interface PaymentStatusResult {
+  success: boolean
+  status?: YookassaPaymentStatus
+  paid?: boolean
+  amount?: string
+  currency?: string
+  paymentId?: string
+  error?: string
+}
+
 export const useYookassaPayment = () => {
   const createPayment = async (
     options: CreatePaymentOptions,
@@ -64,6 +76,34 @@ export const useYookassaPayment = () => {
     }
   }
 
+  /**
+   * Запрос реального статуса платежа в YooKassa.
+   * Используется на /shop/payment-success — нельзя доверять order.status из БД,
+   * т.к. заказ создаётся ДО оплаты.
+   */
+  const getPaymentStatus = async (
+    paymentId: string,
+  ): Promise<PaymentStatusResult> => {
+    try {
+      return await $fetch<PaymentStatusResult>(
+        `/api/payments/yookassa/${encodeURIComponent(paymentId)}`,
+        { method: 'GET' },
+      )
+    } catch (error: unknown) {
+      let errorMessage = 'Не удалось проверить статус платежа'
+      if (
+        error &&
+        typeof error === 'object' &&
+        'message' in error &&
+        typeof error.message === 'string' &&
+        error.message.includes('Network Error')
+      ) {
+        errorMessage = 'Проблемы с соединением'
+      }
+      return { success: false, error: errorMessage }
+    }
+  }
+
   const openPaymentWidget = (
     confirmationToken: string,
     onSuccess: () => void,
@@ -102,6 +142,7 @@ export const useYookassaPayment = () => {
 
   return {
     createPayment,
+    getPaymentStatus,
     openPaymentWidget,
   }
 }

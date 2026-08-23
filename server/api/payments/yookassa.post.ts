@@ -7,6 +7,7 @@ import * as v from 'valibot'
 import {
   buildYookassaAuthHeader,
   buildYookassaPaymentPayload,
+  getYookassaCredentials,
   type CreatePaymentBody,
   type YooKassaPayment,
 } from '../../utils/yookassaPayment'
@@ -23,16 +24,8 @@ const BodySchema = v.object({
   }),
 })
 
-// Legacy: Yandex Cloud Function определял test-mode по Origin/Referer из
-// ['localhost', '127.0.0.1', 'kalashyulya.vercel.app']. Поддерживаем оба пути:
-//   1. env YOOKASSA_TEST_MODE=true — явный override (наш существующий путь)
-//   2. Origin/Referer содержит legacy test-origin — обратная совместимость
-const TEST_ORIGINS = ['localhost', '127.0.0.1', 'kalashyulya.vercel.app', 'localhost:3000', 'localhost:4000']
-
-function isTestEnvironment(headers: Record<string, string | undefined>): boolean {
-  const origin = headers.origin || headers.referer || ''
-  return TEST_ORIGINS.some(host => origin.includes(host))
-}
+// Логика определения test/prod mode и credentials вынесена в getYookassaCredentials()
+// (server/utils/yookassaPayment.ts) — общий хелпер для POST и GET.
 
 export default defineEventHandler(async (event) => {
   const raw = await readBody(event)
@@ -46,28 +39,18 @@ export default defineEventHandler(async (event) => {
   }
   const body = parsed.output as CreatePaymentBody
 
-  // Test mode из env ИЛИ по Origin (back-compat с Yandex).
   const headersObj = (event.headers ?? {}) as unknown as Record<string, string | undefined>
-  const isTestMode = process.env.YOOKASSA_TEST_MODE === 'true'
-    || isTestEnvironment(headersObj)
-
-  const shopId = isTestMode
-    ? process.env.YOOKASSA_SHOP_ID_TEST
-    : process.env.YOOKASSA_SHOP_ID
-  const secretKey = isTestMode
-    ? process.env.YOOKASSA_SECRET_KEY_TEST
-    : process.env.YOOKASSA_SECRET_KEY
+  let credentials: { shopId: string, secretKey: string, isTestMode: boolean }
+  try {
+    credentials = getYookassaCredentials(headersObj)
+  } catch (err) {
+    console.error(`[yookassa] credentials not configured: ${(err as Error).message}`)
+    throw err
+  }
+  const { shopId, secretKey, isTestMode } = credentials
 
   const origin = headersObj.origin || '—'
   console.log(`[yookassa] mode=${isTestMode ? 'TEST' : 'PROD'} origin=${origin} orderId=${body.orderId}`)
-
-  if (!shopId || !secretKey) {
-    console.error(`[yookassa] credentials not configured for ${isTestMode ? 'test' : 'prod'} mode`)
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Payment service not configured',
-    })
-  }
 
   // Legacy idempotence key: Yandex слал `test_<orderId>_<ts>` в test mode,
   // `<orderId>_<ts>` в prod. Сохраняем формат.

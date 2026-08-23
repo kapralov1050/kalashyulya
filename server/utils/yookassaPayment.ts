@@ -35,6 +35,43 @@ export function buildYookassaAuthHeader(
 }
 
 /**
+ * Определение test-mode по env и Origin/Referer (back-compat с Yandex Cloud Function).
+ * Возвращает credentials и флаг isTestMode. Кидает 500 если креды не заданы.
+ */
+const TEST_ORIGINS = ['localhost', '127.0.0.1', 'kalashyulya.vercel.app', 'localhost:3000', 'localhost:4000']
+
+export function detectYookassaTestMode(headers: Record<string, string | undefined>): boolean {
+  const origin = headers.origin || headers.referer || ''
+  if (process.env.YOOKASSA_TEST_MODE === 'true') return true
+  return TEST_ORIGINS.some(host => origin.includes(host))
+}
+
+export interface YookassaCredentials {
+  shopId: string
+  secretKey: string
+  isTestMode: boolean
+}
+
+export function getYookassaCredentials(headers: Record<string, string | undefined> = {}): YookassaCredentials {
+  const isTestMode = detectYookassaTestMode(headers)
+  const shopId = isTestMode
+    ? process.env.YOOKASSA_SHOP_ID_TEST
+    : process.env.YOOKASSA_SHOP_ID
+  const secretKey = isTestMode
+    ? process.env.YOOKASSA_SECRET_KEY_TEST
+    : process.env.YOOKASSA_SECRET_KEY
+
+  if (!shopId || !secretKey) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Payment service not configured',
+    })
+  }
+
+  return { shopId, secretKey, isTestMode }
+}
+
+/**
  * Формирует payload для POST /v3/payments.
  *
  * Phase D back-compat (после ревью): metadata keys ВОЗВРАЩЕНЫ в legacy формат:
