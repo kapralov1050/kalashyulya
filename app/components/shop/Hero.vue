@@ -141,17 +141,18 @@
   import type { FormSubmitEvent } from '@nuxt/ui'
   import type { productSchemaType } from '~/helpers/valibot'
   import { productSchema } from '~/helpers/valibot'
+  import { ProductCategory } from '~/constants/products'
 
   const shopStore = useShopStore()
   const { printLocale } = useLocales()
   const isCustomerInfoOpen = ref(false)
 
   const categories = [
-    { value: '1', label: printLocale('shop_filters_pictures') },
-    { value: '2', label: printLocale('shop_filters_sketches') },
-    { value: '3', label: printLocale('shop_filters_postcards') },
-    { value: '4', label: printLocale('shop_filters_stickers') },
-    { value: '5', label: printLocale('shop_filters_calendar') },
+    { value: ProductCategory.PICTURES, label: printLocale('shop_filters_pictures') },
+    { value: ProductCategory.SKETCHES, label: printLocale('shop_filters_sketches') },
+    { value: ProductCategory.POSTCARDS, label: printLocale('shop_filters_postcards') },
+    { value: ProductCategory.STICKERS, label: printLocale('shop_filters_stickers') },
+    { value: ProductCategory.CALENDARS, label: printLocale('shop_filters_calendar') },
   ]
 
   // Опции сортировки с читаемыми названиями
