@@ -96,6 +96,13 @@ export function useApi() {
     })
   }
 
+  async function deleteOrder(orderId: string): Promise<void> {
+    await $fetch(
+      `/api/admin/orders/${orderId}`,
+      { method: 'DELETE' } as never,
+    )
+  }
+
   async function updateProductCertificateId(
     productId: string,
     certificateId: string | null,
@@ -176,6 +183,7 @@ export function useApi() {
     updateProduct,
     deleteProduct,
     updateOrderStatus,
+    deleteOrder,
     trackProductView,
     updateProductCertificateId,
     publishExhibition,

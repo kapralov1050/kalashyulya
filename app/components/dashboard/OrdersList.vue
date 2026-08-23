@@ -91,6 +91,19 @@
             >
               Обновить статус
             </UButton>
+            <button
+              class="flex items-center gap-1 px-2.5 py-1 text-red-500 border
+                border-red-200 rounded-lg hover:bg-red-50 hover:border-red-300
+                transition-colors duration-200 text-xs font-medium shrink-0"
+              :disabled="deletingOrderId === order.id"
+              @click="confirmDelete(order)"
+            >
+              <UIcon
+                name="i-heroicons-trash"
+                class="w-3.5 h-3.5"
+              />
+              Удалить
+            </button>
           </div>
         </div>
       </div>
@@ -233,14 +246,16 @@
   }
 
   const { allOrders } = storeToRefs(useOrdersStore())
-  const { updateOrderStatus } = useApi()
+  const { updateOrderStatus, deleteOrder } = useApi()
   const { sendStatusUpdateEmail } = useOrderEmail()
+  const ordersStore = useOrdersStore()
   const toast = useToast()
 
   const selectedStatus = ref('all')
   const isStatusModalOpen = ref(false)
   const selectedOrder = ref<OrderInBase | null>(null)
   const pendingStatuses = ref<Record<number, string>>({})
+  const deletingOrderId = ref<number | string | null>(null)
 
   const filteredOrders = computed(() => {
     if (!allOrders.value) return []
@@ -339,6 +354,34 @@
   function getStatusBgClass(status: string): string {
     const color = getOrderStatusColor(status)
     return `bg-${color}-100 border-${color}-300 text-${color}-800`
+  }
+
+  function confirmDelete(order: OrderInBase) {
+    if (!confirm(`Удалить заказ #${order.id}? Действие необратимо.`)) return
+    void handleDelete(order)
+  }
+
+  async function handleDelete(order: OrderInBase) {
+    deletingOrderId.value = order.id
+    try {
+      await deleteOrder(order.id)
+      toast.add({
+        title: 'Удалено',
+        description: `Заказ #${order.id} удалён`,
+        color: 'success',
+      })
+      await ordersStore.loadOrders()
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error deleting order:', error)
+      toast.add({
+        title: 'Ошибка',
+        description: 'Не удалось удалить заказ',
+        color: 'error',
+      })
+    } finally {
+      deletingOrderId.value = null
+    }
   }
 </script>
 <style scoped>
