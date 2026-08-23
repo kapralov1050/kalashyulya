@@ -98,6 +98,7 @@
               variant="outline"
               size="sm"
               :loading="deletingOrderId === order.id"
+              :disabled="deletingOrderId === order.id"
               :aria-label="`Удалить заказ #${order.id}`"
               class="shrink-0"
               @click="confirmDelete(order)"
@@ -232,6 +233,7 @@
   import { useApi } from '~/composables/useApi'
   import { useOrderEmail } from '~/composables/useOrderEmail'
   import { ORDER_STATUS_OPTIONS, getOrderStatusColor } from '~/constants/orders'
+  import { canDeleteOrder } from '~/constants/orderPermissions'
   import StatusChangeModal from './StatusChangeModal.vue'
 
   const FRAMING_LABELS: Record<string, string> = {
@@ -261,10 +263,8 @@
   const pendingStatuses = ref<Record<number, string>>({})
   const deletingOrderId = ref<number | string | null>(null)
 
-  const DELETABLE_STATUSES = new Set(['new', 'cancelled'])
-
   function canDelete(order: OrderInBase): boolean {
-    return DELETABLE_STATUSES.has(order.status ?? '')
+    return canDeleteOrder(order.status)
   }
 
   const filteredOrders = computed(() => {
@@ -345,6 +345,17 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error updating order status:', error)
+      const status = (error as { statusCode?: number })?.statusCode
+      if (status === 401) {
+        toast.add({
+          title: 'Сессия истекла',
+          description: 'Войдите снова',
+          color: 'warning',
+        })
+        await logout()
+        router.push('/login')
+        return
+      }
       toast.add({
         title: 'Ошибка',
         description: 'Не удалось обновить статус заказа',

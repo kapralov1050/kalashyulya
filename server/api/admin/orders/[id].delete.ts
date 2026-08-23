@@ -1,6 +1,11 @@
 import { getDb } from '../../../utils/db'
 import { requireAuth } from '../../../utils/requireAuth'
 
+// Заказы со статусом paid/shipped можно удалить через API напрямую,
+// хотя UI-кнопка скрыта (см. OrdersList.vue:DELETABLE_STATUSES).
+// Это намеренно: refund / chargeback сценарии требуют ручного удаления.
+// Если когда-нибудь понадобится жёсткий guard — добавить 409 для
+// status ∉ ['new', 'cancelled'] здесь.
 export default defineEventHandler((event) => {
   requireAuth(event)
   const id = getRouterParam(event, 'id')

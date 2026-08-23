@@ -1,13 +1,21 @@
-import { mkdirSync, readFileSync } from 'node:fs'
+import { mkdirSync, readdirSync, readFileSync } from 'node:fs'
 import { resolve, join } from 'node:path'
 import type Database from 'better-sqlite3'
 
+const INIT_FILE = '001_init.sql'
+
+function listMigrationFiles(): string[] {
+  const schemaDir = resolve(process.cwd(), 'server/schema')
+  return readdirSync(schemaDir)
+    .filter(f => /^\d{3}_.*\.sql$/.test(f) && f !== INIT_FILE)
+    .sort()
+}
+
 export function applyMigrations(db: Database.Database): void {
   const schemaDir = resolve(process.cwd(), 'server/schema')
-  const initPath = join(schemaDir, '001_init.sql')
-  db.exec(readFileSync(initPath, 'utf-8'))
+  db.exec(readFileSync(join(schemaDir, INIT_FILE), 'utf-8'))
 
-  for (const file of ['002_exhibitions.sql', '003_orders.sql', '004_orders.sql', '005_orders.sql']) {
+  for (const file of listMigrationFiles()) {
     const path = join(schemaDir, file)
     try {
       const raw = readFileSync(path, 'utf-8')

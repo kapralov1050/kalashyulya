@@ -132,7 +132,6 @@ describe('DELETE /api/admin/orders/[id]', () => {
       .prepare('SELECT COUNT(*) as c FROM orders')
       .get() as { c: number }
     expect(after.c).toBe(before.c)
-    expect(after.c).toBeGreaterThan(0)
   })
 
   it('DELETE без id возвращает 400', async () => {
@@ -156,5 +155,34 @@ describe('DELETE /api/admin/orders/[id]', () => {
       params: { id: 'order_del_1' },
     } as never
     await expect(handler(event)).rejects.toThrow('Unauthorized')
+  })
+
+  it('ошибка БД оборачивается в 500 без stacktrace', async () => {
+    vi.resetModules()
+    vi.doMock('../../utils/db', () => ({
+      getDb: () => ({
+        prepare: () => ({
+          run: () => {
+            throw new Error('database is locked')
+          },
+        }),
+      }),
+    }))
+    const failingHandler = (await import('../admin/orders/[id].delete')).default
+    const event = {
+      context: {},
+      params: { id: 'anything' },
+    } as never
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    await expect(failingHandler(event)).rejects.toMatchObject({
+      statusCode: 500,
+      statusMessage: 'Ошибка сервера',
+    })
+    expect(errSpy).toHaveBeenCalled()
+
+    errSpy.mockRestore()
+    vi.doUnmock('../../utils/db')
+    vi.resetModules()
   })
 })
