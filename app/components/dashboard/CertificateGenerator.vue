@@ -299,7 +299,7 @@
   // Сообщение блокировки
   const blockMessage = computed(() => {
     if (isProductWithCertificate.value) {
-      return 'Недоступно, удалите сущестующий сертификат'
+      return 'Недоступно, удалите существующий сертификат'
     }
     return ''
   })

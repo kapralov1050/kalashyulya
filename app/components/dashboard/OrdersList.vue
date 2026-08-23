@@ -32,7 +32,7 @@
       :key="key"
       class="order-card mb-6 p-6 bg-white rounded-lg shadow-md transition-all
         hover:shadow-lg border-l-4"
-      :class="getStatusBorderClass(order.status)"
+      :class="getStatusBorderClass(order.statusLabel ?? order.status)"
     >
       <div
         class="order-header flex flex-col md:flex-row justify-between
@@ -41,7 +41,7 @@
         <div>
           <h3 class="text-xl font-semibold mb-2">Заказ #{{ order.id }}</h3>
           <div class="flex items-center gap-2 text-gray-500 text-sm">
-            <span class="material-icons-outlined text-base">event</span>
+            <UIcon name="i-heroicons-calendar" class="w-4 h-4" />
             <span>
               {{ new Date(order.purchase.createdAt).toLocaleDateString() }}
             </span>
@@ -51,7 +51,7 @@
           class="flex flex-col items-start md:items-end gap-3 w-full md:w-auto"
         >
           <div class="flex items-center gap-2">
-            <span class="material-icons-outlined">attach_money</span>
+            <UIcon name="i-heroicons-banknotes" class="w-4 h-4" />
             <span class="text-lg font-bold">{{ order.totalPrice }} ₽</span>
             <span
               v-if="order.paymentMethod"
@@ -62,7 +62,7 @@
                   : 'bg-blue-100 text-blue-700'
               "
             >
-              {{ order.paymentMethod === 'yookassa' ? 'Онлайн' : 'Перевод' }}
+              {{ order.paymentMethod === 'yookassa' ? 'Онлайн' : 'Ручной перевод' }}
             </span>
           </div>
           <div
@@ -86,7 +86,7 @@
               color="primary"
               variant="solid"
               class="w-full md:w-auto"
-              :disabled="pendingStatuses[order.id] === order.status"
+              :disabled="pendingStatuses[order.id] === order.statusLabel"
               @click="openStatusModal(order)"
             >
               Обновить статус
@@ -101,30 +101,22 @@
           </h4>
           <ul class="space-y-2">
             <li class="flex items-center gap-2">
-              <span class="material-icons-outlined text-sm text-gray-500">
-                имя
-              </span>
+              <UIcon name="i-heroicons-user" class="w-4 h-4 text-gray-500" />
               {{ order.customer.name || 'Не указано' }}
             </li>
             <li class="flex items-center gap-2">
-              <span class="material-icons-outlined text-sm text-gray-500">
-                телефон
-              </span>
+              <UIcon name="i-heroicons-phone" class="w-4 h-4 text-gray-500" />
               {{ order.customer.phone || 'Не указано' }}
             </li>
             <li v-if="order.customer.email" class="flex items-center gap-2">
-              <span class="material-icons-outlined text-sm text-gray-500">
-                почта
-              </span>
+              <UIcon name="i-heroicons-envelope" class="w-4 h-4 text-gray-500" />
               {{ order.customer.email }}
             </li>
             <li
               v-if="order.customer.userNickname"
               class="flex items-center gap-2"
             >
-              <span class="material-icons-outlined text-sm text-gray-500">
-                соцсети
-              </span>
+              <UIcon name="i-heroicons-chat-bubble-left-right" class="w-4 h-4 text-gray-500" />
               {{ order.customer.userMessenger || 'Мессенджер' }}: @{{
                 order.customer.userNickname
               }}
@@ -139,17 +131,17 @@
           <div class="space-y-1 text-sm">
             <template v-if="order.customer.delivery?.type === 'pickup' || !order.customer.delivery?.type">
               <p class="flex items-center gap-2 text-gray-700">
-                <span class="material-icons-outlined text-sm text-gray-500">store</span>
+                <UIcon name="i-heroicons-building-storefront" class="w-4 h-4 text-gray-500" />
                 Самовывоз (Санкт-Петербург)
               </p>
             </template>
             <template v-else>
               <p v-if="order.customer.delivery.recipient" class="flex items-center gap-2 text-gray-700">
-                <span class="material-icons-outlined text-sm text-gray-500">person</span>
+                <UIcon name="i-heroicons-user" class="w-4 h-4 text-gray-500" />
                 {{ order.customer.delivery.recipient }}
               </p>
               <p v-if="order.customer.delivery.address" class="flex items-center gap-2 text-gray-700">
-                <span class="material-icons-outlined text-sm text-gray-500">place</span>
+                <UIcon name="i-heroicons-map-pin" class="w-4 h-4 text-gray-500" />
                 {{ order.customer.delivery.address }}
               </p>
               <p v-else class="text-gray-400">Адрес не указан</p>
@@ -193,16 +185,16 @@
           >
             <span class="flex-1">{{ item.title }}</span>
             <span class="w-32 text-right">
-              {{ item.amount }} × {{ item.price }} ₽
+              {{ item.amount || item.qty || 1 }} × {{ item.price }} ₽
             </span>
             <span class="w-24 text-right font-medium">
-              {{ item.amount * item.price }} ₽
+              {{ (item.amount || item.qty || 1) * item.price }} ₽
             </span>
           </div>
         </div>
 
         <div v-if="order.framing && order.framing !== 'none'" class="mt-3 flex items-center gap-2 px-4 py-3 bg-cyan-50 border border-cyan-200 rounded-lg text-sm text-cyan-800">
-          <span class="material-icons-outlined text-sm">frame_inspect</span>
+          <UIcon name="i-heroicons-photo" class="w-4 h-4" />
           <span class="font-medium">Оформление:</span>
           {{ FRAMING_LABELS[order.framing] }}
         </div>
@@ -254,7 +246,7 @@
     if (!allOrders.value) return []
     if (selectedStatus.value === 'all') return allOrders.value
     return allOrders.value.filter(
-      order => order.status === selectedStatus.value,
+      order => order.statusLabel === selectedStatus.value,
     )
   })
 
@@ -265,7 +257,7 @@
       if (orders) {
         orders.forEach(order => {
           if (!(order.id in pendingStatuses.value)) {
-            pendingStatuses.value[order.id] = order.status
+            pendingStatuses.value[order.id] = order.statusLabel ?? order.status
           }
         })
       }

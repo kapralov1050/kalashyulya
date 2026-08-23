@@ -87,12 +87,13 @@ export interface OrderInBase extends Order {
   // для импортированных, "20260816-abc123" для новых). UI использует только как :key.
   id: number | string
   status: string
+  statusLabel?: string
   paymentId?: string
   paymentMethod?: 'yookassa' | 'manual'
   notificationFailed?: {
     telegram?: boolean
     email?: boolean
-  }
+  } | null
 }
 
 export interface DaDataSuggestion {

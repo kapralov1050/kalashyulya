@@ -28,6 +28,13 @@ interface OrderRow {
   notification_failed: string | null  // JSON: '{"telegram":bool,"email":bool}'
 }
 
+const STATUS_LABELS: Record<string, string> = {
+  new: 'Новый заказ',
+  paid: 'Оплачен',
+  shipped: 'Отправлен',
+  cancelled: 'Отменён',
+}
+
 /**
  * Возвращает заказы в формате OrderInBase (Firebase-era shape) — чтобы UI
  * (admin/OrdersList, /shop/tracking, /shop/payment-success) не переписывать.
@@ -69,16 +76,16 @@ export default defineEventHandler((event): OrderInBase[] => {
     },
     totalPrice: r.total,
     status: r.status,
+    statusLabel: STATUS_LABELS[r.status] ?? r.status,
     // Phase D-фикс #3: framing читается из БД, не хардкодится.
     framing: r.framing ?? undefined,
     paymentMethod: r.payment_method ?? 'manual',
     paymentId: r.payment_id ?? '',
     // notification_failed хранится в БД как JSON-строка ('{"telegram":true,"email":false}')
     // orders.post.ts пишет туда реальный результат triggerOrderNotifications.
-    // Если по какой-то причине JSON нет (legacy заказы до Phase D-фикс) — возвращаем
-    // дефолтный объект {false,false} для совместимости с OrdersList.vue:161.
+    // Legacy-заказы (до Phase D-фикс) возвращают null — баннер не показывается.
     notificationFailed: r.notification_failed
       ? (JSON.parse(r.notification_failed) as { telegram: boolean, email: boolean })
-      : { telegram: false, email: false },
+      : null,
   }))
 })

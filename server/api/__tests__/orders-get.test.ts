@@ -110,7 +110,8 @@ describe('orders.get DTO mapping', () => {
     // Defaults for fields not stored in DB
     expect(order.paymentMethod).toBe('manual')
     expect(order.paymentId).toBe('')
-    expect(order.notificationFailed).toEqual({ telegram: false, email: false })
+    // Legacy orders (no notification_failed in DB) → null (unknown status)
+    expect(order.notificationFailed).toBeNull()
     // Phase D: framing нет в SQLite (FB тоже не хранит), просто отсутствует.
     expect(order.framing).toBeUndefined()
   })

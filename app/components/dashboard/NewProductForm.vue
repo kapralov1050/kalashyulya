@@ -217,7 +217,7 @@
       if (result?.id) {
         showToast(
           'success',
-          'Product created successfully',
+          'Товар создан',
           'heroicons:check-circle',
         )
       }

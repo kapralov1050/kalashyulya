@@ -2,20 +2,20 @@
   <div class="p-4 max-w-4xl mx-auto space-y-4">
     <UInput
       v-model="searchQuery"
-      placeholder="Search locales..."
+      placeholder="Поиск локалей..."
       icon="i-heroicons-magnifying-glass"
       size="md"
       class="mb-4"
     />
 
     <div class="flex items-center gap-2 p-3 mb-4 bg-gray-50 rounded-lg">
-      <UInput v-model="newLocale.key" placeholder="New key" class="flex-1" />
+      <UInput v-model="newLocale.key" placeholder="Новый ключ" class="flex-1" />
       <UInput
         v-model="newLocale.value"
-        placeholder="New value"
+        placeholder="Новое значение"
         class="flex-1"
       />
-      <UButton color="primary" @click="addNewLocale">Add</UButton>
+      <UButton color="primary" @click="addNewLocale">Добавить</UButton>
     </div>
 
     <div class="space-y-2">
@@ -41,7 +41,7 @@
               size="xs"
               @click="saveChanges"
             >
-              Save
+              Сохранить
             </UButton>
           </template>
           <template v-else>
@@ -116,12 +116,12 @@
       newLocale.value.key.trim() === '' ||
       newLocale.value.value.trim() === ''
     ) {
-      alert('Please fill both key and value fields')
+      alert('Заполните оба поля: ключ и значение')
       return
     }
 
     if (store.locales[newLocale.value.key]) {
-      alert('Locale with this key already exists')
+      alert('Локаль с таким ключом уже существует')
       return
     }
 
