@@ -17,11 +17,14 @@ import {
   buildStatusEmailHtml,
   buildStatusEmailPayload,
 } from '../../../utils/statusEmailTemplate'
-import { getSmtpTransportConfig, sendViaSmtp } from '../../notifications/email.post'
+import {
+  getSmtpTransportConfig,
+  sendViaSmtp,
+} from '../../notifications/email.post'
 import type { OrderInBase } from '~/types'
 
 const ALLOWED = ['new', 'paid', 'shipped', 'cancelled'] as const
-type OrderStatus = typeof ALLOWED[number]
+type OrderStatus = (typeof ALLOWED)[number]
 
 interface PatchBody {
   status: OrderStatus
@@ -81,8 +84,11 @@ export default defineEventHandler(async (event): Promise<PatchResult> => {
   }
 
   // 2. UPDATE статуса в БД.
-  db.prepare('UPDATE orders SET status = ?, updated_at = ? WHERE id = ?')
-    .run(body.status, Date.now(), id)
+  db.prepare('UPDATE orders SET status = ?, updated_at = ? WHERE id = ?').run(
+    body.status,
+    Date.now(),
+    id,
+  )
 
   // 3. Опционально: email покупателю.
   const shouldSendEmail = body.sendEmail !== false
@@ -128,7 +134,9 @@ async function sendStatusEmail(
       userMessenger: (row.customer_messenger as string | null) ?? '',
       userNickname: (row.customer_nickname as string | null) ?? '',
       delivery: {
-        type: ((row.delivery_type as string | null) ?? 'pickup') as 'pickup' | 'delivery',
+        type: ((row.delivery_type as string | null) ?? 'pickup') as
+          | 'pickup'
+          | 'delivery',
         city: (row.city as string | null) ?? '',
         recipient: (row.delivery_recipient as string | null) ?? '',
         address: (row.address as string | null) ?? '',
@@ -138,14 +146,19 @@ async function sendStatusEmail(
       },
     },
     purchase: {
-      order: JSON.parse((row.items_json as string) ?? '[]') as OrderInBase['purchase']['order'],
-      createdAt: new Date((row.created_at as number) ?? Date.now()).toISOString(),
+      order: JSON.parse(
+        (row.items_json as string) ?? '[]',
+      ) as OrderInBase['purchase']['order'],
+      createdAt: new Date(
+        (row.created_at as number) ?? Date.now(),
+      ).toISOString(),
     },
     totalPrice: Number(row.total ?? 0),
     status: row.status as OrderInBase['status'],
     statusLabel: STATUS_LABELS[newStatus],
     framing: (row.framing as 'none' | 'simple' | 'premium' | null) ?? undefined,
-    paymentMethod: (row.payment_method as 'yookassa' | 'manual' | null) ?? 'manual',
+    paymentMethod:
+      (row.payment_method as 'yookassa' | 'manual' | null) ?? 'manual',
     paymentId: (row.payment_id as string | null) ?? '',
     notificationFailed: null,
   }
@@ -159,7 +172,11 @@ async function sendStatusEmail(
     return { ok: false, error: 'Customer email is empty' }
   }
 
-  const payload = buildStatusEmailPayload(order, STATUS_LABELS[newStatus], customMessage)
+  const payload = buildStatusEmailPayload(
+    order,
+    STATUS_LABELS[newStatus],
+    customMessage,
+  )
   const html = buildStatusEmailHtml(payload)
   return sendViaSmtp({
     to: payload.to,
@@ -181,7 +198,7 @@ function mergeNotificationFailed(
     .prepare('SELECT notification_failed FROM orders WHERE id = ?')
     .get(orderId) as { notification_failed: string | null } | undefined
 
-  let merged: { telegram?: boolean, email: boolean } = { email: patch.email }
+  let merged: { telegram?: boolean; email: boolean } = { email: patch.email }
   if (row?.notification_failed) {
     try {
       const parsed = JSON.parse(row.notification_failed)

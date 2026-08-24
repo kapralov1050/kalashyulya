@@ -113,15 +113,20 @@ describe('POST /api/orders (regression: parameter count)', () => {
       .prepare('SELECT * FROM orders WHERE id = ?')
       .get(result.id) as Record<string, unknown>
     expect(order).toBeDefined()
-    expect(order.status).toBe('new')  // критично: раньше был null
+    expect(order.status).toBe('new') // критично: раньше был null
     expect(order.customer_name).toBe('Test User')
     expect(order.customer_messenger).toBe('Telegram')
     expect(order.total).toBe(1000)
     // paymentMethod сохраняется из body (Phase D-фикс: больше не хардкодится 'manual')
-    expect(order.payment_method).toBe('manual')  // body без paymentMethod → default 'manual'
+    expect(order.payment_method).toBe('manual') // body без paymentMethod → default 'manual'
     // items_json хранит `amount` (Firebase-контракт), а не `qty`
     const items = JSON.parse(order.items_json as string)
-    expect(items[0]).toMatchObject({ productId: '1', title: 'Test', price: 1000, amount: 1 })
+    expect(items[0]).toMatchObject({
+      productId: '1',
+      title: 'Test',
+      price: 1000,
+      amount: 1,
+    })
     expect(items[0].qty).toBeUndefined()
   })
 
@@ -237,7 +242,9 @@ describe('POST /api/orders (regression: parameter count)', () => {
     // Отслеживаем какие endpoint'ы были вызваны. orders.post.ts использует $fetch.raw,
     // поэтому смотрим именно его calls (не голый $fetch).
     const { $fetch } = await import('ofetch')
-    const fetchRawMock = ($fetch as unknown as { raw: ReturnType<typeof vi.fn> }).raw
+    const fetchRawMock = (
+      $fetch as unknown as { raw: ReturnType<typeof vi.fn> }
+    ).raw
     fetchRawMock.mockClear()
 
     const event = {
@@ -266,7 +273,11 @@ describe('POST /api/orders (regression: parameter count)', () => {
     // Ни для email, ни для telegram НЕ должно быть fetch-вызова в orders.post.
     // Уведомления уйдут позже из /api/orders/[id]/notify-seller.
     const calledUrls = fetchRawMock.mock.calls.map(c => c[0] as string)
-    expect(calledUrls.some(u => u.includes('/api/notifications/email'))).toBe(false)
-    expect(calledUrls.some(u => u.includes('/api/notifications/telegram'))).toBe(false)
+    expect(calledUrls.some(u => u.includes('/api/notifications/email'))).toBe(
+      false,
+    )
+    expect(
+      calledUrls.some(u => u.includes('/api/notifications/telegram')),
+    ).toBe(false)
   })
 })

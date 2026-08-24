@@ -35,13 +35,30 @@ Object.assign(globalThis, {
   setCookie: () => undefined,
   deleteCookie: () => undefined,
   readBody: async (event?: { body?: unknown }) => event?.body ?? {},
-  getQuery: (event?: { query?: Record<string, unknown> }) => (event?.query ?? {}) as Record<string, string>,
-  getRouterParam: (event?: { context?: { params?: Record<string, string> }, params?: Record<string, string> }, name?: string) =>
+  getQuery: (event?: { query?: Record<string, unknown> }) =>
+    (event?.query ?? {}) as Record<string, string>,
+  getRouterParam: (
+    event?: {
+      context?: { params?: Record<string, string> }
+      params?: Record<string, string>
+    },
+    name?: string,
+  ) =>
     name !== undefined
       ? (event?.context?.params ?? event?.params ?? {})[name]
-      : (event?.context?.params ?? event?.params ?? {}) as Record<string, string>,
-  createError: (opts: { statusCode?: number, message?: string, statusMessage?: string, data?: unknown }) => {
-    const err = new Error(opts.message ?? opts.statusMessage ?? 'error') as Error & { statusCode?: number, statusMessage?: string, data?: unknown }
+      : ((event?.context?.params ?? event?.params ?? {}) as Record<
+          string,
+          string
+        >),
+  createError: (opts: {
+    statusCode?: number
+    message?: string
+    statusMessage?: string
+    data?: unknown
+  }) => {
+    const err = new Error(
+      opts.message ?? opts.statusMessage ?? 'error',
+    ) as Error & { statusCode?: number; statusMessage?: string; data?: unknown }
     err.statusCode = opts.statusCode ?? 500
     err.statusMessage = opts.statusMessage ?? opts.message
     err.data = opts.data

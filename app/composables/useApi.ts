@@ -29,9 +29,12 @@ export function useApi() {
   const exhibitions = computed<Exhibition[]>(() => exhibitionsData.value)
 
   const productsById = computed<Record<string, Product>>(() =>
-    Object.fromEntries((shopData.value.products ?? {}) && Object.values(shopData.value.products).length > 0
-      ? Object.values(shopData.value.products).map(p => [String(p.id), p])
-      : []),
+    Object.fromEntries(
+      (shopData.value.products ?? {}) &&
+        Object.values(shopData.value.products).length > 0
+        ? Object.values(shopData.value.products).map(p => [String(p.id), p])
+        : [],
+    ),
   )
 
   const isLoggedIn = computed(() => currentUser.value !== null)
@@ -96,8 +99,11 @@ export function useApi() {
   async function updateOrderStatus(
     orderId: string,
     status: 'new' | 'paid' | 'shipped' | 'cancelled',
-    options: { sendEmail?: boolean, message?: string } = {},
-  ): Promise<{ email: { ok: boolean, error?: string } | null, noChange?: boolean }> {
+    options: { sendEmail?: boolean; message?: string } = {},
+  ): Promise<{
+    email: { ok: boolean; error?: string } | null
+    noChange?: boolean
+  }> {
     return await $fetch(`/api/admin/orders/${orderId}`, {
       method: 'PATCH',
       body: {
@@ -147,8 +153,7 @@ export function useApi() {
       await $fetch(`/api/orders/${orderId}/notify-seller`, {
         method: 'POST',
       } as never)
-    }
-    catch (err) {
+    } catch (err) {
       // eslint-disable-next-line no-console
       console.warn(`[notify-seller] failed for ${orderId}:`, err)
     }
@@ -172,10 +177,7 @@ export function useApi() {
   async function trackProductView(productId: string): Promise<void> {
     // Nitro typed-routes не видит dynamic POST-роут (/${productId}/view),
     // any-cast чтобы обойти. Реальный сервер корректно отвечает POST.
-    await $fetch(
-      `/api/products/${productId}/view`,
-      { method: 'POST' } as never,
-    )
+    await $fetch(`/api/products/${productId}/view`, { method: 'POST' } as never)
   }
 
   async function publishExhibition(id: string): Promise<void> {

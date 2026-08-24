@@ -62,24 +62,22 @@ export default defineEventHandler(
         })
       }
       message = { to: body.to, subject: body.subject, html: body.html }
-    }
-    else if ('orderData' in body) {
-      const orderDataBody = body as { orderData: Order, orderId?: string }
-      const orderId = typeof orderDataBody.orderId === 'string' && orderDataBody.orderId
-        ? orderDataBody.orderId
-        : 'unknown'
+    } else if ('orderData' in body) {
+      const orderDataBody = body as { orderData: Order; orderId?: string }
+      const orderId =
+        typeof orderDataBody.orderId === 'string' && orderDataBody.orderId
+          ? orderDataBody.orderId
+          : 'unknown'
       try {
         message = buildOrderEmail(orderDataBody.orderData, orderId)
-      }
-      catch (err) {
+      } catch (err) {
         console.error('[email] buildOrderEmail failed:', err)
         return {
           ok: false,
           error: err instanceof Error ? err.message : 'unknown',
         }
       }
-    }
-    else {
+    } else {
       throw createError({
         statusCode: 400,
         statusMessage: 'Unsupported body',

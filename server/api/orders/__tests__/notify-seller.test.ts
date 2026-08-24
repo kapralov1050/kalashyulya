@@ -1,7 +1,19 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest'
 import { rmSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { applyMigrations, insertFullOrder, setupTestDb } from '../../__tests__/helpers/db'
+import {
+  applyMigrations,
+  insertFullOrder,
+  setupTestDb,
+} from '../../__tests__/helpers/db'
 
 const TEST_DIR = resolve(process.cwd(), 'tmp-server-tests/orders-notify-seller')
 
@@ -17,7 +29,7 @@ vi.mock('ofetch', () => {
 
 // h3 named import — мокаем getRequestURL на уровне модуля, иначе named import
 // остаётся реальным и падает на event.node.req.
-vi.mock('h3', async (importOriginal) => {
+vi.mock('h3', async importOriginal => {
   const actual = await importOriginal<typeof import('h3')>()
   return {
     ...actual,
@@ -52,7 +64,9 @@ describe('POST /api/orders/[id]/notify-seller', () => {
       customer_name: 'Александр',
       customer_email: 'buyer@example.com',
       delivery_type: 'pickup',
-      items_json: JSON.stringify([{ productId: '1', title: 'Мост', amount: 1, price: 8500 }]),
+      items_json: JSON.stringify([
+        { productId: '1', title: 'Мост', amount: 1, price: 8500 },
+      ]),
       total: 8500,
       status: 'new',
       payment_method: 'yookassa',
@@ -65,7 +79,9 @@ describe('POST /api/orders/[id]/notify-seller', () => {
       customer_name: 'Мария',
       customer_email: 'maria@example.com',
       delivery_type: 'pickup',
-      items_json: JSON.stringify([{ productId: '2', title: 'Картина', amount: 1, price: 10000 }]),
+      items_json: JSON.stringify([
+        { productId: '2', title: 'Картина', amount: 1, price: 10000 },
+      ]),
       total: 10000,
       status: 'new',
       payment_method: 'manual',
@@ -73,14 +89,17 @@ describe('POST /api/orders/[id]/notify-seller', () => {
       updated_at: Date.now(),
     })
 
-    handler = (await import('../../../api/orders/[id]/notify-seller.post')).default
+    handler = (await import('../../../api/orders/[id]/notify-seller.post'))
+      .default
   })
 
   beforeEach(() => {
     // Сбрасываем notification_failed между тестами, чтобы поведение «skip»
     // из предыдущего теста не ломало последующие (например, «один упал»).
     getDb()
-      .prepare('UPDATE orders SET notification_failed = NULL WHERE id IN (?, ?, ?)')
+      .prepare(
+        'UPDATE orders SET notification_failed = NULL WHERE id IN (?, ?, ?)',
+      )
       .run('ns_yookassa', 'ns_manual', 'ns_switched')
   })
 
@@ -121,7 +140,9 @@ describe('POST /api/orders/[id]/notify-seller', () => {
     const { $fetch } = await import('ofetch')
     const fetchMock = $fetch as unknown as ReturnType<typeof vi.fn>
     fetchMock.mockReset()
-    fetchMock.mockResolvedValueOnce({ ok: true }).mockResolvedValueOnce({ success: true })
+    fetchMock
+      .mockResolvedValueOnce({ ok: true })
+      .mockResolvedValueOnce({ success: true })
 
     const event = {
       context: {},
@@ -143,7 +164,9 @@ describe('POST /api/orders/[id]/notify-seller', () => {
       customer_name: 'Пётр',
       customer_email: 'p@example.com',
       delivery_type: 'pickup',
-      items_json: JSON.stringify([{ productId: '3', title: 'X', amount: 1, price: 1000 }]),
+      items_json: JSON.stringify([
+        { productId: '3', title: 'X', amount: 1, price: 1000 },
+      ]),
       total: 1000,
       status: 'new',
       payment_method: 'yookassa',
@@ -151,12 +174,16 @@ describe('POST /api/orders/[id]/notify-seller', () => {
       updated_at: Date.now(),
     })
     // Имитируем switchToManual — payment_method уже 'manual' в БД
-    getDb().prepare('UPDATE orders SET payment_method = ? WHERE id = ?').run('manual', 'ns_switched')
+    getDb()
+      .prepare('UPDATE orders SET payment_method = ? WHERE id = ?')
+      .run('manual', 'ns_switched')
 
     const { $fetch } = await import('ofetch')
     const fetchMock = $fetch as unknown as ReturnType<typeof vi.fn>
     fetchMock.mockReset()
-    fetchMock.mockResolvedValueOnce({ ok: true }).mockResolvedValueOnce({ success: true })
+    fetchMock
+      .mockResolvedValueOnce({ ok: true })
+      .mockResolvedValueOnce({ success: true })
 
     const event = {
       context: {},
@@ -285,7 +312,9 @@ describe('POST /api/orders/[id]/notify-seller', () => {
 
     const urls = fetchMock.mock.calls.map(c => c[0] as string)
     expect(urls.some(u => u.includes('/api/notifications/email'))).toBe(true)
-    expect(urls.some(u => u.includes('/api/notifications/telegram'))).toBe(false)
+    expect(urls.some(u => u.includes('/api/notifications/telegram'))).toBe(
+      false,
+    )
 
     // БД обновилась: telegram по-прежнему true, email теперь true
     const stored = getDb()
@@ -299,7 +328,8 @@ describe('POST /api/orders/[id]/notify-seller', () => {
     const { $fetch } = await import('ofetch')
     const fetchMock = $fetch as unknown as ReturnType<typeof vi.fn>
     fetchMock.mockReset()
-    fetchMock.mockResolvedValueOnce({ ok: false, error: 'SMTP down' })
+    fetchMock
+      .mockResolvedValueOnce({ ok: false, error: 'SMTP down' })
       .mockResolvedValueOnce({ success: true })
 
     const event = {

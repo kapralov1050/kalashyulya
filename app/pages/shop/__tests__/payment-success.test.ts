@@ -6,7 +6,9 @@ import type { OrderInBase } from '~/types'
 import PaymentSuccess from '../payment-success.vue'
 
 const getPaymentStatusMock = vi.fn()
-const useYookassaPaymentMock = () => ({ getPaymentStatus: getPaymentStatusMock })
+const useYookassaPaymentMock = () => ({
+  getPaymentStatus: getPaymentStatusMock,
+})
 
 const updateOrderPaymentMethodMock = vi.fn()
 const notifySellerMock = vi.fn()
@@ -19,11 +21,14 @@ const toastAddMock = vi.fn()
 const useToastMock = () => ({ add: toastAddMock })
 
 const loadOrdersMock = vi.fn(async () => {})
-const usePaymentSuccessOrdersStore = defineStore('payment-success-orders-test', () => {
-  const allOrders = ref<OrderInBase[]>([])
-  const loadOrders = loadOrdersMock
-  return { allOrders, loadOrders }
-})
+const usePaymentSuccessOrdersStore = defineStore(
+  'payment-success-orders-test',
+  () => {
+    const allOrders = ref<OrderInBase[]>([])
+    const loadOrders = loadOrdersMock
+    return { allOrders, loadOrders }
+  },
+)
 
 const clearBasketMock = vi.fn()
 const useBasketStoreMock = () => ({ clearBasket: clearBasketMock })
@@ -42,15 +47,20 @@ const translations: Record<string, string> = {
   payment_success_subtitle_paid: 'Спасибо за заказ!',
   payment_success_subtitle_cancelled: 'Заказ сохранён, но оплата не прошла.',
   payment_success_subtitle_not_found: 'Платёж не найден.',
-  payment_success_subtitle_pending: 'Завершите оплату, чтобы мы начали работу над заказом.',
-  payment_success_status_check_timed_out: 'Не получили подтверждение. Похоже, оплата не была завершена.',
+  payment_success_subtitle_pending:
+    'Завершите оплату, чтобы мы начали работу над заказом.',
+  payment_success_status_check_timed_out:
+    'Не получили подтверждение. Похоже, оплата не была завершена.',
   payment_success_retry_button: 'Попробовать снова',
   payment_success_manual_button: 'Оплатить переводом',
-  payment_success_manual_switched_message: 'Спасибо! Заказ переведён в режим ручной оплаты.',
-  payment_success_manual_switched_hint: 'Реквизиты для перевода в Telegram-чате.',
+  payment_success_manual_switched_message:
+    'Спасибо! Заказ переведён в режим ручной оплаты.',
+  payment_success_manual_switched_hint:
+    'Реквизиты для перевода в Telegram-чате.',
   payment_success_order_payment_description: 'Оплата заказа #{orderId}',
   payment_success_date_not_specified: 'Не указана',
-  payment_success_no_payment_id_error: 'Не передан ID платежа. Перейдите по ссылке из письма или напишите мне в Telegram @kalashyulya.',
+  payment_success_no_payment_id_error:
+    'Не передан ID платежа. Перейдите по ссылке из письма или напишите мне в Telegram @kalashyulya.',
   payment_success_status_check_failed: 'Не удалось проверить статус платежа',
   payment_success_tracking_number_label: 'Номер для отслеживания',
   payment_success_save_hint: 'Сохраните этот номер',
@@ -107,7 +117,10 @@ function createMockOrder(paymentId = 'payment-123'): OrderInBase {
   }
 }
 
-function mountPaymentSuccess(routeQuery: Record<string, string> = {}, pendingPaymentId: string | null = 'payment-123') {
+function mountPaymentSuccess(
+  routeQuery: Record<string, string> = {},
+  pendingPaymentId: string | null = 'payment-123',
+) {
   if (pendingPaymentId) {
     localStorage.setItem('pendingPaymentId', pendingPaymentId)
   } else {
@@ -117,7 +130,13 @@ function mountPaymentSuccess(routeQuery: Record<string, string> = {}, pendingPay
   vi.stubGlobal('useRoute', () => ({ query: routeQuery }))
   vi.stubGlobal('useRouter', () => ({ push: routerPushMock }))
   vi.stubGlobal('useLocales', () => ({
-    printLocale: (key: string, options?: { params?: Record<string, string | number>, defaultValue?: string }) => {
+    printLocale: (
+      key: string,
+      options?: {
+        params?: Record<string, string | number>
+        defaultValue?: string
+      },
+    ) => {
       const value = translations[key] || options?.defaultValue || key
       if (options?.params) {
         return Object.entries(options.params).reduce(
@@ -232,7 +251,9 @@ describe('payment-success', () => {
 
     expect(wrapper.text()).toContain('Попробовать снова')
 
-    const retryButton = wrapper.findAll('button').find(b => b.text().includes('Попробовать снова'))
+    const retryButton = wrapper
+      .findAll('button')
+      .find(b => b.text().includes('Попробовать снова'))
     expect(retryButton).toBeDefined()
     await retryButton!.trigger('click')
 
@@ -365,7 +386,9 @@ describe('payment-success', () => {
     await flushPromises()
 
     expect(wrapper.text()).toContain('Не получили подтверждение.')
-    expect(wrapper.text()).not.toContain('Подождите, проверяем статус оплаты...')
+    expect(wrapper.text()).not.toContain(
+      'Подождите, проверяем статус оплаты...',
+    )
 
     wrapper.unmount()
     vi.useRealTimers()
@@ -435,7 +458,9 @@ describe('payment-success', () => {
     const wrapper = mountPaymentSuccess({ paymentId: 'payment-123' })
     await flushPromises()
 
-    const manualButton = wrapper.findAll('button').find(b => b.text().includes('Оплатить переводом'))
+    const manualButton = wrapper
+      .findAll('button')
+      .find(b => b.text().includes('Оплатить переводом'))
     expect(manualButton).toBeDefined()
     await manualButton!.trigger('click')
     await flushPromises()
@@ -465,12 +490,16 @@ describe('payment-success', () => {
     const ordersStore = usePaymentSuccessOrdersStore()
     ordersStore.allOrders = [createMockOrder()]
 
-    updateOrderPaymentMethodMock.mockRejectedValueOnce(new Error('Нельзя сменить способ оплаты'))
+    updateOrderPaymentMethodMock.mockRejectedValueOnce(
+      new Error('Нельзя сменить способ оплаты'),
+    )
 
     const wrapper = mountPaymentSuccess({ paymentId: 'payment-123' })
     await flushPromises()
 
-    const manualButton = wrapper.findAll('button').find(b => b.text().includes('Оплатить переводом'))
+    const manualButton = wrapper
+      .findAll('button')
+      .find(b => b.text().includes('Оплатить переводом'))
     await manualButton!.trigger('click')
     await flushPromises()
 
@@ -482,7 +511,9 @@ describe('payment-success', () => {
     const buttons = wrapper.findAll('button').map(b => b.text())
     expect(buttons.some(t => t.includes('Попробовать снова'))).toBe(true)
     expect(buttons.some(t => t.includes('Оплатить переводом'))).toBe(true)
-    expect(wrapper.text()).not.toContain('Заказ переведён в режим ручной оплаты')
+    expect(wrapper.text()).not.toContain(
+      'Заказ переведён в режим ручной оплаты',
+    )
 
     wrapper.unmount()
   })
@@ -501,11 +532,16 @@ describe('payment-success', () => {
     const wrapper = mountPaymentSuccess({ paymentId: 'payment-123' })
     await flushPromises()
 
-    const manualButton = wrapper.findAll('button').find(b => b.text().includes('Оплатить переводом'))
+    const manualButton = wrapper
+      .findAll('button')
+      .find(b => b.text().includes('Оплатить переводом'))
     await manualButton!.trigger('click')
     await flushPromises()
 
-    expect(updateOrderPaymentMethodMock).toHaveBeenCalledWith('20260824-abc12345', 'manual')
+    expect(updateOrderPaymentMethodMock).toHaveBeenCalledWith(
+      '20260824-abc12345',
+      'manual',
+    )
 
     wrapper.unmount()
   })
@@ -523,7 +559,9 @@ describe('payment-success', () => {
     const wrapper = mountPaymentSuccess({ paymentId: 'payment-123' })
     await flushPromises()
 
-    const manualButton = wrapper.findAll('button').find(b => b.text().includes('Оплатить переводом'))
+    const manualButton = wrapper
+      .findAll('button')
+      .find(b => b.text().includes('Оплатить переводом'))
     await manualButton!.trigger('click')
     await flushPromises()
 

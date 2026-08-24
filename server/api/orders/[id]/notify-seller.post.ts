@@ -48,12 +48,14 @@ interface NotifySellerResult {
   telegram: ChannelResult
 }
 
-function parseNotif(raw: string | null): { telegram?: boolean, email?: boolean } | null {
+function parseNotif(
+  raw: string | null,
+): { telegram?: boolean; email?: boolean } | null {
   if (!raw) return null
   try {
     const parsed = JSON.parse(raw)
     if (typeof parsed === 'object' && parsed !== null) {
-      return parsed as { telegram?: boolean, email?: boolean }
+      return parsed as { telegram?: boolean; email?: boolean }
     }
   } catch {
     // ignore
@@ -61,10 +63,18 @@ function parseNotif(raw: string | null): { telegram?: boolean, email?: boolean }
   return null
 }
 
-function loadOrder(id: string): { order: Order, total: number, paymentMethod: 'yookassa' | 'manual', status: OrderRow['status'], existingNotif: { telegram?: boolean, email?: boolean } | null } | null {
-  const row = getDb()
-    .prepare('SELECT * FROM orders WHERE id = ?')
-    .get(id) as Record<string, unknown> | undefined
+function loadOrder(
+  id: string,
+): {
+  order: Order
+  total: number
+  paymentMethod: 'yookassa' | 'manual'
+  status: OrderRow['status']
+  existingNotif: { telegram?: boolean; email?: boolean } | null
+} | null {
+  const row = getDb().prepare('SELECT * FROM orders WHERE id = ?').get(id) as
+    | Record<string, unknown>
+    | undefined
 
   if (!row) return null
 
@@ -77,7 +87,9 @@ function loadOrder(id: string): { order: Order, total: number, paymentMethod: 'y
         userMessenger: (row.customer_messenger as string | null) ?? '',
         userNickname: (row.customer_nickname as string | null) ?? '',
         delivery: {
-          type: ((row.delivery_type as string | null) ?? 'pickup') as 'pickup' | 'delivery',
+          type: ((row.delivery_type as string | null) ?? 'pickup') as
+            | 'pickup'
+            | 'delivery',
           city: (row.city as string | null) ?? '',
           recipient: (row.delivery_recipient as string | null) ?? '',
           address: (row.address as string | null) ?? '',
@@ -87,17 +99,26 @@ function loadOrder(id: string): { order: Order, total: number, paymentMethod: 'y
         },
       },
       purchase: {
-        order: JSON.parse((row.items_json as string) ?? '[]') as Order['purchase']['order'],
-        createdAt: new Date((row.created_at as number) ?? Date.now()).toISOString(),
+        order: JSON.parse(
+          (row.items_json as string) ?? '[]',
+        ) as Order['purchase']['order'],
+        createdAt: new Date(
+          (row.created_at as number) ?? Date.now(),
+        ).toISOString(),
       },
       totalPrice: Number(row.total ?? 0),
-      framing: (row.framing as 'none' | 'simple' | 'premium' | null) ?? undefined,
-      paymentMethod: (row.payment_method as 'yookassa' | 'manual' | null) ?? 'manual',
+      framing:
+        (row.framing as 'none' | 'simple' | 'premium' | null) ?? undefined,
+      paymentMethod:
+        (row.payment_method as 'yookassa' | 'manual' | null) ?? 'manual',
     },
     total: Number(row.total ?? 0),
-    paymentMethod: (row.payment_method as 'yookassa' | 'manual' | null) ?? 'manual',
+    paymentMethod:
+      (row.payment_method as 'yookassa' | 'manual' | null) ?? 'manual',
     status: (row.status as OrderRow['status']) ?? 'new',
-    existingNotif: parseNotif((row.notification_failed as string | null) ?? null),
+    existingNotif: parseNotif(
+      (row.notification_failed as string | null) ?? null,
+    ),
   }
 }
 
@@ -105,30 +126,45 @@ function loadOrder(id: string): { order: Order, total: number, paymentMethod: 'y
 // но даём запас на холодный старт nodemailer + Telegram API.
 const FETCH_TIMEOUT_MS = 5_000
 
-async function sendEmail(origin: string, orderId: string, order: Order): Promise<ChannelResult> {
+async function sendEmail(
+  origin: string,
+  orderId: string,
+  order: Order,
+): Promise<ChannelResult> {
   try {
-    const r = await $fetch<{ ok: boolean, error?: string }>('/api/notifications/email', {
-      method: 'POST',
-      baseURL: origin,
-      body: { orderId, orderData: order },
-      ignoreResponseError: true,
-      timeout: FETCH_TIMEOUT_MS,
-    })
+    const r = await $fetch<{ ok: boolean; error?: string }>(
+      '/api/notifications/email',
+      {
+        method: 'POST',
+        baseURL: origin,
+        body: { orderId, orderData: order },
+        ignoreResponseError: true,
+        timeout: FETCH_TIMEOUT_MS,
+      },
+    )
     return { ok: r.ok === true, error: r.ok === true ? undefined : r.error }
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : 'unknown' }
   }
 }
 
-async function sendTelegram(origin: string, orderId: string, order: Order, totalPrice: number): Promise<ChannelResult> {
+async function sendTelegram(
+  origin: string,
+  orderId: string,
+  order: Order,
+  totalPrice: number,
+): Promise<ChannelResult> {
   try {
-    const r = await $fetch<{ success: boolean }>('/api/notifications/telegram', {
-      method: 'POST',
-      baseURL: origin,
-      body: { orderId, orderData: order, totalPrice },
-      ignoreResponseError: true,
-      timeout: FETCH_TIMEOUT_MS,
-    })
+    const r = await $fetch<{ success: boolean }>(
+      '/api/notifications/telegram',
+      {
+        method: 'POST',
+        baseURL: origin,
+        body: { orderId, orderData: order, totalPrice },
+        ignoreResponseError: true,
+        timeout: FETCH_TIMEOUT_MS,
+      },
+    )
     return { ok: r.success === true }
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : 'unknown' }
@@ -187,7 +223,9 @@ export default defineEventHandler(
       .run(JSON.stringify(merged), id)
 
     if (merged.telegram && merged.email) {
-      console.log(`[notify-seller] id=${id} payment=${paymentMethod} email=ok telegram=ok`)
+      console.log(
+        `[notify-seller] id=${id} payment=${paymentMethod} email=ok telegram=ok`,
+      )
     } else {
       console.warn(
         `[notify-seller] id=${id} payment=${paymentMethod} email=${emailRes.ok ? 'ok' : `fail(${emailRes.error ?? 'unknown'})`} telegram=${telegramRes.ok ? 'ok' : `fail(${telegramRes.error ?? 'unknown'})`}`,

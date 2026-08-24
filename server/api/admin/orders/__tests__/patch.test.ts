@@ -1,7 +1,19 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest'
 import { rmSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { applyMigrations, insertFullOrder, setupTestDb } from '../../../__tests__/helpers/db'
+import {
+  applyMigrations,
+  insertFullOrder,
+  setupTestDb,
+} from '../../../__tests__/helpers/db'
 
 const TEST_DIR = resolve(process.cwd(), 'tmp-server-tests/admin-orders-patch')
 
@@ -14,8 +26,9 @@ vi.mock('../../../../utils/requireAuth', () => ({
 // Мокаем SMTP-отправку, чтобы тесты не ходили в реальный mail.ru.
 const sendViaSmtpMock = vi.fn()
 const getSmtpTransportConfigMock = vi.fn()
-vi.mock('../../../notifications/email.post', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../../../notifications/email.post')>()
+vi.mock('../../../notifications/email.post', async importOriginal => {
+  const actual =
+    await importOriginal<typeof import('../../../notifications/email.post')>()
   return {
     ...actual,
     sendViaSmtp: (...args: unknown[]) => sendViaSmtpMock(...args),
@@ -50,7 +63,9 @@ describe('PATCH /api/admin/orders/[id]', () => {
       customer_name: 'Покупатель',
       customer_email: 'buyer@example.com',
       delivery_type: 'pickup',
-      items_json: JSON.stringify([{ productId: '1', title: 'X', amount: 1, price: 1000 }]),
+      items_json: JSON.stringify([
+        { productId: '1', title: 'X', amount: 1, price: 1000 },
+      ]),
       total: 1000,
       status: 'new',
       payment_method: 'manual',
@@ -91,10 +106,14 @@ describe('PATCH /api/admin/orders/[id]', () => {
     // только у ap_status (он используется в большинстве тестов как чистый),
     // а у ap_with_telegram_ok оставляем {telegram:true,email:true} для merge-теста.
     getDb()
-      .prepare("UPDATE orders SET status = 'new', notification_failed = NULL WHERE id = 'ap_status'")
+      .prepare(
+        "UPDATE orders SET status = 'new', notification_failed = NULL WHERE id = 'ap_status'",
+      )
       .run()
     getDb()
-      .prepare("UPDATE orders SET status = 'new' WHERE id = 'ap_with_telegram_ok'")
+      .prepare(
+        "UPDATE orders SET status = 'new' WHERE id = 'ap_with_telegram_ok'",
+      )
       .run()
   })
 
@@ -107,11 +126,19 @@ describe('PATCH /api/admin/orders/[id]', () => {
       context: {},
       params: { id },
       body,
-    } as never) as Promise<{ ok: boolean, status: string, email: { ok: boolean, error?: string } | null, noChange?: boolean }>
+    } as never) as Promise<{
+      ok: boolean
+      status: string
+      email: { ok: boolean; error?: string } | null
+      noChange?: boolean
+    }>
   }
 
   it('обновляет статус в БД + отправляет email (default sendEmail=true)', async () => {
-    const result = await callHandler('ap_status', { status: 'paid', message: 'Спасибо!' })
+    const result = await callHandler('ap_status', {
+      status: 'paid',
+      message: 'Спасибо!',
+    })
 
     expect(result.ok).toBe(true)
     expect(result.status).toBe('paid')
@@ -125,7 +152,11 @@ describe('PATCH /api/admin/orders/[id]', () => {
 
     // Email был отправлен с правильным to/subject/html
     expect(sendViaSmtpMock).toHaveBeenCalledTimes(1)
-    const call = sendViaSmtpMock.mock.calls[0]?.[0] as { to: string, subject: string, html: string }
+    const call = sendViaSmtpMock.mock.calls[0]?.[0] as {
+      to: string
+      subject: string
+      html: string
+    }
     expect(call.to).toBe('buyer@example.com')
     expect(call.subject).toBe('Обновление статуса заказа #ap_status')
     expect(call.html).toContain('Покупатель')
@@ -142,7 +173,9 @@ describe('PATCH /api/admin/orders/[id]', () => {
 
   it('merge с существующим notification_failed: telegram не затирается', async () => {
     // ap_with_telegram_ok имеет notification_failed = {telegram: true, email: true}
-    const result = await callHandler('ap_with_telegram_ok', { status: 'shipped' })
+    const result = await callHandler('ap_with_telegram_ok', {
+      status: 'shipped',
+    })
 
     expect(result.ok).toBe(true)
     expect(sendViaSmtpMock).toHaveBeenCalledTimes(1)
@@ -156,7 +189,10 @@ describe('PATCH /api/admin/orders/[id]', () => {
   })
 
   it('sendEmail=false → status обновляется, email НЕ отправляется, БД не трогается', async () => {
-    const result = await callHandler('ap_status', { status: 'paid', sendEmail: false })
+    const result = await callHandler('ap_status', {
+      status: 'paid',
+      sendEmail: false,
+    })
 
     expect(result.ok).toBe(true)
     expect(result.email).toBeNull() // null = email не отправлялся
@@ -164,7 +200,10 @@ describe('PATCH /api/admin/orders/[id]', () => {
 
     const row = getDb()
       .prepare('SELECT status, notification_failed FROM orders WHERE id = ?')
-      .get('ap_status') as { status: string, notification_failed: string | null }
+      .get('ap_status') as {
+      status: string
+      notification_failed: string | null
+    }
     expect(row.status).toBe('paid')
     expect(row.notification_failed).toBeNull() // не записан
   })
@@ -199,7 +238,9 @@ describe('PATCH /api/admin/orders/[id]', () => {
   })
 
   it('400 для невалидного status', async () => {
-    await expect(callHandler('ap_status', { status: 'invalid' })).rejects.toMatchObject({
+    await expect(
+      callHandler('ap_status', { status: 'invalid' }),
+    ).rejects.toMatchObject({
       statusCode: 400,
     })
   })
@@ -211,7 +252,9 @@ describe('PATCH /api/admin/orders/[id]', () => {
   })
 
   it('404 для несуществующего заказа', async () => {
-    await expect(callHandler('missing_order', { status: 'paid' })).rejects.toMatchObject({
+    await expect(
+      callHandler('missing_order', { status: 'paid' }),
+    ).rejects.toMatchObject({
       statusCode: 404,
     })
   })
@@ -220,9 +263,14 @@ describe('PATCH /api/admin/orders/[id]', () => {
     // B2: раньше same-status PATCH возвращал 404 «Заказ не найден», потому что
     // SQLite UPDATE возвращает changes=0 и при «строка есть, но status уже = новому».
     // Теперь SELECT сначала различает эти случаи.
-    getDb().prepare("UPDATE orders SET status = 'paid' WHERE id = ?").run('ap_status')
+    getDb()
+      .prepare("UPDATE orders SET status = 'paid' WHERE id = ?")
+      .run('ap_status')
 
-    const result = await callHandler('ap_status', { status: 'paid', message: 'Test' })
+    const result = await callHandler('ap_status', {
+      status: 'paid',
+      message: 'Test',
+    })
 
     expect(result.ok).toBe(true)
     expect(result.status).toBe('paid')
@@ -238,7 +286,10 @@ describe('PATCH /api/admin/orders/[id]', () => {
   })
 
   it('email с customMessage — попадает в HTML', async () => {
-    await callHandler('ap_status', { status: 'paid', message: 'КУРЬЕР СЛОМАЛСЯ\nЕдем завтра' })
+    await callHandler('ap_status', {
+      status: 'paid',
+      message: 'КУРЬЕР СЛОМАЛСЯ\nЕдем завтра',
+    })
 
     const call = sendViaSmtpMock.mock.calls[0]?.[0] as { html: string }
     expect(call.html).toContain('КУРЬЕР СЛОМАЛСЯ')

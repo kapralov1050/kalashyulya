@@ -31,7 +31,9 @@ vi.mock('~/composables/useShop', () => ({
 }))
 
 const consentState = { pdAgreed: true, hasConsent: true }
-const mockShopDataRef = ref<{ products: Record<string, Product> }>({ products: {} })
+const mockShopDataRef = ref<{ products: Record<string, Product> }>({
+  products: {},
+})
 
 vi.mock('~/composables/useApi', async () => {
   const actual = await vi.importActual<typeof import('~/composables/useApi')>(
@@ -44,13 +46,11 @@ vi.mock('~/composables/useApi', async () => {
     }),
   }
 })
-
 ;(globalThis as Record<string, unknown>).useConsent = () => ({
   hasValidConsent: () => consentState.hasConsent,
   consents: { pdAgreed: consentState.pdAgreed },
   resetConsent: () => {},
 })
-
 ;(globalThis as Record<string, unknown>).useShop = () => ({
   sendOrderInfoTelegram: mocks.sendOrderInfoTelegram,
   addOrderToUser: vi.fn(),
@@ -92,7 +92,10 @@ function makeProduct(overrides: Partial<Product> = {}): Product {
   }
 }
 
-function setupBasketWithItem(basket: ReturnType<typeof useBasketStore>, product: Product) {
+function setupBasketWithItem(
+  basket: ReturnType<typeof useBasketStore>,
+  product: Product,
+) {
   basket.addShopItemToBasket({ amount: 1, item: product })
 }
 
@@ -101,28 +104,36 @@ function setupShopDataWithProduct(product: Product) {
 }
 
 interface Order {
-  customer: { email: string, name: string }
+  customer: { email: string; name: string }
   totalPrice: number
   paymentMethod?: string
   framing?: string
-  purchase: { order: unknown[], createdAt: string }
+  purchase: { order: unknown[]; createdAt: string }
 }
 
-function orderPostCalls(): { url: string, body: Order }[] {
+function orderPostCalls(): { url: string; body: Order }[] {
   return mocks.$fetch.mock.calls
-    .filter(call => call[0] === '/api/orders' && (call[1] as { method?: string } | undefined)?.method === 'POST')
+    .filter(
+      call =>
+        call[0] === '/api/orders' &&
+        (call[1] as { method?: string } | undefined)?.method === 'POST',
+    )
     .map(call => ({
       url: call[0] as string,
       body: (call[1] as { body: Order }).body,
     }))
 }
 
-function setShopDataCalls(): { url: string, value: unknown, path: string }[] {
+function setShopDataCalls(): { url: string; value: unknown; path: string }[] {
   return mocks.$fetch.mock.calls
     .filter(call => {
       const url = call[0] as string
       const opts = call[1] as { method?: string } | undefined
-      return typeof url === 'string' && url.startsWith('/api/data/') && opts?.method === 'PUT'
+      return (
+        typeof url === 'string' &&
+        url.startsWith('/api/data/') &&
+        opts?.method === 'PUT'
+      )
     })
     .map(call => {
       const url = call[0] as string
@@ -497,7 +508,11 @@ describe('useCheckout', () => {
       fillValidCheckoutForm(store)
 
       const inBasket = makeProduct({ stock: 1 })
-      const soldOutProduct = makeProduct({ id: 2, title: 'Проданный', stock: 0 })
+      const soldOutProduct = makeProduct({
+        id: 2,
+        title: 'Проданный',
+        stock: 0,
+      })
       setupBasketWithItem(basket, soldOutProduct)
       setupShopDataWithProduct(inBasket)
 
@@ -544,7 +559,11 @@ describe('useCheckout', () => {
       const basket = useBasketStore()
       fillValidCheckoutForm(store)
 
-      const reservedProduct = makeProduct({ id: 5, title: 'Зарезервированный', isReserved: true })
+      const reservedProduct = makeProduct({
+        id: 5,
+        title: 'Зарезервированный',
+        isReserved: true,
+      })
       setupBasketWithItem(basket, reservedProduct)
       setupShopDataWithProduct(reservedProduct)
 
@@ -576,13 +595,17 @@ describe('useCheckout', () => {
       goTo(4)
 
       advance()
-      await vi.waitFor(() => expect(mocks.sendOrderInfoTelegram).toHaveBeenCalled())
+      await vi.waitFor(() =>
+        expect(mocks.sendOrderInfoTelegram).toHaveBeenCalled(),
+      )
 
       expect(mocks.sendOrderInfoTelegram).toHaveBeenCalledTimes(1)
-      expect(mocks.sendOrderInfoTelegram.mock.calls[0]?.[0]?.customer.email).toBe('test@example.com')
+      expect(
+        mocks.sendOrderInfoTelegram.mock.calls[0]?.[0]?.customer.email,
+      ).toBe('test@example.com')
       expect(setShopDataCalls()).toHaveLength(0)
     })
-it('logs warning when notifications fail (no firebase write)', async () => {
+    it('logs warning when notifications fail (no firebase write)', async () => {
       setProductionLocation()
       mocks.sendOrderInfoTelegram.mockResolvedValueOnce({ success: false })
 

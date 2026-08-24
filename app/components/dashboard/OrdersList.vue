@@ -62,7 +62,9 @@
                   : 'bg-blue-100 text-blue-700'
               "
             >
-              {{ order.paymentMethod === 'yookassa' ? 'Онлайн' : 'Ручной перевод' }}
+              {{
+                order.paymentMethod === 'yookassa' ? 'Онлайн' : 'Ручной перевод'
+              }}
             </span>
           </div>
           <div
@@ -87,8 +89,8 @@
               variant="solid"
               class="w-full md:w-auto"
               :disabled="
-                pendingStatuses[order.id] === order.statusLabel
-                  || updatingStatusOrderId === order.id
+                pendingStatuses[order.id] === order.statusLabel ||
+                updatingStatusOrderId === order.id
               "
               :loading="updatingStatusOrderId === order.id"
               @click="openStatusModal(order)"
@@ -130,14 +132,20 @@
               {{ order.customer.phone || 'Не указано' }}
             </li>
             <li v-if="order.customer.email" class="flex items-center gap-2">
-              <UIcon name="i-heroicons-envelope" class="w-4 h-4 text-gray-500" />
+              <UIcon
+                name="i-heroicons-envelope"
+                class="w-4 h-4 text-gray-500"
+              />
               {{ order.customer.email }}
             </li>
             <li
               v-if="order.customer.userNickname"
               class="flex items-center gap-2"
             >
-              <UIcon name="i-heroicons-chat-bubble-left-right" class="w-4 h-4 text-gray-500" />
+              <UIcon
+                name="i-heroicons-chat-bubble-left-right"
+                class="w-4 h-4 text-gray-500"
+              />
               {{ order.customer.userMessenger || 'Мессенджер' }}: @{{
                 order.customer.userNickname
               }}
@@ -146,23 +154,38 @@
         </div>
 
         <div class="delivery-info bg-gray-50 p-4 rounded-lg">
-          <h4 class="font-medium mb-3 flex items-center gap-2">
-            Доставка:
-          </h4>
+          <h4 class="font-medium mb-3 flex items-center gap-2">Доставка:</h4>
           <div class="space-y-1 text-sm">
-            <template v-if="order.customer.delivery?.type === 'pickup' || !order.customer.delivery?.type">
+            <template
+              v-if="
+                order.customer.delivery?.type === 'pickup' ||
+                !order.customer.delivery?.type
+              "
+            >
               <p class="flex items-center gap-2 text-gray-700">
-                <UIcon name="i-heroicons-building-storefront" class="w-4 h-4 text-gray-500" />
+                <UIcon
+                  name="i-heroicons-building-storefront"
+                  class="w-4 h-4 text-gray-500"
+                />
                 Самовывоз (Санкт-Петербург)
               </p>
             </template>
             <template v-else>
-              <p v-if="order.customer.delivery.recipient" class="flex items-center gap-2 text-gray-700">
+              <p
+                v-if="order.customer.delivery.recipient"
+                class="flex items-center gap-2 text-gray-700"
+              >
                 <UIcon name="i-heroicons-user" class="w-4 h-4 text-gray-500" />
                 {{ order.customer.delivery.recipient }}
               </p>
-              <p v-if="order.customer.delivery.address" class="flex items-center gap-2 text-gray-700">
-                <UIcon name="i-heroicons-map-pin" class="w-4 h-4 text-gray-500" />
+              <p
+                v-if="order.customer.delivery.address"
+                class="flex items-center gap-2 text-gray-700"
+              >
+                <UIcon
+                  name="i-heroicons-map-pin"
+                  class="w-4 h-4 text-gray-500"
+                />
                 {{ order.customer.delivery.address }}
               </p>
               <p v-else class="text-gray-400">Адрес не указан</p>
@@ -171,7 +194,11 @@
         </div>
       </div>
       <div
-        v-if="order.notificationFailed && (!order.notificationFailed.telegram || !order.notificationFailed.email)"
+        v-if="
+          order.notificationFailed &&
+          (!order.notificationFailed.telegram ||
+            !order.notificationFailed.email)
+        "
         class="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg flex
           items-start gap-2 text-orange-700 text-sm"
       >
@@ -214,7 +241,11 @@
           </div>
         </div>
 
-        <div v-if="order.framing && order.framing !== 'none'" class="mt-3 flex items-center gap-2 px-4 py-3 bg-cyan-50 border border-cyan-200 rounded-lg text-sm text-cyan-800">
+        <div
+          v-if="order.framing && order.framing !== 'none'"
+          class="mt-3 flex items-center gap-2 px-4 py-3 bg-cyan-50 border
+            border-cyan-200 rounded-lg text-sm text-cyan-800"
+        >
           <UIcon name="i-heroicons-photo" class="w-4 h-4" />
           <span class="font-medium">Оформление:</span>
           {{ FRAMING_LABELS[order.framing] }}
@@ -236,8 +267,8 @@
   import { computed, ref, watch } from 'vue'
   import { useApi } from '~/composables/useApi'
   // useOrderEmail больше не используется — email теперь отправляется сервером
-// через /api/admin/orders/[id].patch. Composable оставлен на случай
-// будущих сценариев (например, ручная повторная отправка из админки).
+  // через /api/admin/orders/[id].patch. Composable оставлен на случай
+  // будущих сценариев (например, ручная повторная отправка из админки).
   import { ORDER_STATUS_OPTIONS, getOrderStatusColor } from '~/constants/orders'
   import { canDeleteOrder } from '~/constants/orderPermissions'
   import StatusChangeModal from './StatusChangeModal.vue'
@@ -408,7 +439,8 @@
   }
 
   function confirmDelete(order: OrderInBase) {
-    if (!confirm(`Удалить заказ #${order.id}? Это удалит запись из базы.`)) return
+    if (!confirm(`Удалить заказ #${order.id}? Это удалит запись из базы.`))
+      return
     void handleDelete(order)
   }
 
