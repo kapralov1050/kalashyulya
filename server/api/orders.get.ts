@@ -37,7 +37,7 @@ const STATUS_LABELS: Record<string, string> = {
 
 /**
  * Возвращает заказы в формате OrderInBase (Firebase-era shape) — чтобы UI
- * (admin/OrdersList, /shop/tracking, /shop/payment-success) не переписывать.
+ * (admin/OrdersList, /shop/tracking, /shop/payment-success → payment-result.vue) не переписывать.
  * Phase D: добавлены customer_messenger/nickname и delivery.{type,recipient,street,house,apartment}.
  */
 export default defineEventHandler((event): OrderInBase[] => {

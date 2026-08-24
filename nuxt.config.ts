@@ -9,7 +9,8 @@ export default defineNuxtConfig({
   nitro: {
     // preset: 'vercel' для preview на Vercel (UI-only), 'node-server' для VPS prod.
     // Задаётся через NITRO_PRESET env в workflow (.github/workflows/deploy*.yml).
-    preset: (process.env.NITRO_PRESET as 'vercel' | 'node-server') ?? 'node-server',
+    preset:
+      (process.env.NITRO_PRESET as 'vercel' | 'node-server') ?? 'node-server',
   },
   runtimeConfig: runtimeConfig,
   compatibilityDate: '2025-05-15',
@@ -28,5 +29,15 @@ export default defineNuxtConfig({
   },
   devServer: {
     host: '127.0.0.1',
+  },
+  hooks: {
+    'pages:extend'(routes) {
+      // Файл страницы payment-result.vue переименован из payment-success.vue,
+      // но URL сохранён для backward compat (return_url ЮKassa, ссылки из
+      // success.vue и т.п.). Когда решим сменить URL — удалим этот hook и
+      // обновим все ссылки в коде отдельным PR.
+      const renamed = routes.find(r => r.path === '/shop/payment-result')
+      if (renamed) renamed.path = '/shop/payment-success'
+    },
   },
 })

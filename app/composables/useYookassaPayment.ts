@@ -83,7 +83,7 @@ export const useYookassaPayment = () => {
 
   /**
    * Запрос реального статуса платежа в YooKassa.
-   * Используется на /shop/payment-success — нельзя доверять order.status из БД,
+   * Используется на /shop/payment-success (страница payment-result.vue) — нельзя доверять order.status из БД,
    * т.к. заказ создаётся ДО оплаты.
    */
   const getPaymentStatus = async (

@@ -3,7 +3,7 @@
  *
  * Цель — зафиксировать контракт между SQLite-строкой и OrderInBase-shaped JSON,
  * который ждут фронтовые компоненты (admin/OrdersList, /shop/tracking,
- * /shop/payment-success).
+ * /shop/payment-success → payment-result.vue).
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { mkdirSync, rmSync } from 'node:fs'

@@ -2,7 +2,7 @@
  * POST /api/orders/:id/notify-seller — отправляет уведомления продавцу
  * (email покупателю + Telegram продавцу) с актуальным payment_method из БД.
  *
- * Используется из /shop/payment-success при:
+ * Используется из /shop/payment-success (payment-result.vue) при:
  *  - polling тик → ЮKassa вернула 'succeeded' (онлайн-оплата прошла).
  *  - immediate succeeded (пользователь сразу оплатил в виджете, polling не запускается).
  *  - после успешного switchToManual (пользователь переключил с yookassa
@@ -15,7 +15,7 @@
  * Идемпотентность: если оба канала уже отправлены успешно (notification_failed
  * содержит { telegram: true, email: true }), endpoint возвращает skipped=true
  * БЕЗ новых отправок. Это защищает от двойных вызовов при refresh страницы
- * /shop/payment-success и от race conditions.
+ * /shop/payment-success (payment-result.vue) и от race conditions.
  *
  * Гарантия: суммарно по заказу продавцу уходит РОВНО ОДНО Telegram-сообщение
  * и РОВНО ОДИН email (для случая yookassa). Для manual — оба уходят в orders.post.

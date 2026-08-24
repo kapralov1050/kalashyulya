@@ -1,6 +1,6 @@
 /**
  * PATCH /api/orders/:id/payment-method — смена способа оплаты существующего заказа.
- * Используется в UI /shop/payment-success (pending/canceled ветки):
+ * Используется в UI /shop/payment-success (payment-result.vue, pending/canceled ветки):
  * пользователь, у которого не получилось оплатить через ЮKassa, может
  * переключить заказ на ручную оплату (перевод на карту).
  *

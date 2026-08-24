@@ -1,6 +1,6 @@
 /**
  * GET /api/payments/yookassa/:id — получение статуса платежа в YooKassa.
- * Используется страницей /shop/payment-success, чтобы не доверять
+ * Используется страницей /shop/payment-success (payment-result.vue), чтобы не доверять
  * локальному order.status (заказ создаётся ДО оплаты).
  *
  * Query:
