@@ -86,7 +86,11 @@
               color="primary"
               variant="solid"
               class="w-full md:w-auto"
-              :disabled="pendingStatuses[order.id] === order.statusLabel"
+              :disabled="
+                pendingStatuses[order.id] === order.statusLabel
+                  || updatingStatusOrderId === order.id
+              "
+              :loading="updatingStatusOrderId === order.id"
               @click="openStatusModal(order)"
             >
               Обновить статус
@@ -231,7 +235,9 @@
   import type { OrderInBase } from '~/types'
   import { computed, ref, watch } from 'vue'
   import { useApi } from '~/composables/useApi'
-  import { useOrderEmail } from '~/composables/useOrderEmail'
+  // useOrderEmail больше не используется — email теперь отправляется сервером
+// через /api/admin/orders/[id].patch. Composable оставлен на случай
+// будущих сценариев (например, ручная повторная отправка из админки).
   import { ORDER_STATUS_OPTIONS, getOrderStatusColor } from '~/constants/orders'
   import { canDeleteOrder } from '~/constants/orderPermissions'
   import StatusChangeModal from './StatusChangeModal.vue'
@@ -252,9 +258,11 @@
 
   const { allOrders } = storeToRefs(useOrdersStore())
   const { updateOrderStatus, deleteOrder, logout } = useApi()
-  const { sendStatusUpdateEmail } = useOrderEmail()
   const ordersStore = useOrdersStore()
   const router = useRouter()
+  // Защита от двойного клика на «Обновить статус»: блокирует кнопку
+  // пока PATCH не завершится (для конкретного orderId).
+  const updatingStatusOrderId = ref<number | null>(null)
   const toast = useToast()
 
   const selectedStatus = ref('all')
@@ -301,8 +309,11 @@
   )
 
   function openStatusModal(order: OrderInBase) {
+    // pendingStatuses и order.statusLabel — оба русские названия (ORDER_STATUS_OPTIONS).
+    // Если равны — статус не менялся, кнопка должна быть disabled (это уже
+    // проверяется в шаблоне). Дополнительная защита от случайного клика.
     const newStatus = pendingStatuses.value[order.id]
-    if (newStatus === order.status) {
+    if (newStatus === order.statusLabel) {
       toast.add({
         title: 'Внимание',
         description: 'Статус не изменился',
@@ -319,34 +330,48 @@
     status: string
     message: string
   }) {
+    // Защита от двойного клика: блокируем параллельные вызовы для одного заказа.
+    if (updatingStatusOrderId.value === data.orderId) return
+    updatingStatusOrderId.value = data.orderId
+
     try {
       const order = allOrders.value?.find(o => o.id === data.orderId)
       if (!order) {
         throw new Error('Заказ не найден')
       }
 
-      // Обновляем статус через API (переводим русский → SQL enum)
+      // Обновляем статус через API (переводим русский → SQL enum).
+      // Сервер сам формирует и отправляет email покупателю + пишет
+      // notification_failed в БД. Клиент больше не шлёт email отдельно.
       const sqlStatus = mapStatusToSql(data.status)
-      await updateOrderStatus(data.orderId, sqlStatus)
+      const result = await updateOrderStatus(data.orderId, sqlStatus, {
+        sendEmail: true,
+        message: data.message,
+      })
 
-      // Отправляем email уведомление
-      const emailResult = await sendStatusUpdateEmail(
-        order,
-        data.status,
-        data.message,
-      )
+      if (result.noChange) {
+        // Сервер: статус уже = новому. Ничего не делаем, toast не нужен.
+        // B2 fix: same-status PATCH больше не возвращает 404.
+        return
+      }
 
-      if (emailResult.success) {
+      if (result.email?.ok) {
         toast.add({
           title: 'Успешно',
           description: `Статус заказа #${data.orderId} обновлен, уведомление отправлено`,
           color: 'success',
         })
-      } else {
+      } else if (result.email) {
         toast.add({
           title: 'Предупреждение',
-          description: `Статус обновлен, но email не отправлен: ${emailResult.error}`,
+          description: `Статус обновлен, но email не отправлен: ${result.email.error ?? 'unknown'}`,
           color: 'warning',
+        })
+      } else {
+        toast.add({
+          title: 'Успешно',
+          description: `Статус заказа #${data.orderId} обновлен`,
+          color: 'success',
         })
       }
 
@@ -366,6 +391,7 @@
         color: 'error',
       })
     } finally {
+      updatingStatusOrderId.value = null
       isStatusModalOpen.value = false
       selectedOrder.value = null
     }

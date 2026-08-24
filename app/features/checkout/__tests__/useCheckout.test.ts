@@ -10,7 +10,6 @@ const mocks = vi.hoisted(() => ({
   $fetch: vi.fn(),
   routerPush: vi.fn(),
   sendOrderInfoTelegram: vi.fn().mockResolvedValue({ success: true }),
-  sendOrderInfoEmail: vi.fn().mockResolvedValue({ success: true }),
 }))
 
 vi.mock('#app', () => ({
@@ -26,7 +25,6 @@ vi.mock('~/helpers/showToast', () => ({
 vi.mock('~/composables/useShop', () => ({
   useShop: () => ({
     sendOrderInfoTelegram: mocks.sendOrderInfoTelegram,
-    sendOrderInfoEmail: mocks.sendOrderInfoEmail,
     addOrderToUser: vi.fn(),
     createOrder: vi.fn(),
   }),
@@ -55,7 +53,6 @@ vi.mock('~/composables/useApi', async () => {
 
 ;(globalThis as Record<string, unknown>).useShop = () => ({
   sendOrderInfoTelegram: mocks.sendOrderInfoTelegram,
-  sendOrderInfoEmail: mocks.sendOrderInfoEmail,
   addOrderToUser: vi.fn(),
   createOrder: vi.fn(),
 })
@@ -582,7 +579,6 @@ describe('useCheckout', () => {
       await vi.waitFor(() => expect(mocks.sendOrderInfoTelegram).toHaveBeenCalled())
 
       expect(mocks.sendOrderInfoTelegram).toHaveBeenCalledTimes(1)
-      expect(mocks.sendOrderInfoEmail).not.toHaveBeenCalled()
       expect(mocks.sendOrderInfoTelegram.mock.calls[0]?.[0]?.customer.email).toBe('test@example.com')
       expect(setShopDataCalls()).toHaveLength(0)
     })

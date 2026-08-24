@@ -232,4 +232,41 @@ describe('POST /api/orders (regression: parameter count)', () => {
     const notif = JSON.parse(order.notification_failed as string)
     expect(notif).toEqual({ telegram: true, email: true })
   })
+
+  it('paymentMethod=yookassa НЕ отправляет НИ email НИ telegram в orders.post (skipped)', async () => {
+    // Отслеживаем какие endpoint'ы были вызваны. orders.post.ts использует $fetch.raw,
+    // поэтому смотрим именно его calls (не голый $fetch).
+    const { $fetch } = await import('ofetch')
+    const fetchRawMock = ($fetch as unknown as { raw: ReturnType<typeof vi.fn> }).raw
+    fetchRawMock.mockClear()
+
+    const event = {
+      context: {},
+      body: {
+        customer: { name: 'Yoo Skip', email: 'skip@example.com' },
+        purchase: {
+          order: [{ id: 6, title: 'S', price: 100, amount: 1 }],
+          createdAt: new Date().toISOString(),
+        },
+        totalPrice: 100,
+        paymentMethod: 'yookassa',
+      },
+    } as never
+
+    const result = await handler(event)
+    const order = getDb()
+      .prepare('SELECT * FROM orders WHERE id = ?')
+      .get(result.id) as Record<string, unknown>
+
+    // notification_failed: для yookassa orders.post НЕ сохраняет ничего (null).
+    // Раньше сохранял { telegram: true, email: true } — это было враньё
+    // (ничего не отправлялось). Теперь честно: уведомления ещё не отправлялись.
+    expect(order.notification_failed).toBeNull()
+
+    // Ни для email, ни для telegram НЕ должно быть fetch-вызова в orders.post.
+    // Уведомления уйдут позже из /api/orders/[id]/notify-seller.
+    const calledUrls = fetchRawMock.mock.calls.map(c => c[0] as string)
+    expect(calledUrls.some(u => u.includes('/api/notifications/email'))).toBe(false)
+    expect(calledUrls.some(u => u.includes('/api/notifications/telegram'))).toBe(false)
+  })
 })

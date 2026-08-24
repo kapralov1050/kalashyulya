@@ -43,7 +43,23 @@ async function triggerOrderNotifications(
   orderId: string,
   orderData: Order,
   totalPrice: number,
-): Promise<{ telegram: boolean; email: boolean }> {
+  paymentMethod: 'yookassa' | 'manual',
+): Promise<{ telegram: boolean, email: boolean } | null> {
+  // Если покупатель СРАЗУ выбрал ручную оплату (paymentMethod='manual') — способ
+  // оплаты финальный, отправляем email покупателю + Telegram продавцу здесь.
+  //
+  // Для paymentMethod='yookassa' НИЧЕГО не отправляем: способ оплаты может
+  // измениться (покупатель нажмёт «Оплатить переводом» на success-странице).
+  // Финальное уведомление отправится позже из эндпоинта
+  // /api/orders/[id]/notify-seller, который читает актуальный payment_method
+  // из БД и шлёт ОБА уведомления (email + Telegram) ровно один раз.
+  // Возвращаем null — orders.post НЕ сохраняет ничего в notification_failed
+  // (поле остаётся null), чтобы админка честно показывала «уведомления
+  // ещё не отправлялись».
+  if (paymentMethod !== 'manual') {
+    return null
+  }
+
   const [telegram, email] = await Promise.all([
     triggerNotification(event, '/api/notifications/telegram', {
       orderId,
@@ -142,10 +158,16 @@ export default defineEventHandler(async (event): Promise<CreateOrderResponse> =>
   // Await блокирует ответ на ~100-500мс (Telegram/email best-effort), но даёт реальный
   // статус в админке. Без await notification_failed был бы всегда 'sending'/'pending' — не
   // помогает оператору понять, дошло ли уведомление.
-  const notifResult = await triggerOrderNotifications(event, id, body, total)
-  getDb()
-    .prepare('UPDATE orders SET notification_failed = ? WHERE id = ?')
-    .run(JSON.stringify(notifResult), id)
+  //
+  // Для yookassa-заказов triggerOrderNotifications возвращает null — поле
+  // notification_failed остаётся null (честный «уведомления ещё не отправлялись»).
+  // Финальное обновление произойдёт в /api/orders/[id]/notify-seller.
+  const notifResult = await triggerOrderNotifications(event, id, body, total, paymentMethod)
+  if (notifResult !== null) {
+    getDb()
+      .prepare('UPDATE orders SET notification_failed = ? WHERE id = ?')
+      .run(JSON.stringify(notifResult), id)
+  }
 
   return { id, total }
 })

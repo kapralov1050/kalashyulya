@@ -9,7 +9,11 @@ const getPaymentStatusMock = vi.fn()
 const useYookassaPaymentMock = () => ({ getPaymentStatus: getPaymentStatusMock })
 
 const updateOrderPaymentMethodMock = vi.fn()
-const useApiMock = () => ({ updateOrderPaymentMethod: updateOrderPaymentMethodMock })
+const notifySellerMock = vi.fn()
+const useApiMock = () => ({
+  updateOrderPaymentMethod: updateOrderPaymentMethodMock,
+  notifySeller: notifySellerMock,
+})
 
 const toastAddMock = vi.fn()
 const useToastMock = () => ({ add: toastAddMock })
@@ -30,7 +34,8 @@ let pinia: ReturnType<typeof createPinia>
 
 const translations: Record<string, string> = {
   payment_success_loading: 'Проверяем статус оплаты...',
-  payment_success_webhook_waiting: 'Подождите, проверяем статус оплаты...',
+  // payment_success_webhook_waiting удалён: был дублем с subtitle_pending.
+  // Во время polling показывается только subtitle + statusTitle.
   payment_success_status_paid: 'Оплата получена',
   payment_success_status_cancelled: 'Оплата не завершена',
   payment_success_status_pending: 'Ожидается оплата',
@@ -38,14 +43,14 @@ const translations: Record<string, string> = {
   payment_success_subtitle_cancelled: 'Заказ сохранён, но оплата не прошла.',
   payment_success_subtitle_not_found: 'Платёж не найден.',
   payment_success_subtitle_pending: 'Завершите оплату, чтобы мы начали работу над заказом.',
-  payment_success_status_check_timed_out: 'Не получили подтверждение.',
+  payment_success_status_check_timed_out: 'Не получили подтверждение. Похоже, оплата не была завершена.',
   payment_success_retry_button: 'Попробовать снова',
   payment_success_manual_button: 'Оплатить переводом',
   payment_success_manual_switched_message: 'Спасибо! Заказ переведён в режим ручной оплаты.',
   payment_success_manual_switched_hint: 'Реквизиты для перевода в Telegram-чате.',
   payment_success_order_payment_description: 'Оплата заказа #{orderId}',
   payment_success_date_not_specified: 'Не указана',
-  payment_success_no_payment_id_error: 'Не передан ID платежа',
+  payment_success_no_payment_id_error: 'Не передан ID платежа. Перейдите по ссылке из письма или напишите мне в Telegram @kalashyulya.',
   payment_success_status_check_failed: 'Не удалось проверить статус платежа',
   payment_success_tracking_number_label: 'Номер для отслеживания',
   payment_success_save_hint: 'Сохраните этот номер',
@@ -150,6 +155,7 @@ describe('payment-success', () => {
     clearBasketMock.mockClear()
     routerPushMock.mockClear()
     updateOrderPaymentMethodMock.mockReset()
+    notifySellerMock.mockReset()
     toastAddMock.mockClear()
   })
 
@@ -187,6 +193,9 @@ describe('payment-success', () => {
     expect(wrapper.text()).toContain('Спасибо за заказ!')
     expect(clearBasketMock).toHaveBeenCalledTimes(1)
     expect(localStorage.getItem('pendingPaymentId')).toBeNull()
+    // B1 фикс: immediate succeeded (без polling) тоже вызывает notifySeller,
+    // иначе продавец никогда не узнает о заказе.
+    expect(notifySellerMock).toHaveBeenCalledWith('42')
   })
 
   it('показывает «Оплата не завершена» для canceled и НЕ очищает корзину', async () => {
@@ -344,8 +353,10 @@ describe('payment-success', () => {
     const wrapper = mountPaymentSuccess({ paymentId: 'payment-123' })
     await flushPromises()
 
-    expect(wrapper.text()).toContain('Подождите, проверяем статус оплаты...')
-    expect(wrapper.text()).not.toContain('Не получили подтверждение.')
+    // До таймаута: доп. текст с webhook_waiting НЕ показывается (его удалили,
+    // он был дублем с subtitle_pending). Показываются только statusTitle +
+    // subtitle.
+    expect(wrapper.text()).not.toContain('Не получили подтверждение')
 
     // 7 тиков × 5 сек = 35 сек (после 6-го pollingAttempts = 6, 7-й > 6 → timedOut)
     await vi.advanceTimersByTimeAsync(36_000)
@@ -497,5 +508,65 @@ describe('payment-success', () => {
     expect(updateOrderPaymentMethodMock).toHaveBeenCalledWith('20260824-abc12345', 'manual')
 
     wrapper.unmount()
+  })
+
+  it('«Оплатить переводом» → вызывает notifySeller с правильным orderId', async () => {
+    getPaymentStatusMock.mockResolvedValue({
+      success: true,
+      status: 'pending',
+      paid: false,
+    })
+
+    const ordersStore = usePaymentSuccessOrdersStore()
+    ordersStore.allOrders = [createMockOrder()]
+
+    const wrapper = mountPaymentSuccess({ paymentId: 'payment-123' })
+    await flushPromises()
+
+    const manualButton = wrapper.findAll('button').find(b => b.text().includes('Оплатить переводом'))
+    await manualButton!.trigger('click')
+    await flushPromises()
+
+    // Уведомление продавцу (email + Telegram) после успешного switchToManual —
+    // с актуальным payment_method='manual' (который БД хранит).
+    expect(notifySellerMock).toHaveBeenCalledWith('42')
+
+    wrapper.unmount()
+  })
+
+  it('«succeeded» от ЮKassa → вызывает notifySeller', async () => {
+    vi.useFakeTimers()
+
+    // Первый polling tick → pending
+    getPaymentStatusMock.mockResolvedValueOnce({
+      success: true,
+      status: 'pending',
+      paid: false,
+    })
+
+    const ordersStore = usePaymentSuccessOrdersStore()
+    ordersStore.allOrders = [createMockOrder()]
+
+    const wrapper = mountPaymentSuccess({ paymentId: 'payment-123' })
+    await flushPromises()
+
+    expect(notifySellerMock).not.toHaveBeenCalled()
+
+    // Следующий polling tick → succeeded
+    getPaymentStatusMock.mockResolvedValueOnce({
+      success: true,
+      status: 'succeeded',
+      paid: true,
+    })
+
+    // Прокрутим 5 секунд (один polling tick)
+    await vi.advanceTimersByTimeAsync(5_500)
+    for (let i = 0; i < 10; i++) await Promise.resolve()
+    await flushPromises()
+
+    expect(notifySellerMock).toHaveBeenCalledWith('42')
+
+    wrapper.unmount()
+    vi.useRealTimers()
   })
 })

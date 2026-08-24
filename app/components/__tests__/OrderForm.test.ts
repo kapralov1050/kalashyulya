@@ -257,7 +257,6 @@ describe('OrderForm — isFormValid', () => {
 
 describe('OrderForm — submitOrder', () => {
   let mockSendTelegram: ReturnType<typeof vi.fn>
-  let mockSendEmail: ReturnType<typeof vi.fn>
   let mockToastAdd: ReturnType<typeof vi.fn>
 
   beforeEach(() => {
@@ -265,13 +264,11 @@ describe('OrderForm — submitOrder', () => {
     mockAddNewOrder.mockResolvedValue('order_123')
 
     mockSendTelegram = vi.fn()
-    mockSendEmail = vi.fn()
     mockToastAdd = vi.fn()
 
     vi.stubGlobal('useLocales', () => ({ printLocale: (key: string) => key }))
     vi.stubGlobal('useShop', () => ({
       sendOrderInfoTelegram: mockSendTelegram,
-      sendOrderInfoEmail: mockSendEmail,
       addOrderToUser: vi.fn(),
       createOrder: vi.fn(),
     }))

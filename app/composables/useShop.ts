@@ -71,11 +71,7 @@ export const useShop = () => {
     })
   }
 
-  const sendOrderInfoEmail = (orderData: Order): Promise<ApiResponse> =>
-    postNotification('/api/notifications/email', { orderData })
-
   return {
     sendOrderInfoTelegram,
-    sendOrderInfoEmail,
   }
 }

@@ -103,7 +103,6 @@ const useAuthStore = defineStore('auth', () => {
 }))
 ;(globalThis as Record<string, unknown>).useShop = vi.fn(() => ({
   sendOrderInfoTelegram: vi.fn(),
-  sendOrderInfoEmail: vi.fn(),
   addOrderToUser: vi.fn(),
   createOrder: vi.fn(),
 }))

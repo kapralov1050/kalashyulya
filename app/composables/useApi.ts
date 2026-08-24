@@ -86,14 +86,26 @@ export function useApi() {
     await $fetch(`/api/admin/products/${id}`, { method: 'DELETE' })
   }
 
+  /**
+   * Обновляет статус заказа через админку. Сервер сам триггерит email
+   * покупателю с информацией о смене (если sendEmail !== false). Возвращает
+   * результат email-отправки, чтобы UI мог показать toast при сбое SMTP.
+   * Если status не изменился — возвращает { email: null, noChange: true }
+   * (без side-effects).
+   */
   async function updateOrderStatus(
     orderId: string,
     status: 'new' | 'paid' | 'shipped' | 'cancelled',
-  ): Promise<void> {
-    await $fetch(`/api/admin/orders/${orderId}`, {
+    options: { sendEmail?: boolean, message?: string } = {},
+  ): Promise<{ email: { ok: boolean, error?: string } | null, noChange?: boolean }> {
+    return await $fetch(`/api/admin/orders/${orderId}`, {
       method: 'PATCH',
-      body: { status },
-    })
+      body: {
+        status,
+        sendEmail: options.sendEmail !== false,
+        message: options.message,
+      },
+    } as never)
   }
 
   async function deleteOrder(orderId: string | number): Promise<void> {
@@ -115,6 +127,31 @@ export function useApi() {
       method: 'PATCH',
       body: { paymentMethod },
     })
+  }
+
+  /**
+   * Отправить продавцу уведомление о заказе: email покупателю + Telegram продавцу.
+   * Используется на /shop/payment-success когда способ оплаты уже финальный
+   * (succeeded от ЮKassa, либо после успешного switchToManual). Сервер читает
+   * актуальный payment_method из БД и формирует оба уведомления с правильным
+   * способом оплаты. Best-effort: при ошибке UI не ломается (только console.warn).
+   *
+   * Гарантия: для yookassa-заказов вызывается ровно один раз — либо в polling
+   * (succeeded), либо после switchToManual. Для manual-заказов — в orders.post
+   * (этот метод НЕ вызывается).
+   */
+  async function notifySeller(orderId: string): Promise<void> {
+    try {
+      // Nitro typed-routes не видит POST /api/orders/[id]/notify-seller до npx nuxt prepare.
+      // any-cast чтобы обойти. Реальный сервер корректно отвечает POST.
+      await $fetch(`/api/orders/${orderId}/notify-seller`, {
+        method: 'POST',
+      } as never)
+    }
+    catch (err) {
+      // eslint-disable-next-line no-console
+      console.warn(`[notify-seller] failed for ${orderId}:`, err)
+    }
   }
 
   async function updateProductCertificateId(
@@ -198,6 +235,7 @@ export function useApi() {
     deleteProduct,
     updateOrderStatus,
     updateOrderPaymentMethod,
+    notifySeller,
     deleteOrder,
     trackProductView,
     updateProductCertificateId,

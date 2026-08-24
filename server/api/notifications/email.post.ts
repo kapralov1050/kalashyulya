@@ -27,7 +27,7 @@ export function getSmtpTransportConfig() {
   }
 }
 
-async function sendViaSmtp(
+export async function sendViaSmtp(
   message: SendEmailBody,
 ): Promise<SendEmailResult> {
   const cfg = getSmtpTransportConfig()

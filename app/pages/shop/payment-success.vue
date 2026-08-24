@@ -70,18 +70,18 @@
           <p class="text-neutral-600 dark:text-neutral-400">
             {{ statusSubtitle }}
           </p>
+          <!-- Доп. текст во время polling pending: показываем ТОЛЬКО после таймаута.
+               До таймаута ничего не добавляем — заголовок "Ожидается оплата" + subtitle
+               "Завершите оплату, чтобы мы начали работу над заказом" уже всё объясняют.
+               webhook_waiting (был: "Подождите, проверяем...") удалён — дубль с subtitle. -->
           <p
-            v-if="paymentStatus === 'pending' || paymentStatus === 'waiting_for_capture'"
-            class="text-sm text-neutral-500 dark:text-neutral-500 mt-2"
+            v-if="(paymentStatus === 'pending' || paymentStatus === 'waiting_for_capture') && pollingTimedOut"
+            class="text-sm text-orange-600 dark:text-orange-400 mt-2"
           >
             {{
-              pollingTimedOut
-                ? printLocale('payment_success_status_check_timed_out', {
-                    defaultValue: 'Не получили подтверждение. Похоже, оплата не была завершена.',
-                  })
-                : printLocale('payment_success_webhook_waiting', {
-                    defaultValue: 'Подождите, проверяем статус оплаты...',
-                  })
+              printLocale('payment_success_status_check_timed_out', {
+                defaultValue: 'Не получили подтверждение. Похоже, оплата не была завершена.',
+              })
             }}
           </p>
         </div>
@@ -415,6 +415,10 @@
             clearBasket()
             localStorage.removeItem('pendingPaymentId')
             localStorage.removeItem('pendingOrderId')
+            // Уведомление продавцу (email покупателю + Telegram продавцу) с актуальным
+            // payment_method='yookassa'. В orders.post ничего не отправлялось для
+            // yookassa-заказов (payment_method мог измениться на manual).
+            await maybeNotifySeller()
           }
           else {
             localStorage.removeItem('pendingPaymentId')
@@ -426,6 +430,23 @@
         stopPolling()
       }
     }, POLLING_INTERVAL_MS)
+  }
+
+  /**
+   * Отправляет продавцу уведомление: email покупателю + Telegram продавцу
+   * с актуальным payment_method из БД (который мог уже стать 'manual' после
+   * switchToManual). Best-effort: при ошибке UI не ломается.
+   *
+   * Вызывается ровно один раз: при succeeded в polling ИЛИ после успешного
+   * switchToManual. Для yookassa→manual гарантирует, что продавец получит
+   * Telegram с правильным способом оплаты.
+   */
+  async function maybeNotifySeller() {
+    const foundOrder = order.value
+      ?? allOrders.value.find(o => o.paymentId === paymentId.value)
+      ?? null
+    if (!foundOrder) return
+    await useApi().notifySeller(String(foundOrder.id))
   }
 
   /**
@@ -441,7 +462,7 @@
   async function fetchStatus() {
     if (!paymentId.value) {
       error.value = printLocale('payment_success_no_payment_id_error', {
-        defaultValue: 'Не передан ID платежа. Перейдите по ссылке из письма или свяжитесь с поддержкой.',
+        defaultValue: 'Не передан ID платежа. Перейдите по ссылке из письма или напишите мне в Telegram @kalashyulya.',
       })
       loading.value = false
       return
@@ -472,6 +493,11 @@
       clearBasket()
       localStorage.removeItem('pendingPaymentId')
       localStorage.removeItem('pendingOrderId')
+      // Уведомление продавцу (email + Telegram) с актуальным payment_method='yookassa'.
+      // Для случая «сразу succeeded» polling не запускается — это единственный
+      // шанс вызвать notifySeller. Идемпотентность обеспечивается на сервере
+      // (notify-seller проверяет notification_failed в БД).
+      await maybeNotifySeller()
     }
     else if (result.status === 'canceled') {
       localStorage.removeItem('pendingPaymentId')
@@ -490,7 +516,7 @@
 
     if (!paymentId.value) {
       error.value = printLocale('payment_success_no_payment_id_error', {
-        defaultValue: 'Не передан ID платежа. Перейдите по ссылке из письма или свяжитесь с поддержкой.',
+        defaultValue: 'Не передан ID платежа. Перейдите по ссылке из письма или напишите мне в Telegram @kalashyulya.',
       })
       loading.value = false
       return
@@ -578,6 +604,9 @@
       stopPolling()
       localStorage.removeItem('pendingPaymentId')
       localStorage.removeItem('pendingOrderId')
+      // Email покупателю с актуальным payment_method='manual'.
+      // orders.post НЕ слал email (был 'yookassa' на момент создания).
+      await maybeNotifySeller()
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Не удалось переключить на ручную оплату'
       useToast().add({ title: message, color: 'red' })
