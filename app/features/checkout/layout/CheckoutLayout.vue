@@ -63,7 +63,7 @@
             <!-- Сводная ошибка над формой (для шагов без inline-ошибок) -->
             <Transition name="slide-up">
               <UAlert
-                v-if="firstValidationError && currentStepId === 'framing'"
+                v-if="firstValidationError && (currentStepId === 'framing' || currentStepId === 'payment')"
                 color="error"
                 variant="soft"
                 icon="heroicons:exclamation-circle"

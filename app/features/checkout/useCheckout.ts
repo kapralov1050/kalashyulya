@@ -129,11 +129,13 @@ export function useCheckout() {
     const { form } = store
     const validation = v.safeParse(checkoutSchema, form)
     if (!validation.success) {
-      showToast(
-        'Проверьте данные',
-        validation.issues[0]?.message ?? 'Форма заполнена некорректно',
-        'heroicons:exclamation-circle',
-      )
+      if (currentStepId.value !== 'payment') {
+        showToast(
+          'Проверьте данные',
+          validation.issues[0]?.message ?? 'Форма заполнена некорректно',
+          'heroicons:exclamation-circle',
+        )
+      }
       return
     }
 

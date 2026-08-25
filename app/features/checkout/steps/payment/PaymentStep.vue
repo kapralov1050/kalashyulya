@@ -44,14 +44,6 @@
       </div>
     </div>
 
-    <UAlert
-      v-if="submitAttempted && !form.payment"
-      color="error"
-      variant="soft"
-      icon="heroicons:exclamation-circle"
-      description="Выберите способ оплаты, чтобы продолжить"
-    />
-
     <!-- Мини-итог -->
     <div class="mt-2 p-5 rounded-xl bg-neutral-50 dark:bg-neutral-800 space-y-2">
       <p class="text-xs font-semibold tracking-widest uppercase text-neutral-400 mb-3">Ваш заказ</p>
@@ -86,14 +78,11 @@
 
 <script setup lang="ts">
 import { useCheckoutStore } from '../../store'
-import { useCheckout } from '../../useCheckout'
 import { useDeliveryZone } from '~/composables/useDeliveryZone'
 
 const { form } = useCheckoutStore()
 const { shoppingCart, totalPurchaseAmount } = storeToRefs(useBasketStore())
 const { getZone, ZONE_CONFIG } = useDeliveryZone()
-
-const { submitAttempted } = useCheckout()
 
 const { consents } = useConsent()
 const pdAgreed = computed({

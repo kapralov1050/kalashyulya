@@ -97,6 +97,28 @@ npm run test:run     # vitest run (CI mode)
 
 Тесты: `app/**/__tests__/*.spec.ts` и `*.test.ts` (vitest + happy-dom).
 
+### Запуск проверок (lint / typecheck / test) — только через Docker
+
+На хосте (macOS, darwin-arm64) `node_modules` собран под linux-x64/arm64, поэтому `npm run test:run` / `lint` / `typecheck` локально падают с `Cannot find native binding` (rolldown: нет `binding-darwin-arm64`).
+
+Запускаем через dev-контейнер `kalashyulya-nuxt-app-dev-1` (Node 22, linux-arm64, биндинги на месте). Если контейнер не поднят: `docker compose up -d nuxt-app-dev`.
+
+```bash
+# Полный прогон перед коммитом:
+docker exec kalashyulya-nuxt-app-dev-1 npm run lint
+docker exec kalashyulya-nuxt-app-dev-1 npm run typecheck
+docker exec kalashyulya-nuxt-app-dev-1 npm run test:run
+
+# Только тесты по конкретным файлам:
+docker exec kalashyulya-nuxt-app-dev-1 npm run test:run -- app/features/checkout
+docker exec kalashyulya-nuxt-app-dev-1 npm run test:run -- app/helpers/__tests__/valibot.test.ts app/features/checkout
+
+# Watch-режим тестов (с фолбэком на polling для docker volumes):
+docker exec -it kalashyulya-nuxt-app-dev-1 npm run test -- --watch
+```
+
+Только после зелёного прогона делаем `git commit` и `git push`.
+
 ---
 
 ## Деплой

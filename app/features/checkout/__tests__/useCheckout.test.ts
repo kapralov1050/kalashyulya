@@ -429,36 +429,34 @@ describe('useCheckout', () => {
       )
     })
 
-    it('blocks and shows toast when form is invalid', async () => {
+    it('blocks submit when form is invalid on non-payment step', async () => {
       const store = useCheckoutStore()
       store.form.name = 'X'
       store.form.email = ''
       store.form.messengers = []
       consentState.hasConsent = true
 
-      const { advance, goTo } = useCheckout()
-      goTo(4)
+      const { advance, goTo, submitAttempted } = useCheckout()
+      goTo(0)
+      await nextTick()
 
       advance()
       await nextTick()
-      await nextTick()
 
       expect(orderPostCalls()).toHaveLength(0)
-      expect(showToast).toHaveBeenCalledWith(
-        'Проверьте данные',
-        expect.any(String),
-        'heroicons:exclamation-circle',
-      )
+      expect(showToast).not.toHaveBeenCalled()
+      expect(submitAttempted.value).toBe(true)
     })
 
-    it('blocks and shows toast when payment is empty on payment step', async () => {
+    it('blocks without toast and sets submitAttempted when payment is empty on payment step', async () => {
       const store = useCheckoutStore()
       fillValidCheckoutForm(store)
       store.form.payment = ''
       consentState.hasConsent = true
 
-      const { advance, goTo } = useCheckout()
+      const { advance, goTo, submitAttempted } = useCheckout()
       goTo(4)
+      await nextTick()
 
       advance()
       await nextTick()
@@ -466,11 +464,8 @@ describe('useCheckout', () => {
 
       expect(orderPostCalls()).toHaveLength(0)
       expect(mocks.routerPush).not.toHaveBeenCalled()
-      expect(showToast).toHaveBeenCalledWith(
-        'Проверьте данные',
-        'Выберите способ оплаты',
-        'heroicons:exclamation-circle',
-      )
+      expect(showToast).not.toHaveBeenCalled()
+      expect(submitAttempted.value).toBe(true)
     })
   })
 
