@@ -39,6 +39,9 @@ export const useYookassaPayment = () => {
     options: CreatePaymentOptions,
   ): Promise<CreatePaymentResult> => {
     try {
+      const body = Object.fromEntries(
+        Object.entries(options).filter(([, v]) => v !== undefined),
+      )
       const response = await $fetch<{
         success: boolean
         paymentId?: string
@@ -46,7 +49,7 @@ export const useYookassaPayment = () => {
         error?: string
       }>('/api/payments/yookassa', {
         method: 'POST',
-        body: options,
+        body,
         headers: {
           'Content-Type': 'application/json',
         },
