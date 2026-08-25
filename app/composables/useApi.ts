@@ -43,6 +43,21 @@ export function useApi() {
     ordersData.value = await $fetch<OrderInBase[]>('/api/orders')
   }
 
+  /**
+   * Публичный поиск заказа по id (формат из email `#20260825-04bb9555`)
+   * или по payment_id (YooKassa). Сервер нормализует ввод сам
+   * (trim, strip leading `#`, lowercase). Возвращает null если ничего
+   * не найдено. Используется на /shop/tracking — не требует auth и не
+   * возвращает чужие ПД (клиент применяет mask*-функции перед рендером).
+   */
+  async function searchOrderByNumber(
+    number: string,
+  ): Promise<OrderInBase | null> {
+    return await $fetch<OrderInBase | null>('/api/orders/search', {
+      query: { number },
+    } as never)
+  }
+
   async function loadProducts(): Promise<void> {
     const data = await $fetch<Product[]>('/api/products')
     shopData.value = {
@@ -251,5 +266,6 @@ export function useApi() {
     loadProducts,
     loadExhibitions,
     refreshCurrentUser,
+    searchOrderByNumber,
   }
 }

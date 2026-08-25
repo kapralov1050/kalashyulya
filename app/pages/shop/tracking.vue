@@ -21,7 +21,11 @@
               class="block text-sm font-medium text-neutral-700
                 dark:text-neutral-300 mb-2"
             >
-              {{ printLocale('tracking_payment_id_label') }}
+              {{
+                printLocale('tracking_payment_id_label', {
+                  defaultValue: 'Номер заказа',
+                })
+              }}
             </label>
             <input
               v-model="paymentId"
@@ -63,7 +67,8 @@
             title="Поиск временно заблокирован"
           >
             <template #description>
-              Превышено количество попыток. Повторите {{ formatRemainingTime(remainingTimeMs) }}.
+              Превышено количество попыток. Повторите
+              {{ formatRemainingTime(remainingTimeMs) }}.
             </template>
           </UAlert>
           <p
@@ -225,16 +230,16 @@
                 </span>
               </div>
 
-              <!-- ID платежа -->
+              <!-- Номер заказа -->
               <div class="flex justify-between items-start">
                 <span class="text-neutral-600 dark:text-neutral-400">
-                  ID платежа:
+                  Номер заказа:
                 </span>
                 <span
                   class="text-right font-mono text-sm text-neutral-900
                     dark:text-neutral-100 max-w-xs break-all"
                 >
-                  {{ order.paymentId || 'Не указан' }}
+                  #{{ order.id }}
                 </span>
               </div>
             </div>
@@ -404,7 +409,7 @@
 
   const { printLocale } = useLocales()
   const toast = useToast()
-  const { allOrders } = storeToRefs(useOrdersStore())
+  const api = useApi()
   const { attempts, isBlocked, remainingTimeMs, recordAttempt } = useRateLimit({
     key: 'tracking-search',
     maxAttempts: 5,
@@ -419,8 +424,6 @@
 
   let tickInterval: ReturnType<typeof setInterval> | undefined
   onMounted(() => {
-    useOrdersStore().loadOrders().catch(() => {})
-
     if (isBlocked.value) {
       tickInterval = setInterval(() => {
         if (!isBlocked.value && tickInterval) {
@@ -492,54 +495,52 @@
   }
 
   /**
-   * Поиск заказа по paymentId
+   * Поиск заказа по номеру (id или YooKassa paymentId).
+   * Сервер сам нормализует ввод: trim, strip leading `#`, lowercase.
    */
   async function searchOrder(): Promise<void> {
+    if (!paymentId.value.trim()) {
+      error.value = 'Введите номер заказа для поиска.'
+      return
+    }
+
+    if (isBlocked.value) {
+      error.value = `Превышено количество попыток. Повторите ${formatRemainingTime(remainingTimeMs.value)}.`
+      return
+    }
+
+    recordAttempt()
+    if (isBlocked.value) {
+      error.value = `Превышено количество попыток. Повторите ${formatRemainingTime(remainingTimeMs.value)}.`
+      return
+    }
+
+    loading.value = true
+    error.value = null
+    order.value = null
+
     try {
-      // Валидация
-      if (!paymentId.value.trim()) {
-        error.value = 'Введите ID платежа для поиска заказа.'
-        return
-      }
-
-      if (isBlocked.value) {
-        error.value = `Превышено количество попыток. Повторите ${formatRemainingTime(remainingTimeMs.value)}.`
-        return
-      }
-
-      recordAttempt()
-      if (isBlocked.value) {
-        error.value = `Превышено количество попыток. Повторите ${formatRemainingTime(remainingTimeMs.value)}.`
-        return
-      }
-
-      // Сброс состояния
-
-      loading.value = true
-      error.value = null
-      order.value = null
-
-      // Поиск в allOrders
-      const foundOrder = allOrders.value.find(
-        order => order.paymentId === paymentId.value.trim(),
-      )
-
-      if (!foundOrder) {
+      const found = await api.searchOrderByNumber(paymentId.value.trim())
+      if (!found) {
         error.value =
-          'Заказ с таким ID не найден. Проверьте введенный ID или свяжитесь с поддержкой.'
+          'Заказ с таким номером не найден. Проверьте введённый номер или свяжитесь с поддержкой.'
+        toast.add({
+          title: 'Не найдено',
+          description: 'Заказ с таким номером не найден',
+          color: 'warning',
+        })
         return
       }
 
-      order.value = foundOrder
-
+      order.value = found
       toast.add({
         title: 'Успешно',
         description: 'Заказ найден',
         color: 'success',
       })
     } catch {
-      error.value = 'Не удалось выполнить поиск. Попробуйте позже.'
-
+      error.value =
+        'Проблемы с соединением. Проверьте интернет и попробуйте ещё раз.'
       toast.add({
         title: 'Ошибка',
         description: 'Не удалось найти заказ',

@@ -17,9 +17,7 @@ const baseOrder: Order = {
     },
   },
   purchase: {
-    order: [
-      { id: 1, title: 'Картина', amount: 2, price: 5000 },
-    ],
+    order: [{ id: 1, title: 'Картина', amount: 2, price: 5000 }],
     createdAt: '2026-08-18T12:00:00.000Z',
   },
   totalPrice: 10000,
@@ -49,9 +47,8 @@ describe('buildOrderEmail (customer-facing)', () => {
     const { html } = buildOrderEmail(baseOrder, '20260824-abcd1234')
     expect(html).toContain('Спасибо за заказ!')
     expect(html).not.toContain('Новый заказ')
-    expect(html).toContain('Мы получили ваш заказ')
-    expect(html).toContain('Юлия Калашникова')
-    expect(html).toContain('@kalashyulya')
+    expect(html).toContain('Я получила ваш заказ')
+    expect(html).toContain('Юлия Калашникова · kalashyulya.ru')
   })
 
   it('HTML содержит orderId в видимой части', () => {
@@ -76,7 +73,9 @@ describe('buildOrderEmail (customer-facing)', () => {
       ...baseOrder,
       customer: { ...baseOrder.customer, email: '' },
     }
-    expect(() => buildOrderEmail(noEmail, 'X')).toThrow(/Invalid customer email/)
+    expect(() => buildOrderEmail(noEmail, 'X')).toThrow(
+      /Invalid customer email/,
+    )
   })
 
   it('throw если email покупателя невалиден', () => {
@@ -84,13 +83,18 @@ describe('buildOrderEmail (customer-facing)', () => {
       ...baseOrder,
       customer: { ...baseOrder.customer, email: 'not-an-email' },
     }
-    expect(() => buildOrderEmail(invalid, 'X')).toThrow(/Invalid customer email/)
+    expect(() => buildOrderEmail(invalid, 'X')).toThrow(
+      /Invalid customer email/,
+    )
   })
 
   it('throw если email содержит мусор (XSS-вектор)', () => {
     const xss: Order = {
       ...baseOrder,
-      customer: { ...baseOrder.customer, email: '"><svg/onload=alert(1)>@x.com' },
+      customer: {
+        ...baseOrder.customer,
+        email: '"><svg/onload=alert(1)>@x.com',
+      },
     }
     // Должно либо пройти regex (тогда отправляется — XSS-фильтр на стороне SMTP)
     // либо throw. Главное — не молча отправить пустоту.
@@ -161,7 +165,9 @@ describe('buildOrderEmail (customer-facing)', () => {
       ...baseOrder,
       purchase: {
         ...baseOrder.purchase,
-        order: [{ id: 1, title: '<script>bad</script>', amount: 1, price: 100 }],
+        order: [
+          { id: 1, title: '<script>bad</script>', amount: 1, price: 100 },
+        ],
       },
     }
     const { html } = buildOrderEmail(item, 'X')

@@ -64,7 +64,7 @@ export function buildOrderEmail(order: Order, orderId: string): OrderEmailReques
         <h2 style="background:#06b6d4;color:#fff;padding:16px 24px;border-radius:8px 8px 0 0;margin:0">Спасибо за заказ!</h2>
         <div style="border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;padding:24px">
             <p style="margin:0 0 16px">${escapeHtml(customer.name)}, здравствуйте!</p>
-            <p style="margin:0 0 16px">Мы получили ваш заказ <b>#${escapeHtml(orderId)}</b> и скоро свяжемся с вами, чтобы подтвердить детали и согласовать оплату.</p>
+            <p style="margin:0 0 16px">Я получила ваш заказ <b>#${escapeHtml(orderId)}</b> и скоро свяжусь с вами, чтобы подтвердить детали и согласовать оплату.</p>
             <h3 style="margin:20px 0 8px;color:#374151">Номер заказа</h3>
             <p style="margin:2px 0;font-size:18px;font-weight:bold;color:#06b6d4">#${escapeHtml(orderId)}</p>
             <h3 style="margin:20px 0 8px;color:#374151">Дата</h3>

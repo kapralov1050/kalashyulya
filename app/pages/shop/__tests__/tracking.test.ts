@@ -1,23 +1,19 @@
 import { flushPromises, mount } from '@vue/test-utils'
-import { createPinia, defineStore, setActivePinia } from 'pinia'
+import { createPinia, setActivePinia } from 'pinia'
 import { ref } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { OrderInBase } from '~/types'
 import Tracking from '../tracking.vue'
 
-const loadOrdersMock = vi.fn(async () => {})
-const useTrackingOrdersStore = defineStore('tracking-orders-test', () => {
-  const allOrders = ref<OrderInBase[]>([])
-  const loadOrders = loadOrdersMock
-
-  return { allOrders, loadOrders }
-})
+const searchOrderByNumberMock = vi.fn(
+  async (_number: string): Promise<OrderInBase | null> => null,
+)
 
 const translations: Record<string, string> = {
   tracking_page_title: 'Отслеживание заказа',
-  tracking_page_subtitle: 'Найдите заказ по ID платежа',
-  tracking_payment_id_label: 'ID платежа',
-  tracking_payment_id_placeholder: 'Введите ID платежа',
+  tracking_page_subtitle: 'Найдите заказ по номеру',
+  tracking_payment_id_label: 'Номер заказа',
+  tracking_payment_id_placeholder: 'Например, #20260825-04bb9555',
   tracking_find: 'Найти',
   tracking_searching: 'Поиск',
   tracking_loading: 'Загрузка',
@@ -41,7 +37,7 @@ const translations: Record<string, string> = {
   tracking_apartment_label: 'Квартира:',
   tracking_recipient_label: 'Получатель:',
   tracking_find_other: 'Найти другой заказ',
-  tracking_empty_hint: 'Введите ID платежа, чтобы найти заказ',
+  tracking_empty_hint: 'Введите номер заказа, чтобы найти заказ',
 }
 
 const stubs = {
@@ -70,7 +66,7 @@ let pinia: ReturnType<typeof createPinia>
 
 function createMockOrder(): OrderInBase {
   return {
-    id: 42,
+    id: '20260825-04bb9555',
     status: 'Оплачен',
     paymentId: 'payment-123',
     customer: {
@@ -117,9 +113,9 @@ describe('tracking', () => {
     remainingTimeMs = ref(0)
     recordAttemptMock = vi.fn()
     toastAddMock = vi.fn()
-    loadOrdersMock.mockClear()
+    searchOrderByNumberMock.mockReset()
+    searchOrderByNumberMock.mockResolvedValue(null)
 
-    vi.stubGlobal('useOrdersStore', useTrackingOrdersStore)
     vi.stubGlobal('useLocales', () => ({
       printLocale: (key: string) => translations[key] || key,
     }))
@@ -133,28 +129,24 @@ describe('tracking', () => {
     vi.stubGlobal('useRouter', () => ({ push: vi.fn() }))
     vi.stubGlobal('useRoute', () => ({ query: {} }))
     vi.stubGlobal('useSeoMeta', vi.fn())
+    vi.stubGlobal('useApi', () => ({
+      searchOrderByNumber: searchOrderByNumberMock,
+    }))
   })
 
-  describe('autoload orders on mount', () => {
-    it('вызывает useOrdersStore().loadOrders() при монтировании', async () => {
-      mountTracking()
-      await flushPromises()
-      expect(loadOrdersMock).toHaveBeenCalledTimes(1)
-    })
-  })
-
-  describe('masking', () => {
-    it('masks customer data in the displayed order', async () => {
-      const ordersStore = useTrackingOrdersStore()
-      ordersStore.allOrders = [createMockOrder()]
+  describe('search by order number', () => {
+    it('находит заказ и маскирует ПД', async () => {
+      searchOrderByNumberMock.mockResolvedValueOnce(createMockOrder())
       const wrapper = mountTracking()
 
-      await wrapper.find('input').setValue('payment-123')
+      await wrapper.find('input').setValue('#20260825-04bb9555')
       await wrapper.find('button').trigger('click')
       await flushPromises()
 
+      expect(searchOrderByNumberMock).toHaveBeenCalledWith('#20260825-04bb9555')
+
       const text = wrapper.text()
-      expect(text).toContain('Заказ #42')
+      expect(text).toContain('Заказ #20260825-04bb9555')
       expect(text).toContain('Иван И.')
       expect(text).toContain('i***@***.com')
       expect(text).toContain('+7 *** ***-**-67')
@@ -166,6 +158,18 @@ describe('tracking', () => {
       expect(text).not.toContain('@ivan_petrov')
       expect(text).not.toContain('Иванов Иван Иванович')
       expect(recordAttemptMock).toHaveBeenCalledOnce()
+    })
+
+    it('поиск без `#` тоже работает (нормализация на сервере)', async () => {
+      searchOrderByNumberMock.mockResolvedValueOnce(createMockOrder())
+      const wrapper = mountTracking()
+
+      await wrapper.find('input').setValue('20260825-04bb9555')
+      await wrapper.find('button').trigger('click')
+      await flushPromises()
+
+      expect(searchOrderByNumberMock).toHaveBeenCalledWith('20260825-04bb9555')
+      expect(wrapper.text()).toContain('Заказ #20260825-04bb9555')
     })
   })
 
@@ -190,23 +194,41 @@ describe('tracking', () => {
     it('shows the empty hint when no order is selected', () => {
       const wrapper = mountTracking()
 
-      expect(wrapper.text()).toContain('Введите ID платежа, чтобы найти заказ')
+      expect(wrapper.text()).toContain(
+        'Введите номер заказа, чтобы найти заказ',
+      )
       expect(wrapper.text()).not.toContain('Заказ #')
       expect(wrapper.find('[role="alert"]').exists()).toBe(false)
     })
   })
 
   describe('error state', () => {
-    it('shows an error when the payment ID is not found', async () => {
+    it('shows an error when the order number is not found', async () => {
       const wrapper = mountTracking()
 
-      await wrapper.find('input').setValue('missing-payment')
+      await wrapper.find('input').setValue('missing-order')
       await wrapper.find('button').trigger('click')
       await flushPromises()
 
       expect(wrapper.text()).toContain('Ошибка поиска')
-      expect(wrapper.text()).toContain('Заказ с таким ID не найден')
-      expect(wrapper.text()).not.toContain('Введите ID платежа, чтобы найти заказ')
+      expect(wrapper.text()).toContain('Заказ с таким номером не найден')
+      expect(wrapper.text()).not.toContain(
+        'Введите номер заказа, чтобы найти заказ',
+      )
+    })
+
+    it('показывает сообщение о проблемах с соединением при network error', async () => {
+      searchOrderByNumberMock.mockRejectedValueOnce(new Error('network down'))
+      const wrapper = mountTracking()
+
+      await wrapper.find('input').setValue('#any')
+      await wrapper.find('button').trigger('click')
+      await flushPromises()
+
+      expect(wrapper.text()).toContain('Проблемы с соединением')
+      expect(toastAddMock).toHaveBeenCalledWith(
+        expect.objectContaining({ color: 'error' }),
+      )
     })
   })
 })
