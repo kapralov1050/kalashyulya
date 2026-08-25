@@ -318,6 +318,18 @@ describe('useCheckout', () => {
       expect(canProceed.value).toBe(false)
     })
 
+    it('is false on payment step without selected payment method', () => {
+      const store = useCheckoutStore()
+      const { canProceed, goTo } = useCheckout()
+
+      fillValidCheckoutForm(store)
+      store.form.payment = ''
+      consentState.hasConsent = true
+      goTo(4)
+
+      expect(canProceed.value).toBe(false)
+    })
+
     it('is true on payment step with consent', () => {
       const store = useCheckoutStore()
       const { canProceed, goTo } = useCheckout()
@@ -435,6 +447,28 @@ describe('useCheckout', () => {
       expect(showToast).toHaveBeenCalledWith(
         'Проверьте данные',
         expect.any(String),
+        'heroicons:exclamation-circle',
+      )
+    })
+
+    it('blocks and shows toast when payment is empty on payment step', async () => {
+      const store = useCheckoutStore()
+      fillValidCheckoutForm(store)
+      store.form.payment = ''
+      consentState.hasConsent = true
+
+      const { advance, goTo } = useCheckout()
+      goTo(4)
+
+      advance()
+      await nextTick()
+      await nextTick()
+
+      expect(orderPostCalls()).toHaveLength(0)
+      expect(mocks.routerPush).not.toHaveBeenCalled()
+      expect(showToast).toHaveBeenCalledWith(
+        'Проверьте данные',
+        'Выберите способ оплаты',
         'heroicons:exclamation-circle',
       )
     })

@@ -83,7 +83,7 @@ export const deliverySchema = v.pipe(
 )
 
 export const paymentSchema = v.object({
-  payment: v.union([v.literal(''), v.picklist(['yookassa', 'manual'], 'Выберите способ оплаты')]),
+  payment: v.picklist(['yookassa', 'manual'], 'Выберите способ оплаты'),
 })
 
 export const checkoutSchema = v.pipe(
@@ -102,7 +102,7 @@ export const checkoutSchema = v.pipe(
     house: optionalText,
     apartment: optionalText,
     framing: v.optional(v.union([v.literal(''), v.picklist(['none', 'simple', 'premium'])])),
-    payment: v.union([v.literal(''), v.picklist(['yookassa', 'manual'])]),
+    payment: v.picklist(['yookassa', 'manual'], 'Выберите способ оплаты'),
   }),
   v.rawCheck(({ dataset, addIssue }) => {
     if (!dataset.typed) return

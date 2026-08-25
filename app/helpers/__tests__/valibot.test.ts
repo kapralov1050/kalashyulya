@@ -48,7 +48,7 @@ const validCheckoutBase = {
   ...validContactsBase,
   ...validDeliveryBase,
   framing: '',
-  payment: '',
+  payment: 'yookassa',
 }
 
 describe('contactsSchema', () => {
@@ -360,9 +360,13 @@ describe('deliverySchema', () => {
 })
 
 describe('paymentSchema', () => {
-  it('valid: empty payment', () => {
+  it('invalid: empty payment', () => {
     const result = v.safeParse(paymentSchema, { payment: '' })
-    expect(result.success).toBe(true)
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      const errors = collectErrors(result)
+      expect(errors.payment).toBe('Выберите способ оплаты')
+    }
   })
 
   it('valid: yookassa payment', () => {
@@ -415,7 +419,7 @@ describe('checkoutSchema', () => {
     }
   })
 
-  it('valid: payment empty with everything else valid', () => {
+  it('invalid: payment empty with everything else valid', () => {
     const result = v.safeParse(checkoutSchema, {
       ...validCheckoutBase,
       deliveryType: 'pickup',
@@ -423,7 +427,11 @@ describe('checkoutSchema', () => {
       phone: '+79991234567',
       payment: '',
     })
-    expect(result.success).toBe(true)
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      const errors = collectErrors(result)
+      expect(errors.payment).toBe('Выберите способ оплаты')
+    }
   })
 
   it('invalid: vk messenger with empty nickname', () => {
