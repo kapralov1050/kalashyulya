@@ -250,7 +250,13 @@ export function usePaymentResult(initialPaymentId: Ref<string | null>) {
     )
     router.push({
       path: '/shop/payment',
-      query: { orderId, amount: String(amount), description, retry: '1' },
+      query: {
+        orderId,
+        amount: String(amount),
+        description,
+        retry: '1',
+        retryPaymentId: paymentId,
+      },
     })
   }
 

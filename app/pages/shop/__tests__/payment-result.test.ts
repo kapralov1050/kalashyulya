@@ -258,6 +258,7 @@ describe('payment-result', () => {
         amount: '5000',
         description: 'Оплата заказа #42',
         retry: '1',
+        retryPaymentId: 'payment-123',
       },
     })
   })

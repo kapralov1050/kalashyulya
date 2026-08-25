@@ -88,13 +88,17 @@
 
     if (isRetry) {
       // Повтор после canceled/pending: чистим pending-ключи, чтобы createPayment
-      // не привязался к старому платежу. existingPaymentId прокинем как
-      // retryPaymentId — сервер явно отменит его в ЮKassa.
+      // не привязался к старому платежу. retryPaymentId приходит из query
+      // (usePaymentResult.retryPayment), а не из localStorage — иначе был бы null.
       localStorage.removeItem('pendingPaymentId')
       localStorage.removeItem('pendingOrderId')
     }
 
-    await createPayment(isRetry ? existingPaymentId : undefined)
+    const retryPaymentId = isRetry
+      ? (route.query.retryPaymentId as string | undefined) || existingPaymentId || undefined
+      : undefined
+
+    await createPayment(retryPaymentId)
   })
 
   const createPayment = async (retryPaymentId?: string) => {
