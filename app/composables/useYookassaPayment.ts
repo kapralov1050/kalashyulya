@@ -40,7 +40,7 @@ export const useYookassaPayment = () => {
   ): Promise<CreatePaymentResult> => {
     try {
       const body = Object.fromEntries(
-        Object.entries(options).filter(([, v]) => v !== undefined),
+        Object.entries(options).filter(([, v]) => v !== undefined && v !== null),
       )
       const response = await $fetch<{
         success: boolean

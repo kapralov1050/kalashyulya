@@ -79,6 +79,21 @@ describe('POST /api/payments/yookassa — retry cancel-flow', () => {
     expect(captured.createUrl).toBe('https://api.yookassa.ru/v3/payments')
   })
 
+  it('retryPaymentId: null — валидируется как отсутствующий (регресс #retryPaymentId-null)', async () => {
+    const { captured } = mockYookassa({})
+    await callHandler({
+      orderId: 'o_null',
+      amount: 100,
+      description: 'X',
+      returnUrl: 'https://example.com/r',
+      customer: { email: 'a@b.com' },
+      retryPaymentId: null,
+    })
+    expect(captured.getUrl).toBeUndefined()
+    expect(captured.cancelUrl).toBeUndefined()
+    expect(captured.createUrl).toBe('https://api.yookassa.ru/v3/payments')
+  })
+
   it('retryPaymentId + pending → GET → POST cancel → create', async () => {
     const { captured } = mockYookassa({ getStatus: 'pending' })
     const result = await callHandler({

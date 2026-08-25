@@ -27,7 +27,9 @@ const BodySchema = v.object({
   // перед созданием нового. Не отправляется при первом создании.
   // Trim + minLength защищает от мусорных ID (пустая строка / пробелы),
   // которые иначе привели бы к GET-у в ЮKassa с некорректным URL.
-  retryPaymentId: v.optional(v.pipe(v.string(), v.trim(), v.minLength(1))),
+  // nullish: принимаем null наравне с undefined (защита от клиента,
+  // который сериализует undefined → null).
+  retryPaymentId: v.nullish(v.pipe(v.string(), v.trim(), v.minLength(1))),
 })
 
 // Логика определения test/prod mode и credentials вынесена в getYookassaCredentials()
