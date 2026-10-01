@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { ref } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { useBasketStore } from '~/stores/basket'
 import type { Product } from '~/types'
@@ -41,6 +42,17 @@ const mockProduct2: Product = {
   categoryId: 'watercolor',
 }
 
+const mockShopData = ref<{ products: Record<string, Product> } | null>(null)
+
+vi.mock('~/composables/useApi', () => ({
+  useApi: () => ({
+    shopData: mockShopData,
+    isProductsLoaded: ref(true),
+    isProductsFailed: ref(false),
+    loadProducts: vi.fn(async () => {}),
+  }),
+}))
+
 const mockToastAdd = vi.fn()
 const mockUseToast = vi.fn(() => ({ add: mockToastAdd }))
 
@@ -49,6 +61,8 @@ describe('Basket.vue', () => {
 
   beforeEach(() => {
     setActivePinia(createPinia())
+    mockShopData.value = null
+    vi.stubGlobal('useSeo', vi.fn())
 
     router = createRouter({
       history: createMemoryHistory(),
@@ -129,7 +143,7 @@ describe('Basket.vue', () => {
         },
       })
 
-      expect(wrapper.text()).toContain('Итого:')
+      expect(wrapper.text()).toContain('Итого')
     })
 
     it('показывает количество товаров', async () => {
@@ -217,11 +231,79 @@ describe('Basket.vue', () => {
         },
       })
 
-const initialAmount = basketStore.shoppingCart[0]?.amount ?? 0
+      const initialAmount = basketStore.shoppingCart[0]?.amount ?? 0
       await getVm<BasketVmInstance>(wrapper).increaseAmount(mockProduct1)
 
       expect(basketStore.shoppingCart[0]?.amount).toBe(initialAmount + 1)
     })
   })
 
+  describe('количество и наличие', () => {
+    const mountBasket = () =>
+      mount(Basket, {
+        global: {
+          plugins: [router],
+          stubs: {
+            UButton: {
+              props: ['disabled'],
+              template: '<button :disabled="disabled"><slot /></button>',
+            },
+            NuxtLink: { template: '<a><slot /></a>' },
+          },
+        },
+      })
+
+    it('не показывает выбор количества у работы в единственном экземпляре', () => {
+      const basketStore = useBasketStore()
+      basketStore.addShopItemToBasket({
+        item: { ...mockProduct1, stock: 1 },
+        amount: 1,
+      })
+
+      expect(mountBasket().find('[role="group"]').exists()).toBe(false)
+    })
+
+    it('показывает выбор количества у тиражного товара', () => {
+      const basketStore = useBasketStore()
+      basketStore.addShopItemToBasket({ item: mockProduct1, amount: 2 })
+
+      expect(mountBasket().find('[role="group"]').exists()).toBe(true)
+    })
+
+    it('помечает проданную работу и блокирует оформление', () => {
+      mockShopData.value = {
+        products: {
+          product_1: { ...mockProduct1, stock: 0, isReserved: true },
+          product_2: mockProduct2,
+        },
+      }
+      const basketStore = useBasketStore()
+      basketStore.addShopItemToBasket({ item: mockProduct1, amount: 1 })
+      basketStore.addShopItemToBasket({ item: mockProduct2, amount: 1 })
+
+      const wrapper = mountBasket()
+      const checkout = wrapper
+        .findAll('button')
+        .find(button => button.text().includes('Оформить заказ'))
+
+      expect(wrapper.text()).toContain('Уже продано')
+      expect(checkout?.attributes('disabled')).toBeDefined()
+    })
+
+    it('считает итог только по доступным товарам', () => {
+      mockShopData.value = {
+        products: {
+          product_1: { ...mockProduct1, stock: 0, isReserved: true },
+          product_2: mockProduct2,
+        },
+      }
+      const basketStore = useBasketStore()
+      basketStore.addShopItemToBasket({ item: mockProduct1, amount: 1 })
+      basketStore.addShopItemToBasket({ item: mockProduct2, amount: 1 })
+
+      const text = mountBasket().text().replace(/\s/g, ' ')
+      expect(text).toContain('Товары (1)')
+      expect(text).toContain('2 000 ₽')
+    })
+  })
 })
