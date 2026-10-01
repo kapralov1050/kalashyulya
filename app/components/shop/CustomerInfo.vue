@@ -1,325 +1,152 @@
 <template>
-  <div class="p-6 space-y-12 w-full max-w-3xl mx-auto">
-    <!-- Заголовок раздела -->
-    <section class="space-y-4">
-      <h3 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+  <div
+    class="space-y-10 text-base leading-[1.7] text-neutral-800
+      dark:text-neutral-100"
+  >
+    <section>
+      <p class="text-lg font-semibold text-neutral-900 dark:text-white">
         {{ printLocale('shop_info_welcome_title') }}
+      </p>
+      <p class="mt-2">{{ printLocale('shop_info_welcome_text') }}</p>
+    </section>
+
+    <section aria-labelledby="info-pictures">
+      <h3 id="info-pictures" :class="headingClass">
+        {{ printLocale('shop_info_pictures_title') }}
       </h3>
-      <p class="text-lg text-neutral-700 dark:text-neutral-300 leading-relaxed">
-        {{ printLocale('shop_info_welcome_text') }}
-      </p>
+      <p class="mt-2">{{ printLocale('shop_info_pictures_desc') }}</p>
+      <ul :class="['mt-3', listClass]">
+        <li v-for="key in picturePoints" :key="key">{{ printLocale(key) }}</li>
+      </ul>
+
+      <h4 :class="['mt-6', subheadingClass]">
+        {{ printLocale('shop_info_help_title') }}
+      </h4>
+      <ul :class="['mt-2', listClass]">
+        <li v-for="key in helpPoints" :key="key">{{ printLocale(key) }}</li>
+      </ul>
     </section>
 
-    <!-- Картины -->
-    <section
-      class="bg-gradient-to-br from-white to-neutral-50 dark:from-neutral-900
-        dark:to-neutral-800 rounded-2xl p-8 shadow-sm border border-neutral-200
-        dark:border-neutral-700"
-    >
-      <div class="flex items-center gap-3 mb-6">
-        <h3 class="text-xl font-bold text-neutral-900 dark:text-neutral-100">
-          {{ printLocale('shop_info_pictures_title') }}
-        </h3>
-      </div>
-
-      <div class="space-y-6">
-        <div class="space-y-4">
-          <p class="text-neutral-700 dark:text-neutral-300 leading-relaxed">
-            {{ printLocale('shop_info_pictures_desc') }}
-          </p>
-
-          <ul class="space-y-3">
-            <li class="flex items-start gap-3">
-              <div
-                class="w-2 h-2 rounded-full bg-amber-400 mt-2.5 flex-shrink-0"
-              ></div>
-              <span class="text-neutral-700 dark:text-neutral-300">
-                {{ printLocale('shop_info_pictures_point1') }}
-              </span>
-            </li>
-            <li class="flex items-start gap-3">
-              <div
-                class="w-2 h-2 rounded-full bg-amber-400 mt-2.5 flex-shrink-0"
-              ></div>
-              <span class="text-neutral-700 dark:text-neutral-300">
-                {{ printLocale('shop_info_pictures_point2') }}
-              </span>
-            </li>
-            <li class="flex items-start gap-3">
-              <div
-                class="w-2 h-2 rounded-full bg-amber-400 mt-2.5 flex-shrink-0"
-              ></div>
-              <span class="text-neutral-700 dark:text-neutral-300">
-                {{ printLocale('shop_info_pictures_point3') }}
-              </span>
-            </li>
-          </ul>
-        </div>
-
-        <!-- Дополнительные услуги -->
-        <div
-          class="bg-white/50 dark:bg-neutral-800/50 rounded-xl p-6 border
-            border-neutral-200 dark:border-neutral-700"
-        >
-          <h4 class="font-semibold mb-4 text-neutral-800 dark:text-neutral-200">
-            {{ printLocale('shop_info_help_title') }}
-          </h4>
-          <div class="space-y-3">
-            <div class="flex items-start gap-3">
-              <div
-                class="w-2 h-2 rounded-full bg-neutral-500 mt-2 flex-shrink-0"
-              ></div>
-              <span class="text-neutral-700 dark:text-neutral-300">
-                {{ printLocale('shop_info_help_point1') }}
-              </span>
-            </div>
-            <div class="flex items-start gap-3">
-              <div
-                class="w-2 h-2 rounded-full bg-neutral-500 mt-2 flex-shrink-0"
-              ></div>
-              <span class="text-neutral-700 dark:text-neutral-300">
-                {{ printLocale('shop_info_help_point2') }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Другие работы - сетка -->
-    <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <!-- Картины в оформлении -->
+    <section class="grid gap-x-10 gap-y-8 sm:grid-cols-2">
       <div
-        class="bg-white/50 dark:bg-neutral-900/30 rounded-xl p-6 border
-          border-neutral-200 dark:border-neutral-700"
+        v-for="group in productGroups"
+        :key="group.title"
+        class="border-t border-neutral-200 pt-4 dark:border-neutral-800"
       >
-        <h4
-          class="text-lg font-semibold mb-4 text-neutral-900
-            dark:text-neutral-100"
-        >
-          {{ printLocale('shop_info_framed_title') }}
-        </h4>
-        <p class="text-neutral-700 dark:text-neutral-300 mb-4">
-          {{ printLocale('shop_info_framed_desc') }}
+        <h3 :class="headingClass">{{ printLocale(group.title) }}</h3>
+        <p class="mt-1 text-[0.9375rem] text-neutral-600 dark:text-neutral-300">
+          {{ printLocale(group.desc) }}
         </p>
-        <ul class="space-y-2.5">
-          <li class="flex items-start gap-2">
-            <div
-              class="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2 flex-shrink-0"
-            ></div>
-            <span class="text-sm text-neutral-700 dark:text-neutral-300">
-              {{ printLocale('shop_info_framed_point1') }}
-            </span>
-          </li>
-          <li class="flex items-start gap-2">
-            <div
-              class="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2 flex-shrink-0"
-            ></div>
-            <span class="text-sm text-neutral-700 dark:text-neutral-300">
-              {{ printLocale('shop_info_framed_point2') }}
-            </span>
+        <ul :class="['mt-3 text-[0.9375rem]', listClass]">
+          <li v-for="point in group.points" :key="String(point)">
+            <template v-if="Array.isArray(point)">
+              <span class="font-medium text-neutral-900 dark:text-white">
+                {{ printLocale(point[0]) }}
+              </span>
+              — {{ lowerFirst(printLocale(point[1])) }}
+            </template>
+            <template v-else>{{ printLocale(point) }}</template>
           </li>
         </ul>
       </div>
-
-      <!-- Наброски -->
-      <div
-        class="bg-white/50 dark:bg-neutral-900/30 rounded-xl p-6 border
-          border-neutral-200 dark:border-neutral-700"
-      >
-        <h4
-          class="text-lg font-semibold mb-4 text-neutral-900
-            dark:text-neutral-100"
-        >
-          {{ printLocale('shop_info_sketches_title') }}
-        </h4>
-        <p class="text-neutral-700 dark:text-neutral-300 mb-4">
-          {{ printLocale('shop_info_sketches_desc') }}
-        </p>
-        <ul class="space-y-2.5">
-          <li class="flex items-start gap-2">
-            <div
-              class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 flex-shrink-0"
-            ></div>
-            <span class="text-sm text-neutral-700 dark:text-neutral-300">
-              {{ printLocale('shop_info_sketches_point1') }}
-            </span>
-          </li>
-          <li class="flex items-start gap-2">
-            <div
-              class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 flex-shrink-0"
-            ></div>
-            <span class="text-sm text-neutral-700 dark:text-neutral-300">
-              {{ printLocale('shop_info_sketches_point2') }}
-            </span>
-          </li>
-        </ul>
-      </div>
-
-      <!-- Постеры -->
-      <div
-        class="bg-white/50 dark:bg-neutral-900/30 rounded-xl p-6 border
-          border-neutral-200 dark:border-neutral-700"
-      >
-        <h4
-          class="text-lg font-semibold mb-4 text-neutral-900
-            dark:text-neutral-100"
-        >
-          {{ printLocale('shop_info_posters_title') }}
-        </h4>
-        <p class="text-neutral-700 dark:text-neutral-300 mb-4">
-          {{ printLocale('shop_info_posters_desc') }}
-        </p>
-        <ul class="space-y-2.5">
-          <li class="flex items-start gap-2">
-            <div
-              class="w-1.5 h-1.5 rounded-full bg-purple-400 mt-2 flex-shrink-0"
-            ></div>
-            <span class="text-sm text-neutral-700 dark:text-neutral-300">
-              {{ printLocale('shop_info_posters_point1') }}
-            </span>
-          </li>
-          <li class="flex items-start gap-2">
-            <div
-              class="w-1.5 h-1.5 rounded-full bg-purple-400 mt-2 flex-shrink-0"
-            ></div>
-            <span class="text-sm text-neutral-700 dark:text-neutral-300">
-              {{ printLocale('shop_info_posters_point2') }}
-            </span>
-          </li>
-        </ul>
-      </div>
-
-      <!-- Открытки и стикеры -->
-      <div
-        class="bg-white/50 dark:bg-neutral-900/30 rounded-xl p-6 border
-          border-neutral-200 dark:border-neutral-700"
-      >
-        <h4
-          class="text-lg font-semibold mb-4 text-neutral-900
-            dark:text-neutral-100"
-        >
-          {{ printLocale('shop_info_postcards_title') }}
-        </h4>
-        <p class="text-neutral-700 dark:text-neutral-300 mb-4">
-          {{ printLocale('shop_info_postcards_desc') }}
-        </p>
-        <div class="grid grid-cols-2 gap-4">
-          <div class="space-y-2">
-            <h5 class="font-medium text-neutral-800 dark:text-neutral-200">
-              {{ printLocale('shop_info_postcards_subtitle') }}
-            </h5>
-            <p class="text-sm text-neutral-600 dark:text-neutral-400">
-              {{ printLocale('shop_info_postcards_sub_desc') }}
-            </p>
-          </div>
-          <div class="space-y-2">
-            <h5 class="font-medium text-neutral-800 dark:text-neutral-200">
-              {{ printLocale('shop_info_stickers_subtitle') }}
-            </h5>
-            <p class="text-sm text-neutral-600 dark:text-neutral-400">
-              {{ printLocale('shop_info_stickers_sub_desc') }}
-            </p>
-          </div>
-        </div>
-      </div>
     </section>
 
-    <!-- Оплата и доставка -->
-    <section
-      class="bg-gradient-to-br from-white to-neutral-50 dark:from-neutral-900
-        dark:to-neutral-800 rounded-2xl p-8 shadow-sm border border-neutral-200
-        dark:border-neutral-700"
-    >
-      <div class="flex items-center gap-3 mb-6">
-        <UIcon
-          name="i-heroicons-credit-card"
-          class="w-6 h-6 text-neutral-700 dark:text-neutral-300"
-        />
-        <h3 class="text-xl font-bold text-neutral-900 dark:text-neutral-100">
-          {{ printLocale('shop_info_payment_title') }}
-        </h3>
-      </div>
+    <section aria-labelledby="info-payment">
+      <h3 id="info-payment" :class="headingClass">
+        {{ printLocale('shop_info_payment_title') }}
+      </h3>
 
-      <div class="space-y-6">
-        <!-- Оплата -->
-        <div class="space-y-4">
-          <h4
-            class="font-semibold text-lg text-neutral-800 dark:text-neutral-200"
-          >
-            {{ printLocale('shop_info_payment_methods_title') }}
-          </h4>
-          <p class="text-neutral-700 dark:text-neutral-300 leading-relaxed">
-            {{ printLocale('shop_info_payment_methods_desc') }}
-          </p>
+      <h4 :class="['mt-4', subheadingClass]">
+        {{ printLocale('shop_info_payment_methods_title') }}
+      </h4>
+      <p class="mt-1">{{ printLocale('shop_info_payment_methods_desc') }}</p>
+      <ul :class="['mt-3', listClass]">
+        <li v-for="key in paymentPoints" :key="key">{{ printLocale(key) }}</li>
+      </ul>
 
-          <ul class="space-y-3">
-            <li class="flex items-start gap-3">
-              <div
-                class="w-2 h-2 rounded-full bg-green-500 mt-2.5 flex-shrink-0"
-              ></div>
-              <span class="text-neutral-700 dark:text-neutral-300">
-                {{ printLocale('shop_info_payment_point1') }}
-              </span>
-            </li>
-            <li class="flex items-start gap-3">
-              <div
-                class="w-2 h-2 rounded-full bg-green-500 mt-2.5 flex-shrink-0"
-              ></div>
-              <span class="text-neutral-700 dark:text-neutral-300">
-                {{ printLocale('shop_info_payment_point2') }}
-              </span>
-            </li>
-          </ul>
-        </div>
-
-        <!-- Доставка -->
-        <div class="space-y-4">
-          <h4
-            class="font-semibold text-lg text-neutral-800 dark:text-neutral-200"
-          >
-            {{ printLocale('shop_info_delivery_title') }}
-          </h4>
-
-          <ul class="space-y-3">
-            <li class="flex items-start gap-3">
-              <div
-                class="w-2 h-2 rounded-full bg-blue-500 mt-2.5 flex-shrink-0"
-              ></div>
-              <span class="text-neutral-700 dark:text-neutral-300">
-                {{ printLocale('shop_info_delivery_point1') }}
-              </span>
-            </li>
-            <li class="flex items-start gap-3">
-              <div
-                class="w-2 h-2 rounded-full bg-blue-500 mt-2.5 flex-shrink-0"
-              ></div>
-              <span class="text-neutral-700 dark:text-neutral-300">
-                {{ printLocale('shop_info_delivery_point2') }}
-              </span>
-            </li>
-            <li class="flex items-start gap-3">
-              <div
-                class="w-2 h-2 rounded-full bg-blue-500 mt-2.5 flex-shrink-0"
-              ></div>
-              <span class="text-neutral-700 dark:text-neutral-300">
-                {{ printLocale('shop_info_delivery_point3') }}
-              </span>
-            </li>
-          </ul>
-        </div>
-      </div>
+      <h4 :class="['mt-6', subheadingClass]">
+        {{ printLocale('shop_info_delivery_title') }}
+      </h4>
+      <ul :class="['mt-2', listClass]">
+        <li v-for="key in deliveryPoints" :key="key">{{ printLocale(key) }}</li>
+      </ul>
     </section>
 
-    <!-- Призыв к действию -->
-    <section class="text-center py-8">
-      <p class="text-neutral-700 dark:text-neutral-300">
-        {{ printLocale('shop_info_cta') }}
-      </p>
+    <section class="border-t border-neutral-200 pt-6 dark:border-neutral-800">
+      <p>{{ printLocale('shop_info_cta') }}</p>
+      <a
+        href="https://t.me/kalashyulyaa"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="mt-3 inline-flex items-center gap-2 rounded-sm text-[0.9375rem]
+          font-medium text-neutral-900 underline decoration-neutral-300
+          underline-offset-4 hover:decoration-neutral-900 focus-visible:outline-2
+          focus-visible:outline-offset-4 focus-visible:outline-neutral-900
+          dark:text-white dark:decoration-neutral-600 dark:hover:decoration-white
+          dark:focus-visible:outline-white"
+        @click="trackClick('telegramButton')"
+      >
+        Написать в Telegram
+        <span class="sr-only">(откроется в новой вкладке)</span>
+      </a>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
   const { printLocale } = useLocales()
+
+  const trackClick = (name: string) => metrics.trackButtonClick(name)
+
+  const headingClass =
+    'text-lg font-semibold text-neutral-900 dark:text-white'
+  const subheadingClass = 'font-medium text-neutral-900 dark:text-white'
+  const listClass =
+    'space-y-1.5 pl-5 [&>li]:list-disc marker:text-neutral-400 dark:marker:text-neutral-500'
+
+  const picturePoints = [
+    'shop_info_pictures_point1',
+    'shop_info_pictures_point2',
+    'shop_info_pictures_point3',
+  ]
+  const helpPoints = ['shop_info_help_point1', 'shop_info_help_point2']
+  const paymentPoints = ['shop_info_payment_point1', 'shop_info_payment_point2']
+  const deliveryPoints = [
+    'shop_info_delivery_point1',
+    'shop_info_delivery_point2',
+    'shop_info_delivery_point3',
+  ]
+
+  const lowerFirst = (text: string) =>
+    text.charAt(0).toLowerCase() + text.slice(1)
+
+  const productGroups: {
+    title: string
+    desc: string
+    points: (string | [string, string])[]
+  }[] = [
+    {
+      title: 'shop_info_framed_title',
+      desc: 'shop_info_framed_desc',
+      points: ['shop_info_framed_point1', 'shop_info_framed_point2'],
+    },
+    {
+      title: 'shop_info_sketches_title',
+      desc: 'shop_info_sketches_desc',
+      points: ['shop_info_sketches_point1', 'shop_info_sketches_point2'],
+    },
+    {
+      title: 'shop_info_posters_title',
+      desc: 'shop_info_posters_desc',
+      points: ['shop_info_posters_point1', 'shop_info_posters_point2'],
+    },
+    {
+      title: 'shop_info_postcards_title',
+      desc: 'shop_info_postcards_desc',
+      points: [
+        ['shop_info_postcards_subtitle', 'shop_info_postcards_sub_desc'],
+        ['shop_info_stickers_subtitle', 'shop_info_stickers_sub_desc'],
+      ],
+    },
+  ]
 </script>

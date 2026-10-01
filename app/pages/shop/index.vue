@@ -1,5 +1,5 @@
 <template>
-  <div class="mb-10 flex flex-col gap-y-10">
+  <div class="flex flex-col gap-y-10 pb-16 sm:pb-24">
     <ShopHero />
     <ShopList />
   </div>
@@ -13,5 +13,3 @@
     image: '/logo.png',
   })
 </script>
-
-<style scoped lang="scss"></style>

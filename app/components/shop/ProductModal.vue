@@ -3,28 +3,35 @@
     v-if="selectedProduct"
     v-model:open="isOpen"
     :title="selectedProduct.title"
+    :description="description"
+    :fullscreen="isPhone"
     :ui="{
-      overlay: 'bg-black/50 backdrop-blur-sm',
-      content: 'min-w-[80vw] max-h-[70vh] h-auto shadow-4xl',
+      overlay: 'bg-neutral-950/60',
+      content: 'divide-y-0 sm:max-w-6xl',
     }"
   >
     <template #content>
       <UButton
-        icon="heroicons:x-mark-16-solid"
-        variant="link"
+        icon="heroicons:x-mark"
         color="neutral"
+        variant="ghost"
         size="lg"
-        class="absolute top-4 right-4 z-10000 rounded-full text-black
-          dark:text-white border-2 border-black dark:border-white
-          hover:text-neutral-500 hover:border-neutral-500"
+        square
+        aria-label="Закрыть"
+        class="absolute right-3 top-3 z-10 bg-white p-2.5 text-neutral-600
+          hover:bg-neutral-100 hover:text-neutral-900 dark:bg-neutral-900
+          dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-white"
         @click="emit('close')"
       />
-      <ShopItemExtended :product="selectedProduct" />
+      <div data-lenis-prevent class="min-h-0 flex-1 overflow-y-auto">
+        <ShopItemExtended :product="selectedProduct" />
+      </div>
     </template>
   </UModal>
 </template>
 
 <script setup lang="ts">
+  import { getProductTypeLabel } from '~/constants/products'
   import type { Product } from '~/types'
 
   const props = defineProps<{
@@ -36,8 +43,21 @@
     close: []
   }>()
 
+  const { printLocale } = useLocales()
+
   const isOpen = computed({
     get: () => props.isProductModalOpen,
     set: () => emit('close'),
+  })
+
+  const isPhone = useMediaQuery('(max-width: 639px)')
+
+  const description = computed(() => {
+    const typeLabel = props.selectedProduct
+      ? getProductTypeLabel(props.selectedProduct.categoryId)
+      : ''
+    return typeLabel
+      ? `${typeLabel} ${printLocale('shop_item_author')}`
+      : printLocale('shop_item_author')
   })
 </script>

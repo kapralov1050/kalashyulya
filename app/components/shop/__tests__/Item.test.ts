@@ -1,27 +1,26 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mount, flushPromises } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
+import { createPinia, setActivePinia } from 'pinia'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import Item from '../Item.vue'
 import type { Product } from '~/types'
-import type { ItemVmInstance } from '~/types/test'
-import { getVm } from '~/utils/test-helpers'
 
 const trackButtonClick = vi.fn()
 
 const mockProduct: Product = {
   id: 1,
-  title: 'Картина маслом',
-  price: 1000,
+  title: 'Влажный воздух',
+  price: 20000,
   image: ['img1.jpg'],
-  stock: 5,
-  tags: ['масло', 'портрет'],
-  description: 'Красивая картина',
-  size: '',
-  material: '',
-  tecnic: '',
-  year: '',
+  stock: 1,
+  tags: ['пейзаж', 'зима'],
+  description: 'Первый зимний пленэр',
+  size: '27,5*40',
+  material: 'Бумага, акварель',
+  tecnic: 'Акварель',
+  year: '2025',
   file: [],
-  categoryId: 'canvas',
+  categoryId: 'category_1',
   isReserved: false,
 }
 
@@ -35,324 +34,172 @@ const mockProductSold: Product = {
 const mockProductReserved: Product = {
   ...mockProduct,
   id: 3,
-  stock: 2,
+  stock: 1,
   isReserved: true,
 }
 
 const UButtonStub = {
-  template: '<button v-bind="$attrs"><slot /></button>',
+  props: ['to'],
+  template:
+    '<a v-if="to" :href="to" v-bind="$attrs"><slot /></a><button v-else v-bind="$attrs"><slot /></button>',
+  inheritAttrs: false,
+}
+
+const NuxtLinkStub = {
+  props: ['to'],
+  template: '<a href="#" v-bind="$attrs"><slot /></a>',
   inheritAttrs: false,
 }
 
 describe('Item.vue', () => {
   let router: ReturnType<typeof createRouter>
 
-  beforeEach(() => {
+  const mountItem = (product: Product, isInBasket = false) => {
+    if (isInBasket) {
+      useBasketStore().addShopItemToBasket({ amount: 1, item: product })
+    }
+    return mount(Item, {
+      props: { product },
+      global: {
+        plugins: [router],
+        stubs: { UButton: UButtonStub, NuxtLink: NuxtLinkStub },
+      },
+    })
+  }
+
+  beforeEach(async () => {
+    trackButtonClick.mockClear()
+    setActivePinia(createPinia())
+    localStorage.clear()
+
     router = createRouter({
       history: createMemoryHistory(),
       routes: [
-        {
-          path: '/shop',
-          component: { template: '<div></div>' },
-        },
-        {
-          path: '/basket',
-          component: { template: '<div></div>' },
-        },
+        { path: '/shop', component: { template: '<div></div>' } },
+        { path: '/basket', component: { template: '<div></div>' } },
       ],
     })
+    await router.push('/shop')
 
     vi.stubGlobal('metrics', { trackButtonClick })
 
     vi.stubGlobal('useLocales', () => ({
       printLocale: (key: string) => {
         const translations: Record<string, string> = {
-          shop_item_buy: 'Купить',
-          shop_item_in_basket: 'В корзине',
+          shop_item_add_to_basket: 'Добавить в корзину',
           shop_item_sold: 'Продано',
-          shop_item_reserved_badge: 'Зарезервировано',
+          shop_item_reserved_badge: 'Забронировано',
         }
         return translations[key] || key
       },
     }))
   })
 
-  describe('рендеринг товара', () => {
-    it('отображает название товара', async () => {
-      const wrapper = mount(Item, {
-        props: {
-          product: mockProduct,
-          isInBasket: false,
-        },
-        global: {
-          plugins: [router],
-          stubs: { UButton: UButtonStub },
-        },
-      })
-
-      expect(wrapper.text()).toContain('Картина маслом')
+  describe('подпись к работе', () => {
+    it('показывает название', () => {
+      expect(mountItem(mockProduct).find('h2').text()).toBe('Влажный воздух')
     })
 
-    it('отображает цену товара', async () => {
-      const wrapper = mount(Item, {
-        props: {
-          product: mockProduct,
-          isInBasket: false,
-        },
-        global: {
-          plugins: [router],
-          stubs: { UButton: UButtonStub },
-        },
-      })
-
-      expect(wrapper.text()).toContain('1000 ₽')
+    it('показывает материал, размер и год одной строкой', () => {
+      expect(mountItem(mockProduct).text()).toContain(
+        'Бумага, акварель · 27,5 × 40 см · 2025',
+      )
     })
 
-    it('отображает изображение товара', async () => {
-      const wrapper = mount(Item, {
-        props: {
-          product: mockProduct,
-          isInBasket: false,
-        },
-        global: {
-          plugins: [router],
-          stubs: { UButton: UButtonStub },
-        },
-      })
-
-      const img = wrapper.find('img')
-      expect(img.attributes('src')).toBe('img1.jpg')
+    it('показывает цену с разделителем разрядов', () => {
+      const text = mountItem(mockProduct).text().replace(/\s/g, ' ')
+      expect(text).toContain('20 000 ₽')
     })
 
-    it('отображает теги товара', async () => {
-      const wrapper = mount(Item, {
-        props: {
-          product: mockProduct,
-          isInBasket: false,
-        },
-        global: {
-          plugins: [router],
-          stubs: { UButton: UButtonStub },
-        },
-      })
-
-      expect(wrapper.text()).toContain('масло')
-      expect(wrapper.text()).toContain('портрет')
-    })
-
-    it('отображает дефолтное изображение если нет изображения товара', async () => {
-      const productWithoutImage: Product = {
-        ...mockProduct,
-        image: [],
-      }
-
-      const wrapper = mount(Item, {
-        props: {
-          product: productWithoutImage,
-          isInBasket: false,
-        },
-        global: {
-          plugins: [router],
-          stubs: { UButton: UButtonStub },
-        },
-      })
-
-      const img = wrapper.find('img')
-      expect(img.attributes('src')).toBe('/default-shop-image.png')
+    it('не показывает теги в каталоге', () => {
+      const text = mountItem(mockProduct).text()
+      expect(text).not.toContain('пейзаж')
+      expect(text).not.toContain('зима')
     })
   })
 
-  describe('статус товара в корзине', () => {
-    it('показывает "Купить" если товар не в корзине', async () => {
-      const wrapper = mount(Item, {
-        props: {
-          product: mockProduct,
-          isInBasket: false,
-        },
-        global: {
-          plugins: [router],
-          stubs: { UButton: UButtonStub },
-        },
-      })
-
-      expect(wrapper.text()).toContain('Купить')
+  describe('изображение', () => {
+    it('берёт первое изображение товара', () => {
+      expect(mountItem(mockProduct).find('img').attributes('src')).toBe(
+        'img1.jpg',
+      )
     })
 
-    it('показывает "В корзине" если товар добавлен', async () => {
-      const wrapper = mount(Item, {
-        props: {
-          product: mockProduct,
-          isInBasket: true,
-        },
-        global: {
-          plugins: [router],
-          stubs: { UButton: UButtonStub },
-        },
-      })
+    it('подставляет заглушку, если изображений нет', () => {
+      const wrapper = mountItem({ ...mockProduct, image: [] })
+      expect(wrapper.find('img').attributes('src')).toBe(
+        '/default-shop-image.png',
+      )
+    })
 
-      expect(wrapper.text()).toContain('В корзине')
+    it('резервирует пропорции работы из размера «высота*ширина»', () => {
+      const style = mountItem(mockProduct).find('img').attributes('style')
+      expect(style).toContain('aspect-ratio: auto 40 / 27.5')
     })
   })
 
-  describe('клики и эмиты', () => {
-    it('эмитит "addToBasket" при клике на кнопку корзины', async () => {
-      const wrapper = mount(Item, {
-        props: {
-          product: mockProduct,
-          isInBasket: false,
-        },
-        global: {
-          plugins: [router],
-          stubs: { UButton: UButtonStub },
-        },
-      })
-
-      await wrapper.vm.$emit('addToBasket', mockProduct)
-
-      expect(wrapper.emitted('addToBasket')).toBeTruthy()
+  describe('кнопка покупки', () => {
+    it('показывает «Добавить в корзину», если товара нет в корзине', () => {
+      const button = mountItem(mockProduct).find('button')
+      expect(button.text()).toContain('Добавить в корзину')
     })
 
-    it('эмитит "buy" при клике на кнопку "Купить" если товар не в корзине', async () => {
-      const wrapper = mount(Item, {
-        props: {
-          product: mockProduct,
-          isInBasket: false,
-        },
-        global: {
-          plugins: [router],
-          stubs: { UButton: UButtonStub },
-        },
-      })
+    it('кладёт товар в корзину и отправляет метрику при нажатии', async () => {
+      const wrapper = mountItem(mockProduct)
+      await wrapper.find('button').trigger('click')
 
-      getVm<ItemVmInstance>(wrapper).handleBuy()
-
-      expect(wrapper.emitted('buy')).toBeTruthy()
-      expect(wrapper.emitted('buy')?.[0]).toEqual([mockProduct])
+      const cart = useBasketStore().shoppingCart
+      expect(cart).toHaveLength(1)
+      expect(cart[0]?.item.id).toBe(mockProduct.id)
+      expect(cart[0]?.item).not.toHaveProperty('tags')
+      expect(trackButtonClick).toHaveBeenCalledWith('addToBasket')
     })
 
-    it('редиректит в корзину если товар уже добавлен и нажать "В корзине"', async () => {
-      await router.push('/shop')
+    it('сразу после добавления показывает «Оформить заказ»', async () => {
+      const wrapper = mountItem(mockProduct)
+      await wrapper.find('button').trigger('click')
 
-      const wrapper = mount(Item, {
-        props: {
-          product: mockProduct,
-          isInBasket: true,
-        },
-        global: {
-          plugins: [router],
-          stubs: { UButton: UButtonStub },
-        },
-      })
-
-      getVm<ItemVmInstance>(wrapper).handleBuy()
-      await flushPromises()
-
-      expect(router.currentRoute.value.path).toBe('/basket')
+      expect(wrapper.find('a[href="/basket"]').text()).toContain(
+        'Оформить заказ',
+      )
     })
 
-    it('эмитит "filterByTag" при клике на тег', async () => {
-      const wrapper = mount(Item, {
-        props: {
-          product: mockProduct,
-          isInBasket: false,
-        },
-        global: {
-          plugins: [router],
-          stubs: { UButton: UButtonStub },
-        },
-      })
+    it('после добавления становится ссылкой «Оформить заказ» на корзину', () => {
+      const wrapper = mountItem(mockProduct, true)
+      const link = wrapper.find('a[href="/basket"]')
 
-      const tags = wrapper.findAll('[class*="primary-500"]')
-      if (tags.length > 0) {
-        await tags[0]?.trigger('click')
-        expect(wrapper.emitted('filterByTag')).toBeTruthy()
-      }
+      expect(link.exists()).toBe(true)
+      expect(link.text()).toContain('Оформить заказ')
+      expect(wrapper.find('button').exists()).toBe(false)
     })
 
-    it('открывает модаль товара при клике на изображение', async () => {
-      await router.push('/shop')
-
-      const wrapper = mount(Item, {
-        props: {
-          product: mockProduct,
-          isInBasket: false,
-        },
-        global: {
-          plugins: [router],
-          stubs: { UButton: UButtonStub },
-        },
-      })
-
-      getVm<ItemVmInstance>(wrapper).openProductPage()
-      await flushPromises()
-
-      expect(router.currentRoute.value.query.id).toBe('1')
+    it('называет товар в кнопке для скринридеров', () => {
+      const button = mountItem(mockProduct).find('button')
+      expect(button.find('.sr-only').text()).toBe('«Влажный воздух»')
     })
   })
 
-  describe('специальные статусы товара', () => {
-    it('показывает бейдж "Продано" для товара со stock=0 и isReserved=true', async () => {
-      const wrapper = mount(Item, {
-        props: {
-          product: mockProductSold,
-          isInBasket: false,
-        },
-        global: {
-          plugins: [router],
-          stubs: { UButton: UButtonStub },
-        },
-      })
+  describe('недоступные товары', () => {
+    it('показывает «Продано» без кнопки покупки', () => {
+      const wrapper = mountItem(mockProductSold)
 
       expect(wrapper.text()).toContain('Продано')
+      expect(wrapper.find('button').exists()).toBe(false)
+      expect(wrapper.text()).not.toContain('₽')
     })
 
-    it('показывает бейдж "Зарезервировано" для товара со stock>0 и isReserved=true', async () => {
-      const wrapper = mount(Item, {
-        props: {
-          product: mockProductReserved,
-          isInBasket: false,
-        },
-        global: {
-          plugins: [router],
-          stubs: { UButton: UButtonStub },
-        },
-      })
+    it('показывает «Забронировано» без кнопки покупки', () => {
+      const wrapper = mountItem(mockProductReserved)
 
-      expect(wrapper.text()).toContain('Зарезервировано')
-    })
-
-    it('скрывает кнопки покупки для товара без наличия', async () => {
-      const wrapper = mount(Item, {
-        props: {
-          product: mockProductSold,
-          isInBasket: false,
-        },
-        global: {
-          plugins: [router],
-          stubs: { UButton: UButtonStub },
-        },
-      })
-
-      expect(wrapper.text()).not.toContain('Купить')
+      expect(wrapper.text()).toContain('Забронировано')
+      expect(wrapper.find('button').exists()).toBe(false)
     })
   })
 
-  describe('метрики', () => {
-    it('отправляет метрику при клике на "Купить"', async () => {
-      const wrapper = mount(Item, {
-        props: {
-          product: mockProduct,
-          isInBasket: false,
-        },
-        global: {
-          plugins: [router],
-          stubs: { UButton: UButtonStub },
-        },
-      })
+  it('отправляет метрику при открытии карточки товара', async () => {
+    const wrapper = mountItem(mockProduct)
+    await wrapper.find('a').trigger('click')
 
-      getVm<ItemVmInstance>(wrapper).handleBuy()
-
-      expect(trackButtonClick).toHaveBeenCalledWith('buyButton')
-    })
+    expect(trackButtonClick).toHaveBeenCalledWith('productExtendedButton')
   })
 })

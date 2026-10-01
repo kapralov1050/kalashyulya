@@ -1,167 +1,143 @@
 <template>
   <div
-    ref="contentRef"
-    class="h-full overflow-y-auto scrollbar-hidden grid grid-cols-1
-      lg:grid-cols-2 gap-5 md:p-10"
+    class="grid gap-8 px-4 pb-6 pt-16 sm:p-8 lg:grid-cols-12 lg:gap-x-12 lg:p-10"
   >
-    <!-- Artwork Image (2/3 width on desktop) -->
-    <div class="flex justify-center items-center">
+    <div class="lg:col-span-7 lg:self-center">
       <UCarousel
-        v-slot="{ item }"
-        :dots="props.product.image.length > 1"
-        :items="props.product.image"
-        loop
-        touch="false"
-        :watch-drag="false"
+        v-slot="{ item, index }"
+        :items="images"
+        :dots="hasGallery"
+        :arrows="hasGallery"
+        :loop="hasGallery"
+        :watch-drag="hasGallery && !canMagnify"
+        :ui="{
+          item: 'flex items-center justify-center',
+          prev: 'start-2',
+          next: 'end-2',
+        }"
       >
         <VueMagnifier
+          v-if="canMagnify"
           :key="item"
           :src="item"
-          :alt="props.product.title"
+          :alt="imageAlt(index)"
+          :width="magnifierWidth"
           :mg-width="magnifierSize"
           :mg-height="magnifierSize"
-          :zoom-factor="zoom"
-          :mg-show="!isCalendarCategory(props.product.categoryId)"
+          :zoom-factor="2"
           :mg-touch-offset-x="-35"
           :mg-touch-offset-y="-35"
-          class="aspect-auto object-contain max-h-[50vh] p-5"
+          class="bg-neutral-100 shadow-[0_1px_2px_rgb(0_0_0/0.08),0_24px_48px_-28px_rgb(0_0_0/0.45)]
+            dark:bg-neutral-800 dark:shadow-none"
+        />
+        <img
+          v-else
+          :src="item"
+          :alt="imageAlt(index)"
+          class="h-auto max-h-[min(70dvh,760px)] w-auto max-w-full bg-neutral-100
+            shadow-[0_1px_2px_rgb(0_0_0/0.08),0_24px_48px_-28px_rgb(0_0_0/0.45)]
+            dark:bg-neutral-800 dark:shadow-none"
         />
       </UCarousel>
     </div>
-    <div class="flex flex-col p-6">
-      <h1
-        class="title-font text-3xl font-bold text-neutral-900
-          dark:text-neutral-100 mb-2"
+
+    <div class="lg:col-span-5 lg:pt-2">
+      <p
+        aria-hidden="true"
+        class="pr-12 text-[1.75rem] font-bold leading-[1.15] tracking-[-0.02em]
+          text-neutral-900 dark:text-white sm:text-3xl"
       >
-        {{ props.product.title }}
-      </h1>
-      <p class="text-gray-500 dark:text-neutral-200 mb-4">
-        {{ subtitleProduct }}
-        <span class="text-secondary-600">
-          {{ printLocale('shop_item_author') }}
-        </span>
+        {{ product.title }}
+      </p>
+      <p
+        v-if="typeLabel"
+        class="mt-2 text-[0.9375rem] text-neutral-600 dark:text-neutral-300"
+      >
+        {{ typeLabel }} {{ printLocale('shop_item_author') }}
       </p>
 
-      <div class="flex items-center mb-6">
-        <span class="text-gray-500 dark:text-neutral-200 text-sm">
-          ({{ pluralizeViews(views) }})
-        </span>
+      <div class="mt-8">
+        <template v-if="isAvailable">
+          <p
+            class="text-2xl font-semibold tabular-nums text-neutral-900
+              dark:text-white"
+          >
+            {{ formatPrice(product.price) }}
+          </p>
+          <ShopBuyButton
+            :product="product"
+            size="xl"
+            class="mt-4 w-full justify-center sm:w-auto sm:px-8"
+          />
+        </template>
+        <p v-else class="text-lg text-neutral-600 dark:text-neutral-300">
+          {{ unavailableLabel }}
+        </p>
       </div>
 
-      <div class="text-gray-600 dark:text-neutral-200 mb-6 break-normal">
-        {{ props.product.description }}
-      </div>
+      <p
+        v-if="description"
+        class="mt-8 max-w-[60ch] whitespace-pre-line text-[1.0625rem]
+          leading-[1.75] text-neutral-800 dark:text-neutral-100"
+      >
+        {{ description }}
+      </p>
 
-      <div class="text-sm">
-        <UAccordion type="multiple" :items="items">
-          <template #content>
-            <div class="pb-5">
-              <p>
-                {{ printLocale('shop_item_size') }} {{ props.product.size }} см.
-              </p>
-              <p>
-                {{ printLocale('shop_item_material') }}
-                {{ props.product.material }}
-              </p>
-              <p>
-                {{ printLocale('shop_item_technique') }}
-                {{ props.product.tecnic }}
-              </p>
-              <p>
-                {{ printLocale('shop_item_year') }} {{ props.product.year }}
-              </p>
-              <p v-if="framingLabel">
-                {{ printLocale('shop_item_framing') }} {{ framingLabel }}
-              </p>
-            </div>
-          </template>
-        </UAccordion>
-      </div>
-
-      <div class="mt-auto">
-        <!-- Продано: stock=0 && isReserved -->
+      <dl
+        v-if="characteristics.length"
+        class="mt-8 divide-y divide-neutral-200 border-y border-neutral-200
+          text-[0.9375rem] dark:divide-neutral-800 dark:border-neutral-800"
+      >
         <div
-          v-if="product.stock === 0 && product.isReserved"
-          class="flex items-center gap-2 bg-gray-100 text-gray-600 px-4 py-3
-            rounded-xl mb-6"
+          v-for="row in characteristics"
+          :key="row.label"
+          class="flex justify-between gap-6 py-2.5"
         >
-          <svg
-            class="w-5 h-5 flex-shrink-0"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-              clip-rule="evenodd"
-            />
-          </svg>
-          <span class="font-medium">{{ printLocale('shop_item_sold') }}</span>
+          <dt class="text-neutral-500 dark:text-neutral-400">
+            {{ row.label }}
+          </dt>
+          <dd class="text-right text-neutral-900 dark:text-white">
+            {{ row.value }}
+          </dd>
         </div>
+      </dl>
 
-        <!-- Цена + статус: только когда есть в наличии -->
-        <div
-          v-if="product.stock > 0"
-          class="flex items-center justify-between mb-6"
-        >
-          <!-- Цена (только если не зарезервировано) -->
-          <span
-            v-if="!product.isReserved"
-            class="title-font text-3xl font-bold text-gray-900
-              dark:text-neutral-100"
+      <ul
+        v-if="product.tags?.length"
+        aria-label="Темы работы"
+        class="mt-6 flex flex-wrap gap-x-4 gap-y-2"
+      >
+        <li v-for="tag in product.tags" :key="tag">
+          <NuxtLink
+            to="/shop"
+            class="rounded-sm text-sm text-neutral-600 underline
+              decoration-neutral-300 underline-offset-4 transition-colors
+              hover:text-neutral-900 hover:decoration-neutral-900
+              focus-visible:outline-2 focus-visible:outline-offset-4
+              focus-visible:outline-neutral-900 dark:text-neutral-300
+              dark:decoration-neutral-600 dark:hover:text-white
+              dark:hover:decoration-white dark:focus-visible:outline-white"
+            @click="showWorksByTag(tag)"
           >
-            {{ props.product.price }} ₽
-          </span>
+            #{{ tag }}
+          </NuxtLink>
+        </li>
+      </ul>
 
-          <!-- Зарезервировано: stock>0 && isReserved -->
-          <div
-            v-if="product.isReserved"
-            class="flex items-center space-x-1.5 bg-amber-100 text-amber-700
-              px-3 py-1.5 rounded-lg text-sm font-medium"
-          >
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fill-rule="evenodd"
-                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                clip-rule="evenodd"
-              />
-            </svg>
-            <span>{{ printLocale('shop_item_reserved_detail') }}</span>
-          </div>
-          <span v-else class="text-green-600 font-medium">
-            {{ printLocale('shop_item_available') }}
-          </span>
-        </div>
-
-        <!-- Кнопка: только когда есть в наличии -->
-        <UButton
-          v-if="product.stock > 0"
-          class="w-full bg-neutral-900 dark:bg-neutral-400 hover:bg-neutral-700
-            text-white py-3 px-6 rounded-md font-medium transition flex
-            items-center justify-center gap-2"
-          :color="isInBasket ? 'success' : 'secondary'"
-          :disabled="isInBasket"
-          :loading="isLoading"
-          @click="addToBasket(props.product)"
-        >
-          <span>
-            {{
-              isInBasket
-                ? printLocale('shop_item_in_basket')
-                : printLocale('shop_item_add_to_basket')
-            }}
-          </span>
-        </UButton>
-      </div>
+      <p
+        v-if="views"
+        class="mt-6 text-sm text-neutral-500 dark:text-neutral-400"
+      >
+        {{ pluralizeViews(views) }}
+      </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-  import type { AccordionItem } from '@nuxt/ui'
   import VueMagnifier from '@websitebeaver/vue-magnifier'
+  import ShopBuyButton from '~/components/shop/BuyButton.vue'
   import '@websitebeaver/vue-magnifier/styles.css'
-  import { nextTick, onMounted, ref } from 'vue'
   import { useProductViews } from '~/composables/useProductViews'
   import {
     FramingTypeLabels,
@@ -170,113 +146,107 @@
     ProductCategory,
   } from '~/constants/products'
   import type { Product } from '~/types'
-
-  const { printLocale } = useLocales()
+  import {
+    formatPrice,
+    formatProductSize,
+    parseProductSize,
+  } from '~/utils/productFormat'
+  import { pluralizeViews } from '~/utils/pluralize'
 
   const props = defineProps<{
     product: Product
   }>()
 
-  const { addShopItemToBasket } = useBasketStore()
-  const route = useRoute()
+  const { printLocale } = useLocales()
+  const shopStore = useShopStore()
 
-  const productId = String(route.query.id)
+  const productId = String(props.product.id)
   const { trackView, getViews } = useProductViews(productId)
-  const [isLoading, setLoading] = useToggle(false)
-  const { isInBasket } = useProductInBasket(productId)
-
   const views = ref(0)
 
-  const items: AccordionItem[] = [
-    {
-      label: printLocale('shop_item_details'),
-      icon: 'heroicons:information-circle',
-    },
-  ]
+  const trackClick = (name: string) => metrics.trackButtonClick(name)
 
-  const magnifierSize = computed(() => {
-    return window.innerWidth > 1024 ? 200 : 100
+  const images = computed(() =>
+    props.product.image.length
+      ? props.product.image
+      : ['/default-shop-image.png'],
+  )
+  const hasGallery = computed(() => images.value.length > 1)
+  const imageAlt = (index: number) =>
+    hasGallery.value
+      ? `${props.product.title}, фото ${index + 1} из ${images.value.length}`
+      : props.product.title
+
+  const canMagnify = computed(
+    () => !isCalendarCategory(props.product.categoryId),
+  )
+
+  const hasFinePointer = useMediaQuery('(hover: hover) and (pointer: fine)')
+  const magnifierSize = computed(() => (hasFinePointer.value ? 200 : 100))
+
+  const magnifierWidth = computed(() => {
+    const size = parseProductSize(props.product.size)
+    const ratio = size ? size.width / size.height : 4 / 3
+    return `min(100%, calc(min(70dvh, 760px) * ${ratio}))`
   })
 
-  const zoom = computed(() => {
-    return window.innerWidth > 1024 ? 1.2 : 2
-  })
+  const typeLabel = computed(() =>
+    getProductTypeLabel(props.product.categoryId),
+  )
 
-  const subtitleProduct = computed(() => {
-    return getProductTypeLabel(props.product.categoryId)
-  })
+  const description = computed(() =>
+    (props.product.description || '').replace(/\\n/g, '\n').trim(),
+  )
+
+  const isAvailable = computed(
+    () => props.product.stock > 0 && !props.product.isReserved,
+  )
+
+  const unavailableLabel = computed(() =>
+    props.product.stock === 0
+      ? printLocale('shop_item_sold')
+      : printLocale('shop_item_reserved_detail'),
+  )
 
   const framingLabel = computed(() => {
+    const { framing, categoryId } = props.product
     if (
-      !props.product.framing ||
-      (props.product.categoryId !== ProductCategory.PICTURES &&
-        props.product.categoryId !== ProductCategory.SKETCHES)
+      !framing?.length ||
+      (categoryId !== ProductCategory.PICTURES &&
+        categoryId !== ProductCategory.SKETCHES)
     ) {
-      return null
+      return ''
     }
+    if (framing.length > 1) return printLocale('shop_item_framing_both')
 
-    if (
-      Array.isArray(props.product.framing) &&
-      props.product.framing.length > 1
-    ) {
-      return printLocale('shop_item_framing_both')
-    } else if (Array.isArray(props.product.framing)) {
-      const framingKey = props.product.framing[0]
-      return framingKey !== undefined ? (FramingTypeLabels[framingKey] ?? '') : ''
-    }
-
-    return ''
+    const framingKey = framing[0]
+    return framingKey ? (FramingTypeLabels[framingKey] ?? '') : ''
   })
 
-  const addToBasket = async (product: Product) => {
-    setLoading(true)
-    await new Promise(resolve => {
-      setTimeout(resolve, 1000)
-    })
+  const label = (key: string) => printLocale(key).replace(/:\s*$/, '')
 
-    const { description, categoryId, tags, ...purchaseParams } = product
+  const characteristics = computed(() =>
+    [
+      { label: label('shop_item_size'), value: formatProductSize(props.product.size) },
+      { label: label('shop_item_material'), value: props.product.material?.trim() },
+      { label: label('shop_item_technique'), value: props.product.tecnic?.trim() },
+      { label: label('shop_item_year'), value: props.product.year },
+      { label: label('shop_item_framing'), value: framingLabel.value },
+    ].filter(row => row.label && row.value),
+  )
 
-    const purchase = {
-      amount: 1,
-      item: purchaseParams,
-    }
-    addShopItemToBasket(purchase)
-
-    setLoading(false)
-  }
-
-  const contentRef = ref<HTMLElement | null>(null)
-
-  const animateScroll = () => {
-    const container = contentRef.value
-    if (!container) return
-
-    const start = Date.now()
-    const duration = 1500
-    const scrollDistance = 100
-
-    const step = () => {
-      const elapsed = Date.now() - start
-      const progress = elapsed / duration
-
-      if (progress < 1) {
-        const y = scrollDistance * Math.sin(progress * Math.PI)
-        container.scrollTop = y
-        requestAnimationFrame(step)
-      } else {
-        container.scrollTop = 0
-      }
-    }
-
-    requestAnimationFrame(step)
+  const showWorksByTag = (tag: string) => {
+    trackClick('tagFilter')
+    shopStore.searchedProducts = null
+    shopStore.categoryFilter = ''
+    shopStore.clearTags()
+    shopStore.addTag(tag)
+    shopStore.setPage(1)
   }
 
   onMounted(() => {
     trackView()
     views.value = getViews().value
-    nextTick(() => {
-      animateScroll()
-    })
 
     // SEO метаданные
     const config = useRuntimeConfig()
@@ -307,19 +277,4 @@
     })
     addStructuredData(productData)
   })
-
-  onMounted(() => {
-    const el = document.querySelector('.carousel-wrapper')
-    if (el) {
-      el.addEventListener(
-        'touchmove',
-        e => {
-          e.preventDefault()
-        },
-        { passive: false },
-      )
-    }
-  })
 </script>
-
-<style scoped></style>

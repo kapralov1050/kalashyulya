@@ -1,29 +1,5 @@
 import type { Product } from '~/types'
 
-export interface ItemVmInstance {
-  handleBuy: () => void
-  openProductPage: () => void
-  isOrderModalOpen: boolean
-  addToBasketAndOrder: (product: Product, shouldClear: boolean) => Promise<void>
-  onOrderSuccess: (orderId: string) => void
-  isOrderSuccessModalOpen: boolean
-  lastOrderId: string
-  modalProduct: Product | null
-}
-
-export interface ListVmInstance {
-  handleBuyClick: (product: Product) => void
-  handleTagClick: (tag: string) => void
-  handlePageChange: (page: number) => Promise<void>
-  addToBasketAndOrder: (product: Product, shouldClear: boolean) => Promise<void>
-  onOrderSuccess: (orderId: string) => void
-  isOrderModalOpen: boolean
-  isOrderSuccessModalOpen: boolean
-  lastOrderId: string
-  modalProduct: Product | null
-  handlePaymentMethod: (method: string) => Promise<void>
-}
-
 export interface BasketVmInstance {
   isOrderModalOpen: boolean
   orderCreated: boolean

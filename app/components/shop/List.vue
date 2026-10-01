@@ -1,95 +1,132 @@
 <template>
-  <div class="container flex justify-center mb-5">
-    <section
-      class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 min-w-full"
+  <section
+    id="shop-products"
+    class="container scroll-mt-[calc(var(--header-height)+1.5rem)]"
+    aria-label="Товары"
+  >
+    <div
+      v-if="isLoading"
+      class="grid animate-pulse gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3
+        lg:gap-x-12"
+      aria-hidden="true"
     >
-      <template v-if="isLoading">
-        <div
-          v-for="n in 3"
-          :key="`skeleton-${n}`"
-          class="h-[420px] w-full rounded-2xl border border-gray-200 bg-white
-            p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900/60
-            animate-pulse"
-        >
-          <div class="space-y-3">
-            <USkeleton class="h-[200px] w-full rounded-xl" />
-            <USkeleton class="h-4 w-3/4" />
-            <div class="space-y-2">
-              <USkeleton class="h-3 w-full" />
-              <USkeleton class="h-3 w-2/3" />
-            </div>
-            <USkeleton class="h-10 w-full rounded-lg" />
-          </div>
+      <div v-for="n in 6" :key="`skeleton-${n}`">
+        <div class="aspect-[4/3] w-full bg-neutral-200 dark:bg-neutral-800" />
+        <div class="mt-4 h-5 w-2/3 rounded bg-neutral-200 dark:bg-neutral-800" />
+        <div class="mt-2 h-4 w-1/2 rounded bg-neutral-200 dark:bg-neutral-800" />
+        <div class="mt-4 flex items-center justify-between">
+          <div class="h-5 w-20 rounded bg-neutral-200 dark:bg-neutral-800" />
+          <div class="h-9 w-40 rounded-md bg-neutral-200 dark:bg-neutral-800" />
         </div>
-      </template>
+      </div>
+    </div>
 
-      <template v-else-if="error">
-        <UAlert
-          :title="printLocale('shop_list_error_loading')"
-          :description="errorMessage"
-          icon="i-heroicons-exclamation-triangle"
-          color="error"
-          variant="solid"
-          class="col-span-full"
-        />
-      </template>
+    <UAlert
+      v-else-if="error"
+      :title="printLocale('shop_list_error_loading')"
+      :description="errorMessage"
+      icon="i-heroicons-exclamation-triangle"
+      color="neutral"
+      variant="outline"
+    />
 
-      <template v-else>
+    <div
+      v-else-if="!paginatedProducts.length"
+      class="flex min-h-[200px] items-center justify-center rounded-2xl
+        bg-neutral-50 p-6 text-center dark:bg-neutral-900/80"
+    >
+      <p class="text-neutral-600 dark:text-neutral-300">
+        По этим условиям ничего не нашлось. Попробуйте изменить поиск или
+        фильтры.
+      </p>
+    </div>
+
+    <template v-else>
+      <div
+        class="grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-12"
+      >
         <ShopItem
           v-for="item in paginatedProducts"
           :key="`${item.id}-${currentPage}`"
           :product="item"
-          :is-in-basket="checkStatus(item)"
-          @buy="handleBuyClick"
-          @add-to-basket="addToBasket"
-          @filter-by-tag="handleTagClick"
         />
+      </div>
 
-        <div class="flex justify-center mt-8 col-span-full">
-          <UPagination
-            v-model:page="currentPage"
-            :total="totalItems"
-            :items-per-page="shopStore.itemsPerPage"
-            color="neutral"
-            active-color="neutral"
-            :sibling-count="1"
-            show-controls
-            @update:page="handlePageChange"
-          />
-        </div>
-      </template>
+      <nav
+        v-if="totalPages > 1"
+        aria-label="Страницы каталога"
+        class="mt-16 flex items-center justify-between gap-4 border-t
+          border-neutral-200 pt-6 dark:border-neutral-800"
+      >
+        <UButton
+          color="neutral"
+          variant="ghost"
+          icon="heroicons:arrow-left-20-solid"
+          :disabled="currentPage <= 1"
+          :class="['-ml-2.5', pagerButtonClass]"
+          @click="handlePageChange(currentPage - 1)"
+        >
+          Назад
+        </UButton>
 
-      <ProductModal
-        :selected-product="selectedProduct"
-        :is-product-modal-open="isProductModalOpen"
-        @close="closeModal"
-      />
+        <UPagination
+          as="div"
+          :page="currentPage"
+          :total="totalItems"
+          :items-per-page="shopStore.itemsPerPage"
+          color="neutral"
+          variant="ghost"
+          :sibling-count="1"
+          :show-controls="false"
+          class="hidden sm:block"
+          @update:page="handlePageChange"
+        >
+          <template #item="{ item, page }">
+            <UButton
+              color="neutral"
+              :variant="page === item.value ? 'solid' : 'ghost'"
+              :label="String(item.value)"
+              :aria-label="`Страница ${item.value}`"
+              class="min-w-9 justify-center tabular-nums"
+            />
+          </template>
+        </UPagination>
+        <p
+          class="text-sm tabular-nums text-neutral-600 dark:text-neutral-300
+            sm:hidden"
+        >
+          Страница {{ currentPage }} из {{ totalPages }}
+        </p>
 
-      <!-- Buy Action Modal -->
-      <BuyActionModal
-        v-model:open="isBuyActionModalOpen"
-        :item-count="totalPurchaceQty"
-        :basket-amount="totalPurchaseAmount"
-        :product="modalProduct"
-        @buy-only="handleBuyOnly"
-        @add-to-basket="handleAddToBasket"
-      />
-    </section>
-  </div>
+        <UButton
+          color="neutral"
+          variant="ghost"
+          trailing-icon="heroicons:arrow-right-20-solid"
+          :disabled="currentPage >= totalPages"
+          :class="['-mr-2.5', pagerButtonClass]"
+          @click="handlePageChange(currentPage + 1)"
+        >
+          Далее
+        </UButton>
+      </nav>
+    </template>
+
+    <ProductModal
+      :selected-product="selectedProduct"
+      :is-product-modal-open="isProductModalOpen"
+      @close="closeModal"
+    />
+  </section>
 </template>
 
 <script setup lang="ts">
   import { useRoute } from 'vue-router'
-  import BuyActionModal from '~/components/shop/BuyActionModal.vue'
   import ProductModal from '~/components/shop/ProductModal.vue'
   import { useProductModal } from '~/composables/useProductModal'
-  import type { Product } from '~/types'
 
   const { printLocale } = useLocales()
   const route = useRoute()
   const router = useRouter()
-
-  const { clearBasket } = useBasketStore()
 
   const shopStore = useShopStore()
   const {
@@ -97,48 +134,14 @@
     currentPage,
     paginatedProducts,
     totalItems,
+    totalPages,
     isLoading,
   } = storeToRefs(shopStore)
 
+  const pagerButtonClass =
+    'text-[0.9375rem] text-neutral-900 disabled:text-neutral-400 dark:text-white dark:disabled:text-neutral-500'
+
   const { isProductModalOpen, selectedProduct, closeModal } = useProductModal()
-
-  const isBuyActionModalOpen = ref(false)
-  const modalProduct = ref<Product | null>(null)
-  const basketStore = useBasketStore()
-  const { totalPurchaceQty, totalPurchaseAmount } = storeToRefs(basketStore)
-
-  const handleBuyClick = (product: Product) => {
-    metrics.trackButtonClick('buyButton')
-    modalProduct.value = product
-
-    if (totalPurchaceQty.value > 0) {
-      isBuyActionModalOpen.value = true
-    } else {
-      addToBasketAndGo(product, false)
-    }
-  }
-
-  const handleBuyOnly = async () => {
-    isBuyActionModalOpen.value = false
-    await addToBasketAndGo(modalProduct.value!, true)
-  }
-
-  const handleAddToBasket = async () => {
-    isBuyActionModalOpen.value = false
-    await addToBasketAndGo(modalProduct.value!, false)
-  }
-
-  const addToBasketAndGo = async (
-    product: Product,
-    shouldClearBasket: boolean = false,
-  ) => {
-    if (shouldClearBasket) {
-      clearBasket()
-    }
-
-    await addToBasket(product)
-    router.push('/basket')
-  }
 
   const error = computed(() => {
     if (shopData.value instanceof Error) {
@@ -158,37 +161,6 @@
     )
   })
 
-  const checkStatus = (prod: Product) => {
-    const { isInBasket } = useProductInBasket(prod.id)
-    return isInBasket.value
-  }
-
-  const addToBasket = async (product: Product) => {
-    await new Promise(resolve => {
-      setTimeout(resolve, 300)
-    })
-
-    const { description, categoryId, tags, ...purchaseParams } = product
-
-    const purchase = {
-      amount: 1,
-      item: purchaseParams,
-    }
-    basketStore.addShopItemToBasket(purchase)
-  }
-
-  function handleTagClick(tag: string) {
-    if (shopStore.selectedTags.includes(tag)) {
-      shopStore.removeTag(tag)
-    } else {
-      shopStore.addTag(tag)
-    }
-
-    if (route.query.page) {
-      router.push({ query: { ...route.query, page: undefined } })
-    }
-  }
-
   const isUpdatingPage = ref(false)
 
   function handlePageChange(page: number) {
@@ -201,7 +173,9 @@
     router
       .push({ query: { ...route.query, page: page.toString() } })
       .then(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' })
+        document
+          .getElementById('shop-products')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
         isUpdatingPage.value = false
       })
   }
@@ -215,14 +189,3 @@
     }
   })
 </script>
-
-<style scoped>
-  .scrollbar-hidden {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-
-  .scrollbar-hidden::-webkit-scrollbar {
-    display: none;
-  }
-</style>

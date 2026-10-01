@@ -1,139 +1,162 @@
 <template>
-  <section
-    class="container flex flex-col gap-y-2 pt-10 pb-3 sm:pt-16 sm:pb-5 lg:pt-15"
-  >
-    <AppSectionHeader
-      :heading="printLocale('shop_heroTitle')"
-      :subheading="printLocale('shop_heroDescription')"
-    />
-    <UButton
-      class="self-center"
-      variant="link"
-      color="neutral"
-      :ui="{
-        leadingIcon: 'text-primary-500',
-      }"
-      icon="heroicons:information-circle-16-solid"
-      @click="() => { isCustomerInfoOpen = true }"
-    >
-      Важная информация
-    </UButton>
+  <section class="container pt-10 sm:pt-14" aria-labelledby="shop-title">
+    <div class="grid gap-8 lg:grid-cols-12 lg:items-end lg:gap-x-16">
+      <div class="lg:col-span-7">
+        <h1
+          id="shop-title"
+          class="text-[2rem] font-bold leading-[1.08] tracking-[-0.02em]
+            text-neutral-900 dark:text-white sm:text-5xl"
+        >
+          {{ printLocale('shop_heroTitle') }}
+        </h1>
+        <p
+          class="mt-4 max-w-[60ch] text-lg leading-[1.6] text-neutral-700
+            dark:text-neutral-200"
+        >
+          {{ printLocale('shop_heroDescription') }}
+        </p>
+        <UButton
+          variant="link"
+          color="neutral"
+          icon="i-heroicons-information-circle"
+          class="mt-3 px-0 text-[0.9375rem] text-neutral-900 underline
+            decoration-neutral-300 underline-offset-4 hover:decoration-neutral-900
+            dark:text-white dark:decoration-neutral-600
+            dark:hover:decoration-white"
+          @click="isCustomerInfoOpen = true"
+        >
+          Важная информация
+        </UButton>
+      </div>
 
-    <div class="container flex flex-col items-center gap-y-5 mt-2">
       <UForm
         :schema="productSchema"
         :state="searchState"
-        class="w-full flex flex-col items-center gap-y-5"
+        role="search"
+        class="lg:col-span-5"
         @submit="submitSearch"
       >
-        <div class="flex justify-center gap-x-3 w-full">
-          <UFormField class="w-full max-w-2xl">
-            <UInput
-              id="search"
-              v-model="searchState.title"
-              type="search"
-              placeholder="Название товара"
-              class="w-full"
-            />
-          </UFormField>
-
+        <div class="flex gap-2">
+          <UInput
+            id="search"
+            v-model="searchState.title"
+            type="search"
+            icon="i-heroicons-magnifying-glass"
+            placeholder="Название работы"
+            aria-label="Поиск по названию"
+            size="lg"
+            class="w-full"
+          />
           <UButton
-            :disabled="!searchState.title"
+            :disabled="!searchState.title.trim()"
             type="submit"
             color="neutral"
             size="lg"
-            class="dark:text-neutral-800"
           >
             {{ printLocale('shop_searchButton') }}
           </UButton>
         </div>
       </UForm>
+    </div>
 
-      <div class="flex flex-wrap items-center justify-center gap-2 w-full">
-        <div class="flex flex-wrap justify-center gap-2">
-          <UButton
-            v-for="(cat, index) in [{ value: '', label: 'Все' }, ...categories]"
-            :key="index"
-            :color="
-              shopStore.categoryFilter === cat.value ? 'primary' : 'neutral'
-            "
-            variant="soft"
-            size="md"
-            class="transition-all hover:scale-105"
-            @click="handleCategoryChange(cat.value)"
-          >
-            {{ cat.label }}
-          </UButton>
-        </div>
-
-        <div class="flex items-center justify-center gap-2">
-          <UIcon name="i-heroicons-arrows-up-down" class="w-4 h-4" />
-          <USelectMenu
-            v-model="selectedSortLabel"
-            :search-input="false"
-            :items="sortOptionsWithLabels"
-            size="md"
-            class="w-48"
-          />
-        </div>
-
-        <div class="flex items-center justify-center gap-2">
-          <USelectMenu
-            v-model="selectedFramingLabel"
-            :search-input="false"
-            :items="framingOptionsWithLabels"
-            size="md"
-            class="w-48"
-          />
-        </div>
-
-        <UModal
-          v-model:open="isCustomerInfoOpen"
-          scrollable
-          title="Важная информация"
-          :close="{
-            color: 'neutral',
-            variant: 'outline',
-            class: 'rounded-full',
-          }"
-          :ui="{ content: 'w-full max-w-3xl' }"
-        >
-          <template #body>
-            <ShopCustomerInfo />
-          </template>
-        </UModal>
-      </div>
+    <div
+      class="mt-10 lg:flex lg:items-end lg:justify-between lg:gap-8 lg:border-b
+        lg:border-neutral-200 lg:dark:border-neutral-800"
+    >
       <div
-        v-if="shopStore.selectedTags.length > 0"
-        class="flex flex-wrap gap-2"
+        role="group"
+        aria-label="Категории"
+        class="-mx-3 flex overflow-x-auto border-b border-neutral-200 px-3
+          [scrollbar-width:none] dark:border-neutral-800 sm:mx-0 sm:px-0
+          lg:-mb-px lg:border-b-0"
       >
-        <UBadge
-          v-for="tag in shopStore.selectedTags"
-          :key="tag"
-          color="primary"
-          variant="solid"
-          class="cursor-pointer hover:opacity-80 transition-opacity"
-          @click="
-            () => {
-              shopStore.removeTag(tag)
-              shopStore.filterProductsByTags()
-            }
+        <button
+          v-for="cat in categories"
+          :key="cat.value"
+          type="button"
+          :aria-pressed="shopStore.categoryFilter === cat.value"
+          class="-mb-px mr-6 shrink-0 whitespace-nowrap border-b-2 pb-3 pt-1
+            text-[0.9375rem] font-medium transition-colors last:mr-0
+            focus-visible:outline-2 focus-visible:-outline-offset-2
+            focus-visible:outline-neutral-900 dark:focus-visible:outline-white"
+          :class="
+            shopStore.categoryFilter === cat.value
+              ? 'border-neutral-900 text-neutral-900 dark:border-white dark:text-white'
+              : 'border-transparent text-neutral-600 hover:border-neutral-300 hover:text-neutral-900 dark:text-neutral-300 dark:hover:border-neutral-600 dark:hover:text-white'
           "
+          @click="handleCategoryChange(cat.value)"
         >
-          {{ tag }}
-          <UIcon name="i-heroicons-x-mark-16-solid" class="w-4 h-4 ml-1" />
-        </UBadge>
+          {{ cat.label }}
+        </button>
       </div>
+
+      <div class="mt-4 grid gap-2 sm:flex lg:mt-0 lg:pb-3">
+        <USelectMenu
+          v-model="selectedSortLabel"
+          :search-input="false"
+          :items="sortOptionsWithLabels"
+          icon="i-heroicons-arrows-up-down"
+          aria-label="Сортировка"
+          class="w-full sm:w-56"
+        />
+        <USelectMenu
+          v-model="selectedFramingLabel"
+          :search-input="false"
+          :items="framingOptionsWithLabels"
+          aria-label="Оформление"
+          class="w-full sm:w-52"
+        />
+      </div>
+    </div>
+
+    <div
+      v-if="hasActiveFilters"
+      class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2"
+    >
+      <p
+        class="text-sm text-neutral-600 dark:text-neutral-300"
+        aria-live="polite"
+      >
+        {{
+          shopStore.totalItems
+            ? `Найдено: ${pluralize(shopStore.totalItems, 'products')}`
+            : 'Ничего не нашлось'
+        }}
+      </p>
       <UButton
-        v-if="shopStore.searchedProducts"
-        color="secondary"
-        size="lg"
-        class="dark:text-neutral-800"
+        v-for="tag in shopStore.selectedTags"
+        :key="tag"
+        color="neutral"
+        variant="outline"
+        size="sm"
+        trailing-icon="i-heroicons-x-mark-16-solid"
+        :aria-label="`Убрать фильтр «${tag}»`"
+        @click="removeTag(tag)"
+      >
+        #{{ tag }}
+      </UButton>
+      <UButton
+        variant="link"
+        color="neutral"
+        class="px-0 text-sm text-neutral-900 underline decoration-neutral-300
+          underline-offset-4 hover:decoration-neutral-900 dark:text-white
+          dark:decoration-neutral-600 dark:hover:decoration-white"
         @click="resetSearch"
       >
         {{ printLocale('shop_clear_filters') }}
       </UButton>
     </div>
+
+    <UModal
+      v-model:open="isCustomerInfoOpen"
+      scrollable
+      title="Важная информация"
+      :ui="{ overlay: 'bg-neutral-950/60', content: 'w-full max-w-3xl' }"
+    >
+      <template #body>
+        <ShopCustomerInfo />
+      </template>
+    </UModal>
   </section>
 </template>
 
@@ -142,18 +165,30 @@
   import type { productSchemaType } from '~/helpers/valibot'
   import { productSchema } from '~/helpers/valibot'
   import { ProductCategory } from '~/constants/products'
+  import { pluralize } from '~/utils/pluralize'
 
   const shopStore = useShopStore()
   const { printLocale } = useLocales()
   const isCustomerInfoOpen = ref(false)
 
-  const categories = [
+  const router = useRouter()
+  const route = useRoute()
+
+  const categories = computed(() => [
+    { value: '', label: 'Все' },
     { value: ProductCategory.PICTURES, label: printLocale('shop_filters_pictures') },
     { value: ProductCategory.SKETCHES, label: printLocale('shop_filters_sketches') },
     { value: ProductCategory.POSTCARDS, label: printLocale('shop_filters_postcards') },
     { value: ProductCategory.STICKERS, label: printLocale('shop_filters_stickers') },
     { value: ProductCategory.CALENDARS, label: printLocale('shop_filters_calendar') },
-  ]
+  ])
+
+  const resetPageInUrl = () => {
+    shopStore.setPage(1)
+    if (route.query.page) {
+      router.push({ query: { ...route.query, page: undefined } })
+    }
+  }
 
   // Опции сортировки с читаемыми названиями
   const sortOptionsWithLabels = ref([
@@ -182,19 +217,20 @@
     'price-desc': 'По убыванию цены',
   }
 
-  // Опции фильтра по оформлению с читаемыми названиями
-  const framingOptionsWithLabels = ref(['Без оформления', 'С оформлением'])
+  const framingOptionsWithLabels = ref([
+    'Любое оформление',
+    'Без оформления',
+    'С оформлением',
+  ])
 
-  // Маппинг читаемых названий на значения для фильтра оформления
   const framingValueMap: Record<string, 'all' | 'none' | 'hasFraming'> = {
-    Оформление: 'all',
+    'Любое оформление': 'all',
     'Без оформления': 'none',
     'С оформлением': 'hasFraming',
   }
 
-  // Обратный маппинг значений на читаемые названия для фильтра оформления
   const framingLabelMap: Record<string, string> = {
-    all: 'Оформление',
+    all: 'Любое оформление',
     none: 'Без оформления',
     hasFraming: 'С оформлением',
   }
@@ -208,11 +244,7 @@
   watch(selectedSortLabel, newLabel => {
     if (newLabel && sortValueMap[newLabel]) {
       shopStore.setSortBy(sortValueMap[newLabel])
-      // Сбрасываем страницу при изменении сортировки
-      shopStore.setPage(1)
-      if (route.query.page) {
-        router.push({ query: { ...route.query, page: undefined } })
-      }
+      resetPageInUrl()
     }
   })
 
@@ -227,26 +259,21 @@
     },
   )
 
-  // Локальная переменная для отображения фильтра оформления (читаемое название)
-  const selectedFramingLabel = ref(framingLabelMap[shopStore.framingFilter])
+  const selectedFramingLabel = ref(
+    framingLabelMap[shopStore.framingFilter] || 'Любое оформление',
+  )
 
-  // Синхронизация с store при изменении фильтра оформления
   watch(selectedFramingLabel, newLabel => {
     if (newLabel && framingValueMap[newLabel]) {
       shopStore.setFramingFilter(framingValueMap[newLabel])
-      // Сбрасываем страницу при изменении фильтра
-      shopStore.setPage(1)
-      if (route.query.page) {
-        router.push({ query: { ...route.query, page: undefined } })
-      }
+      resetPageInUrl()
     }
   })
 
-  // Синхронизация из store при изменении фильтра оформления
   watch(
     () => shopStore.framingFilter,
     newValue => {
-      const newLabel = framingLabelMap[newValue] || 'Все товары'
+      const newLabel = framingLabelMap[newValue] || 'Любое оформление'
       if (selectedFramingLabel.value !== newLabel) {
         selectedFramingLabel.value = newLabel
       }
@@ -257,16 +284,21 @@
     title: '',
   })
 
-  const router = useRouter()
-  const route = useRoute()
+  const hasActiveFilters = computed(
+    () =>
+      shopStore.searchedProducts !== null ||
+      shopStore.selectedTags.length > 0 ||
+      shopStore.framingFilter !== 'all',
+  )
 
   const submitSearch = (_event: FormSubmitEvent<productSchemaType>) => {
-    shopStore.searchedProducts = shopStore.findProduct(searchState.title)
-    // Сбрасываем страницу и убираем page из URL при поиске
-    shopStore.setPage(1)
-    if (route.query.page) {
-      router.push({ query: { ...route.query, page: undefined } })
-    }
+    shopStore.searchedProducts = shopStore.findProduct(searchState.title.trim())
+    resetPageInUrl()
+  }
+
+  const removeTag = (tag: string) => {
+    shopStore.removeTag(tag)
+    resetPageInUrl()
   }
 
   const resetSearch = () => {
@@ -274,18 +306,11 @@
     shopStore.clearTags()
     shopStore.setFramingFilter('all')
     searchState.title = ''
-    shopStore.setPage(1)
-    if (route.query.page) {
-      router.push({ query: { ...route.query, page: undefined } })
-    }
+    resetPageInUrl()
   }
 
   const handleCategoryChange = (categoryValue: string) => {
     shopStore.categoryFilter = categoryValue
-    // Сбрасываем страницу и убираем page из URL при изменении категории
-    shopStore.setPage(1)
-    if (route.query.page) {
-      router.push({ query: { ...route.query, page: undefined } })
-    }
+    resetPageInUrl()
   }
 </script>
