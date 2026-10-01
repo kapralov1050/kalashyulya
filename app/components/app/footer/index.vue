@@ -1,15 +1,10 @@
 <template>
   <footer
-    class="mt-auto bg-gradient-to-br from-neutral-50 to-neutral-100
-      dark:from-neutral-900 dark:to-neutral-800 border-t border-neutral-200
-      dark:border-neutral-700"
+    class="mt-auto border-t border-neutral-200 bg-white dark:border-neutral-800
+      dark:bg-neutral-900"
   >
-    <div class="container mx-auto px-6 py-5">
+    <div class="container py-10 sm:py-12">
       <AppFooterLinks />
     </div>
   </footer>
 </template>
-
-<script setup lang="ts"></script>
-
-<style scoped lang="scss"></style>

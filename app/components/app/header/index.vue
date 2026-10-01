@@ -2,18 +2,18 @@
   <header
     :class="[
       fixed ? 'fixed' : 'sticky',
-      'top-0 inset-x-0 bg-white border-b border-neutral-200 py-2',
-      'sm:border-0 sm:py-4 dark:bg-neutral-900 dark:border-b dark:border-neutral-700',
+      'inset-x-0 top-0 border-b border-neutral-200 bg-white',
+      'dark:border-neutral-800 dark:bg-neutral-900',
     ]"
   >
-    <div class="container flex items-center gap-x-5">
-      <AppLogo
-        class="text-xl sm:text-2xl"
-        icon-classes="size-8 sm:size-12 dark:text-white text-primary"
-      />
-      <AppHeaderThemeSwitch class="ml-auto" />
-      <AppHeaderNav />
-      <AppHeaderMobileNav />
+    <div class="container flex h-(--header-height) items-center gap-x-10">
+      <AppLogo />
+      <AppHeaderNav class="ml-auto" />
+      <div class="ml-auto flex items-center gap-x-1 lg:ml-0">
+        <AppHeaderThemeSwitch />
+        <AppBasketWidget />
+        <AppHeaderMobileNav />
+      </div>
     </div>
   </header>
 </template>
@@ -23,5 +23,3 @@
     fixed?: boolean
   }>()
 </script>
-
-<style scoped lang="scss"></style>

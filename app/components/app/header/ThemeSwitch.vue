@@ -1,11 +1,14 @@
 <template>
-  <USwitch
-    v-model="isDark"
+  <UButton
     color="neutral"
-    unchecked-icon="heroicons:sun"
-    checked-icon="heroicons:moon"
-    size="xl"
-    @click="mode = mode === 'light' ? 'dark' : 'light'"
+    variant="ghost"
+    size="lg"
+    square
+    :icon="isDark ? 'heroicons:sun' : 'heroicons:moon'"
+    :aria-label="isDark ? 'Включить светлую тему' : 'Включить тёмную тему'"
+    class="p-2.5 text-neutral-600 hover:text-neutral-900 dark:text-neutral-300
+      dark:hover:text-white"
+    @click="mode = isDark ? 'light' : 'dark'"
   />
 </template>
 
@@ -14,9 +17,5 @@
 
   const mode = useColorMode()
 
-  const isDark = computed(() => {
-    return mode.value === 'dark'
-  })
+  const isDark = computed(() => mode.value === 'dark')
 </script>
-
-<style scoped lang="scss"></style>

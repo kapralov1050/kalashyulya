@@ -1,47 +1,29 @@
 <template>
-  <nav class="hidden grow lg:block">
+  <nav aria-label="Основное меню" class="hidden lg:block">
     <ul class="flex items-center gap-x-8">
-      <li>
-        <UButton color="neutral" variant="link" to="/">
-          {{ printLocale('header_about') }}
-        </UButton>
-      </li>
-      <li>
-        <UButton
-          color="neutral"
-          variant="link"
-          to="/calendar"
-          :prefetch="false"
+      <li v-for="item in items" :key="item.to">
+        <NuxtLink
+          :to="item.to"
+          :prefetch="item.prefetch"
+          :aria-current="item.ariaCurrent"
+          class="rounded-sm text-[0.9375rem] font-medium decoration-1
+            underline-offset-[6px] transition-colors hover:text-neutral-900
+            focus-visible:outline-2 focus-visible:outline-offset-4
+            focus-visible:outline-neutral-900 dark:hover:text-white
+            dark:focus-visible:outline-white"
+          :class="
+            item.ariaCurrent
+              ? 'text-neutral-900 underline dark:text-white'
+              : 'text-neutral-600 dark:text-neutral-300'
+          "
         >
-          {{ printLocale('header_calendar') }}
-        </UButton>
-      </li>
-      <li>
-        <UButton
-          color="neutral"
-          variant="link"
-          to="/exhibitions"
-          :prefetch="false"
-        >
-          {{ printLocale('header_exhibition') }}
-        </UButton>
-      </li>
-      <li class="mr-auto">
-        <UButton color="neutral" variant="link" to="/shop" :prefetch="false">
-          {{ printLocale('header_shop') }}
-        </UButton>
-      </li>
-      <li>
-        <UButton color="neutral" variant="link" to="/basket">
-          <AppBasketWidget />
-        </UButton>
+          {{ item.label }}
+        </NuxtLink>
       </li>
     </ul>
   </nav>
 </template>
 
 <script setup lang="ts">
-  const { printLocale } = useLocales()
+  const { items } = useMainNav()
 </script>
-
-<style scoped lang="scss"></style>

@@ -1,18 +1,16 @@
 <template>
   <NuxtLink
     to="/"
-    class="inline-flex items-center gap-x-1 font-black sm:gap-x-2
-      dark:text-white cursor-pointer"
+    class="inline-flex shrink-0 items-center rounded-sm focus-visible:outline-2
+      focus-visible:outline-offset-4 focus-visible:outline-neutral-900
+      dark:focus-visible:outline-white"
   >
-    <img src="/logo.png" class="h-18 w-auto dark:invert" />
-    <span v-if="$slots.default">
-      <slot />
-    </span>
+    <img
+      src="/logo.png"
+      alt="Юлия Калашникова"
+      width="635"
+      height="331"
+      class="h-11 w-auto dark:invert sm:h-14"
+    />
   </NuxtLink>
 </template>
-
-<script setup lang="ts">
-  defineProps<{ iconClasses: string }>()
-</script>
-
-<style scoped lang="scss"></style>

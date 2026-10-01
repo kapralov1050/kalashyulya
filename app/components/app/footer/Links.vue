@@ -1,93 +1,91 @@
 <template>
-  <div class="w-full flex flex-col gap-6">
-    <!-- Соцсети: крупные иконки, выделенный блок -->
-    <div class="flex flex-col items-center gap-3">
-      <h3
-        class="text-sm text-center font-semibold text-neutral-800 dark:text-white
-          uppercase tracking-wide"
+  <div class="grid gap-8 lg:grid-cols-12 lg:items-end lg:gap-x-16">
+    <section aria-labelledby="footer-social-title" class="lg:col-span-5">
+      <h2
+        id="footer-social-title"
+        class="text-sm text-neutral-500 dark:text-neutral-400"
       >
-        {{ printLocale('footer_links_title') }}
-      </h3>
+        {{ toSentenceCase(printLocale('footer_links_title')) }}
+      </h2>
+      <ul class="mt-3 flex flex-wrap gap-x-8 gap-y-3">
+        <li v-for="link in socialLinks" :key="link.href">
+          <a
+            :href="link.href"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex min-h-6 items-center gap-2 rounded-sm align-top text-[0.9375rem]
+              font-medium text-neutral-900 underline decoration-neutral-300
+              underline-offset-4 transition-colors hover:decoration-neutral-900
+              focus-visible:outline-2 focus-visible:outline-offset-4
+              focus-visible:outline-neutral-900 dark:text-white
+              dark:decoration-neutral-600 dark:hover:decoration-white
+              dark:focus-visible:outline-white"
+            @click="metrics.trackButtonClick(link.metric)"
+          >
+            <img :src="link.icon" alt="" class="size-5 invert dark:invert-0" />
+            {{ link.label }}
+            <span class="sr-only">(откроется в новой вкладке)</span>
+          </a>
+        </li>
+      </ul>
+    </section>
 
-      <div class="flex items-center gap-3">
-        <!-- Telegram -->
-        <a
-          href="https://t.me/kalashyulyaa"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Telegram"
-          class="group flex items-center justify-center w-11 h-11 rounded-full
-            bg-neutral-100 hover:bg-primary-500 dark:bg-neutral-800
-            dark:hover:bg-primary-500 transition-colors duration-200"
-          @click="metrics.trackButtonClick('telegramButton')"
-        >
-          <img
-            src="/links/telegram.svg"
-            alt=""
-            class="w-6 h-6 invert dark:invert-0 group-hover:invert group-hover:brightness-0
-              group-hover:contrast-200 transition duration-200"
-          />
-        </a>
-
-        <!-- VK -->
-        <a
-          href="https://vk.com/kalashyulya"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="VKontakte"
-          class="group flex items-center justify-center w-11 h-11 rounded-full
-            bg-neutral-100 hover:bg-primary-500 dark:bg-neutral-800
-            dark:hover:bg-primary-500 transition-colors duration-200"
-          @click="metrics.trackButtonClick('vkButton')"
-        >
-          <img
-            src="/links/vk.svg"
-            alt=""
-            class="w-6 h-6 invert dark:invert-0 group-hover:invert group-hover:brightness-0
-              group-hover:contrast-200 transition duration-200"
-          />
-        </a>
-      </div>
-    </div>
-
-    <!-- Утилитарные ссылки: мелко, единой строкой -->
-    <div
-      class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1
-        text-xs text-neutral-500 dark:text-neutral-400"
-    >
-      <NuxtLink
-        to="/requisites"
-        class="hover:text-neutral-700 dark:hover:text-neutral-200
-          transition-colors"
-        @click="metrics.trackButtonClick('requisitesButton')"
+    <nav aria-label="Информация для покупателей" class="lg:col-span-7">
+      <ul
+        class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-8
+          sm:gap-y-2"
       >
-        Реквизиты
-      </NuxtLink>
-      <span aria-hidden="true">·</span>
-      <NuxtLink
-        to="/privacy"
-        class="hover:text-neutral-700 dark:hover:text-neutral-200
-          transition-colors"
-        @click="metrics.trackButtonClick('privacyButton')"
-      >
-        Политика обработки ПДн
-      </NuxtLink>
-      <span aria-hidden="true">·</span>
-      <NuxtLink
-        to="/shop/tracking"
-        class="hover:text-neutral-700 dark:hover:text-neutral-200
-          transition-colors"
-        @click="metrics.trackButtonClick('trackingButton')"
-      >
-        Отслеживание заказа
-      </NuxtLink>
-    </div>
+        <li v-for="link in infoLinks" :key="link.to">
+          <NuxtLink
+            :to="link.to"
+            class="inline-flex min-h-6 items-center rounded-sm align-top text-sm
+              text-neutral-600 underline-offset-4
+              transition-colors hover:text-neutral-900 hover:underline
+              focus-visible:outline-2 focus-visible:outline-offset-4
+              focus-visible:outline-neutral-900 dark:text-neutral-300
+              dark:hover:text-white dark:focus-visible:outline-white"
+            @click="metrics.trackButtonClick(link.metric)"
+          >
+            {{ link.label }}
+          </NuxtLink>
+        </li>
+      </ul>
+    </nav>
   </div>
 </template>
 
 <script setup lang="ts">
   import { metrics } from '~/utils/metrics'
-  const { printLocale } = useLocales()
-</script>
+  import { toSentenceCase } from '~/utils/sentenceCase'
 
-<style scoped lang="scss"></style>
+  const { printLocale } = useLocales()
+
+  const socialLinks = [
+    {
+      href: 'https://t.me/kalashyulyaa',
+      label: 'Telegram',
+      icon: '/links/telegram.svg',
+      metric: 'telegramButton',
+    },
+    {
+      href: 'https://vk.com/kalashyulya',
+      label: 'ВКонтакте',
+      icon: '/links/vk.svg',
+      metric: 'vkButton',
+    },
+  ] as const
+
+  const infoLinks = [
+    { to: '/requisites', label: 'Реквизиты', metric: 'requisitesButton' },
+    {
+      to: '/privacy',
+      label: 'Политика обработки ПДн',
+      metric: 'privacyButton',
+    },
+    {
+      to: '/shop/tracking',
+      label: 'Отслеживание заказа',
+      metric: 'trackingButton',
+    },
+  ] as const
+</script>

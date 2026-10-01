@@ -1,126 +1,86 @@
 <template>
-  <div class="justify-end flex lg:hidden">
-    <UButton color="neutral" variant="link" to="/basket">
-      <AppBasketWidget />
-    </UButton>
+  <div ref="menuButtonWrapper" class="lg:hidden">
     <UButton
-      class="z-20 text-3xl"
-      variant="link"
       color="neutral"
-      :icon="isOpen ? 'heroicons:x-mark-16-solid' : 'heroicons:bars-3-16-solid'"
-      @click="handleClick"
+      variant="ghost"
+      size="lg"
+      square
+      icon="heroicons:bars-3"
+      aria-label="Открыть меню"
+      aria-haspopup="dialog"
+      :aria-expanded="isOpen"
+      :class="iconButtonClass"
+      @click="isOpen = true"
     />
-    <div
-      class="header bg-gradient-to-br from-neutral-50 to-neutral-100
-        dark:from-neutral-900 dark:to-neutral-800 absolute z-[13] left-0
-        w-[100%] min-h-[35vh] rounded-2xl pointer-events-none"
-    />
-    <div class="menu absolute top-4 left-4 z-[14]" @click="closeMenu">
-      <ul class="text-neutral-600 dark:text-neutral-150 hover:text-neutral-400">
-        <li>
-          <UButton class="text-2xl" color="neutral" variant="link" to="/">
-            {{ printLocale('header_about') }}
-          </UButton>
-        </li>
-        <li>
-          <UButton
-            class="text-2xl"
-            color="neutral"
-            variant="link"
-            to="/calendar"
-            :prefetch="false"
-          >
-            {{ printLocale('header_calendar') }}
-          </UButton>
-        </li>
-        <li>
-          <UButton
-            class="text-2xl"
-            color="neutral"
-            variant="link"
-            to="/shop"
-            :prefetch="false"
-          >
-            {{ printLocale('header_shop') }}
-          </UButton>
-        </li>
-        <li>
-          <UButton
-            class="text-2xl"
-            color="neutral"
-            variant="link"
-            to="/exhibitions"
-            :prefetch="false"
-          >
-            {{ printLocale('header_exhibition') }}
-          </UButton>
-        </li>
-        <!-- <li>
-          <UButton
-            v-for="locale in availableLocales"
-            :key="locale.code"
-            class="text-2xl text-neutral-200 hover:text-white ml-2 mt-10"
-            variant="outline"
-            :to="switchLocalePath(locale.code)"
-          >
-            {{ locale.name }}
-          </UButton>
-        </li> -->
-      </ul>
-    </div>
   </div>
+
+  <USlideover
+    v-model:open="isOpen"
+    side="top"
+    title="Меню"
+    :close="false"
+    :content="{
+      'aria-describedby': undefined,
+      onCloseAutoFocus: returnFocus,
+    }"
+    :ui="{
+      content:
+        'divide-y-0 border-b border-neutral-200 bg-white shadow-none ring-0 sm:shadow-none sm:ring-0 dark:border-neutral-800 dark:bg-neutral-900',
+    }"
+  >
+    <template #content>
+      <div class="container flex h-(--header-height) items-center">
+        <AppLogo @click="close" />
+        <UButton
+          color="neutral"
+          variant="ghost"
+          size="lg"
+          square
+          icon="heroicons:x-mark"
+          aria-label="Закрыть меню"
+          :class="['ml-auto', iconButtonClass]"
+          @click="close"
+        />
+      </div>
+
+      <nav aria-label="Основное меню" class="container pb-6">
+        <ul>
+          <li v-for="item in items" :key="item.to">
+            <NuxtLink
+              :to="item.to"
+              :prefetch="item.prefetch"
+              :aria-current="item.ariaCurrent"
+              class="block py-3 text-2xl tracking-[-0.01em]
+                text-neutral-900 decoration-1 underline-offset-[6px]
+                focus-visible:outline-2 focus-visible:outline-offset-2
+                focus-visible:outline-neutral-900 dark:text-white
+                dark:focus-visible:outline-white"
+              :class="{ underline: item.ariaCurrent }"
+              @click="close"
+            >
+              {{ item.label }}
+            </NuxtLink>
+          </li>
+        </ul>
+      </nav>
+    </template>
+  </USlideover>
 </template>
 
-<script setup>
-  import gsap from 'gsap'
+<script setup lang="ts">
+  const { items } = useMainNav()
 
-  const { printLocale } = useLocales()
-
-  let tl
-  const isOpen = shallowRef(false)
-  const handleClick = () => {
-    isOpen.value = !isOpen.value
-
-    if (isOpen.value) {
-      tl.play()
-    } else {
-      tl.reverse()
-    }
+  const isOpen = ref(false)
+  const close = () => {
+    isOpen.value = false
   }
 
-  const closeMenu = () => {
-    if (isOpen.value) {
-      isOpen.value = false
-      tl.reverse()
-    }
+  const menuButtonWrapper = ref<HTMLElement | null>(null)
+  const returnFocus = (event: Event) => {
+    event.preventDefault()
+    menuButtonWrapper.value?.querySelector('button')?.focus()
   }
 
-  onMounted(() => {
-    tl = gsap.timeline({ paused: true, reversed: true })
-
-    tl.fromTo(
-      '.header',
-      {
-        opacity: 0,
-        rotation: 90,
-        y: -50,
-        transformOrigin: '100% 0%',
-      },
-      {
-        opacity: 1,
-        rotation: 0,
-        y: -50,
-        transformOrigin: '100% 0%',
-        ease: 'power3.out',
-      },
-    ).fromTo(
-      '.menu',
-      {
-        x: -300,
-      },
-      { x: 0, ease: 'power3.out', duration: 0.2 },
-    )
-  })
+  const iconButtonClass =
+    'p-2.5 text-neutral-600 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-white'
 </script>
-
-<style></style>
