@@ -1,20 +1,18 @@
 <template>
-  <section class="container mb-16">
-    <header
-      class="mb-8 flex flex-col items-center gap-3 sm:flex-row sm:items-end
-        sm:justify-between"
-    >
-      <div>
-        <h2
-          class="text-2xl font-semibold tracking-tight text-neutral-900
-            dark:text-white sm:text-3xl"
-        >
-          Представленные акварели
-        </h2>
-        <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-300">
-          Их можно купить после завершения выставки
-        </p>
-      </div>
+  <section class="container">
+    <header class="mb-8 sm:mb-10">
+      <h2
+        class="text-2xl font-semibold tracking-[-0.01em] text-neutral-900
+          dark:text-white sm:text-3xl"
+      >
+        Представленные акварели
+      </h2>
+      <p
+        v-if="status === 'ongoing'"
+        class="mt-2 text-[0.9375rem] text-neutral-600 dark:text-neutral-300"
+      >
+        Их можно купить после завершения выставки
+      </p>
     </header>
 
     <ProductModal
@@ -23,27 +21,20 @@
       @close="closeModal"
     />
 
-    <UCarousel
-      v-slot="{ item }"
-      :items="filteredProducts"
-      :ui="{
-        item: 'basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4',
-      }"
-      dots
-      autoplay
-      class="w-full"
+    <div
+      v-if="filteredProducts.length"
+      class="columns-1 gap-x-8 sm:columns-2 lg:columns-3 lg:gap-x-12"
     >
-      <ShopItem
-        :product="item"
-        :is-in-basket="checkStatus(item)"
-        @buy="buyNow"
-        @add-to-basket="addToBasket"
-        @filter-by-tag="() => {}"
+      <ExhibitionArtwork
+        v-for="product in filteredProducts"
+        :key="product.id"
+        :product="product"
+        class="mb-12 break-inside-avoid"
       />
-    </UCarousel>
+    </div>
 
     <div
-      v-if="filteredProducts.length === 0"
+      v-else
       class="flex min-h-[200px] items-center justify-center rounded-2xl
         bg-neutral-50 dark:bg-neutral-900/80"
     >
@@ -55,18 +46,17 @@
 </template>
 
 <script setup lang="ts">
-  import ShopItem from '~/components/shop/Item.vue'
+  import ExhibitionArtwork from '~/components/exhibitions/ExhibitionArtwork.vue'
   import ProductModal from '~/components/shop/ProductModal.vue'
   import { useProductModal } from '~/composables/useProductModal'
-  import type { ExhibitionWork, Product } from '~/types'
+  import type { ExhibitionStatus, ExhibitionWork, Product } from '~/types'
 
   const props = defineProps<{
     works: ExhibitionWork[]
+    status: ExhibitionStatus
   }>()
 
   const shopStore = useShopStore()
-  const basketStore = useBasketStore()
-  const { addShopItemToBasket } = useBasketStore()
 
   const filteredProducts = computed<Product[]>(() => {
     if (!props.works || props.works.length === 0) return []
@@ -82,30 +72,4 @@
   const { isProductModalOpen, selectedProduct, closeModal } = useProductModal(
     computed(() => filteredProducts.value),
   )
-
-  const checkStatus = (prod: Product) => {
-    return basketStore.shoppingCart.some(el => el.item.id === prod.id)
-  }
-
-  const addToBasket = async (product: Product) => {
-    await new Promise(resolve => {
-      setTimeout(resolve, 300)
-    })
-
-    const { description, categoryId, tags, ...purchaseParams } = product
-
-    const purchase = {
-      amount: 1,
-      item: purchaseParams,
-    }
-    addShopItemToBasket(purchase)
-  }
-
-  const buyNow = async (product: Product) => {
-    addToBasket(product)
-    await new Promise(resolve => {
-      setTimeout(resolve, 500)
-    })
-    navigateTo('/basket')
-  }
 </script>
