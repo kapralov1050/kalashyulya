@@ -16,6 +16,7 @@ export interface Product {
   framing?: ('frame' | 'passepartout')[]
   certificateId?: string // Номер сертификата, если был сгенерирован
   views?: number
+  createdAt?: number
 }
 
 export interface ShopData {

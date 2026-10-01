@@ -1,6 +1,6 @@
 <template>
   <header
-    class="relative after:content-[''] after:absolute after:z-[1000]
+    class="relative after:content-[''] after:absolute after:z-[3]
       after:w-full after:h-[calc(var(--index)*10)] after:bg-[url(/water.webp)]
       after:bg-cover after:bg-no-repeat after:bg-center
       after:bottom-[calc(var(--index)*-4.2)]
@@ -9,12 +9,12 @@
     <section class="layers">
       <div
         ref="container"
-        class="layer__header dark:text-neutral-700 text-neutral-500"
+        class="layer__header text-neutral-800 dark:text-white"
       >
-        <h3 class="layers__caption">
-          {{ printLocale('about_header_subtitle') }}
-        </h3>
         <h1 class="layers__title">{{ printLocale('about_header_title') }}</h1>
+        <p class="layers__caption order-first">
+          {{ printLocale('about_header_subtitle') }}
+        </p>
       </div>
       <div class="layer layers__base"></div>
       <div class="layer layers__middle"></div>
@@ -50,21 +50,23 @@
 
   .layer__header {
     z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: calc(var(--index) / -0.07);
     will-change: transform;
-    font-weight: 900;
   }
 
   .layers__caption {
     font-size: calc(var(--index) * 1.2);
-    letter-spacing: calc(var(--index) / 30);
-    margin-top: calc(var(--index) / -0.07);
-    color: var(--main-color);
+    font-weight: 600;
   }
 
   .layers__title {
     font-size: calc(var(--index) * 2.7);
-    letter-spacing: calc(var(--index) / 20);
-    color: var(--main-color);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
   }
 
   .layers__base {

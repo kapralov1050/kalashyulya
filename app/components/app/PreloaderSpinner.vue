@@ -23,6 +23,13 @@
     height: calc(var(--index) * 8);
     background-image: var(--preloader);
     background-size: cover;
+    animation: preloader-in 200ms var(--ease-out-strong) 300ms both;
+  }
+
+  @keyframes preloader-in {
+    from {
+      opacity: 0;
+    }
   }
 
   .spinner::after {

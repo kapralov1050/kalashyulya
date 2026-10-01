@@ -1,59 +1,72 @@
 <template>
-  <div class="container relative">
-    <svg
-      width="1080"
-      height="3030"
-      viewBox="15 0 1050 3030"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      class="absolute top-10 left-1/2 transform -translate-x-1/2 z-[-1]
-        will-change-[stroke-dashoffset] translate-y-18 sm:translate-y-10
-        scale-y-107 lg:scale-y-100 sm:hidden scale-x-35 lg:block lg:scale-x-100"
-    >
-      <path
-        id="scrollPath"
-        d="M494.874 2.44315C494.874 2.44315 -444.907 201.943 354.874 331.741C500.208 355.328 1040.15 363.563 1051.59 541.531C1060.87 685.943 16.6203 982.943 16.6203 848.68C16.6203 702.527 1089.16 951.713 1004.45 1115C953.374 1213.44 90.3735 1258.94 16.6203 1347.94C-132.833 1528.29 953.374 1914.94 953.374 1702.94C953.374 1532.5 29.6304 1760.57 39.8735 1945.44C48.96 2109.45 818.873 2138.44 867.373 2252.44C973.874 2411.94 746.374 2401.94 462.374 2536.44C178.374 2670.94 49.8735 2669.59 49.8735 2845.44C49.8735 3044.44 606.374 3026.44 606.374 3026.44"
-        stroke="#7FC4F8"
-        class="stroke-[#7FC4F8] stroke-2 sm:stroke-3 md:stroke-[5]
-          lg:stroke-[7]"
-      />
-      <g class="timeline-icon">
-        <circle cx="500" cy="0" r="10" fill="url(#timelineGrad)" />
-        <circle cx="500" cy="0" r="6" fill="white" />
-      </g>
-      <g class="particles" style="opacity: 0"></g>
-      <defs>
-        <linearGradient id="timelineGrad" x1="0" x2="1" y1="0" y2="1">
-          <stop offset="0" stop-color="#7FC4F8" />
-          <stop offset="1" stop-color="#4A90E2" />
-        </linearGradient>
-      </defs>
-    </svg>
-    <div class="container flex flex-col gap-y-25 items-center">
-      <TimelineItem v-for="item in timelineText" :key="item.id" :item="item" />
+  <section aria-label="Биография">
+    <div ref="root" class="container relative">
+      <svg
+        ref="svg"
+        fill="none"
+        aria-hidden="true"
+        class="pointer-events-none absolute left-0 top-0 z-[-1]
+          overflow-visible"
+      >
+        <path
+          ref="path"
+          class="stroke-neutral-300 stroke-[1.5] sm:stroke-2 lg:stroke-[2.5]
+            dark:stroke-neutral-700"
+        />
+        <g ref="icon">
+          <circle r="5" class="fill-neutral-900 dark:fill-white" />
+          <circle r="2.5" class="fill-white dark:fill-neutral-900" />
+        </g>
+      </svg>
+      <ol ref="list" class="flex flex-col items-center gap-y-14 sm:gap-y-16">
+        <TimelineItem
+          v-for="item in timelineText"
+          :key="item.id"
+          :item="item"
+        />
+      </ol>
     </div>
-  </div>
+  </section>
 </template>
 
 <script setup lang="ts">
-  import { onBeforeUnmount, onMounted } from 'vue'
-  import { useTimelineAnimation } from '~/composables/useTimelineAnimation'
+  import { onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
   import { timelineBlock } from '~/data/timeline'
-  import {
-    cleanupScrollAnimation,
-    setupScrollAnimation,
-  } from '~/helpers/scrollAnimation'
+  import { setupTimelineLine } from '~/helpers/scrollAnimation'
   import TimelineItem from './TimelineItem.vue'
 
-  const { animate } = useTimelineAnimation()
   const { timelineText } = timelineBlock()
 
+  const root = useTemplateRef<HTMLElement>('root')
+  const svg = useTemplateRef<SVGSVGElement>('svg')
+  const path = useTemplateRef<SVGPathElement>('path')
+  const icon = useTemplateRef<SVGGElement>('icon')
+  const list = useTemplateRef<HTMLElement>('list')
+
+  const anchors = () => {
+    const images = list.value?.querySelectorAll('img')
+    if (!images || images.length < 2) return null
+    return [images[0]!, images[images.length - 1]!] as const
+  }
+
+  const stations = () => [
+    ...(list.value?.querySelectorAll<HTMLElement>('[data-timeline-year]') ??
+      []),
+  ]
+
+  let cleanup: (() => void) | undefined
+
   onMounted(() => {
-    setupScrollAnimation('#scrollPath')
-    animate()
+    if (!root.value || !svg.value || !path.value || !icon.value) return
+    cleanup = setupTimelineLine({
+      root: root.value,
+      svg: svg.value,
+      path: path.value,
+      icon: icon.value,
+      anchors,
+      stations,
+    })
   })
 
-  onBeforeUnmount(() => {
-    cleanupScrollAnimation('#scrollPath')
-  })
+  onBeforeUnmount(() => cleanup?.())
 </script>

@@ -1,29 +1,23 @@
 <template>
-  <TransitionGroup name="fade">
-    <template v-if="isLoading">
-      <AppPreloaderSpinner />
-    </template>
-  </TransitionGroup>
+  <Transition name="fade">
+    <AppPreloaderSpinner v-if="isLoading" />
+  </Transition>
 
-  <AppHeader id="header" fixed class="z-2" />
-  <AboutHeader />
-  <main class="pt-30 pb-10 min-h-[100vh]">
-    <AboutHero class="mb-30" />
-    <LazyAboutTimeline class="mb-10" />
-    <div class="flex justify-center mb-20">
-      <UButton
-        class="hover:transform hover:scale-110 transition-transform duration-200
-          hidden sm:flex"
-        icon="heroicons:arrow-up"
-        size="xl"
-        variant="link"
-        color="neutral"
-        to="#header"
-      >
-        {{ printLocale('about_arrow_up') }}
-      </UButton>
-    </div>
-    <LazyAboutGallery />
+  <AppHeader
+    id="header"
+    fixed
+    class="about-header z-10"
+    :class="{ 'about-header--concealed': !isHeaderRevealed }"
+  />
+  <AboutHeader id="about-cover" />
+  <main
+    class="flex min-h-[100vh] flex-col gap-y-24 pb-24 pt-30 sm:gap-y-32
+      sm:pb-32"
+  >
+    <AboutHero />
+    <LazyAboutTimeline />
+    <AboutFeaturedWorks />
+    <AboutContact />
   </main>
   <AppFooter />
 </template>
@@ -33,12 +27,12 @@
   import { gsap } from 'gsap'
   import { ScrollTrigger } from 'gsap/ScrollTrigger'
   import { awaitImage } from '~/helpers/useImages'
+  import { prefersReducedMotion } from '~/utils/motion'
 
   definePageMeta({
     layout: false,
   })
 
-  const { printLocale } = useLocales()
   const { loadImages } = awaitImage()
 
   useSeo({
@@ -48,80 +42,90 @@
     image: '/logo.png',
   })
 
-  const isLoading = ref(false)
+  const isLoading = ref(true)
+  const isHeaderRevealed = ref(false)
 
   gsap.registerPlugin(ScrollTrigger)
 
   let lenis
   let rafCallback
 
+  const lockScroll = locked => {
+    document.documentElement.style.overflow = locked ? 'hidden' : ''
+    if (locked) lenis?.stop()
+    else lenis?.start()
+  }
+
   onMounted(async () => {
-    isLoading.value = true
+    if (!prefersReducedMotion()) {
+      lenis = new Lenis({
+        duration: 1.4,
+        easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        syncTouch: true,
+        syncTouchLerp: 0.06,
+      })
 
-    lenis = new Lenis({
-      duration: 1.4,
-      easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      syncTouch: true,
-      syncTouchLerp: 0.06,
-    })
+      const setBaseY = gsap.quickSetter('.layers__base', 'y', 'px')
+      const setMiddleY = gsap.quickSetter('.layers__middle', 'y', 'px')
+      const setFrontY = gsap.quickSetter('.layers__front', 'y', 'px')
+      const setHeaderTextY = gsap.quickSetter('.layer__header', 'y', 'px')
 
-    const setBaseY = gsap.quickSetter('.layers__base', 'y', 'px')
-    const setMiddleY = gsap.quickSetter('.layers__middle', 'y', 'px')
-    const setFrontY = gsap.quickSetter('.layers__front', 'y', 'px')
-    const setHeaderTextY = gsap.quickSetter('.layer__header', 'y', 'px')
+      lenis.on('scroll', ScrollTrigger.update)
+      lenis.on('scroll', ({ scroll }) => {
+        setBaseY(scroll / 1.5)
+        setMiddleY(scroll / 3.5)
+        setFrontY(scroll / 5.5)
+        setHeaderTextY(scroll / 2)
+      })
 
-    lenis.on('scroll', ScrollTrigger.update)
-    lenis.on('scroll', ({ scroll }) => {
-      setBaseY(scroll / 1.5)
-      setMiddleY(scroll / 3.5)
-      setFrontY(scroll / 5.5)
-      setHeaderTextY(scroll / 2)
-    })
+      rafCallback = time => lenis.raf(time * 1000)
+      gsap.ticker.add(rafCallback)
+      gsap.ticker.lagSmoothing(0)
+    }
 
-    rafCallback = time => lenis.raf(time * 1000)
-    gsap.ticker.add(rafCallback)
-    gsap.ticker.lagSmoothing(0)
+    lockScroll(true)
 
-    gsap.set('#header', { opacity: 0 })
+    const cover = document.getElementById('about-cover')
+    const waterOverlap = () =>
+      Math.max(0, -parseFloat(getComputedStyle(cover, '::after').bottom) || 0)
+    const headerHeight = () =>
+      document.getElementById('header')?.offsetHeight ?? 0
+
     ScrollTrigger.create({
-      trigger: 'main',
-      start: 'top top',
-      onEnter: () => gsap.to('#header', { opacity: 1, duration: 0.2 }),
-      onLeaveBack: () => gsap.to('#header', { opacity: 0, duration: 0.15 }),
+      trigger: cover,
+      start: () => {
+        const offset = headerHeight() - waterOverlap()
+        return `bottom top${offset >= 0 ? '+=' : '-='}${Math.abs(offset)}`
+      },
+      onEnter: () => (isHeaderRevealed.value = true),
+      onLeaveBack: () => (isHeaderRevealed.value = false),
     })
 
     const isMobile = window.innerWidth < 768
-    const isDarkTheme = window.matchMedia(
-      '(prefers-color-scheme: dark)',
-    ).matches
+    const isDarkTheme = document.documentElement.classList.contains('dark')
 
     const themePrefix = isDarkTheme ? 'dark_' : ''
     const fileSuffix = isMobile ? '_mobile' : ''
 
-    await loadImages([
-      `/base-layer${fileSuffix}.webp`,
-      `/middle-layer${fileSuffix}.webp`,
-      `/front-layer${fileSuffix}.webp`,
-      `/water${fileSuffix}.webp`,
-      `/dark_base-layer${fileSuffix}.webp`,
-      `/dark_middle-layer${fileSuffix}.webp`,
-      `/dark_front-layer${fileSuffix}.webp`,
-      `/dark_water${fileSuffix}.webp`,
-    ])
+    const layers = prefix =>
+      ['base-layer', 'middle-layer', 'front-layer', 'water'].map(
+        name => `/${prefix}${name}${fileSuffix}.webp`,
+      )
 
-    await loadImages([
-      `/${themePrefix}base-layer${fileSuffix}.webp`,
-      `/${themePrefix}middle-layer${fileSuffix}.webp`,
-      `/${themePrefix}front-layer${fileSuffix}.webp`,
-      `/${themePrefix}water${fileSuffix}.webp`,
-    ])
-
+    await loadImages(layers(themePrefix)).catch(() => undefined)
     isLoading.value = false
+    lockScroll(false)
+
+    loadImages(layers(isDarkTheme ? '' : 'dark_')).catch(() => undefined)
   })
 
   onUnmounted(() => {
-    gsap.ticker.remove(rafCallback)
-    lenis.destroy()
+    lockScroll(false)
+    if (rafCallback) {
+      gsap.ticker.remove(rafCallback)
+      gsap.ticker.lagSmoothing(500, 33)
+    }
+    lenis?.destroy()
     ScrollTrigger.getAll().forEach(st => st.kill())
   })
 </script>
@@ -129,10 +133,20 @@
 <style scoped>
   .fade-enter-active,
   .fade-leave-active {
-    transition: opacity 0.7s ease;
+    transition: opacity 250ms var(--ease-out-strong);
   }
 
   .fade-leave-to {
     opacity: 0;
+  }
+
+  .about-header {
+    transition: opacity 200ms var(--ease-out-strong);
+  }
+
+  .about-header--concealed:not(:focus-within) {
+    opacity: 0;
+    pointer-events: none;
+    transition-duration: 150ms;
   }
 </style>

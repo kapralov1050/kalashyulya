@@ -9,11 +9,7 @@ export function awaitImage() {
       })
     })
 
-    const minDelay = 1500
-
-    const delayPromise = new Promise(resolve => setTimeout(resolve, minDelay))
-
-    await Promise.all([...promises, delayPromise])
+    await Promise.all(promises)
   }
 
   return {
