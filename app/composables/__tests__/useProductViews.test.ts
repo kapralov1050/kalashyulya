@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
-import { ref } from 'vue'
-import { mount } from '@vue/test-utils'
+import { useProductViews } from '../useProductViews'
 
 const mocks = vi.hoisted(() => ({
   mockTrackProductView: vi.fn(),
@@ -16,8 +15,6 @@ vi.mock('~/composables/useApi', () => ({
 vi.mock('~/utils/devGuard', () => ({
   isDevOrPreview: mocks.mockIsDevOrPreview,
 }))
-
-import { useProductViews } from '../useProductViews'
 
 describe('useProductViews (dev guard)', () => {
   beforeEach(() => {
