@@ -82,6 +82,16 @@ public/data/             # russia-regions.json (для карты доставк
 
 ---
 
+## Дизайн и анимации
+
+- Визуальная система — [DESIGN.md](./DESIGN.md) (скилл impeccable), контекст продукта — [PRODUCT.md](./PRODUCT.md). Новый код пишется по DESIGN.md, а не по соседним legacy-компонентам.
+- Анимации — скиллы Emil Kowalski (`animate`, `find-animation-opportunities`, `improve-animations`, `/review-animations`). От них берём «как»: кривые, длительности, свойства, прерываемость. При конфликте главнее DESIGN.md:
+  - изображения работ не масштабируются, не сдвигаются и не наклоняются — ни при наведении, ни при появлении, ни вслед за курсором;
+  - анимация не добавляет теней, карточек и цвета (Flat Wall Rule, Art Owns Color Rule).
+- Стек анимаций — GSAP + ScrollTrigger, CSS transitions/keyframes, Lenis для скролла. Примеры на React / Framer Motion из скиллов переводим на этот стек, новые библиотеки анимаций не добавляем.
+
+---
+
 ## Разработка
 
 ```bash
