@@ -9,7 +9,8 @@ export const useExhibitionsStore = defineStore('exhibitions', () => {
   const getAll = computed(() => exhibitions.value)
   const getBySlug = (slug: string) =>
     computed(() => exhibitions.value.find(ex => ex.slug === slug) || null)
-  const isLoading = computed(() => api.exhibitions.value.length === 0)
+  const isLoading = computed(() => !api.isExhibitionsLoaded.value)
+  const loadError = computed(() => api.isExhibitionsFailed.value)
 
   const getStatusLabel = (status: ExhibitionStatus) => {
     switch (status) {
@@ -32,6 +33,7 @@ export const useExhibitionsStore = defineStore('exhibitions', () => {
   return {
     exhibitions,
     isLoading,
+    loadError,
     getAll,
     getBySlug,
     getStatusLabel,

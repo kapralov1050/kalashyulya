@@ -9,6 +9,8 @@ const mockShopData = ref<{ products: Record<string, Product> } | null>(null)
 vi.mock('~/composables/useApi', () => ({
   useApi: () => ({
     shopData: mockShopData,
+    isProductsLoaded: ref(true),
+    isProductsFailed: ref(false),
     loadProducts: vi.fn(async () => {}),
   }),
 }))
@@ -383,6 +385,14 @@ describe('useShopStore', () => {
       store.searchedProducts = null
 
       expect(store.totalItems).toBeGreaterThan(0)
+    })
+
+    it('возвращает 0 и пустую страницу, если поиск ничего не нашёл', () => {
+      const store = useShopStore()
+      store.searchedProducts = []
+
+      expect(store.totalItems).toBe(0)
+      expect(store.paginatedProducts).toEqual([])
     })
   })
 

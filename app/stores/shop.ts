@@ -59,7 +59,7 @@ export const useShopStore = defineStore('shop', () => {
   })
 
   const paginatedProducts = computed(() => {
-    const source = searchedProducts.value && searchedProducts.value.length > 0
+    const source = searchedProducts.value !== null
       ? [...searchedProducts.value]
       : allProducts.value
 
@@ -70,7 +70,7 @@ export const useShopStore = defineStore('shop', () => {
   })
 
   const computedTotalItems = computed(() => {
-    if (searchedProducts.value && searchedProducts.value.length > 0) {
+    if (searchedProducts.value !== null) {
       return searchedProducts.value.length
     }
     return allProducts.value.length
@@ -130,7 +130,8 @@ export const useShopStore = defineStore('shop', () => {
     return product?.file || null
   }
 
-  const isLoading = computed(() => Object.keys(api.shopData.value?.products ?? {}).length === 0)
+  const isLoading = computed(() => !api.isProductsLoaded.value)
+  const loadError = computed(() => api.isProductsFailed.value)
 
   async function loadProducts() {
     await api.loadProducts()
@@ -161,6 +162,7 @@ export const useShopStore = defineStore('shop', () => {
     framingFilter,
     setFramingFilter,
     isLoading,
+    loadError,
     loadProducts,
   }
 })

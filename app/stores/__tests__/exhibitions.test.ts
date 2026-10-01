@@ -5,10 +5,13 @@ import { useExhibitionsStore } from '../exhibitions'
 import type { Exhibition } from '~/types'
 
 const mockExhibitionsData = ref<Exhibition[]>([])
+const mockExhibitionsLoaded = ref(true)
 
 vi.mock('~/composables/useApi', () => ({
   useApi: () => ({
     exhibitions: mockExhibitionsData,
+    isExhibitionsLoaded: mockExhibitionsLoaded,
+    isExhibitionsFailed: ref(false),
     loadExhibitions: vi.fn(async () => {}),
     publishExhibition: vi.fn(async () => {}),
   }),
@@ -47,6 +50,7 @@ const baseExhibition: Exhibition = {
 describe('useExhibitionsStore', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+    mockExhibitionsLoaded.value = true
     mockExhibitionsData.value = [
       baseExhibition,
       {
@@ -105,7 +109,8 @@ describe('useExhibitionsStore', () => {
   })
 
   describe('isLoading', () => {
-    it('true пока данных нет', () => {
+    it('true пока загрузка не завершена', () => {
+      mockExhibitionsLoaded.value = false
       mockExhibitionsData.value = []
       const store = useExhibitionsStore()
 
@@ -113,6 +118,13 @@ describe('useExhibitionsStore', () => {
     })
 
     it('false после загрузки', () => {
+      const store = useExhibitionsStore()
+
+      expect(store.isLoading).toBe(false)
+    })
+
+    it('false после неудачной загрузки, даже если выставок нет', () => {
+      mockExhibitionsData.value = []
       const store = useExhibitionsStore()
 
       expect(store.isLoading).toBe(false)

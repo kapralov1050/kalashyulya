@@ -20,13 +20,21 @@ export interface ApiLoginResult {
 }
 
 const shopData = ref<ShopData>({ categories: {}, products: {} })
+const productsLoaded = ref(false)
+const productsFailed = ref(false)
 const ordersData = ref<OrderInBase[]>([])
 const exhibitionsData = ref<Exhibition[]>([])
+const exhibitionsLoaded = ref(false)
+const exhibitionsFailed = ref(false)
 const currentUser = ref<ApiUser | null>(null)
 
 export function useApi() {
   const orders = computed<OrderInBase[]>(() => ordersData.value)
   const exhibitions = computed<Exhibition[]>(() => exhibitionsData.value)
+  const isExhibitionsLoaded = computed(() => exhibitionsLoaded.value)
+  const isExhibitionsFailed = computed(() => exhibitionsFailed.value)
+  const isProductsLoaded = computed(() => productsLoaded.value)
+  const isProductsFailed = computed(() => productsFailed.value)
 
   const productsById = computed<Record<string, Product>>(() =>
     Object.fromEntries(
@@ -59,15 +67,31 @@ export function useApi() {
   }
 
   async function loadProducts(): Promise<void> {
-    const data = await $fetch<Product[]>('/api/products')
-    shopData.value = {
-      ...(shopData.value ?? {}),
-      products: Object.fromEntries(data.map(p => [String(p.id), p])),
+    try {
+      const data = await $fetch<Product[]>('/api/products')
+      shopData.value = {
+        ...(shopData.value ?? {}),
+        products: Object.fromEntries(data.map(p => [String(p.id), p])),
+      }
+      productsFailed.value = false
+    } catch (error) {
+      productsFailed.value = true
+      throw error
+    } finally {
+      productsLoaded.value = true
     }
   }
 
   async function loadExhibitions(): Promise<void> {
-    exhibitionsData.value = await $fetch<ExhibitionDto[]>('/api/exhibitions')
+    try {
+      exhibitionsData.value = await $fetch<ExhibitionDto[]>('/api/exhibitions')
+      exhibitionsFailed.value = false
+    } catch (error) {
+      exhibitionsFailed.value = true
+      throw error
+    } finally {
+      exhibitionsLoaded.value = true
+    }
   }
 
   async function addNewOrderApi(
@@ -147,7 +171,7 @@ export function useApi() {
     await $fetch(`/api/orders/${orderId}/payment-method`, {
       method: 'PATCH',
       body: { paymentMethod },
-    })
+    } as never)
   }
 
   /**
@@ -265,6 +289,10 @@ export function useApi() {
     loadOrders,
     loadProducts,
     loadExhibitions,
+    isExhibitionsLoaded,
+    isExhibitionsFailed,
+    isProductsLoaded,
+    isProductsFailed,
     refreshCurrentUser,
     searchOrderByNumber,
   }
