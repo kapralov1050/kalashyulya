@@ -4,7 +4,6 @@
   --front-layer: url(/front-layer_mobile.webp);
   --water-layer: url(/water_mobile.webp);
   --preloader: url(/preloader.webp);
-  --main-color: rgb(75, 75, 75);
 }
 
 .dark {
@@ -13,7 +12,6 @@
   --front-layer: url(/dark_front-layer_mobile.webp);
   --water-layer: url(/dark_water_mobile.webp);
   --preloader: url(/dark_preloader.webp);
-  --main-color: rgb(0, 0, 0);
 }
 
 @media (min-width: 768px) {
@@ -53,12 +51,21 @@
 }
 
 :root {
+  --header-height: 4rem;
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
   --index: calc(1vw + 1vh);
   --transition: transform 0.55s cubic-bezier(0.2, 0.4, 0.8, 1);
   --transition-header-title: transform 0.65s cubic-bezier(0.1, 0.4, 0.75, 0.9);
   --gap: 1rem;
   --logo-color: rgb(61, 61, 61);
   --background-color: rgb(255, 255, 255);
+}
+
+@media (min-width: 640px) {
+  :root {
+    --header-height: 5rem;
+  }
 }
 
 html {
@@ -70,6 +77,8 @@ body {
   line-height: 1.55;
 }
 
-li {
-  list-style-type: none;
+@layer base {
+  li {
+    list-style-type: none;
+  }
 }
